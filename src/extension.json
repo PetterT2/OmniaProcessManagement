@@ -1,0 +1,1 @@
+{"Id":"90fda2c6-2aa8-4a8b-8019-5453fdd63c36","Type":"Extension","Projects":[{"Path":"Omnia.ProcessManagement.Web/Omnia.ProcessManagement.Web.csproj","BaseImage":"preciofishbone/omnia:2.1-webapp"},{"Path":"Omnia.ProcessManagement.Worker/Omnia.ProcessManagement.Worker.csproj","BaseImage":"preciofishbone/omnia:2.1-worker"}]}
