@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Omnia.ProcessManagement.Core.Extensions;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Omnia.ProcessManagement.Web
@@ -17,18 +19,12 @@ namespace Omnia.ProcessManagement.Web
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-            .AddMvc(options =>
-            {
-                options.Filters.Add(new AuthorizeFilter());
-            })
-            .DoOmniaMvcConfigurations()
-            .AddControllersAsServices();
+            services.AddOmniaPMSqlDB();
 
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
         }
 
@@ -41,8 +37,13 @@ namespace Omnia.ProcessManagement.Web
                 app.UseOmniaWebpackDevMiddleware();
             }
 
-            //Enables Omnia Token based auth
+            //NET3TODO This should come from Omnia Fx soon
+            app.UseRouting();
+
             app.UseAuthentication();
+
+            //NET3TODO Move to Fx setup?
+            app.UseAuthorization();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -51,10 +52,14 @@ namespace Omnia.ProcessManagement.Web
             app.UseSwaggerUI(c =>
             {
                 c.RoutePrefix = "swagger";
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnia.ProcessManagement.Web V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnia API V1");
             });
 
-            app.UseMvcWithDefaultRoute();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
+
+            app.UseHttpsRedirection();
         }
     }
 }

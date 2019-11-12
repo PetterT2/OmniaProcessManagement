@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -21,11 +21,14 @@
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
     <None Remove="wwwroot\omnia\**" />
+    <TypeScriptCompile Remove="client\fx\models\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\" />
+    <Folder Include="client\admin\" />
+    <Folder Include="Controllers\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -38,8 +41,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.30-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.30-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.35-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.35-dev" />
   </ItemGroup>
 
   <ItemGroup>

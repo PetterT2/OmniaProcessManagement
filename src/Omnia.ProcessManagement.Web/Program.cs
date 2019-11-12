@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Omnia.Fx.HostConfiguration.Extensions;
 using Omnia.Fx.NetCore.WebApp.Hosting;
+using Omnia.ProcessManagement.Core.Extensions;
 using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Web
@@ -21,7 +22,9 @@ namespace Omnia.ProcessManagement.Web
                 {
                     omniaConfig
                         .AddAppSettingsJsonFile("appsettings.local.json")
-                        .AddOmniaFxWebApp();
+                        .AddOmniaFxWebApp()
+                        .AddOmniaFxNetCoreSharePoint()
+                        .AddOmniaPMCore(); 
                 })
                 .Build();
         }
