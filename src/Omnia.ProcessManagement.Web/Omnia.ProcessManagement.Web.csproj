@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <AssemblyName>Omnia.ProcessManagement.Web</AssemblyName>
   </PropertyGroup>
@@ -38,8 +38,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="2.0.0" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.30-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.30-dev" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
   </ItemGroup>
 
   <!--***************************************************************************************-->
