@@ -3,7 +3,19 @@
     export interface locInterface {
         ProcessManagement: string,
         Settings: string,
-        ProcessTypes: string,
-        ProcessTemplates: string
+        ProcessTypes: {
+            Title: string
+        },
+        ProcessTemplates: {
+            Title: string,
+            SettingsTabs: {
+                General: string,
+                Shapes: string,
+                DefaultContent: string
+            },
+            CreateProcessTemplate: string,
+            AddHeading: string,
+            AddShape: string
+        }
     }
 }

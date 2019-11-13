@@ -2,6 +2,7 @@
 
 export interface ProcessTemplate {
     id: GuidValue;
+    title: MultilingualString;
     settings: any;
 
     //Client-side
@@ -15,6 +16,9 @@ export interface ProcessTemplate {
 export const ProcessTemplateFactory = {
     createDefaultProcessTemplate(): ProcessTemplate {
         let documentTemplate: ProcessTemplate = {
+            title: {
+                "en-us": ""
+            },
             multilingualTitle: '',
             settings: {}
         } as ProcessTemplate

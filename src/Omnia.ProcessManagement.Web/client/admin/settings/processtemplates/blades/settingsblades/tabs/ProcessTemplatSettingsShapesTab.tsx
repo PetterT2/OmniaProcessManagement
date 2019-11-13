@@ -6,12 +6,12 @@ import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace,
 import { OPMAdminLocalization } from '../../../../../loc/localize';
 import { ProcessTemplatesJourneyBladeIds } from '../../../ProcessTemplatesJourneyConstants';
 
-interface DocumentTemplateTabProps {
+interface ProcessTemplatSettingsShapesTabProps {
     journey: () => JourneyInstance;
 }
 
 @Component
-export default class DocumentTemplateTab extends VueComponentBase<DocumentTemplateTabProps> {
+export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<ProcessTemplatSettingsShapesTabProps> {
     @Prop() journey: () => JourneyInstance;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
@@ -39,7 +39,7 @@ export default class DocumentTemplateTab extends VueComponentBase<DocumentTempla
 
     render(h) {
         return (
-            <div>Default Content</div>
+            <div>Shapes Tab</div>
         );
     }
 }

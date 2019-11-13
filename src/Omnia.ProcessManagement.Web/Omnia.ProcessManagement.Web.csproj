@@ -43,7 +43,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourneyConstants.ts" />
-    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\ProcessTemplateJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />

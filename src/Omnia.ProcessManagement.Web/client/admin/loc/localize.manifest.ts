@@ -7,6 +7,18 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
     .add<OPMAdminLocalization.locInterface>({
         ProcessManagement: "Process Management",
         Settings: "Settings",
-        ProcessTypes: "Process Types",
-        ProcessTemplates: "Process Templates"
+        ProcessTypes: {
+            Title: "Process Types"
+        },
+        ProcessTemplates: {
+            Title: "Process Templates",
+            SettingsTabs: {
+                General: "General",
+                Shapes: "Shapes",
+                DefaultContent: "Default Content"
+            },
+            CreateProcessTemplate: "Create Process Template",
+            AddHeading: "Add Heading",
+            AddShape: "Add Shape"
+        }
     });
