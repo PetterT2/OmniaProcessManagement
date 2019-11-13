@@ -56,6 +56,34 @@
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessTemplateStore.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Enums.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricCircleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricEllipseShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricImageShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPathShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPolygonShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPolylineShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricRectShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricShapeExtention.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricTextShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricTriangleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\IShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\IShapeNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\HeadingShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\IShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\IShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\CircleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\Shape.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
@@ -81,6 +109,96 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="client\fx\models\processshape\shapetemplate\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\CircleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Constants.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricEllipseShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPolygonShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricTextShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPathShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricImageShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPolylineShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricTriangleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricRectShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricCircleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\Shape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\IShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricShapeExtention.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\IShapeNode.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\ManifestIds.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Enums.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\ShapeTemplate.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\IShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\HeadingShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\IShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\ShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
   </ItemGroup>
 
   <!--***************************************************************************************-->
