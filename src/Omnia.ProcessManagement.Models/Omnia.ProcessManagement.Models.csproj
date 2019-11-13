@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Omnia.Fx" Version="3.0.34-dev" />
-    <PackageReference Include="Omnia.Fx.Models" Version="3.0.34-dev" />
+    <PackageReference Include="Omnia.Fx" Version="3.0.38-dev" />
+    <PackageReference Include="Omnia.Fx.Models" Version="3.0.38-dev" />
   </ItemGroup>
 
 </Project>
