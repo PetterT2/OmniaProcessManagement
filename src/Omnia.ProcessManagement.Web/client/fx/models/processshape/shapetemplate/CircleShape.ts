@@ -2,18 +2,18 @@
 import { IShapeNode, FabricShapeNodeTypes, FabricShapeExtention } from '../../fabricshape';
 import { IShape } from './IShape';
 import { Shape } from './Shape';
-import { ShapeSettings } from '..';
 import { ShapeTemplatesConstants } from '../..';
 import FabricCircleShape from '../../fabricshape/FabricCircleShape';
 import FabricTextShape from '../../fabricshape/FabricTextShape';
 import { TextPosition } from '../../Enums';
+import { DrawingShapeDefination } from '../../data';
 
 export class CircleShape implements Shape {
-    settings: ShapeSettings;
+    defination: DrawingShapeDefination;
     nodes: IShapeNode[];
 
-    constructor(settings: ShapeSettings) {
-        this.settings = settings;
+    constructor(settings: DrawingShapeDefination) {
+        this.defination = settings;
         this.initNodes();
     }
 
@@ -29,19 +29,19 @@ export class CircleShape implements Shape {
 
     private initNodes() {
         this.nodes = [];
-        let circleNode = new FabricCircleShape(this.settings);
-        let textNode = new FabricTextShape(this.settings);
+        let circleNode = new FabricCircleShape(this.defination);
+        let textNode = new FabricTextShape(this.defination);
         let cleft = 0, ctop = 0, tleft = 0, ttop = 0;
-        switch (this.settings.textPosition) {
+        switch (this.defination.textPosition) {
             case TextPosition.Above:
-                ctop = this.settings.fontSize + 10;
+                ctop = this.defination.fontSize + 10;
                 break;
             case TextPosition.Center:
                 tleft = 10;
-                ttop = Math.floor(this.settings.height / 2 - this.settings.fontSize / 2);
+                ttop = Math.floor(this.defination.height / 2 - this.defination.fontSize / 2);
                 break;
             case TextPosition.Below:
-                ttop = this.settings.height + 10;
+                ttop = this.defination.height + 10;
                 break;
         }
         circleNode.setProperties({ left: cleft, top: ctop });

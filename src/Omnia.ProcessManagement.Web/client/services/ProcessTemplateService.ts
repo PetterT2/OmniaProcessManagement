@@ -18,30 +18,36 @@ export class ProcessTemplateService {
     processTemplates: Array<ProcessTemplate> = [
         {
             id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            title: {
-                "en-us": "Business Process",
-                isMultilingualString: true
+            settings: {
+                title: {
+                    "en-us": "Business Process",
+                    isMultilingualString: true
+                },
+                shapeDefinations: []
             },
             multilingualTitle: "Business Process",
-            settings: null
         },
         {
             id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            title: {
-                "en-us": "BPMN 2.0",
-                isMultilingualString: true
+            settings: {
+                title: {
+                    "en-us": "BPMN 2.0",
+                    isMultilingualString: true
+                },
+                shapeDefinations: []
             },
-            multilingualTitle: "BPMN 2.0",
-            settings: null
+            multilingualTitle: "BPMN 2.0"
         },
         {
             id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            title: {
-                "en-us": "Project",
-                isMultilingualString: true
+            settings: {
+                title: {
+                    "en-us": "Project",
+                    isMultilingualString: true
+                },
+                shapeDefinations: []
             },
-            multilingualTitle: "Project",
-            settings: null
+            multilingualTitle: "Project"
         }
     ]
 

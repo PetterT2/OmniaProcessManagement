@@ -1,23 +1,23 @@
 ﻿import { FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
+import { DrawingShapeDefination } from '../data';
 
 export default class FabricImageShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     image: string | HTMLImageElement | HTMLVideoElement;
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(defination: DrawingShapeDefination) {
+        this.initProperties(defination);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(defination: DrawingShapeDefination) {
+        if (defination) {
             this.properties = {};
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = uiSettings.backgroundColor;
-            this.properties["borderColor"] = uiSettings.borderColor;
+            this.properties["fill"] = defination.backgroundColor;
+            this.properties["borderColor"] = defination.borderColor;
             //TO DO
         }
     }

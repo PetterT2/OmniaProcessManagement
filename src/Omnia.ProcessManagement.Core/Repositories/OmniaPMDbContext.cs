@@ -3,8 +3,11 @@ using Microsoft.Extensions.Logging;
 using Omnia.Fx.Contexts;
 using Omnia.Fx.Contexts.Scoped;
 using Omnia.Fx.NetCore.Repositories.EntityFramework;
+using Omnia.ProcessManagement.Core.Entities;
+using Omnia.ProcessManagement.Core.Entities.Processes;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,9 +40,29 @@ namespace Omnia.ProcessManagement.Core.Repositories
             }
         }
 
+        public DbSet<Process> Processes { get; set; }
+        public DbSet<ProcessContent> ProcessContents { get; set; }
+        public DbSet<ProcessMetadata> ProcessMetadata { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            SetOPMClusteredIndex<ProcessContent>(modelBuilder, c => new { c.Id });
+            modelBuilder.Entity<ProcessContent>()
+                 .HasOne(p => p.RootProcess)
+                 .WithMany(p => p.ProcessContents)
+                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+
+            SetOPMClusteredIndex<ProcessMetadata>(modelBuilder, c => new { c.Id });
+            modelBuilder.Entity<ProcessMetadata>()
+                 .HasOne(p => p.RootProcess)
+                 .WithMany(p => p.ProcessMetadata)
+                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+
+            SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
+            modelBuilder.Entity<Process>()
+               .HasIndex(c => new { c.OPMProcessId, c.VersionType })
+               .IsUnique()
+               .HasFilter($"[VersionType] IS NOT {ProcessVersionType.Published}");
         }
 
         /// <summary>
@@ -56,6 +79,18 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public async ValueTask<int> ExecuteSqlCommandAsync(string sql, params object[] parameters)
         {
             return await this.Database.ExecuteSqlCommandAsync(sql, parameters);
+        }
+
+        private void SetOPMClusteredIndex<T>(ModelBuilder modelBuilder, Expression<Func<T, object>> primaryKeyExpression)
+           where T : OPMClusteredIndexAuditingEntityBase
+        {
+            modelBuilder.Entity<T>()
+                .HasKey(primaryKeyExpression)
+                .IsClustered(clustered: false);
+            modelBuilder.Entity<T>()
+                .HasIndex(c => c.ClusteredId)
+                .IsUnique()
+                .IsClustered();
         }
     }
 }
