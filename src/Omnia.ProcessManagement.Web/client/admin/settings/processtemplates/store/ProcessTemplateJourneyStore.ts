@@ -1,7 +1,7 @@
 ﻿import { Store, StoreState } from '@omnia/fx/store';
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
-import { ProcessTemplate } from '../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes } from '../../../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -10,8 +10,9 @@ export class ProcessTemplateJourneyStore extends Store {
     private editingProcessTemplate = this.state<ProcessTemplate>(null);
     private editingProcessTemplateTitle = this.state<string>("");
 
-    private editingProcessTemplateShapeItem = this.state<ProcessTemplate>(null);
-    private editingProcessTemplateShapeItemTitle = this.state<string>("");
+    private editingProcessTemplateShapeDefinition = this.state<ShapeDefinition>(null);
+    private editingProcessTemplateShapeDefinitionTitle = this.state<string>("");
+    private editingShapeDefinitionType = this.state<ShapeDefinitionTypes>(null);
 
     constructor() {
         super({
@@ -22,8 +23,9 @@ export class ProcessTemplateJourneyStore extends Store {
     getters = {
         editingProcessTemplate: () => this.editingProcessTemplate.state,
         editingProcessTemplateTitle: () => this.editingProcessTemplateTitle.state,
-        editingProcessTemplateShapeItem: () => this.editingProcessTemplateShapeItem.state,
-        editingProcessTemplateShapeItemTitle: () => this.editingProcessTemplateShapeItemTitle.state
+        editingShapeDefinition: () => this.editingProcessTemplateShapeDefinition.state,
+        editingShapeDefinitionTitle: () => this.editingProcessTemplateShapeDefinitionTitle.state,
+        editingShapeDefinitionType: () => this.editingShapeDefinitionType.state
     }
 
     mutations = {
@@ -31,9 +33,13 @@ export class ProcessTemplateJourneyStore extends Store {
             this.editingProcessTemplate.mutate(processTemplate);
             this.editingProcessTemplateTitle.mutate(processTemplate ? processTemplate.multilingualTitle : '');
         }),
-        setEditingProcessTemplateShapeItem: this.mutation((processTemplateShapeItem: ProcessTemplate) => {
-            this.editingProcessTemplateShapeItem.mutate(processTemplateShapeItem);
-            this.editingProcessTemplateTitle.mutate(processTemplateShapeItem ? processTemplateShapeItem.multilingualTitle : '');
+        setEditingShapeDefinition: this.mutation((shapeDefinition: ShapeDefinition) => {
+            this.editingProcessTemplateShapeDefinition.mutate(shapeDefinition);
+            this.editingProcessTemplateShapeDefinitionTitle.mutate(shapeDefinition ? shapeDefinition.multilingualTitle : '');
+            this.editingShapeDefinitionType.mutate(shapeDefinition ? shapeDefinition.type : null);
+        }),
+        setEditingShapeDefinitionType: this.mutation((type: ShapeDefinitionTypes) => {
+            this.editingShapeDefinitionType.mutate(type);
         })
     }
 
