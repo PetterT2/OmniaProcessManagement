@@ -56,6 +56,9 @@
     <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\Enums.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
@@ -66,6 +69,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
@@ -87,12 +92,9 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\IShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\IShapeEditor.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\test1\FabricPlay.manifest.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
@@ -151,6 +153,12 @@
     <None Update="client\core\index.ts">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\drawingdefinitions\index.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\processshape\CircleShape.ts">
       <SubType>Code</SubType>
     </None>
@@ -205,19 +213,16 @@
     <None Update="client\fx\models\processshape\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\shapeeditor\index.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\processshape\ShapeTemplate.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\shapeeditor\IShapeEditor.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingCustomLinkNode.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>
