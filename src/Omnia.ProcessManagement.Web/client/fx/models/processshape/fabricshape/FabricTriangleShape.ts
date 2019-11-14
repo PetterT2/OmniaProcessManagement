@@ -1,17 +1,20 @@
 ﻿import { IShapeNode, ShapeNodeType, FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { DrawingShapeDefinition } from '../data';
+import { DrawingShapeDefinition } from '../../data';
 
 export default class FabricTriangleShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
+    fabricObject: fabric.Triangle;
 
-    constructor(definition: DrawingShapeDefinition) {
-        this.initProperties(definition);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        this.initProperties(definition, properties);
     }
 
-    private initProperties(definition: DrawingShapeDefinition) {
-        if (definition) {
+    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        if (properties)
+            this.properties = properties;
+        else if (definition) {
             this.properties = {};
             this.properties["width"] = definition.width
             this.properties["height"] = definition.height;
@@ -20,10 +23,11 @@ export default class FabricTriangleShape implements FabricShapeExtention {
             this.properties["fill"] = definition.backgroundColor;
             this.properties["borderColor"] = definition.borderColor;
         }
+        this.fabricObject = new fabric.Triangle(this.properties);
     }
 
     get shapeNodeType() {
-        return FabricShapeNodeTypes.rect;
+        return FabricShapeNodeTypes.triangle;
     }
 
     setProperties(options: fabric.ITriangleOptions) {
@@ -31,9 +35,14 @@ export default class FabricTriangleShape implements FabricShapeExtention {
             if (options[key])
                 this.properties[key] = options[key];
         });
+        this.fabricObject = new fabric.Triangle(this.properties);
     }
 
     get schema() {
-        return new fabric.Triangle(this.properties);
+        return this.fabricObject;
+    }
+
+    toJson(propertiesToInclude?: string[]) {
+        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
     }
 }

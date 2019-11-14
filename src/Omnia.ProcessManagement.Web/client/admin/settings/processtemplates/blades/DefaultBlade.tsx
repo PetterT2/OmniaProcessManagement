@@ -59,7 +59,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         this.$nextTick(() => {
             let processTemplate = template || ProcessTemplateFactory.createDefaultProcessTemplate();
             this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(processTemplate);
-            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.documentTemplateSettingsDefault);
+            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
         });
     }
 
