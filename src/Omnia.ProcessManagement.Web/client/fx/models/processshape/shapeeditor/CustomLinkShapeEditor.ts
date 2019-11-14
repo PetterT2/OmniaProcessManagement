@@ -1,8 +1,7 @@
 ﻿import { MultilingualString } from '@omnia/fx-models';
 import { IShapeEditor } from './IShapeEditor';
-import { IShapeSettings } from '../IShapeSettings';
 
-export interface CustomLinkShapeEditor extends IShapeEditor, IShapeSettings { 
+export interface CustomLinkShapeEditor extends IShapeEditor {
     linkTitle: MultilingualString;
     link: string;
 }
