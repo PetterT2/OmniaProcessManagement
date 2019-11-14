@@ -1,6 +1,12 @@
 ﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
 import { Enums } from '../../../../core';
 
+export enum TextPosition {
+    Above = 1,
+    Center = 2,
+    Below = 3
+}
+
 export interface DrawingShapeDefinition extends ShapeDefinition {
     type: ShapeDefinitionTypes.Drawing;
 
@@ -12,6 +18,6 @@ export interface DrawingShapeDefinition extends ShapeDefinition {
     activeTextColor: string;
     width: number;
     height: number;
-    textPosition: Enums.TextPosition;
+    textPosition: TextPosition;
     fontSize: number;
 }

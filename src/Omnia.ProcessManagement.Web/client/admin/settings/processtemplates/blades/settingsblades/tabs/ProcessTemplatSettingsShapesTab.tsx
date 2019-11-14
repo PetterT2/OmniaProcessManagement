@@ -6,6 +6,7 @@ import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace,
 import { OPMAdminLocalization } from '../../../../../loc/localize';
 import { ProcessTemplatesJourneyBladeIds } from '../../../ProcessTemplatesJourneyConstants';
 import { ProcessTemplateJourneyStore } from '../../../store';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, ShapeDefinitionFactory } from '../../../../../../fx/models';
 
 interface ProcessTemplatSettingsShapesTabProps {
     journey: () => JourneyInstance;
@@ -23,21 +24,37 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
 
     isLoading: boolean = true;
 
-    private shapes: Array<any> = [
+    private shapes: Array<ShapeDefinition> = [
         {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
+            title: {
+                isMultilingualString: true,
+                "en-us": "Freeform"
+            },
+            type: ShapeDefinitionTypes.Drawing,
             multilingualTitle: "Freeform"
         },
         {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
+            title: {
+                isMultilingualString: true,
+                "en-us": "Pentagon"
+            },
+            type: ShapeDefinitionTypes.Drawing,
             multilingualTitle: "Pentagon"
         },
         {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
+            title: {
+                isMultilingualString: true,
+                "en-us": "Media"
+            },
+            type: ShapeDefinitionTypes.Drawing,
             multilingualTitle: "Media"
         },
         {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
+            title: {
+                isMultilingualString: true,
+                "en-us": "Diamond"
+            },
+            type: ShapeDefinitionTypes.Drawing,
             multilingualTitle: "Diamond"
         }
     ]
@@ -46,16 +63,20 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
 
     }
 
-    openShapeSettingBlade(shape?: any) {
+    openShapeSettingBlade(shape?: ShapeDefinition) {
         this.journey().travelBackToFirstBlade();
         this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
-        let shapeItem = shape || null;
-        this.processTemplateJournayStore.mutations.setEditingProcessTemplateShapeItem.commit(shapeItem);
+        let shapeItem = shape || ShapeDefinitionFactory.createDefaultProcessTemplate();
+        this.processTemplateJournayStore.mutations.setEditingShapeDefinition.commit(shapeItem);
         this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes);
     }
 
-    travelToEditShape(shape: any) {
+    travelToEditShape(shape: ShapeDefinition) {
         this.openShapeSettingBlade(Utils.clone(shape));
+    }
+
+    travelToAddShape(shape?: ShapeDefinition) {
+        this.openShapeSettingBlade(shape);
     }
 
     private removeShape(index: number) {
@@ -98,6 +119,10 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                         })
                     }
                 </draggable>
+                <div class='text-right'>
+                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape(ShapeDefinitionFactory.createDefaultProcessTemplate(ShapeDefinitionTypes.Heading)) }}>{this.loc.ProcessTemplates.AddHeading}</v-btn>
+                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape() }}>{this.loc.ProcessTemplates.AddShape}</v-btn>
+                </div>
             </div>
         );
     }

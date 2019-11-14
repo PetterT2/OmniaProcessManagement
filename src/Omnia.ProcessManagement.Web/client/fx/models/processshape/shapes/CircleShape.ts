@@ -1,7 +1,7 @@
 ﻿import { Shape } from './Shape';
 import { ShapeTemplatesConstants, TextSpacingWithShape, Enums } from '../../../../core';
-import { ShapeNodeType, FabricShapeNodeTypes, FabricShapeExtention, FabricCircleShape } from '../fabricshape';
-import { DrawingShapeDefinition } from '../../data';
+import { FabricShapeNodeTypes, FabricShapeExtention, FabricCircleShape } from '../fabricshape';
+import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
 import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
@@ -33,11 +33,11 @@ export class CircleShape implements Shape {
         else if (definition) {
             let cleft = 0, ctop = 0, tleft = 0, ttop = 0;
             switch (definition.textPosition) {
-                case Enums.TextPosition.Center:
+                case TextPosition.Center:
                     tleft = TextSpacingWithShape;
                     ttop = Math.floor(definition.height / 2 - definition.fontSize / 2);
                     break;
-                case Enums.TextPosition.Below:
+                case TextPosition.Below:
                     ttop = definition.height + TextSpacingWithShape;
                     break;
                 default:

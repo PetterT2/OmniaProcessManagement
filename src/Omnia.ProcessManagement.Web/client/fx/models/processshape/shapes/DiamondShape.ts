@@ -1,7 +1,7 @@
 ﻿import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape, Enums } from '../../../../core';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../core';
 import { FabricShapeExtention, FabricShapeNodeTypes, FabricRectShape, FabricTextShape } from '../fabricshape';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
 
 export class DiamondShape implements Shape {
@@ -30,11 +30,11 @@ export class DiamondShape implements Shape {
             let textNode = new FabricTextShape(definition);
             let cleft = definition.width, ctop = 0, tleft = 0, ttop = 0;
             switch (definition.textPosition) {
-                case Enums.TextPosition.Center:
+                case TextPosition.Center:
                     tleft = TextSpacingWithShape;
                     ttop = Math.floor(definition.height / 2 - definition.fontSize / 2);
                     break;
-                case Enums.TextPosition.Below:
+                case TextPosition.Below:
                     ttop = definition.height + TextSpacingWithShape;
                     break;
                 default:

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -9,29 +10,45 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 {
     internal class ProcessService : IProcessService
     {
-        public ProcessService()
+        IProcessRepository ProcessRepository { get; }
+        public ProcessService(IProcessRepository processRepository)
         {
-
+            ProcessRepository = processRepository;
         }
 
-        public ValueTask<Process> CheckInProcess(CheckInProcessModel model)
+        public async ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
+        {
+            var process = await ProcessRepository.CreateDraftProcessAsync(createDraftProcessModel);
+
+            if (createDraftProcessModel.CheckOut)
+            {
+                process = await CheckOutProcessAsync(process.OPMProcessId);
+            }
+
+            return process;
+        }
+
+        public async ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel)
+        {
+            var process = await ProcessRepository.CheckInProcessAsync(checkInProcessModel);
+            return process;
+        }
+
+        public async ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId)
+        {
+            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId);
+            return process;
+        }
+
+        public ValueTask<ProcessContent> GetMultilingualProcessContentAsync(Guid processContentId)
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask<Process> CheckOutProcess(Guid processId)
+        public ValueTask<Process> GetProcessAsync(Guid processId)
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask<ProcessContent> GetMultilingualProcessContent(Guid processContentId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ValueTask<Process> GetProcess(Guid processId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -8,7 +8,7 @@ namespace Omnia.ProcessManagement.Models.ProcessActions
     public class CheckInProcessModel
     {
         public Process Process { get; set; }
-        public List<ProcessContent> ProcessContents { get; set; }
-        public List<ProcessMetadata> ProcessMetadata { get; set; }
+        public Dictionary<Guid, ProcessContent> ProcessContents { get; set; }
+        public Dictionary<Guid, ProcessMetadata> ProcessMetadata { get; set; }
     }
 }

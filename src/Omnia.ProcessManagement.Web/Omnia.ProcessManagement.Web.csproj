@@ -101,7 +101,6 @@
   <ItemGroup>
     <Folder Include="client\admin\settings\globalsettings\" />
     <Folder Include="client\admin\settings\processtypes\" />
-    <Folder Include="Controllers\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

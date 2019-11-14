@@ -6,7 +6,7 @@ import { fabric } from 'fabric';
 import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
 import { Enums, ShapeTemplatesConstants } from '../core';
-import { DrawingShapeDefinition } from '../fx/models';
+import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
 import { FabricShapeNodeTypes } from '../fx/models/processshape/fabricshape/IFabricShapeNode';
 import { DrawingCanvas } from '../fx/models/processshape/canvas';
@@ -41,7 +41,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             fontSize: 15,
             width: 100,
             height: 100,
-            textPosition: Enums.TextPosition.Above,
+            textPosition: TextPosition.Above,
         } as DrawingShapeDefinition;
         ////this.testShape = new CircleShape(settings);
         ////this.testShape.schema.forEach(s => this.canvas.add(s));

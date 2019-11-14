@@ -1,7 +1,7 @@
 ﻿import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape, Enums } from '../../../../core';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../core';
 import { FabricShapeExtention, FabricShapeNodeTypes, FabricRectShape, FabricTextShape, FabricTriangleShape } from '../fabricshape';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
 import { Utils } from '@omnia/fx';
 
@@ -39,11 +39,11 @@ export class PentagonShape implements Shape {
             recDefinition.width = definition.width - this.triangleWidth;
 
             switch (definition.textPosition) {
-                case Enums.TextPosition.Center:
+                case TextPosition.Center:
                     tleft = TextSpacingWithShape;
                     ttop = Math.floor(definition.height / 2 - definition.fontSize / 2);
                     break;
-                case Enums.TextPosition.Below:
+                case TextPosition.Below:
                     ttop = definition.height + TextSpacingWithShape;
                     break;
                 default:

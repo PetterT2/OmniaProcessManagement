@@ -1,4 +1,4 @@
-﻿import { ShapeTemplate } from '../fx/models/processshape';
+﻿import { ShapeTemplate } from '../fx/models';
 
 export const TextSpacingWithShape = 8;
 
