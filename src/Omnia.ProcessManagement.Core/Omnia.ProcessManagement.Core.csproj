@@ -16,8 +16,4 @@
     <ProjectReference Include="..\Omnia.ProcessManagement.Models\Omnia.ProcessManagement.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
