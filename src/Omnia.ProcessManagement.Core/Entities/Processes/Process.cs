@@ -24,7 +24,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
 
     internal enum ProcessVersionType
     {
-        CheckedIn = 0,
+        Draft = 0,
         CheckedOut = 1,
         Published = 2
     }

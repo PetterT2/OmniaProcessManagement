@@ -18,6 +18,8 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string Title { get; set; }
         public string Content { get; set; }
 
+        public string Hash { get; set; }
+
         [ForeignKey("RootProcessId")]
         public virtual Process RootProcess { get; set; }
     }

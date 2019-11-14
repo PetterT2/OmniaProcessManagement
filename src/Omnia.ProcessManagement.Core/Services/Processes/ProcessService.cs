@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -9,19 +10,22 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 {
     internal class ProcessService : IProcessService
     {
-        public ProcessService()
+        IProcessRepository ProcessRepository { get; }
+        public ProcessService(IProcessRepository processRepository)
         {
-
+            ProcessRepository = processRepository;
         }
 
-        public ValueTask<Process> CheckInProcess(CheckInProcessModel model)
+        public async ValueTask<Process> CheckInProcess(CheckInProcessModel model)
         {
-            throw new NotImplementedException();
+            var process = await ProcessRepository.CheckInProcessAsync(model);
+            return process;
         }
 
-        public ValueTask<Process> CheckOutProcess(Guid processId)
+        public async ValueTask<Process> CheckOutProcess(Guid opmProcessId)
         {
-            throw new NotImplementedException();
+            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId);
+            return process;
         }
 
         public ValueTask<ProcessContent> GetMultilingualProcessContent(Guid processContentId)
