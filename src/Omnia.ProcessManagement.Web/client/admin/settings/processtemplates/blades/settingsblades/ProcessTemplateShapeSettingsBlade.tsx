@@ -4,8 +4,10 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition, ShapeTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
+import { ShapeTemplatesConstants } from '../../../../../core';
+import { MultilingualStore } from '@omnia/fx/store';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -17,6 +19,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -25,6 +28,14 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     private editingShape: ShapeDefinition = null;
     private editingShapeTitle: string = "";
     private editingShapeType: ShapeDefinitionTypes = null;
+    private shapeTemplateSelections: Array<ShapeTemplate> = [
+        ShapeTemplatesConstants.Circle,
+        ShapeTemplatesConstants.Diamond,
+        ShapeTemplatesConstants.Freeform,
+        ShapeTemplatesConstants.Media,
+        ShapeTemplatesConstants.Pentagon
+    ];
+    private selectedShapeTemplate: ShapeTemplate = null;
 
     private textPositions = [
         {
@@ -42,6 +53,16 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     ]
 
     created() {
+        this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
+            shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
+        })
+    }
+
+    onShapeTemplateChanged() {
+        this.editingShape.title = Utils.clone(this.selectedShapeTemplate.title);
+    }
+
+    saveShape() {
 
     }
 
@@ -66,6 +87,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         model={this.editingShape.title}
                         onModelChange={(title) => { this.editingShape.title = title }}
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
+                    {
+                        this.editingShapeType == ShapeDefinitionTypes.Drawing &&
+                        <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={this.selectedShapeTemplate}
+                            onChange={this.onShapeTemplateChanged}></v-select>
+                    }
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing &&
                         <div>
@@ -116,9 +142,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                     type="number" suffix="px"></v-text-field>
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.loc.ProcessTemplates.ShapeSettings.Height}
                                     type="number" suffix="px"></v-text-field>
-                                <v-select item-value="value" item-text="title" items={this.textPositions}
-                                    label={this.loc.ProcessTemplates.ShapeSettings.TextPosition} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}>
-                                </v-select>
+                                <v-select item-value="value" item-text="title" items={this.textPositions} label={this.loc.ProcessTemplates.ShapeSettings.TextPosition}
+                                    v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.loc.ProcessTemplates.ShapeSettings.FontSize}
                                     type="number" suffix="px"></v-text-field>
                             </v-flex>
@@ -128,7 +153,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             
                         </div>
                     }
-                    
+                    <div class='text-right'>
+                        <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={this.saveShape}>{this.omniaUxLoc.Common.Buttons.Ok}</v-btn>
+                        <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.journey().travelBack(); }}>{this.omniaUxLoc.Common.Buttons.Cancel}</v-btn>
+                    </div>
                 </v-container>
             </div>
         );

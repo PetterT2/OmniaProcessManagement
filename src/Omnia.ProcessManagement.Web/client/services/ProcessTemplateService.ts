@@ -53,7 +53,7 @@ export class ProcessTemplateService {
 
     public getAllProcessTemplates = () => {
         return new Promise<Array<ProcessTemplate>>((resolve, reject) => {
-            //this.httpClient.get<IHttpApiOperationResult<Array<any>>>('/api/processtemplates/getall').then(response => {
+            //this.httpClient.get<IHttpApiOperationResult<Array<any>>>('/api/processtemplates/all').then(response => {
             //    if (response.data.success) {
             //        this.generateDocumentTemplatesMultilingualText(response.data.data);
             //        resolve(response.data.data);

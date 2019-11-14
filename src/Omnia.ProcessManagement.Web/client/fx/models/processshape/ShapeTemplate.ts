@@ -4,4 +4,7 @@ export type ShapeTemplate = {
     id: GuidValue;
     name: string;
     title: MultilingualString;
+
+    //client-side
+    multilingualTitle?: string
 }
