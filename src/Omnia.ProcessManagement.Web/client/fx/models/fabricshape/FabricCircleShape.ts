@@ -1,23 +1,24 @@
 ﻿import { FabricShapeExtention } from '.';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
+
 import { fabric } from 'fabric';
+import { DrawingShapeDefination } from '../data';
 
 export default class FabricCircleShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(defination: DrawingShapeDefination) {
+        this.initProperties(defination);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(defination: DrawingShapeDefination) {
+        if (defination) {
             this.properties = {};
-            this.properties["radius"] = uiSettings.width / 2;
+            this.properties["radius"] = defination.width / 2;
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = uiSettings.backgroundColor;
-            this.properties["borderColor"] = uiSettings.borderColor;
+            this.properties["fill"] = defination.backgroundColor;
+            this.properties["borderColor"] = defination.borderColor;
         }
     }
 

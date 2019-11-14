@@ -36,8 +36,8 @@ export default class ProcessTemplatSettingsGeneralTab extends VueComponentBase<P
             <div>
                 <omfx-multilingual-input
                     requiredWithValidator={this.internalValidator}
-                    model={this.editingProcessTemplate.title}
-                    onModelChange={(title) => { this.editingProcessTemplate.title = title }}
+                    model={this.editingProcessTemplate.settings.title}
+                    onModelChange={(title) => { this.editingProcessTemplate.settings.title = title }}
                     forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
             </div>
         );
