@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -21,13 +21,75 @@
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
     <None Remove="wwwroot\omnia\**" />
+    <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
+    <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\blades\SettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\blades\SubMenuBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\IAdminJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\admin\models\index.ts" />
+    <TypeScriptCompile Remove="client\admin\models\SubMenuItem.ts" />
+    <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsDefaultContentTab.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsGeneralTab.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsShapesTab.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\IProcessTemplatesJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\ProcessTemplateJourneyStore.ts" />
+    <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
+    <TypeScriptCompile Remove="client\admin\store\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtemplate\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtemplate\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
+    <TypeScriptCompile Remove="client\services\index.ts" />
+    <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
+    <TypeScriptCompile Remove="client\stores\index.ts" />
+    <TypeScriptCompile Remove="client\stores\ProcessTemplateStore.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Enums.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricCircleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricEllipseShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricImageShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPathShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPolygonShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricPolylineShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricRectShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricShapeExtention.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricTextShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\FabricTriangleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\IShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\fabricshape\IShapeNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\HeadingShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\IShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\IShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\CircleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapetemplate\Shape.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\admin\" />
+    <Folder Include="client\admin\settings\globalsettings\" />
+    <Folder Include="client\admin\settings\processtypes\" />
     <Folder Include="Controllers\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
@@ -41,12 +103,102 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.35-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.35-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.38-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.38-dev" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="client\fx\models\processshape\shapetemplate\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\CircleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Constants.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricEllipseShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPolygonShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricTextShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPathShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricImageShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricPolylineShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricTriangleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricRectShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricCircleShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\Shape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapetemplate\IShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\FabricShapeExtention.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\fabricshape\IShapeNode.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\ManifestIds.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Enums.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\ShapeTemplate.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\IShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\HeadingShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\IShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\CustomLinkShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\ShapeSettings.ts">
+      <SubType>Code</SubType>
+    </None>
   </ItemGroup>
 
   <!--***************************************************************************************-->

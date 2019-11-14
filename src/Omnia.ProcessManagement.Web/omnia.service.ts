@@ -13,7 +13,7 @@ Composer
     })
     .requestSqlElasticPoolDatabase({
         uniqueId: "dec4dab9-2ab3-4720-9cee-d00da62a507f",
-        elasticPoolId: "bb0af2ac-b021-437c-b64c-ebbdb7bde029"
+        elasticPoolId: "81c08fcd-3bb9-4f28-8b63-9ec54a735e84"
     });
     
    

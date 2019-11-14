@@ -7,14 +7,18 @@
     "test": "jest"
   },
   "dependencies": {
-    "@omnia/fx": "3.0.35-dev",
-    "@omnia/fx-sp": "3.0.35-dev",
-    "@omnia/fx-spfx": "3.0.35-dev",
-    "@omnia/tooling-vue": "3.0.35-dev",
+    "@omnia/fx": "3.0.38-dev",
+    "@omnia/fx-sp": "3.0.38-dev",
+    "@omnia/fx-spfx": "3.0.38-dev",
+    "@omnia/tooling-vue": "3.0.38-dev",
+    "fabric": "3.4.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.2.0"
   },
   "engines": {
     "node": ">=10.0.0"
+  },
+  "devDependencies": {
+    "@types/fabric": "^3.4.0"
   }
 }
