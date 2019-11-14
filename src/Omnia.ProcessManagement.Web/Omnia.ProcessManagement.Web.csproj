@@ -52,10 +52,10 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapedefinations\DrawingShapeDefination.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapedefinations\HeadingShapeDefination.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapedefinations\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapedefinations\ShapeDefination.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
@@ -127,16 +127,16 @@
     <None Update="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\shapedefinations\DrawingShapeDefination.ts">
+    <None Update="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\shapedefinations\HeadingShapeDefination.ts">
+    <None Update="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\shapedefinations\index.ts">
+    <None Update="client\fx\models\data\shapedefinitions\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\shapedefinations\ShapeDefination.ts">
+    <None Update="client\fx\models\data\shapedefinitions\ShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\shapetemplate\index.ts">

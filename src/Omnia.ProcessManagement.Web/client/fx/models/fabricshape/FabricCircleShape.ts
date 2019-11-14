@@ -2,23 +2,23 @@
 import { FabricShapeNodeTypes } from './IShapeNode';
 
 import { fabric } from 'fabric';
-import { DrawingShapeDefination } from '../data';
+import { DrawingShapeDefinition } from '../data';
 
 export default class FabricCircleShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
 
-    constructor(defination: DrawingShapeDefination) {
-        this.initProperties(defination);
+    constructor(definition: DrawingShapeDefinition) {
+        this.initProperties(definition);
     }
 
-    private initProperties(defination: DrawingShapeDefination) {
-        if (defination) {
+    private initProperties(definition: DrawingShapeDefinition) {
+        if (definition) {
             this.properties = {};
-            this.properties["radius"] = defination.width / 2;
+            this.properties["radius"] = definition.width / 2;
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = defination.backgroundColor;
-            this.properties["borderColor"] = defination.borderColor;
+            this.properties["fill"] = definition.backgroundColor;
+            this.properties["borderColor"] = definition.borderColor;
         }
     }
 

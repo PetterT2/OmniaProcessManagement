@@ -1,2 +1,2 @@
 ﻿export * from './processtemplates';
-export * from './shapedefinations';
+export * from './shapedefinitions';

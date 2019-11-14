@@ -1,13 +1,13 @@
 ﻿import fabric from 'fabric/fabric-impl';
 import { IShapeNode } from '../../fabricshape';
 import { IShape } from './IShape';
-import { DrawingShapeDefination } from '../../data';
+import { DrawingShapeDefinition } from '../../data';
 
 export declare abstract class Shape implements IShape {
     name: string;
-    defination: DrawingShapeDefination;
+    definition: DrawingShapeDefinition;
     nodes: IShapeNode[];
-    constructor(defination: DrawingShapeDefination, nodes: IShapeNode[]);
+    constructor(definition: DrawingShapeDefinition, nodes: IShapeNode[]);
     abstract schema: Array<fabric.Object>;
 }
 

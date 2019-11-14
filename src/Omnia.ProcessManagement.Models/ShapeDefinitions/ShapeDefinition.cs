@@ -5,16 +5,16 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Shapes
 {
-    public class ShapeDefination : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
+    public class ShapeDefinition : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
     {
-        public enum ShapeDefinationTypes
+        public enum ShapeDefinitionTypes
         {
             Undefined = 0,
             Heading = 1,
             Drawing = 2,
         }
 
-        public virtual ShapeDefinationTypes Type { get; set; } = ShapeDefinationTypes.Undefined;
+        public virtual ShapeDefinitionTypes Type { get; set; } = ShapeDefinitionTypes.Undefined;
 
         public MultilingualString Title { get; set; }
     }

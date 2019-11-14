@@ -1,11 +1,11 @@
 ﻿import { MultilingualString } from '@omnia/fx-models';
 
-export enum ShapeDefinationTypes {
+export enum ShapeDefinitionTypes {
     Heading = 1,
     Drawing = 2
 }
 
-export interface ShapeDefination {
-    type: ShapeDefinationTypes;
+export interface ShapeDefinition {
+    type: ShapeDefinitionTypes;
     title: MultilingualString;
 }

@@ -1,8 +1,8 @@
-﻿import { ShapeDefination, ShapeDefinationTypes } from './ShapeDefination';
+﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
 import { TextPosition } from '../..';
 
-export interface DrawingShapeDefination extends ShapeDefination {
-    type: ShapeDefinationTypes.Drawing;
+export interface DrawingShapeDefinition extends ShapeDefinition {
+    type: ShapeDefinitionTypes.Drawing;
 
     backgroundColor: string;
     borderColor: string;
