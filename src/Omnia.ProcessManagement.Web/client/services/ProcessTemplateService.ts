@@ -23,7 +23,7 @@ export class ProcessTemplateService {
                     "en-us": "Business Process",
                     isMultilingualString: true
                 },
-                shapeDefinations: []
+                shapeDefinitions: []
             },
             multilingualTitle: "Business Process",
         },
@@ -34,7 +34,7 @@ export class ProcessTemplateService {
                     "en-us": "BPMN 2.0",
                     isMultilingualString: true
                 },
-                shapeDefinations: []
+                shapeDefinitions: []
             },
             multilingualTitle: "BPMN 2.0"
         },
@@ -45,7 +45,7 @@ export class ProcessTemplateService {
                     "en-us": "Project",
                     isMultilingualString: true
                 },
-                shapeDefinations: []
+                shapeDefinitions: []
             },
             multilingualTitle: "Project"
         }

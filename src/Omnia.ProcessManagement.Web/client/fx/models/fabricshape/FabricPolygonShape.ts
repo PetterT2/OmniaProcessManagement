@@ -1,24 +1,24 @@
 ﻿import { IShapeNode, ShapeNodeType, FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { DrawingShapeDefination } from '../data';
+import { DrawingShapeDefinition } from '../data';
 
 export default class FabricPolygonShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     points: Array<{ x: number; y: number }>;
 
-    constructor(defination: DrawingShapeDefination) {
-        this.initProperties(defination);
+    constructor(definition: DrawingShapeDefinition) {
+        this.initProperties(definition);
     }
 
-    private initProperties(defination: DrawingShapeDefination) {
-        if (defination) {
+    private initProperties(definition: DrawingShapeDefinition) {
+        if (definition) {
             this.properties = {};
             this.properties["path"] = [];
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = defination.backgroundColor;
-            this.properties["borderColor"] = defination.borderColor;
+            this.properties["fill"] = definition.backgroundColor;
+            this.properties["borderColor"] = definition.borderColor;
         }
     }
 

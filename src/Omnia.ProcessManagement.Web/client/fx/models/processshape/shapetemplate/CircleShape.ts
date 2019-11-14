@@ -6,14 +6,14 @@ import { ShapeTemplatesConstants } from '../..';
 import FabricCircleShape from '../../fabricshape/FabricCircleShape';
 import FabricTextShape from '../../fabricshape/FabricTextShape';
 import { TextPosition } from '../../Enums';
-import { DrawingShapeDefination } from '../../data';
+import { DrawingShapeDefinition } from '../../data';
 
 export class CircleShape implements Shape {
-    defination: DrawingShapeDefination;
+    definition: DrawingShapeDefinition;
     nodes: IShapeNode[];
 
-    constructor(settings: DrawingShapeDefination) {
-        this.defination = settings;
+    constructor(settings: DrawingShapeDefinition) {
+        this.definition = settings;
         this.initNodes();
     }
 
@@ -29,19 +29,19 @@ export class CircleShape implements Shape {
 
     private initNodes() {
         this.nodes = [];
-        let circleNode = new FabricCircleShape(this.defination);
-        let textNode = new FabricTextShape(this.defination);
+        let circleNode = new FabricCircleShape(this.definition);
+        let textNode = new FabricTextShape(this.definition);
         let cleft = 0, ctop = 0, tleft = 0, ttop = 0;
-        switch (this.defination.textPosition) {
+        switch (this.definition.textPosition) {
             case TextPosition.Above:
-                ctop = this.defination.fontSize + 10;
+                ctop = this.definition.fontSize + 10;
                 break;
             case TextPosition.Center:
                 tleft = 10;
-                ttop = Math.floor(this.defination.height / 2 - this.defination.fontSize / 2);
+                ttop = Math.floor(this.definition.height / 2 - this.definition.fontSize / 2);
                 break;
             case TextPosition.Below:
-                ttop = this.defination.height + 10;
+                ttop = this.definition.height + 10;
                 break;
         }
         circleNode.setProperties({ left: cleft, top: ctop });

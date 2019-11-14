@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Shapes
 {
-    public class DrawingShapeDefination : ShapeDefination
+    public class DrawingShapeDefinition : ShapeDefinition
     {
-        public override ShapeDefinationTypes Type => ShapeDefinationTypes.Drawing;
+        public override ShapeDefinitionTypes Type => ShapeDefinitionTypes.Drawing;
 
         public string BackgroundColor { get; set; }
         public string BorderColor { get; set; }
