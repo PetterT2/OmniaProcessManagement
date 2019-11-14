@@ -1,4 +1,4 @@
-﻿import { Inject, Localize } from '@omnia/fx';
+﻿import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
@@ -9,6 +9,7 @@ import ProcessTemplatSettingsDefaultContentTab from './tabs/ProcessTemplatSettin
 import ProcessTemplatSettingsShapesTab from './tabs/ProcessTemplatSettingsShapesTab';
 import { ProcessTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
+import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 
 interface ProcessTemplateDefaultSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -39,7 +40,8 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
 
     selectTab(selectedTab: number) {
         this.selectedTab = selectedTab;
-        //this.journey().travelBackToFirstBlade();
+        this.journey().travelBackToFirstBlade();
+        this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
     }
 
     render(h) {

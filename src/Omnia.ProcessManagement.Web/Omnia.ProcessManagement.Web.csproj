@@ -36,6 +36,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateShapeSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsDefaultContentTab.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsGeneralTab.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsShapesTab.tsx" />
