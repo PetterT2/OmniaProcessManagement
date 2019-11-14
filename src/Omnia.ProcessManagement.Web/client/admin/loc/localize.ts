@@ -15,7 +15,20 @@
             },
             CreateProcessTemplate: string,
             AddHeading: string,
-            AddShape: string
+            AddShape: string,
+            ShapeSettings: {
+                TextColor: string,
+                ActiveBackgroundColor: string,
+                ActiveBorderColor: string,
+                ActiveTextColor: string,
+                Width: string,
+                Height: string,
+                TextPosition: string,
+                FontSize: string,
+                Above: string,
+                Center: string,
+                Below: string
+            }
         }
     }
 }
