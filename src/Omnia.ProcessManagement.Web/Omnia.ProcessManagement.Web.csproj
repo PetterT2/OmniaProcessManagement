@@ -16,16 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="client\test\**" />
-    <Content Remove="client\test\**" />
-    <EmbeddedResource Remove="client\test\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
-    <None Remove="client\test\**" />
     <None Remove="wwwroot\omnia\**" />
-    <TypeScriptCompile Remove="client\test\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -71,6 +66,12 @@
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\CanvasExtension.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvas.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShapeNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\DiamondShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
@@ -87,14 +88,13 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricTriangleShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShapeNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\HeadingShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\IShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
-    <TypeScriptCompile Remove="client\test1\FabricPlay.manifest.ts" />
+    <TypeScriptCompile Remove="client\test\FabricPlay.manifest.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
@@ -157,6 +157,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\canvas\DrawingCanvas.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\canvas\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\CircleShape.ts">

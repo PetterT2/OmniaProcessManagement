@@ -2,7 +2,7 @@
 
 export const TextSpacingWithShape = 8;
 
-export const ShapeTemplatesConstants = {
+export const ShapeTemplatesConstants = {    
     get Circle(): ShapeTemplate {
         return {
             id: "b98c7edb-4739-4f88-b14b-55e2fc5d5a55", name: "CircleShape", title: { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }

@@ -6,9 +6,8 @@ import { DrawingShapeDefinition } from '../../data';
 export declare abstract class Shape implements IShape {
     name: string;
     readonly nodes: FabricShapeExtention[];
-    constructor(settings: DrawingShapeDefinition, nodes?: FabricShapeExtention[]);
-    abstract readonly schema: Array<fabric.Object>;
-    abstract readonly toJson: string;
+    constructor(settings: DrawingShapeDefinition, text?: string, nodes?: FabricShapeExtention[]);
+    abstract getShape(): IShape;
 }
 
 export interface Shape {

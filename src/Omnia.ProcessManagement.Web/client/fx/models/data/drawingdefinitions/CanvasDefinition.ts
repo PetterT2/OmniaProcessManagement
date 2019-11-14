@@ -1,7 +1,7 @@
 ﻿import { IDrawingShapeNode } from './IDrawingShapeNode';
 
 export interface CanvasDefinition {
-    imageBackground?: string;
+    imageBackgroundUrl?: string;
     width: number;
     height: number;
     gridX?: number;

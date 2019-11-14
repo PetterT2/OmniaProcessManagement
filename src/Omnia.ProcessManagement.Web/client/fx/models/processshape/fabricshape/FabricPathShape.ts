@@ -1,9 +1,10 @@
-﻿import { FabricShapeExtention } from '.';
+﻿import { FabricShapeExtention } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeNodeTypes } from './IShapeNode';
+import { FabricShapeNodeTypes, IShapeNode } from './IShapeNode';
 import { DrawingShapeDefinition } from '../../data';
+import { extend } from 'typestyle';
 
-export default class FabricPathShape implements FabricShapeExtention {
+export class FabricPathShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Path;
 
@@ -12,16 +13,18 @@ export default class FabricPathShape implements FabricShapeExtention {
     }
 
     private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
-        if (properties) {
-            this.properties = properties;
-        }
-        else if (definition) {
-            this.properties = {};
+        this.properties = {};
+        if (definition) {
             this.properties["path"] = [];
             this.properties["left"] = 0;
             this.properties["top"] = 0;
             this.properties["fill"] = definition.backgroundColor;
             this.properties["borderColor"] = definition.borderColor;
+        }
+        if (properties) {
+            Object.keys(properties).forEach(key => {
+                this.properties[key] = properties[key];
+            });
         }
         this.fabricObject = new fabric.Path(this.properties['path'], this.properties);
     }
@@ -30,19 +33,18 @@ export default class FabricPathShape implements FabricShapeExtention {
         return FabricShapeNodeTypes.path;
     }
 
-    setProperties(options: fabric.IPathOptions, path?: string | fabric.Point[]) {
-        Object.keys(options).forEach(key => {
-            if (options[key])
-                this.properties[key] = options[key];
-        });
-        this.fabricObject = new fabric.Path(path, this.properties);
-    }
-
-    get schema() {
-        return this.fabricObject;
-    }
-
-    toJson(propertiesToInclude?: string[]) {
-        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
+    getShapeNode(): IShapeNode {
+        if (this.fabricObject) {
+            let options = this.fabricObject.toJSON();
+            this.properties = [];
+            Object.keys(options).forEach(key => {
+                if (options[key])
+                    this.properties[key] = options[key];
+            });
+        }
+        return {
+            shapeNodeType: FabricShapeNodeTypes.path,
+            properties: this.properties
+        };
     }
 }
