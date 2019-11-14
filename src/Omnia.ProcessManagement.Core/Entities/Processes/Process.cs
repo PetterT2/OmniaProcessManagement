@@ -13,7 +13,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         [Key]
         public Guid Id { get; set; }
         public Guid OPMProcessId { get; set; }
-        public string Data { get; set; }
+        public string JsonValue { get; set; }
         public string EnterpriseProperties { get; set; }
         public string CheckedOutBy { get; set; }
         public ProcessVersionType VersionType { get; set; }
