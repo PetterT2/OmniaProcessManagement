@@ -1,15 +1,15 @@
 ﻿import { Shape } from './Shape';
-import { FabricShapeExtention, ShapeSettings } from '..';
 import { ShapeTemplatesConstants, TextSpacingWithShape, Enums } from '../../../../core';
 import FabricCircleShape from '../fabricshape/FabricCircleShape';
 import FabricTextShape from '../fabricshape/FabricTextShape';
-import { ShapeNodeType, FabricShapeNodeTypes } from '../fabricshape';
+import { ShapeNodeType, FabricShapeNodeTypes, FabricShapeExtention } from '../fabricshape';
 import FabricEllipseShape from '../fabricshape/FabricEllipseShape';
+import { DrawingShapeDefinition } from '../../data';
 
 export class CircleShape implements Shape {
     nodes: FabricShapeExtention[];
 
-    constructor(settings: ShapeSettings, nodes?: FabricShapeExtention[]) {
+    constructor(settings: DrawingShapeDefinition, nodes?: FabricShapeExtention[]) {
         this.initNodes(settings, nodes);
     }
 
@@ -27,7 +27,7 @@ export class CircleShape implements Shape {
         return "";
     }
 
-    private initNodes(settings: ShapeSettings, nodes: FabricShapeExtention[]) {
+    private initNodes(settings: DrawingShapeDefinition, nodes: FabricShapeExtention[]) {
         this.nodes = [];
         if (nodes) {
             let circleNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.circle);

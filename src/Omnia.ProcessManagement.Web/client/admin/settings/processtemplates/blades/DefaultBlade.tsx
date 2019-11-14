@@ -59,7 +59,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         this.$nextTick(() => {
             let processTemplate = template || ProcessTemplateFactory.createDefaultProcessTemplate();
             this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(processTemplate);
-            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.documentTemplateSettingsDefault);
+            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
         });
     }
 
@@ -126,7 +126,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
             <div>
                 <v-toolbar flat dark={this.omniaTheming.promoted.header.dark}
                     color={this.omniaTheming.promoted.header.background.base}>
-                    <v-toolbar-title>{this.loc.ProcessTemplates}</v-toolbar-title>
+                    <v-toolbar-title>{this.loc.ProcessTemplates.Title}</v-toolbar-title>
                     <v-spacer></v-spacer>
                 </v-toolbar>
                 <v-divider></v-divider>

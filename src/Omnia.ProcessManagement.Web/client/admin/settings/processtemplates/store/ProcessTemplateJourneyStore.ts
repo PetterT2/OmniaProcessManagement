@@ -1,15 +1,16 @@
 ﻿import { Store, StoreState } from '@omnia/fx/store';
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
+import { ProcessTemplate } from '../../../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 export class ProcessTemplateJourneyStore extends Store {
-    private editingProcessTemplate = this.state<any>(null);
+    private editingProcessTemplate = this.state<ProcessTemplate>(null);
     private editingProcessTemplateTitle = this.state<string>("");
 
-    private editingProcessTemplateShapeItem = this.state<any>(null);
+    private editingProcessTemplateShapeItem = this.state<ProcessTemplate>(null);
     private editingProcessTemplateShapeItemTitle = this.state<string>("");
 
     constructor() {
@@ -26,11 +27,11 @@ export class ProcessTemplateJourneyStore extends Store {
     }
 
     mutations = {
-        setEditingProcessTemplate: this.mutation((processTemplate: any) => {
+        setEditingProcessTemplate: this.mutation((processTemplate: ProcessTemplate) => {
             this.editingProcessTemplate.mutate(processTemplate);
             this.editingProcessTemplateTitle.mutate(processTemplate ? processTemplate.multilingualTitle : '');
         }),
-        setEditingProcessTemplateShapeItem: this.mutation((processTemplateShapeItem: any) => {
+        setEditingProcessTemplateShapeItem: this.mutation((processTemplateShapeItem: ProcessTemplate) => {
             this.editingProcessTemplateShapeItem.mutate(processTemplateShapeItem);
             this.editingProcessTemplateTitle.mutate(processTemplateShapeItem ? processTemplateShapeItem.multilingualTitle : '');
         })

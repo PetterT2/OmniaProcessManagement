@@ -41,6 +41,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateShapeSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsDefaultContentTab.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsGeneralTab.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsShapesTab.tsx" />
@@ -48,7 +49,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourneyConstants.ts" />
-    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\ProcessTemplateJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
@@ -56,8 +57,13 @@
     <TypeScriptCompile Remove="client\core\Enums.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processtemplate\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processtemplate\ProcessTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
@@ -115,6 +121,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="client\fx\models\data\processtemplates\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processtemplates\ProcessTemplate.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\shapedefinitions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\shapedefinitions\ShapeDefinition.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\core\Constants.ts">
       <SubType>Code</SubType>
     </None>
@@ -184,12 +211,6 @@
     <None Update="client\fx\models\processshape\ShapeTemplate.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\IShapeSettings.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\HeadingShapeSettings.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\processshape\shapeeditor\IShapeEditor.ts">
       <SubType>Code</SubType>
     </None>
@@ -197,9 +218,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\shapeeditor\ProcessStepShapeEditor.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\ShapeSettings.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

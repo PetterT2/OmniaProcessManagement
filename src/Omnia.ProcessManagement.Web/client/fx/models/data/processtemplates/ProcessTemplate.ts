@@ -1,12 +1,14 @@
-﻿import { GuidValue, MultilingualString } from '@omnia/fx-models';
+﻿import { GuidValue } from '@omnia/fx-models';
+import { ProcessTemplateSettings } from './ProcessTemplateSettings';
 
 export interface ProcessTemplate {
     id: GuidValue;
-    settings: any;
+    settings: ProcessTemplateSettings;
 
-    //Client-side
-    multilingualTitle: string;
+    //client-side
+    multilingualTitle: string
 }
+
 
 /**
  * NOTE: whenever an new property is added in settings, we need to define its initial value in factory
@@ -14,11 +16,10 @@ export interface ProcessTemplate {
  * */
 export const ProcessTemplateFactory = {
     createDefaultProcessTemplate(): ProcessTemplate {
-        let documentTemplate: ProcessTemplate = {
-            multilingualTitle: '',
+        let processTemplate: ProcessTemplate = {
             settings: {}
         } as ProcessTemplate
 
-        return documentTemplate;
+        return processTemplate;
     }
 }

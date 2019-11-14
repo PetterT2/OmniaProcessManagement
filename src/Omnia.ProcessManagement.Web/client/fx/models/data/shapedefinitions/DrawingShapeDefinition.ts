@@ -1,9 +1,9 @@
-﻿import { IShapeSettings } from '.';
-import { Enums } from '../../../core';
+﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
+import { Enums } from '../../../../core';
 
-export interface ShapeSettings extends IShapeSettings {
-    type: Enums.ShapeSettingsType.Shape;
-    name: string;
+export interface DrawingShapeDefinition extends ShapeDefinition {
+    type: ShapeDefinitionTypes.Drawing;
+
     backgroundColor: string;
     borderColor: string;
     textColor: string;

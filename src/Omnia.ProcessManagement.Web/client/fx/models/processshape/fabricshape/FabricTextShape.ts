@@ -1,26 +1,26 @@
 ﻿import { FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../ShapeSettings';
+import { DrawingShapeDefinition } from '../../data';
 
 export default class FabricTextShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Text;
 
-    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
-        this.initProperties(uiSettings, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        this.initProperties(definition, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
         if (properties) {
             this.properties = properties;
         }
-        else if (uiSettings) {
+        else if (definition) {
             this.properties = {};
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = uiSettings.backgroundColor;
-            this.properties["fontSize"] = uiSettings.fontSize;
+            this.properties["fill"] = definition.backgroundColor;
+            this.properties["fontSize"] = definition.fontSize;
         }
         this.fabricObject = new fabric.Text(this.properties['text'] || "", this.properties);
     }

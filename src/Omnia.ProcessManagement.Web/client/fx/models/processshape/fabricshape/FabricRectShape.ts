@@ -1,27 +1,27 @@
 ﻿import { IShapeNode, ShapeNodeType, FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../ShapeSettings';
+import { DrawingShapeDefinition } from '../../data';
 
 export default class FabricRectShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Rect;
 
-    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
-        this.initProperties(uiSettings, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        this.initProperties(definition, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
         if (properties)
             this.properties = properties;
-        else if (uiSettings) {
+        else if (definition) {
             this.properties = {};
-            this.properties["width"] = uiSettings.width
-            this.properties["height"] = uiSettings.height;
+            this.properties["width"] = definition.width
+            this.properties["height"] = definition.height;
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = uiSettings.backgroundColor;
-            this.properties["borderColor"] = uiSettings.borderColor;
+            this.properties["fill"] = definition.backgroundColor;
+            this.properties["borderColor"] = definition.borderColor;
         }
         this.fabricObject = new fabric.Rect(this.properties);
     }

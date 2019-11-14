@@ -6,6 +6,7 @@ import { ProcessTemplatesJourneyBladeIds } from './ProcessTemplatesJourneyConsta
 import { IProcessTemplatesJourney } from './IProcessTemplatesJourney';
 import DefaultBlade from './blades/DefaultBlade';
 import ProcessTemplateDefaultSettingsBlade from './blades/settingsblades/ProcessTemplateDefaultSettingsBlade';
+import ProcessTemplateShapeSettingsBlade from './blades/settingsblades/ProcessTemplateShapeSettingsBlade';
 
 @Component
 export default class ProcessTemplatesJourney extends Vue implements IWebComponentInstance, IProcessTemplatesJourney {
@@ -41,12 +42,23 @@ export default class ProcessTemplatesJourney extends Vue implements IWebComponen
         return blade;
     }
 
-    getDocumentTemplateSettingsBlade() {
+    getProcessTemplateDefaultSettingsBlade() {
         let h = this.$createElement;
         let blade: Blade = {
-            id: ProcessTemplatesJourneyBladeIds.documentTemplateSettingsDefault,
+            id: ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault,
             size: BladeSizes.medium,
             content: <ProcessTemplateDefaultSettingsBlade journey={this.getJourneyInstance}></ProcessTemplateDefaultSettingsBlade>
+        }
+
+        return blade;
+    }
+
+    getProcessTemplateShapeSettingsBlade() {
+        let h = this.$createElement;
+        let blade: Blade = {
+            id: ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes,
+            size: BladeSizes.medium,
+            content: <ProcessTemplateShapeSettingsBlade journey={this.getJourneyInstance}></ProcessTemplateShapeSettingsBlade>
         }
 
         return blade;
@@ -55,7 +67,7 @@ export default class ProcessTemplatesJourney extends Vue implements IWebComponen
     render(h) {
         return (
             <omfx-journey onInstanceCreated={this.gotInstance}
-                blades={[this.getDefaultBlade(), this.getDocumentTemplateSettingsBlade()]}></omfx-journey>
+                blades={[this.getDefaultBlade(), this.getProcessTemplateDefaultSettingsBlade(), this.getProcessTemplateShapeSettingsBlade()]}></omfx-journey>
         )
     }
 }

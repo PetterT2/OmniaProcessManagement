@@ -1,9 +1,9 @@
 ﻿import { IShapeNode, ShapeNodeType } from '.';
 import { fabric } from 'fabric';
-import { ShapeSettings } from '../ShapeSettings';
+import { DrawingShapeDefinition } from '../../data';
 
 export declare abstract class FabricShapeExtention implements IShapeNode {
-    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; });
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     setProperties(options: fabric.IObjectOptions);
     abstract readonly shapeNodeType: ShapeNodeType;
