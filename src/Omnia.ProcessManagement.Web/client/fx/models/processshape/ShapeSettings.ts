@@ -1,10 +1,8 @@
 ﻿import { IShapeSettings } from '.';
-import { TextPosition, ShapeSettingsType } from '../Enums';
-import { MultilingualString, GuidValue } from '@omnia/fx-models';
-import { IShapeNode } from '../fabricshape';
+import { Enums } from '../../../core';
 
 export interface ShapeSettings extends IShapeSettings {
-    type: ShapeSettingsType.Shape;
+    type: Enums.ShapeSettingsType.Shape;
     name: string;
     backgroundColor: string;
     borderColor: string;
@@ -14,6 +12,6 @@ export interface ShapeSettings extends IShapeSettings {
     activeTextColor: string;
     width: number;
     height: number;
-    textPosition: TextPosition;
+    textPosition: Enums.TextPosition;
     fontSize: number;
 }

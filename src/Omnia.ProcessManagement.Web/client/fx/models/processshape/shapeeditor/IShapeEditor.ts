@@ -1,5 +1,4 @@
-﻿import { ShapeSettings } from '..';
-import { IShape } from '../shapetemplate/IShape';
+﻿import { IShape } from '../shapes/IShape';
 
 export interface IShapeEditor {
     shape: IShape;

@@ -1,7 +1,7 @@
 ﻿import { MultilingualString } from '@omnia/fx-models';
-import { ShapeSettingsType } from '..';
+import { Enums } from '../../../core';
 
 export interface IShapeSettings {
-    type: ShapeSettingsType;
+    type: Enums.ShapeSettingsType;
     title: MultilingualString;
 }

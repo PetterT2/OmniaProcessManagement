@@ -1,17 +1,20 @@
 ﻿import { FabricShapeExtention } from '.';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
 import { fabric } from 'fabric';
+import { ShapeSettings } from '../ShapeSettings';
 
 export default class FabricCircleShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
+    fabricObject: fabric.Circle;
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        this.initProperties(uiSettings, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        if (properties)
+            this.properties = properties;
+        else if (uiSettings) {
             this.properties = {};
             this.properties["radius"] = uiSettings.width / 2;
             this.properties["left"] = 0;
@@ -19,6 +22,7 @@ export default class FabricCircleShape implements FabricShapeExtention {
             this.properties["fill"] = uiSettings.backgroundColor;
             this.properties["borderColor"] = uiSettings.borderColor;
         }
+        this.fabricObject = new fabric.Circle(this.properties);
     }
 
     setProperties(options: fabric.ICircleOptions) {
@@ -26,6 +30,7 @@ export default class FabricCircleShape implements FabricShapeExtention {
             if (options[key])
                 this.properties[key] = options[key];
         });
+        this.fabricObject = new fabric.Circle(this.properties);
     }
 
     get shapeNodeType() {
@@ -33,6 +38,10 @@ export default class FabricCircleShape implements FabricShapeExtention {
     }
 
     get schema() {
-        return new fabric.Circle(this.properties);
+        return this.fabricObject;
+    }
+
+    toJson(propertiesToInclude?: string[]) {
+        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
     }
 }

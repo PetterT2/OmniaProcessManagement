@@ -1,18 +1,21 @@
 ﻿import { FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
+import { ShapeSettings } from '../ShapeSettings';
 
 export default class FabricPathShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
-    path: string | fabric.Point[];
+    fabricObject: fabric.Path;
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        this.initProperties(uiSettings, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        if (properties) {
+            this.properties = properties;
+        }
+        else if (uiSettings) {
             this.properties = {};
             this.properties["path"] = [];
             this.properties["left"] = 0;
@@ -20,6 +23,7 @@ export default class FabricPathShape implements FabricShapeExtention {
             this.properties["fill"] = uiSettings.backgroundColor;
             this.properties["borderColor"] = uiSettings.borderColor;
         }
+        this.fabricObject = new fabric.Path(this.properties['path'], this.properties);
     }
 
     get shapeNodeType() {
@@ -27,14 +31,18 @@ export default class FabricPathShape implements FabricShapeExtention {
     }
 
     setProperties(options: fabric.IPathOptions, path?: string | fabric.Point[]) {
-        this.path = path;
         Object.keys(options).forEach(key => {
             if (options[key])
                 this.properties[key] = options[key];
         });
+        this.fabricObject = new fabric.Path(path, this.properties);
     }
 
     get schema() {
-        return new fabric.Path(this.path, this.properties);
+        return this.fabricObject;
+    }
+
+    toJson(propertiesToInclude?: string[]) {
+        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
     }
 }

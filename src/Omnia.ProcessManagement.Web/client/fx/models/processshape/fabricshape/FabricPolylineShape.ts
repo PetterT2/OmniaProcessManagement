@@ -1,18 +1,21 @@
 ﻿import { IShapeNode, ShapeNodeType, FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
+import { ShapeSettings } from '../ShapeSettings';
 
 export default class FabricPolylineShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
-    points: Array<{ x: number; y: number }>;
+    fabricObject: fabric.Polyline;
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        this.initProperties(uiSettings, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        if (properties) {
+            this.properties = properties;
+        }
+        else if (uiSettings) {
             this.properties = {};
             this.properties["radius"] = uiSettings.width / 2;
             this.properties["left"] = 0;
@@ -20,21 +23,26 @@ export default class FabricPolylineShape implements FabricShapeExtention {
             this.properties["fill"] = uiSettings.backgroundColor;
             this.properties["borderColor"] = uiSettings.borderColor;
         }
+        this.fabricObject = new fabric.Polyline(this.properties['points'], this.properties);
     }
 
     get shapeNodeType() {
-        return FabricShapeNodeTypes.rect;
+        return FabricShapeNodeTypes.polyline;
     }
 
     setProperties(options: fabric.IPolylineOptions, points?: Array<{ x: number; y: number }>) {
-        this.points = points;
         Object.keys(options).forEach(key => {
             if (options[key])
                 this.properties[key] = options[key];
         });
+        this.fabricObject = new fabric.Polyline(points, this.properties);
     }
 
     get schema() {
-        return new fabric.Polyline(this.points, this.properties);
+        return this.fabricObject;
+    }
+
+    toJson(propertiesToInclude?: string[]) {
+        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
     }
 }

@@ -1,17 +1,20 @@
 ﻿import { FabricShapeExtention } from '.';
 import { fabric } from 'fabric';
 import { FabricShapeNodeTypes } from './IShapeNode';
-import { ShapeSettings } from '../processshape';
+import { ShapeSettings } from '../ShapeSettings';
 
 export default class FabricEllipseShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
+    fabricObject: fabric.Ellipse;
 
-    constructor(uiSettings: ShapeSettings) {
-        this.initProperties(uiSettings);
+    constructor(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        this.initProperties(uiSettings, properties);
     }
 
-    private initProperties(uiSettings: ShapeSettings) {
-        if (uiSettings) {
+    private initProperties(uiSettings: ShapeSettings, properties?: { [k: string]: any; }) {
+        if (properties)
+            this.properties = properties;
+        else if (uiSettings) {
             this.properties = {};
             this.properties["tx"] = uiSettings.width / 2;
             this.properties["ry"] = uiSettings.height / 2;
@@ -20,6 +23,7 @@ export default class FabricEllipseShape implements FabricShapeExtention {
             this.properties["fill"] = uiSettings.backgroundColor;
             this.properties["borderColor"] = uiSettings.borderColor;
         }
+        this.fabricObject = new fabric.Ellipse(this.properties);
     }
 
     get shapeNodeType() {
@@ -31,9 +35,14 @@ export default class FabricEllipseShape implements FabricShapeExtention {
             if (options[key])
                 this.properties[key] = options[key];
         });
+        this.fabricObject = new fabric.Ellipse(this.properties);
     }
 
     get schema() {
-        return new fabric.Ellipse(this.properties);
+        return this.fabricObject;
+    }
+
+    toJson(propertiesToInclude?: string[]) {
+        return this.fabricObject ? this.fabricObject.toJSON(propertiesToInclude) : null;
     }
 }
