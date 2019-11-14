@@ -73,12 +73,12 @@ namespace Omnia.ProcessManagement.Core.Repositories
         /// <returns></returns>
         public int ExecuteSqlCommand(string sql, params object[] parameters)
         {
-            return this.Database.ExecuteSqlCommand(sql, parameters);
+            return this.Database.ExecuteSqlRaw(sql, parameters);
         }
 
         public async ValueTask<int> ExecuteSqlCommandAsync(string sql, params object[] parameters)
         {
-            return await this.Database.ExecuteSqlCommandAsync(sql, parameters);
+            return await this.Database.ExecuteSqlRawAsync(sql, parameters);
         }
 
         private void SetOPMClusteredIndex<T>(ModelBuilder modelBuilder, Expression<Func<T, object>> primaryKeyExpression)

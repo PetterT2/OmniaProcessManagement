@@ -7,7 +7,6 @@ namespace Omnia.ProcessManagement.Models.Processes
 {
     public class ProcessMetadata
     {
-        public Guid Id { get; set; }
         public object Drawing { get; set; } //TODO
         public object Documents { get; set; } //TODO
         public object Links { get; set; } //TODO
