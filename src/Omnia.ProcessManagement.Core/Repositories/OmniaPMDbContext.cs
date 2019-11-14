@@ -5,6 +5,7 @@ using Omnia.Fx.Contexts.Scoped;
 using Omnia.Fx.NetCore.Repositories.EntityFramework;
 using Omnia.ProcessManagement.Core.Entities;
 using Omnia.ProcessManagement.Core.Entities.Processes;
+using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -43,6 +44,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<Process> Processes { get; set; }
         public DbSet<ProcessContent> ProcessContents { get; set; }
         public DbSet<ProcessMetadata> ProcessMetadata { get; set; }
+        public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
