@@ -4,7 +4,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 
 interface ProcessTemplateShapeSettingsBladeProps {
@@ -26,6 +26,21 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     private editingShapeTitle: string = "";
     private editingShapeType: ShapeDefinitionTypes = null;
 
+    private textPositions = [
+        {
+            value: TextPosition.Above,
+            title: this.loc.ProcessTemplates.ShapeSettings.Above
+        },
+        {
+            value: TextPosition.Center,
+            title: this.loc.ProcessTemplates.ShapeSettings.Center
+        },
+        {
+            value: TextPosition.Below,
+            title: this.loc.ProcessTemplates.ShapeSettings.Below
+        }
+    ]
+
     created() {
 
     }
@@ -34,7 +49,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
         this.editingShapeTitle = this.processTemplateJournayStore.getters.editingShapeDefinitionTitle();
         this.editingShapeType = this.processTemplateJournayStore.getters.editingShapeDefinitionType();
-        debugger;
+
         return (
             <div>
                 <v-toolbar flat dark={this.omniaTheming.promoted.header.dark}
@@ -51,6 +66,69 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         model={this.editingShape.title}
                         onModelChange={(title) => { this.editingShape.title = title }}
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
+                    {
+                        this.editingShapeType == ShapeDefinitionTypes.Drawing &&
+                        <div>
+                            <v-flex lg4>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.omniaUxLoc.Common.BackgroundColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; }}>
+                                </omfx-color-picker>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.omniaUxLoc.Common.BorderColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).borderColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; }}>
+                                </omfx-color-picker>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.loc.ProcessTemplates.ShapeSettings.TextColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; }}>
+                                </omfx-color-picker>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.loc.ProcessTemplates.ShapeSettings.ActiveBackgroundColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; }}>
+                                </omfx-color-picker>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.loc.ProcessTemplates.ShapeSettings.ActiveBorderColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).activeBorderColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBorderColor = p.color; }}>
+                                </omfx-color-picker>
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.loc.ProcessTemplates.ShapeSettings.ActiveTextColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).activeTextColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; }}>
+                                </omfx-color-picker>
+                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.loc.ProcessTemplates.ShapeSettings.Width}
+                                    type="number" suffix="px"></v-text-field>
+                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.loc.ProcessTemplates.ShapeSettings.Height}
+                                    type="number" suffix="px"></v-text-field>
+                                <v-select item-value="value" item-text="title" items={this.textPositions}
+                                    label={this.loc.ProcessTemplates.ShapeSettings.TextPosition} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}>
+                                </v-select>
+                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.loc.ProcessTemplates.ShapeSettings.FontSize}
+                                    type="number" suffix="px"></v-text-field>
+                            </v-flex>
+                            <v-flex lg8>
+
+                            </v-flex>
+                            
+                        </div>
+                    }
+                    
                 </v-container>
             </div>
         );
