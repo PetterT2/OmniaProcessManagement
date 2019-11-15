@@ -2,6 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessTemplateService } from '../services';
+import { ProcessTemplate } from '../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -10,7 +11,7 @@ export class ProcessTemplateStore extends Store {
 
     @Inject(ProcessTemplateService) private processTemplateSerivice: ProcessTemplateService;
 
-    private processTemplates = this.state<Array<any>>([]);
+    private processTemplates = this.state<Array<ProcessTemplate>>([]);
 
     private ensureLoadProcessTemplatesPromise: Promise<null> = null;
 
@@ -37,7 +38,6 @@ export class ProcessTemplateStore extends Store {
                     state.state.sort((a, b) => {
                         return a.multilingualTitle > b.multilingualTitle ? 1 : -1;
                     });
-
                 }
             })
         })
@@ -53,6 +53,12 @@ export class ProcessTemplateStore extends Store {
             }
 
             return this.ensureLoadProcessTemplatesPromise;
+        }),
+        addOrUpdateProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
+            return this.processTemplateSerivice.addOrUpdateProcessTemplate(processTemplate).then((result) => {
+                this.privateMutations.addOrUpdateDocumentTemplates.commit([result]);
+                return null;
+            })
         }),
         deleteProcessTemplate: this.action((processTemplate: any) => {
             return this.processTemplateSerivice.deleteProcessTemplate(processTemplate).then(() => {

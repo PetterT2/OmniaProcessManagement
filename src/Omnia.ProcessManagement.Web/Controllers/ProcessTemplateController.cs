@@ -41,7 +41,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         }
 
 
-        [HttpPost, Route("")]
+        [HttpPost, Route("addorupdate")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
         public async ValueTask<ApiResponse<ProcessTemplate>> AddOrUpdateAsync(ProcessTemplate processTemplate)
         {

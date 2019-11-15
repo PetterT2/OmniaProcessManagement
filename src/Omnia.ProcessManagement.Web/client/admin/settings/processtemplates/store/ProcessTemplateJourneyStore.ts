@@ -10,8 +10,9 @@ export class ProcessTemplateJourneyStore extends Store {
     private editingProcessTemplate = this.state<ProcessTemplate>(null);
     private editingProcessTemplateTitle = this.state<string>("");
 
-    private editingProcessTemplateShapeDefinition = this.state<ShapeDefinition>(null);
-    private editingProcessTemplateShapeDefinitionTitle = this.state<string>("");
+    private editingShapeDefinition = this.state<ShapeDefinition>(null);
+    private editingShapeDefinitionIndex = this.state<number>(-1);
+    private editingShapeDefinitionTitle = this.state<string>("");
     private editingShapeDefinitionType = this.state<ShapeDefinitionTypes>(null);
 
     constructor() {
@@ -23,8 +24,8 @@ export class ProcessTemplateJourneyStore extends Store {
     getters = {
         editingProcessTemplate: () => this.editingProcessTemplate.state,
         editingProcessTemplateTitle: () => this.editingProcessTemplateTitle.state,
-        editingShapeDefinition: () => this.editingProcessTemplateShapeDefinition.state,
-        editingShapeDefinitionTitle: () => this.editingProcessTemplateShapeDefinitionTitle.state,
+        editingShapeDefinition: () => this.editingShapeDefinition.state,
+        editingShapeDefinitionTitle: () => this.editingShapeDefinitionTitle.state,
         editingShapeDefinitionType: () => this.editingShapeDefinitionType.state
     }
 
@@ -33,10 +34,11 @@ export class ProcessTemplateJourneyStore extends Store {
             this.editingProcessTemplate.mutate(processTemplate);
             this.editingProcessTemplateTitle.mutate(processTemplate ? processTemplate.multilingualTitle : '');
         }),
-        setEditingShapeDefinition: this.mutation((shapeDefinition: ShapeDefinition) => {
-            this.editingProcessTemplateShapeDefinition.mutate(shapeDefinition);
-            this.editingProcessTemplateShapeDefinitionTitle.mutate(shapeDefinition ? shapeDefinition.multilingualTitle : '');
+        setEditingShapeDefinition: this.mutation((shapeDefinition: ShapeDefinition, index: number = -1) => {
+            this.editingShapeDefinition.mutate(shapeDefinition);
+            this.editingShapeDefinitionTitle.mutate(shapeDefinition ? shapeDefinition.multilingualTitle : '');
             this.editingShapeDefinitionType.mutate(shapeDefinition ? shapeDefinition.type : null);
+            this.editingShapeDefinitionIndex.mutate(index);
         }),
         setEditingShapeDefinitionType: this.mutation((type: ShapeDefinitionTypes) => {
             this.editingShapeDefinitionType.mutate(type);

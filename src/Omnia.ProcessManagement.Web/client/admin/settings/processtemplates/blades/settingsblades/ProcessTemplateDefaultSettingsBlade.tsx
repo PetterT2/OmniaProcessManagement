@@ -8,6 +8,7 @@ import ProcessTemplatSettingsGeneralTab from './tabs/ProcessTemplatSettingsGener
 import ProcessTemplatSettingsDefaultContentTab from './tabs/ProcessTemplatSettingsDefaultContentTab';
 import ProcessTemplatSettingsShapesTab from './tabs/ProcessTemplatSettingsShapesTab';
 import { ProcessTemplate } from '../../../../../fx/models';
+import { ProcessTemplateStore } from '../../../../../stores';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 
@@ -27,6 +28,7 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
+    @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -34,6 +36,7 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
     selectedTab: number = TabNames.general;
     editingProcessTemplate: ProcessTemplate = null;
     internalValidator: FormValidator = new FormValidator(this);
+    isSaving: boolean = false;
 
     created() {
         
@@ -47,7 +50,11 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
 
     save() {
         if (this.internalValidator.validateAll()) {
-
+            this.isSaving = true;
+            this.processTemplateStore.actions.addOrUpdateProcessTemplate.dispatch(this.editingProcessTemplate).then(() => {
+                this.isSaving = false;
+                this.journey().travelBackToFirstBlade();
+            })
         }
         else {
             this.selectedTab = TabNames.general;
@@ -93,7 +100,7 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
                     {this.selectedTab == TabNames.shapes && <ProcessTemplatSettingsShapesTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsShapesTab>}
                     {this.selectedTab == TabNames.defaultContent && <ProcessTemplatSettingsDefaultContentTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsDefaultContentTab>}
                     <div class='text-right'>
-                        <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.save() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
+                        <v-btn dark={this.omniaTheming.promoted.body.dark} text loading={this.isSaving} onClick={() => { this.save() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
                     </div>
                 </v-container>
             </div>
