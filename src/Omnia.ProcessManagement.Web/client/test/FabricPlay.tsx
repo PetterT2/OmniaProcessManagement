@@ -40,6 +40,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             backgroundColor: 'blue',
             borderColor: 'black',
             fontSize: 15,
+            textColor: '#faf',
             width: 100,
             height: 100,
             textPosition: TextPosition.Above,
@@ -49,71 +50,107 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
 
         //let test = new FabricCircleShape(settings, json);
         //this.canvas.add(test.schema);
-     
+
+        //this.canvas = new DrawingCanvas('c', { selection: false }, {
+        //    width: 800,
+        //    height: 1000,
+        //    gridX: 100,
+        //    gridY: 200,
+        //    shapes: [
+        //        {
+        //            shape: {
+        //                name: ShapeTemplatesConstants.Circle.name,
+        //                nodes: [{
+        //                    shapeNodeType: FabricShapeNodeTypes.circle,
+        //                    properties: {
+        //                        left: 300,
+        //                        top: 300,
+        //                        radius: 50,
+        //                        fill: '#9f9',
+        //                    }
+        //                },
+        //                {
+        //                    shapeNodeType: FabricShapeNodeTypes.text,
+        //                    properties: {
+        //                        text: 'diamond',
+        //                        left: 300,
+        //                        top: 480,
+        //                        fill: '#000', fontSize: 20,
+        //                        lockScalingX: true,
+        //                        lockScalingY: true
+        //                    }
+        //                }
+        //                ]
+        //            }
+        //        },
+        //        {
+        //            shape: {
+        //                name: ShapeTemplatesConstants.Diamond.name,
+        //                nodes: [{
+        //                    shapeNodeType: FabricShapeNodeTypes.rect,
+        //                    properties: {
+        //                        left: 100,
+        //                        top: 100,
+        //                        width: 50,
+        //                        height: 50,
+        //                        fill: '#faa',
+        //                        originX: 'left',
+        //                        originY: 'top',
+        //                        angle: 45,
+        //                    }
+        //                },
+        //                {
+        //                    shapeNodeType: FabricShapeNodeTypes.text,
+        //                    properties: {
+        //                        text: 'diamond',
+        //                        left: 300,
+        //                        top: 280,
+        //                        fill: '#000',
+        //                        fontSize: 20,
+        //                        lockScalingX: true,
+        //                        lockScalingY: true
+        //                    }
+        //                }
+        //                ]
+        //            }
+        //        }
+        //    ]
+        //}).canvasObject;
+        //new DiamondShape(settings, 'test').nodes.forEach(n => this.canvas.add(n.fabricObject));
+
+        //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
+        //settings.textPosition = TextPosition.Center;
+        //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
         this.canvas = new DrawingCanvas('c', { selection: false }, {
             width: 800,
             height: 1000,
-            gridX: 100,
-            gridY: 200,
-            shapes: [
-                  {
-                    shape: {
-                        name: ShapeTemplatesConstants.Circle.name,
-                        nodes: [{
-                            shapeNodeType: FabricShapeNodeTypes.circle,
-                            properties: {
-                                left: 300,
-                                top: 300,
-                                radius: 50,
-                                fill: '#9f9',
-                            }
-                        },
-                        {
-                            shapeNodeType: FabricShapeNodeTypes.text,
-                            properties: {
-                                text: 'test',
-                                left: 300,
-                                top: 280,
-                                fill: '#fff444', fontSize: 20
-                            }
-                        }
-                        ]
-                    }
-                },
-                {
-                    shape: {
-                        name: ShapeTemplatesConstants.Diamond.name,
-                        nodes: [{
-                            shapeNodeType: FabricShapeNodeTypes.rect,
-                            properties: {
-                                left: 100,
-                                top: 100,
-                                width: 50,
-                                height: 50,
-                                fill: '#faa',
-                                originX: 'left',
-                                originY: 'top',
-                                angle: 45,
-                            }
-                        },
-                        {
-                            shapeNodeType: FabricShapeNodeTypes.text,
-                            properties: {
-                                text: 'diamond',
-                                left: 300,
-                                top: 280,
-                                fill: '#000',
-                                fontSize: 20
-                            }
-                        }
-                        ]
-                    }
-                }
-            ]
+            shapes: [],
+            gridX: 200,
+            gridY: 100,
         }).canvasObject;
-        //new DiamondShape(settings, 'test').nodes.forEach(n => this.canvas.add(n.fabricObject));
-
-        new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
+        settings.textPosition = TextPosition.Bottom;
+        let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', false, 100, 200);
+        let b = this.canvas.add(a.shapeObject);
+        //b.on('object:selected', (e) => {
+        //    if (e.target) {
+        //        a.shapeObject
+        //    }
+        //});
+        //b.on('object:scaling', (e) => {
+        //    if (e.target) {
+        //        e.target.setOptions({ text: 'test', fontSize: '20' });
+        //    }
+        //});
+        //b.on('object:modified', (event: any) => {
+        //    if (event.target) {
+        //        debugger
+        //        event.target.fontSize *= event.target.scaleX;
+        //        event.target.fontSize = event.target.fontSize.toFixed(0);
+        //        event.target.scaleX = 1;
+        //        event.target.scaleY = 1;
+        //        event.target.setOptions({ text: 'test', fontSize: '20' });
+        //    }
+        //});
         //let nodes: Array<FabricShapeExtention> = [];
         //let node0 = new FabricCircleShape(null, {
         //    left: 300,

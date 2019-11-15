@@ -13,15 +13,14 @@ export class DrawingCanvas implements CanvasDefinition {
     canvasObject: fabric.Canvas;
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.initShapes(elementId, options, definition);
+        this.initShapes(elementId, options, definition, false);
     }
 
     getCanvasDefinition(): CanvasDefinition {
         throw new Error("Method not implemented.");
     }
 
-
-    private initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
+    protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, selection?: boolean) {
         this.canvasObject = new fabric.Canvas(elementId, options);
         if (definition) {
             this.width = definition.width;
@@ -35,19 +34,29 @@ export class DrawingCanvas implements CanvasDefinition {
                 for (var i = 0; i < (definition.width / definition.gridX); i++) {
                     this.canvasObject.add(new fabric.Line([i * definition.gridX, 0, i * definition.gridX, definition.width], { stroke: '#ccc', selectable: false }));
                 }
+                this.canvasObject.on('object:moving', (options) => {
+                    options.target.set({
+                        top: Math.round(options.target.top / definition.gridY) * definition.gridY
+                    });
+                });
             }
             if (definition.gridY) {
                 for (var i = 0; i < (definition.height / definition.gridY); i++) {
                     this.canvasObject.add(new fabric.Line([0, i * definition.gridY, definition.height, i * definition.gridY], { stroke: '#ccc', selectable: false }))
                 }
+                this.canvasObject.on('object:moving', (options) => {
+                    options.target.set({
+                        top: Math.round(options.target.top / definition.gridY) * definition.gridY
+                    });
+                });
             }
 
             if (definition.shapes) {
                 definition.shapes.forEach(s => {
                     if (TemplatesDictionary[s.shape.name]) {
-                        let shape: Shape = new TemplatesDictionary[s.shape.name](null, null, s.shape.nodes as FabricShapeExtention[]);
-                        shape.nodes.forEach(n => this.canvasObject.add(n.fabricObject));
-                    } 
+                        let shape: Shape = new TemplatesDictionary[s.shape.name](null, null, s.shape.nodes);
+                        this.canvasObject.add(shape.shapeObject);
+                    }
                 })
             }
         }
