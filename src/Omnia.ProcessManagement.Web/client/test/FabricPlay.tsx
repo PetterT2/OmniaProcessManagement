@@ -10,7 +10,7 @@ import { ShapeTemplatesConstants } from '../fx';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
 import { FabricShapeNodeTypes } from '../fx/models';
-import { DrawingCanvas } from '../fx/models/processshape/canvas';
+import { DrawingCanvas, DrawingCanvasEditor } from '../fx/models/processshape/canvas';
 
 
 @Component
@@ -121,16 +121,26 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
         //settings.textPosition = TextPosition.Center;
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
-        let drawingCanvas: DrawingCanvas = new DrawingCanvas('c', { selection: false }, {
+        let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas',{}, {
             width: 800,
             height: 1000,
             shapes: [],
             gridX: 200,
             gridY: 100,
         });
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', true, 100, 200);
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle', true, 400, 200);
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond', true, 500, 200);
+        let drawingCanvas1: DrawingCanvas = new DrawingCanvasEditor('test2', {}, {
+            width: 800,
+            height: 1000,
+            shapes: [],
+            gridX: 200,
+            gridY: 100,
+            imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
+        });
+        drawingCanvas1.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
+
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon',  100, 200);
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle',  400, 200);
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond',  500, 200);
         //settings.textPosition = TextPosition.Bottom;
         //let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', true, 100, 200);
         //let b = this.canvas.add(a.shapeObject);
@@ -205,7 +215,10 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
     render(h) {
         return (
             <div>
-                <canvas id="c" width="600" height="600"></canvas>
+                <div class="container">
+                    <canvas id="mycanvas" width="400" height="3000"></canvas>
+                    <canvas id="test2" width="400" height="3000"></canvas>
+                </div>
                 <v-btn onClick={() => {
                     console.log(this.canvas.toJSON());
                     console.log(this.testShape.getShape());

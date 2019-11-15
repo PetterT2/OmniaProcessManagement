@@ -38,7 +38,7 @@ export class CircleShape implements Shape {
         }
         else if (definition) {
             left = left || 0; top = top || 0;
-            let cleft = left, ctop = top, tleft = left, ttop = top;
+            let cleft = left, ctop = top, tleft = left + Math.floor(definition.width / 2), ttop = top;
             switch (definition.textPosition) {
                 case TextPosition.Center:
                     tleft += TextSpacingWithShape;

@@ -72,6 +72,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\CanvasExtension.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvas.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvasEditor.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShapeNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\DiamondShape.ts" />
@@ -171,6 +172,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processshape\canvas\DrawingCanvasEditor.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\canvas\DrawingCanvas.ts">

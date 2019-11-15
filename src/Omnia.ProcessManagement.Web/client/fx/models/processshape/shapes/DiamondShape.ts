@@ -30,7 +30,8 @@ export class DiamondShape implements Shape {
         }
         else if (definition) {
             left = left || 0; top = top || 0;
-            let recleft = definition.width + left, rectop = top, tleft = left, ttop = top;
+            let diamondWidth = Math.floor(Math.sqrt(Math.pow(definition.width, 2) / 2));
+            let recleft = definition.width + left, rectop = top, tleft = left + diamondWidth + (definition.width - diamondWidth), ttop = top;
             switch (definition.textPosition) {
                 case TextPosition.Center:
                     tleft += TextSpacingWithShape;

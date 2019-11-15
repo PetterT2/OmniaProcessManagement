@@ -44,15 +44,14 @@ export class PentagonShape implements Shape {
         }
         else if (definition) {
             left = left || 0; top = top || 0;
-            let triangleWidth = Math.floor(definition.height / 2);
-            let recleft = left, rectop = top, tleft = left, ttop = top, trleft = definition.width + left, trtop = top;
-
+            let triangleWidth = Math.floor(definition.height / 2);             
             let triangleDefinition: DrawingShapeDefinition = Object.assign({}, definition);
             triangleDefinition.width = definition.height + 1;
             triangleDefinition.height = triangleWidth - 0.5;
-
             let recDefinition: DrawingShapeDefinition = Object.assign({}, definition);
             recDefinition.width = definition.width - triangleWidth;
+            let recleft = left, rectop = top, tleft = left + Math.floor(recDefinition.width / 2),
+                ttop = top, trleft = definition.width + left, trtop = top;
 
             switch (definition.textPosition) {
                 case TextPosition.Center:
@@ -64,7 +63,7 @@ export class PentagonShape implements Shape {
                     break;
                 default:
                     rectop += definition.fontSize + TextSpacingWithShape;
-                    trtop += rectop - 1;
+                    trtop = rectop - 1;
                     break;
             }
 
