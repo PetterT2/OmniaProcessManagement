@@ -1,9 +1,9 @@
 ﻿import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../core';
+import { ShapeTemplatesConstants } from '../../../constants';
 import { FabricShapeExtention, FabricShapeNodeTypes, FabricRectShape, FabricTextShape, FabricTriangleShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
-import { Utils } from '@omnia/fx';
+//import { Utils } from '@omnia/fx';
 
 export class PentagonShape implements Shape {
     nodes: FabricShapeExtention[];
@@ -31,29 +31,29 @@ export class PentagonShape implements Shape {
                 this.nodes.push(new FabricTextShape(definition, textNode.properties));
         }
         else if (definition) {
-            let cleft = 0, ctop = 0, tleft = 0, ttop = 0, trleft = definition.width - this.triangleWidth, trtop = 0;
-            let triangleDefinition: DrawingShapeDefinition = Utils.clone(definition);
-            triangleDefinition.width = definition.height;
-            triangleDefinition.height = this.triangleWidth;
-            let recDefinition: DrawingShapeDefinition = Utils.clone(definition);
-            recDefinition.width = definition.width - this.triangleWidth;
+            //let cleft = 0, ctop = 0, tleft = 0, ttop = 0, trleft = definition.width - this.triangleWidth, trtop = 0;
+            //let triangleDefinition: DrawingShapeDefinition = Utils.clone(definition);
+            //triangleDefinition.width = definition.height;
+            //triangleDefinition.height = this.triangleWidth;
+            //let recDefinition: DrawingShapeDefinition = Utils.clone(definition);
+            //recDefinition.width = definition.width - this.triangleWidth;
 
-            switch (definition.textPosition) {
-                case TextPosition.Center:
-                    tleft = TextSpacingWithShape;
-                    ttop = Math.floor(definition.height / 2 - definition.fontSize / 2);
-                    break;
-                case TextPosition.Below:
-                    ttop = definition.height + TextSpacingWithShape;
-                    break;
-                default:
-                    ctop = definition.fontSize + TextSpacingWithShape;
-                    break;
-            }
+            //switch (definition.textPosition) {
+            //    case TextPosition.Center:
+            //        tleft = TextSpacingWithShape;
+            //        ttop = Math.floor(definition.height / 2 - definition.fontSize / 2);
+            //        break;
+            //    case TextPosition.Below:
+            //        ttop = definition.height + TextSpacingWithShape;
+            //        break;
+            //    default:
+            //        ctop = definition.fontSize + TextSpacingWithShape;
+            //        break;
+            //}
 
-            this.nodes.push(new FabricRectShape(recDefinition, { left: cleft, top: ctop }));
-            this.nodes.push(new FabricTriangleShape(triangleDefinition, { left: trleft, top: trtop, angle: 90 }));
-            this.nodes.push(new FabricTextShape(definition, { left: tleft, top: ttop, text: text || "Sample Text" }));
+            //this.nodes.push(new FabricRectShape(recDefinition, { left: cleft, top: ctop }));
+            //this.nodes.push(new FabricTriangleShape(triangleDefinition, { left: trleft, top: trtop, angle: 90 }));
+            //this.nodes.push(new FabricTextShape(definition, { left: tleft, top: ttop, text: text || "Sample Text" }));
         }
     }
 

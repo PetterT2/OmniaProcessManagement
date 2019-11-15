@@ -1,5 +1,5 @@
 ﻿import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../core';
+import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
 import { FabricShapeExtention, FabricShapeNodeTypes, FabricRectShape, FabricTextShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';

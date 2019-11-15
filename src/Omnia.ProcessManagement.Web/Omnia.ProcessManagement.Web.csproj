@@ -52,6 +52,9 @@
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\Enums.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
+    <TypeScriptCompile Remove="client\fx\Constants.ts" />
+    <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
+    <TypeScriptCompile Remove="client\fx\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts" />
@@ -123,6 +126,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="client\fx\constants.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\index.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\data\processtemplates\index.ts">
       <SubType>Code</SubType>
     </None>

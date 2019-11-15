@@ -6,7 +6,7 @@ import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace,
 import { OPMAdminLocalization } from '../../../../loc/localize';
 import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition, ShapeTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
-import { ShapeTemplatesConstants } from '../../../../../core';
+import { ShapeTemplatesConstants } from '../../../../../fx/constants';
 import { MultilingualStore } from '@omnia/fx/store';
 
 interface ProcessTemplateShapeSettingsBladeProps {

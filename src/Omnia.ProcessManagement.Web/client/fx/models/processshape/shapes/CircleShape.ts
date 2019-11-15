@@ -1,10 +1,10 @@
 ﻿import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape, Enums } from '../../../../core';
 import { FabricShapeNodeTypes, FabricShapeExtention, FabricCircleShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
 import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
+import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
 
 export class CircleShape implements Shape {
     nodes: FabricShapeExtention[];

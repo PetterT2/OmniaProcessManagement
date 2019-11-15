@@ -1,8 +1,8 @@
 ﻿import { Composer } from '@omnia/tooling/composers';
-import { PmResourceManifests } from '../fx/models';
+import { OPMResourceManifests } from '../fx/models';
 
 Composer
-    .registerManifest(PmResourceManifests.Core, "omnia.dm.core")
+    .registerManifest(OPMResourceManifests.Core, "omnia.pm.core")
     .registerResources({
         resourcePaths: [
             "../services/**/*.js",
