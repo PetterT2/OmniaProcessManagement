@@ -1,7 +1,8 @@
 ﻿import { fabric } from 'fabric';
 import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitions';
 import { CircleShape, DiamondShape, Shape, PentagonShape } from '../shapes';
-import { FabricShapeExtention } from '../fabricshape';
+import { FabricShapeExtention, IShapeNode } from '../fabricshape';
+import { DrawingShapeDefinition } from '../..';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -10,17 +11,17 @@ export class DrawingCanvas implements CanvasDefinition {
     gridX?: number;
     gridY?: number;
     shapes: IDrawingShapeNode[];
-    canvasObject: fabric.Canvas;
+    private canvasObject: fabric.Canvas;
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.initShapes(elementId, options, definition, false);
+        this.initShapes(elementId, options, definition);
     }
 
     getCanvasDefinition(): CanvasDefinition {
         throw new Error("Method not implemented.");
     }
 
-    protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, selection?: boolean) {
+    protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
         this.canvasObject = new fabric.Canvas(elementId, options);
         if (definition) {
             this.width = definition.width;
@@ -55,12 +56,19 @@ export class DrawingCanvas implements CanvasDefinition {
                 definition.shapes.forEach(s => {
                     if (TemplatesDictionary[s.shape.name]) {
                         let shape: Shape = new TemplatesDictionary[s.shape.name](null, null, s.shape.nodes);
-                        this.canvasObject.add(shape.shapeObject);
+                        shape.shapeObject.forEach(s => this.canvasObject.add(s));
                     }
                 })
             }
         }
 
+    }
+
+    addCanvasShape(shapeName: string, definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
+        if (this.canvasObject && TemplatesDictionary[shapeName]) {
+            let shape: Shape = new TemplatesDictionary[shapeName](definition, nodes, text, selectable, left, top);
+            shape.shapeObject.forEach(s => this.canvasObject.add(s));
+        }
     }
 }
 

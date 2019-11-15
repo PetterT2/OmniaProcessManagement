@@ -121,16 +121,19 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
         //settings.textPosition = TextPosition.Center;
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
-        this.canvas = new DrawingCanvas('c', { selection: false }, {
+        let drawingCanvas: DrawingCanvas = new DrawingCanvas('c', { selection: false }, {
             width: 800,
             height: 1000,
             shapes: [],
             gridX: 200,
             gridY: 100,
-        }).canvasObject;
-        settings.textPosition = TextPosition.Bottom;
-        let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', false, 100, 200);
-        let b = this.canvas.add(a.shapeObject);
+        });
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', true, 100, 200);
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle', true, 400, 200);
+        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond', true, 500, 200);
+        //settings.textPosition = TextPosition.Bottom;
+        //let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', true, 100, 200);
+        //let b = this.canvas.add(a.shapeObject);
         //b.on('object:selected', (e) => {
         //    if (e.target) {
         //        a.shapeObject

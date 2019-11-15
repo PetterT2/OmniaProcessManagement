@@ -8,7 +8,7 @@ import { IShape } from './IShape';
 export class PentagonShape implements Shape {
     nodes: IShapeNode[];
     private fabricShapes: Array<FabricShapeExtention> = [];
-    private fabricGroup: fabric.Group;
+    private fabricObjects: fabric.Object[] = [];
 
     constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
         this.initNodes(definition, nodes, text, selectable, left, top);
@@ -20,16 +20,27 @@ export class PentagonShape implements Shape {
 
     private initNodes(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
+        var fabricGroupObjects: fabric.Object[] = [];
+        var fabricTextObject: fabric.Object;
         if (nodes) {
             let rectNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.rect);
             let triangleNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.triangle);
             let textNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.text);
-            if (rectNode)
-                this.fabricShapes.push(new FabricRectShape(definition, Object.assign({ selectable: selectable}, rectNode.properties || {})));
-            if (triangleNode)
-                this.fabricShapes.push(new FabricTriangleShape(definition, Object.assign({ selectable: selectable}, triangleNode.properties || {})));
-            if (textNode)
-                this.fabricShapes.push(new FabricTextShape(definition, Object.assign({ selectable: selectable}, textNode.properties || {})));
+            if (rectNode) {
+                let rectShape = new FabricRectShape(definition, Object.assign({ selectable: selectable }, rectNode.properties || {}));
+                this.fabricShapes.push(rectShape);
+                fabricGroupObjects.push(rectShape.fabricObject);
+            }
+            if (triangleNode) {
+                let triangleShape = new FabricTriangleShape(definition, Object.assign({ selectable: selectable }, triangleNode.properties || {}));
+                this.fabricShapes.push(triangleShape);
+                fabricGroupObjects.push(triangleShape.fabricObject);
+            }
+            if (textNode) {
+                let textShape = new FabricTextShape(definition, Object.assign({ selectable: selectable }, textNode.properties || {}));
+                this.fabricShapes.push(textShape);
+                fabricTextObject = textShape.fabricObject;
+            }
         }
         else if (definition) {
             left = left || 0; top = top || 0;
@@ -60,12 +71,16 @@ export class PentagonShape implements Shape {
             this.fabricShapes.push(new FabricRectShape(recDefinition, { left: recleft, top: rectop, selectable: selectable }));
             this.fabricShapes.push(new FabricTriangleShape(triangleDefinition, { left: trleft, top: trtop, selectable: selectable, angle: 90 }));
             this.fabricShapes.push(new FabricTextShape(definition, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+
+            fabricGroupObjects = [this.fabricShapes[0].fabricObject, this.fabricShapes[1].fabricObject];
+            fabricTextObject = this.fabricShapes[2].fabricObject;
         }
-        this.fabricGroup = new fabric.Group(this.fabricShapes.map(n => n.fabricObject), { selectable: selectable });
+        this.fabricObjects.push(new fabric.Group(fabricGroupObjects, { selectable: selectable }));
+        this.fabricObjects.push(fabricTextObject);
     }
 
-    get shapeObject(): fabric.Group {
-        return this.fabricGroup;
+    get shapeObject(): fabric.Object[] {
+        return this.fabricObjects;
     }
 
     getShape(): IShape {
