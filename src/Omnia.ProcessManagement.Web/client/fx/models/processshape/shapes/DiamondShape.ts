@@ -8,7 +8,7 @@ import { IShape } from './IShape';
 export class DiamondShape implements Shape {
     nodes: IShapeNode[];
     private fabricShapes: Array<FabricShapeExtention> = [];
-    private fabricGroup: fabric.Group;
+    private fabricObjects: fabric.Object[] = [];
 
     constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
         this.initNodes(definition, nodes, text, selectable, left, top);
@@ -30,7 +30,8 @@ export class DiamondShape implements Shape {
         }
         else if (definition) {
             left = left || 0; top = top || 0;
-            let recleft = definition.width + left, rectop = top, tleft = left, ttop = top;
+            let diamondWidth = Math.floor(Math.sqrt(Math.pow(definition.width, 2) / 2));
+            let recleft = definition.width + left, rectop = top, tleft = left + diamondWidth + (definition.width - diamondWidth), ttop = top;
             switch (definition.textPosition) {
                 case TextPosition.Center:
                     tleft += TextSpacingWithShape;
@@ -43,14 +44,14 @@ export class DiamondShape implements Shape {
                     rectop += definition.fontSize + TextSpacingWithShape;
                     break;
             }
-            this.fabricShapes.push(new FabricRectShape(definition, { left: recleft, top: rectop, angle: 45, selectable: selectable  }));
-            this.fabricShapes.push(new FabricTextShape(definition, { left: tleft, top: ttop, selectable: selectable , text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricRectShape(definition, { left: recleft, top: rectop, angle: 45, selectable: selectable }));
+            this.fabricShapes.push(new FabricTextShape(definition, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
         }
-        this.fabricGroup = new fabric.Group(this.fabricShapes.map(n => n.fabricObject), { selectable: selectable });
+        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
     }
 
-    get shapeObject(): fabric.Group {
-        return this.fabricGroup;
+    get shapeObject(): fabric.Object[] {
+        return this.fabricObjects;
     }
 
     getShape(): IShape {

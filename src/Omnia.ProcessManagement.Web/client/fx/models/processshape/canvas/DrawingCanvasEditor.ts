@@ -3,41 +3,15 @@ import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitio
 import { CircleShape, DiamondShape, Shape, PentagonShape } from '../shapes';
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
+import { DrawingCanvas } from '.';
 
-export class DrawingCanvas implements CanvasDefinition {
-    imageBackgroundUrl?: string;
-    width: number;
-    height: number;
-    gridX?: number;
-    gridY?: number;
-    shapes: IDrawingShapeNode[];
-    protected selectable = false;
-    protected canvasObject: fabric.Canvas;
-
+export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.initShapes(elementId, options, definition);
-        this.renderBackgroundImage(definition);
-    }
-
-    getCanvasDefinition(): CanvasDefinition {
-        throw new Error("Method not implemented.");
-    }
-
-    private renderBackgroundImage(definition?: CanvasDefinition) {
-        if (definition && definition.imageBackgroundUrl) {
-            fabric.Image.fromURL(definition.imageBackgroundUrl, (img) => {
-                img.scaleToWidth(this.canvasObject.getWidth());
-                img.scaleToHeight(this.canvasObject.getHeight());
-                this.canvasObject.setBackgroundImage(img, this.canvasObject.renderAll.bind(this.canvasObject), {
-                });
-                this.canvasObject.requestRenderAll();
-            });
-        }
+        super(elementId, options, definition);
     }
 
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.selectable = false;
-        options = Object.assign({ selection: this.selectable }, options || {});
+        this.selectable = true;
         this.canvasObject = new fabric.Canvas(elementId, options);
         if (definition) {
             this.width = definition.width;
@@ -66,16 +40,23 @@ export class DrawingCanvas implements CanvasDefinition {
                     }
                 })
             }
-        }
-
-    }
-
-    addCanvasShape(shapeName: string, definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, left?: number, top?: number) {
-        if (this.canvasObject && TemplatesDictionary[shapeName]) {
-            let shape: Shape = new TemplatesDictionary[shapeName](definition, nodes, text, this.selectable, left, top);
-            shape.shapeObject.forEach(s => this.canvasObject.add(s));
+            this.addEventListener();
         }
     }
+
+    private addEventListener() {
+        this.canvasObject.on('object:moving', (options) => {
+            if (this.gridX)
+                options.target.set({
+                    left: Math.round(options.target.left / this.gridX) * this.gridX
+                });
+            if (this.gridY)
+                options.target.set({
+                    top: Math.round(options.target.top / this.gridY) * this.gridY
+                });
+        });
+    }
+
 }
 
 export const TemplatesDictionary = {

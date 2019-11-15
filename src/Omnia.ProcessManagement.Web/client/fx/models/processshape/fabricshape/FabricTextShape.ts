@@ -16,8 +16,11 @@ export class FabricTextShape implements FabricShapeExtention {
         if (definition) {
             this.properties["left"] = 0;
             this.properties["top"] = 0;
+            this.properties["width"] = definition.width;
             this.properties["fill"] = definition.textColor;
             this.properties["fontSize"] = definition.fontSize;
+            this.properties["originX"] = 'center';
+            this.properties["textAlign"] = 'center';
         }
         if (properties) {
             Object.keys(properties).forEach(key => {

@@ -10,7 +10,7 @@ import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constant
 export class CircleShape implements Shape {
     nodes: IShapeNode[];
     private fabricShapes: Array<FabricShapeExtention> = [];
-    private fabricGroup: fabric.Group;
+    private fabricObjects: fabric.Object[] = [];
 
     constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
         this.initNodes(definition, nodes, text, selectable, left, top);
@@ -26,16 +26,19 @@ export class CircleShape implements Shape {
             let circleNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.circle);
             let ellipseNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.ellipse);
             let textNode = nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.text);
-            if (circleNode)
+            if (circleNode) {
                 this.fabricShapes.push(new FabricCircleShape(definition, Object.assign({ selectable: selectable }, circleNode.properties || {})));
-            if (ellipseNode)
+            }
+            if (ellipseNode) {
                 this.fabricShapes.push(new FabricEllipseShape(definition, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
-            if (textNode)
+            }
+            if (textNode) {
                 this.fabricShapes.push(new FabricTextShape(definition, Object.assign({ selectable: selectable }, textNode.properties || {})));
+            }
         }
         else if (definition) {
             left = left || 0; top = top || 0;
-            let cleft = left, ctop = top, tleft = left, ttop = top;
+            let cleft = left, ctop = top, tleft = left + Math.floor(definition.width / 2), ttop = top;
             switch (definition.textPosition) {
                 case TextPosition.Center:
                     tleft += TextSpacingWithShape;
@@ -51,11 +54,11 @@ export class CircleShape implements Shape {
             this.fabricShapes.push(new FabricCircleShape(definition, { left: cleft, top: ctop, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(definition, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
         }
-        this.fabricGroup = new fabric.Group(this.fabricShapes.map(n => n.fabricObject), { selectable: selectable });
+        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
     }
 
-    get shapeObject(): fabric.Group {
-        return this.fabricGroup;
+    get shapeObject(): fabric.Object[] {
+        return this.fabricObjects;
     }
 
     getShape(): IShape {

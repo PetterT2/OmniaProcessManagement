@@ -6,8 +6,8 @@ import { DrawingShapeDefinition } from '../../data';
 export declare abstract class Shape implements IShape {
     name: string;
     nodes: IShapeNode[];
-    readonly shapeObject: fabric.Group;
-    constructor(settings: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number);
+    readonly shapeObject: fabric.Object[];
+    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number);
     abstract getShape(): IShape;
 }
 
