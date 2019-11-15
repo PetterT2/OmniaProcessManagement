@@ -5,5 +5,5 @@ export class OPMService {
 }
 
 export class PmResourceManifests {
-    
+    public static get Core(): Guid { return new Guid('d5544e6c-494d-4e8a-9284-b0e64d3d19d7') }
 }

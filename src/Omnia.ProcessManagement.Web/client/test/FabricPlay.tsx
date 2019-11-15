@@ -8,7 +8,7 @@ import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement } fro
 import { Enums, ShapeTemplatesConstants } from '../core';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
-import { FabricShapeNodeTypes } from '../fx/models/processshape/fabricshape/IFabricShapeNode';
+import { FabricShapeNodeTypes } from '../fx/models';
 import { DrawingCanvas } from '../fx/models/processshape/canvas';
 
 
