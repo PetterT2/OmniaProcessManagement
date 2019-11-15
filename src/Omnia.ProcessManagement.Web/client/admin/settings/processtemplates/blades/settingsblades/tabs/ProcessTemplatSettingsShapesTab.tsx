@@ -10,11 +10,13 @@ import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, ShapeDefinition
 
 interface ProcessTemplatSettingsShapesTabProps {
     journey: () => JourneyInstance;
+    editingProcessTemplate: ProcessTemplate;
 }
 
 @Component
 export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<ProcessTemplatSettingsShapesTabProps> {
     @Prop() journey: () => JourneyInstance;
+    @Prop() editingProcessTemplate: ProcessTemplate;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
@@ -86,6 +88,10 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     render(h) {
         return (
             <div>
+                <div class='text-right'>
+                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape(ShapeDefinitionFactory.createDefaultProcessTemplate(ShapeDefinitionTypes.Heading)) }}>{this.loc.ProcessTemplates.AddHeading}</v-btn>
+                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape() }}>{this.loc.ProcessTemplates.AddShape}</v-btn>
+                </div>
                 <draggable
                     options={{ handle: ".drag-handle", animation: "100" }}
                     element="v-list"
@@ -119,10 +125,6 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                         })
                     }
                 </draggable>
-                <div class='text-right'>
-                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape(ShapeDefinitionFactory.createDefaultProcessTemplate(ShapeDefinitionTypes.Heading)) }}>{this.loc.ProcessTemplates.AddHeading}</v-btn>
-                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape() }}>{this.loc.ProcessTemplates.AddShape}</v-btn>
-                </div>
             </div>
         );
     }

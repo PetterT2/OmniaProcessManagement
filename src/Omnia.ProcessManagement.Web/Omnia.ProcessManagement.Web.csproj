@@ -109,6 +109,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.TypeScript.Compiler" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -119,6 +123,7 @@
     </PackageReference>
     <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.38-dev" />
     <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.38-dev" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 
   <ItemGroup>

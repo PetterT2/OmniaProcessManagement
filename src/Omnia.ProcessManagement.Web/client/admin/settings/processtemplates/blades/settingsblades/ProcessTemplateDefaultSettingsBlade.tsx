@@ -2,7 +2,7 @@
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
-import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase } from '@omnia/fx/ux';
+import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
 import ProcessTemplatSettingsGeneralTab from './tabs/ProcessTemplatSettingsGeneralTab';
 import ProcessTemplatSettingsDefaultContentTab from './tabs/ProcessTemplatSettingsDefaultContentTab';
@@ -31,11 +31,12 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
-    private selectedTab: number = TabNames.general;
-    private editingProcessTemplate: ProcessTemplate = null;
+    selectedTab: number = TabNames.general;
+    editingProcessTemplate: ProcessTemplate = null;
+    internalValidator: FormValidator = new FormValidator(this);
 
     created() {
-        this.editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+        
     }
 
     selectTab(selectedTab: number) {
@@ -44,7 +45,18 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
         this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
     }
 
+    save() {
+        if (this.internalValidator.validateAll()) {
+
+        }
+        else {
+            this.selectedTab = TabNames.general;
+        }
+    }
+
     render(h) {
+        this.editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+
         return (
             <div>
                 <v-toolbar flat dark={this.omniaTheming.promoted.header.dark}
@@ -77,9 +89,12 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
                 </v-toolbar>
                 <v-divider></v-divider>
                 <v-container>
-                    {this.selectedTab == TabNames.general && <ProcessTemplatSettingsGeneralTab journey={this.journey}></ProcessTemplatSettingsGeneralTab>}
-                    {this.selectedTab == TabNames.shapes && <ProcessTemplatSettingsShapesTab journey={this.journey}></ProcessTemplatSettingsShapesTab>}
-                    {this.selectedTab == TabNames.defaultContent && <ProcessTemplatSettingsDefaultContentTab journey={this.journey}></ProcessTemplatSettingsDefaultContentTab>}
+                    {this.selectedTab == TabNames.general && <ProcessTemplatSettingsGeneralTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate} formValidator={this.internalValidator}></ProcessTemplatSettingsGeneralTab>}
+                    {this.selectedTab == TabNames.shapes && <ProcessTemplatSettingsShapesTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsShapesTab>}
+                    {this.selectedTab == TabNames.defaultContent && <ProcessTemplatSettingsDefaultContentTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsDefaultContentTab>}
+                    <div class='text-right'>
+                        <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.save() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
+                    </div>
                 </v-container>
             </div>
         );
