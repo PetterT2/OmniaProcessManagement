@@ -60,11 +60,11 @@ namespace Omnia.ProcessManagement.Core.Repositories
                  .WithMany(p => p.ProcessMetadata)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
-            SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
-            modelBuilder.Entity<Process>()
-               .HasIndex(c => new { c.OPMProcessId, c.VersionType })
-               .IsUnique()
-               .HasFilter($"[VersionType] IS NOT {ProcessVersionType.Published}");
+            //SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
+            //modelBuilder.Entity<Process>()
+            //   .HasIndex(c => new { c.OPMProcessId, c.VersionType })
+            //   .IsUnique()
+            //   .HasFilter($"[VersionType] IS NOT {ProcessVersionType.Published}");
         }
 
         /// <summary>

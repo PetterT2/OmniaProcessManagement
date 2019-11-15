@@ -132,7 +132,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                 <v-divider></v-divider>
                 <v-container>
                     <v-data-table
-                        items-per-page="-1"
+                        items-per-page={Number.MAX_SAFE_INTEGER}
                         hide-default-footer
                         hide-default-header
                         headers={[]}

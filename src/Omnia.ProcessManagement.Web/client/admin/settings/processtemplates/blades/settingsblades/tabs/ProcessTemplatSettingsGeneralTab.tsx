@@ -12,11 +12,15 @@ import { ProcessTemplateJourneyStore } from '../../../store';
 
 interface ProcessTemplatSettingsGeneralTabProps {
     journey: () => JourneyInstance;
+    editingProcessTemplate: ProcessTemplate;
+    formValidator: FormValidator;
 }
 
 @Component
 export default class ProcessTemplatSettingsGeneralTab extends VueComponentBase<ProcessTemplatSettingsGeneralTabProps> {
     @Prop() journey: () => JourneyInstance;
+    @Prop() editingProcessTemplate: ProcessTemplate;
+    @Prop() formValidator: FormValidator;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
@@ -24,18 +28,15 @@ export default class ProcessTemplatSettingsGeneralTab extends VueComponentBase<P
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
 
-    private internalValidator: FormValidator = new FormValidator(this);
-    private editingProcessTemplate: ProcessTemplate = null;
-
     created() {
-        this.editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+
     }
 
     render(h) {
         return (
             <div>
                 <omfx-multilingual-input
-                    requiredWithValidator={this.internalValidator}
+                    requiredWithValidator={this.formValidator}
                     model={this.editingProcessTemplate.settings.title}
                     onModelChange={(title) => { this.editingProcessTemplate.settings.title = title }}
                     forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
