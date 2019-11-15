@@ -47,7 +47,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             title: this.loc.ProcessTemplates.ShapeSettings.Center
         },
         {
-            value: TextPosition.Below,
+            value: TextPosition.Bottom,
             title: this.loc.ProcessTemplates.ShapeSettings.Below
         }
     ]

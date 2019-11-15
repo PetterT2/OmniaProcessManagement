@@ -4,7 +4,7 @@ import { Enums } from '../../../../core';
 export enum TextPosition {
     Above = 1,
     Center = 2,
-    Below = 3
+    Bottom = 3
 }
 
 export interface DrawingShapeDefinition extends ShapeDefinition {

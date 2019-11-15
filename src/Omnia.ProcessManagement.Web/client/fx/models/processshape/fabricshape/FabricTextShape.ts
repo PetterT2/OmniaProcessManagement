@@ -16,15 +16,15 @@ export class FabricTextShape implements FabricShapeExtention {
         if (definition) {
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = definition.backgroundColor;
+            this.properties["fill"] = definition.textColor;
             this.properties["fontSize"] = definition.fontSize;
         }
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];
             });
-        }
-        this.fabricObject = new fabric.Text(this.properties['text'] || "", this.properties);
+        } 
+        this.fabricObject = new fabric.Text(this.properties['text'] || "", this.properties);       
     }
 
     get shapeNodeType() {
