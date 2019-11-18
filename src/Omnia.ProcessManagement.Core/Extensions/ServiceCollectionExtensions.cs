@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Omnia.ProcessManagement.Core.Repositories;
+using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
+using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using System;
 using System.Collections.Generic;
@@ -24,9 +26,11 @@ namespace Omnia.ProcessManagement.Core.Extensions
 
             //Services
             services.AddScopedWithSingeltonRef<IProcessTemplateService, ProcessTemplateService>();
+            services.AddScopedWithSingeltonRef<IProcessService, ProcessService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
+            services.AddScopedWithSingeltonRef<IProcessRepository, ProcessRepository>();
 
             services.AddAutoMapper();
             return services;
