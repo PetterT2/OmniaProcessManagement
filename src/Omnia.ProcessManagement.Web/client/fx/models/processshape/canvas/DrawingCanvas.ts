@@ -95,7 +95,7 @@ export class DrawingCanvas implements CanvasDefinition {
 
 }
 
-export const TemplatesDictionary = {
+const TemplatesDictionary = {
     CircleShape,
     DiamondShape,
     PentagonShape,

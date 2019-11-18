@@ -15,54 +15,27 @@ export class ProcessTemplateService {
     constructor() {
     }
 
-    processTemplates: Array<ProcessTemplate> = [
-        {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            settings: {
-                title: {
-                    "en-us": "Business Process",
-                    isMultilingualString: true
-                },
-                shapeDefinitions: []
-            },
-            multilingualTitle: "Business Process",
-        },
-        {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            settings: {
-                title: {
-                    "en-us": "BPMN 2.0",
-                    isMultilingualString: true
-                },
-                shapeDefinitions: []
-            },
-            multilingualTitle: "BPMN 2.0"
-        },
-        {
-            id: "79E24826-62CC-4BA4-ABD1-396573D796A8",
-            settings: {
-                title: {
-                    "en-us": "Project",
-                    isMultilingualString: true
-                },
-                shapeDefinitions: []
-            },
-            multilingualTitle: "Project"
-        }
-    ]
-
     public getAllProcessTemplates = () => {
         return new Promise<Array<ProcessTemplate>>((resolve, reject) => {
-            //this.httpClient.get<IHttpApiOperationResult<Array<any>>>('/api/processtemplates/all').then(response => {
-            //    if (response.data.success) {
-            //        this.generateDocumentTemplatesMultilingualText(response.data.data);
-            //        resolve(response.data.data);
-            //    }
-            //    else reject(response.data.errorMessage)
-            //});
+            this.httpClient.get<IHttpApiOperationResult<Array<any>>>('/api/processtemplates/all').then(response => {
+                if (response.data.success) {
+                    this.generateDocumentTemplatesMultilingualText(response.data.data);
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
 
-            // will be removed
-            resolve(this.processTemplates);
+    public addOrUpdateProcessTemplate = (processTemplate: ProcessTemplate) => {
+        return new Promise<ProcessTemplate>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<ProcessTemplate>>('/api/processtemplates/addorupdate', processTemplate).then(response => {
+                if (response.data.success) {
+                    this.generateDocumentTemplatesMultilingualText([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
         });
     }
 
@@ -77,20 +50,20 @@ export class ProcessTemplateService {
         });
     }
 
-    private generateDocumentTemplatesMultilingualText = (items: Array<any>) => {
+    private generateDocumentTemplatesMultilingualText = (items: Array<ProcessTemplate>) => {
         let languageSetting = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
 
         if (languageSetting) {
             items.forEach(item => {
                 let multilingualString: MultilingualString = {} as MultilingualString;
-                let languages = Object.keys(item.settings.contents);
+                let languages = Object.keys(item.settings.title);
                 languages.forEach(language => {
                     let foundLanguage = languageSetting.availableLanguages.find(l => l.name == language);
                     if (foundLanguage) {
-                        let content = item.settings.contents[foundLanguage.name];
-                        multilingualString[foundLanguage.name] = content.title;
+                        let content = item.settings.title[foundLanguage.name];
+                        multilingualString[foundLanguage.name] = content;
                     } else {
-                        delete item.settings.contents[language]
+                        delete item.settings.title[language]
                     }
                 })
 

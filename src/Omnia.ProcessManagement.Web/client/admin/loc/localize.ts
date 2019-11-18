@@ -28,6 +28,10 @@
                 Above: string,
                 Center: string,
                 Below: string
+            },
+            Messages: {
+                NoProcessTemplate: string,
+                NoShapeTemplate: string
             }
         }
     }

@@ -119,7 +119,16 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<int>("VersionType")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("OPMProcessId", "VersionType")
+                        .IsUnique()
+                        .HasFilter("[VersionType] != 2");
 
                     b.ToTable("Processes");
                 });

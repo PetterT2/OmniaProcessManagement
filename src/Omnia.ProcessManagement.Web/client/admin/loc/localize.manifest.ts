@@ -32,6 +32,10 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
                 Above: "Above",
                 Center: "Center",
                 Below: "Below"
+            },
+            Messages: {
+                NoProcessTemplate: "There's no process template.",
+                NoShapeTemplate: "There's no shape template."
             }
         }
     });

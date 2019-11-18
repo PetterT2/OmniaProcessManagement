@@ -50,7 +50,8 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Processes", x => x.Id);
+                    table.PrimaryKey("PK_Processes", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
@@ -141,6 +142,20 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "IX_ProcessContents_RootProcessId",
                 table: "ProcessContents",
                 column: "RootProcessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Processes_ClusteredId",
+                table: "Processes",
+                column: "ClusteredId",
+                unique: true)
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Processes_OPMProcessId_VersionType",
+                table: "Processes",
+                columns: new[] { "OPMProcessId", "VersionType" },
+                unique: true,
+                filter: "[VersionType] != 2");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProcessMetadata_ClusteredId",

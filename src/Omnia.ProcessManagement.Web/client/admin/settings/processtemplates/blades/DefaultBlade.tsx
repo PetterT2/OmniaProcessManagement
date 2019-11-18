@@ -137,7 +137,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                         hide-default-header
                         headers={[]}
                         items={processTemplates}
-                        no-data-text=""
+                        no-data-text={this.loc.ProcessTemplates.Messages.NoProcessTemplate}
                         scopedSlots={{
                             item: p => this.renderTableRow(h, p.item),
                             header: p => this.renderTableHeader(h)

@@ -1,8 +1,7 @@
 ﻿import { fabric } from 'fabric';
-import { CanvasDefinition } from '../../data/drawingdefinitions';
-import { DrawingCanvas, TemplatesDictionary } from './DrawingCanvas';
-import { Shape } from '..';
 import { Guid } from '@omnia/fx-models';
+import { CanvasDefinition } from '../../data/drawingdefinitions';
+import { DrawingCanvas } from './DrawingCanvas';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
