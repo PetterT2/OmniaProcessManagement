@@ -9,6 +9,6 @@ namespace Omnia.ProcessManagement.Models.Processes
     {
         public override ProcessItemTypes Type => ProcessItemTypes.External;
 
-        public Guid ProcessUniqueId { get; set; }
+        public Guid OPMProcessId { get; set; }
     }
 }
