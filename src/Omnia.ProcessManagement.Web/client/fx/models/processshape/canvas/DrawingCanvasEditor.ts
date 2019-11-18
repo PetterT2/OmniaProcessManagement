@@ -1,9 +1,8 @@
 ﻿import { fabric } from 'fabric';
-import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitions';
-import { CircleShape, DiamondShape, Shape, PentagonShape } from '../shapes';
-import { FabricShapeExtention, IShapeNode } from '../fabricshape';
-import { DrawingShapeDefinition } from '../..';
-import { DrawingCanvas } from '.';
+import { CanvasDefinition } from '../../data/drawingdefinitions';
+import { DrawingCanvas, TemplatesDictionary } from './DrawingCanvas';
+import { Shape } from '..';
+import { Guid } from '@omnia/fx-models';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
@@ -34,10 +33,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
             if (definition.shapes) {
                 definition.shapes.forEach(s => {
-                    if (TemplatesDictionary[s.shape.name]) {
-                        let shape: Shape = new TemplatesDictionary[s.shape.name](null, s.shape.nodes, null, this.selectable);
-                        shape.shapeObject.forEach(s => this.canvasObject.add(s));
-                    }
+                    this.addShapeFromTemplateClassName(s.shape.name, Guid.newGuid(), s.shape.nodes, null);
                 })
             }
             this.addEventListener();
@@ -46,21 +42,17 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
     private addEventListener() {
         this.canvasObject.on('object:moving', (options) => {
-            if (this.gridX)
-                options.target.set({
-                    left: Math.round(options.target.left / this.gridX) * this.gridX
-                });
-            if (this.gridY)
-                options.target.set({
-                    top: Math.round(options.target.top / this.gridY) * this.gridY
-                });
+            if (options.target.type != 'text') {
+                if (this.gridX)
+                    options.target.set({
+                        left: Math.round(options.target.left / this.gridX) * this.gridX
+                    });
+                if (this.gridY)
+                    options.target.set({
+                        top: Math.round(options.target.top / this.gridY) * this.gridY
+                    });
+            }
         });
     }
 
-}
-
-export const TemplatesDictionary = {
-    CircleShape,
-    DiamondShape,
-    PentagonShape
 }

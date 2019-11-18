@@ -1,65 +1,51 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../constants';
-import { FabricShapeExtention, FabricShapeNodeTypes, FabricRectShape, FabricTextShape, FabricTriangleShape, IShapeNode } from '../fabricshape';
+import { FabricShapeNodeTypes, FabricShapeExtention, FabricCircleShape, IShapeNode, FabricImageShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
+import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
+import { FabricTextShape } from '../fabricshape/FabricTextShape';
+import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
+import { resolve } from 'path';
 
-export class PentagonShape implements Shape {
+export class MediaShape implements Shape {
     definition: DrawingShapeDefinition;
     nodes: IShapeNode[];
     private fabricShapes: Array<FabricShapeExtention> = [];
     private fabricObjects: fabric.Object[] = [];
     private startPoint: { x: number, y: number } = { x: 0, y: 0 };
     private originPos: { x: number, y: number } = { x: 0, y: 0 };
+    private imageUrl: string;
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
+    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean,
+        left?: number, top?: number, imageUrl?: string) {
         this.definition = definition;
         this.nodes = nodes;
+        this.imageUrl = imageUrl;
         this.initNodes(text, selectable, left, top);
     }
 
     get name() {
-        return ShapeTemplatesConstants.Pentagon.name;
+        return ShapeTemplatesConstants.Media.name;
     }
 
-    private initNodes(text?: string, selectable?: boolean, left?: number, top?: number) {
+    private initNodes(text?: string, selectable?: boolean, left?: number, top?: number, imageUrl?: string) {
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
-        var fabricGroupObjects: fabric.Object[] = [];
-        var fabricTextObject: fabric.Object;
         if (this.nodes) {
-            let rectNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.rect);
-            let triangleNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.triangle);
+            let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.image);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.text);
-            if (rectNode) {
-                let rectShape = new FabricRectShape(this.definition, Object.assign({ selectable: selectable }, rectNode.properties || {}));
-                this.fabricShapes.push(rectShape);
-                fabricGroupObjects.push(rectShape.fabricObject);
+            if (imageNode) {
+                this.imageUrl = this.imageUrl || (imageNode.properties ? imageNode.properties['imageUrl'] : '')
+                this.fabricShapes.push(new FabricImageShape(this.definition, Object.assign({ selectable: selectable }, imageNode.properties || {})));
             }
-            if (triangleNode) {
-                let triangleShape = new FabricTriangleShape(this.definition, Object.assign({ selectable: selectable }, triangleNode.properties || {}));
-                this.fabricShapes.push(triangleShape);
-                fabricGroupObjects.push(triangleShape.fabricObject);
-            }
-            if (textNode) {
-                let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties || {}));
-                this.fabricShapes.push(textShape);
-                fabricTextObject = textShape.fabricObject;
-            }
+            if (textNode)
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties) || {}));
         }
         else if (this.definition) {
             left = left || 0; top = top || 0;
-            let triangleWidth = Math.floor(this.definition.height / 2);
-            let triangleDefinition: DrawingShapeDefinition = Object.assign({}, this.definition);
-            triangleDefinition.width = this.definition.height + 1;
-            triangleDefinition.height = triangleWidth - 0.5;
-            let recDefinition: DrawingShapeDefinition = Object.assign({}, this.definition);
-            recDefinition.width = this.definition.width - triangleWidth;
-            let recleft = left, rectop = top, tleft = left + Math.floor(recDefinition.width / 2),
-                ttop = top, trleft = this.definition.width + left, trtop = top;
-
+            let cleft = left, ctop = top, tleft = left + Math.floor(this.definition.width / 2), ttop = top;
             switch (this.definition.textPosition) {
                 case TextPosition.Center:
                     tleft += TextSpacingWithShape;
@@ -69,26 +55,19 @@ export class PentagonShape implements Shape {
                     ttop += this.definition.height + TextSpacingWithShape;
                     break;
                 default:
-                    rectop += this.definition.fontSize + TextSpacingWithShape;
-                    trtop = rectop - 1;
+                    ctop += this.definition.fontSize + TextSpacingWithShape;
                     break;
             }
-
-            this.fabricShapes.push(new FabricRectShape(recDefinition, { left: recleft, top: rectop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTriangleShape(triangleDefinition, { left: trleft, top: trtop, selectable: selectable, angle: 90 }));
+            this.fabricShapes.push(new FabricImageShape(this.definition, { left: cleft, top: ctop, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
-
-            fabricGroupObjects = [this.fabricShapes[0].fabricObject, this.fabricShapes[1].fabricObject];
-            fabricTextObject = this.fabricShapes[2].fabricObject;
         }
-        this.fabricObjects.push(new fabric.Group(fabricGroupObjects, { selectable: selectable }));
-        this.fabricObjects.push(fabricTextObject);
+        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNode());
     }
 
     get shapeObject(): fabric.Object[] {
         return this.fabricObjects;
-    }
+    }    
 
     getShape(): IShape {
         return {
@@ -96,7 +75,7 @@ export class PentagonShape implements Shape {
             nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNode()) : [],
             definition: this.definition
         }
-    }    
+    }
 
     addListenerEvent(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
         let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
@@ -131,14 +110,10 @@ export class PentagonShape implements Shape {
 
                 this.fabricObjects[1].setCoords();
             },
-            "scaling": (e) => {
-                this.fabricObjects[1].set({
-                    left: (e.target.left - left0) + left,
-                    top: (e.target.top - top0) + top,
-                });
+            "scaling": (p) => {
+
             }
         })
 
     }
-
 }

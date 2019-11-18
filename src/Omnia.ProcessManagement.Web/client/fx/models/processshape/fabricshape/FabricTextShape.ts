@@ -44,7 +44,7 @@ export class FabricTextShape implements FabricShapeExtention {
             });
         }
         return {
-            shapeNodeType: FabricShapeNodeTypes.rect,
+            shapeNodeType: FabricShapeNodeTypes.text,
             properties: this.properties
         };
     }

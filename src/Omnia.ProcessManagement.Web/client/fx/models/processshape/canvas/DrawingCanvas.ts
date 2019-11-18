@@ -1,8 +1,9 @@
 ﻿import { fabric } from 'fabric';
 import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitions';
-import { CircleShape, DiamondShape, Shape, PentagonShape } from '../shapes';
+import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape } from '../shapes';
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
+import { Guid, GuidValue } from '@omnia/fx-models';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -15,6 +16,7 @@ export class DrawingCanvas implements CanvasDefinition {
     protected canvasObject: fabric.Canvas;
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
+        this.shapes = [];
         this.initShapes(elementId, options, definition);
         this.renderBackgroundImage(definition);
     }
@@ -61,8 +63,7 @@ export class DrawingCanvas implements CanvasDefinition {
             if (definition.shapes) {
                 definition.shapes.forEach(s => {
                     if (TemplatesDictionary[s.shape.name]) {
-                        let shape: Shape = new TemplatesDictionary[s.shape.name](null, s.shape.nodes, null, this.selectable);
-                        shape.shapeObject.forEach(s => this.canvasObject.add(s));
+                        this.addShapeFromTemplateClassName(s.shape.name, Guid.newGuid(), s.shape.nodes, null);
                     }
                 })
             }
@@ -70,16 +71,33 @@ export class DrawingCanvas implements CanvasDefinition {
 
     }
 
-    addCanvasShape(shapeName: string, definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, left?: number, top?: number) {
+    addShape(shapeName: string, definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, left?: number, top?: number) {
         if (this.canvasObject && TemplatesDictionary[shapeName]) {
-            let shape: Shape = new TemplatesDictionary[shapeName](definition, nodes, text, this.selectable, left, top);
-            shape.shapeObject.forEach(s => this.canvasObject.add(s));
+            this.addShapeFromTemplateClassName(shapeName, Guid.newGuid(), nodes, definition, text, left, top);
         }
     }
+
+    updateShapeDefinition(oldDrawingShape: IDrawingShapeNode, newShapeName: string, definition: DrawingShapeDefinition, text?: string, left?: number, top?: number) {
+        let oldShapeIndex = this.shapes.findIndex(s => s.id == oldDrawingShape.id);
+        if (oldShapeIndex > -1) {
+            this.shapes.splice(oldShapeIndex, 1);
+            (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+        }
+        this.addShapeFromTemplateClassName(newShapeName, oldDrawingShape.id, newShapeName == oldDrawingShape.shape.name ? oldDrawingShape.shape.nodes : null, definition, text, left, top);
+    }
+
+    protected addShapeFromTemplateClassName(shapeName: string, id: GuidValue, nodes: IShapeNode[], definition: DrawingShapeDefinition, text?: string, left?: number, top?: number) {
+        let shape: Shape = new TemplatesDictionary[shapeName](definition, nodes, text, this.selectable, left, top);
+        shape.addListenerEvent(this.canvasObject, this.gridX, this.gridY);
+        shape.shapeObject.forEach(s => this.canvasObject.add(s));
+        this.shapes.push({ id: id, shape: shape });
+    }
+
 }
 
 export const TemplatesDictionary = {
     CircleShape,
     DiamondShape,
-    PentagonShape
+    PentagonShape,
+    MediaShape
 }

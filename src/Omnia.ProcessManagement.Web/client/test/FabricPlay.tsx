@@ -17,6 +17,7 @@ import { DrawingCanvas, DrawingCanvasEditor } from '../fx/models/processshape/ca
 export class FabricPlayComponent extends Vue implements IWebComponentInstance {
     canvas: fabric.Canvas;
     testShape: CircleShape;
+    drawingCanvas1: DrawingCanvas;
     // -------------------------------------------------------------------------
     // Services
     // -------------------------------------------------------------------------
@@ -45,6 +46,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             height: 100,
             textPosition: TextPosition.Above,
         } as DrawingShapeDefinition;
+       
         ////this.testShape = new CircleShape(settings);
         ////this.testShape.schema.forEach(s => this.canvas.add(s));
 
@@ -128,19 +130,23 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             gridX: 200,
             gridY: 100,
         });
-        let drawingCanvas1: DrawingCanvas = new DrawingCanvasEditor('test2', {}, {
+        drawingCanvas.addShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
+        drawingCanvas.addShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle', 400, 200);
+        drawingCanvas.addShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond', 500, 200);
+
+
+        this.drawingCanvas1 = new DrawingCanvasEditor('test2', {}, {
             width: 800,
             height: 1000,
             shapes: [],
             gridX: 200,
             gridY: 100,
-            imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
+         //   imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
         });
-        drawingCanvas1.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
-
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon',  100, 200);
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle',  400, 200);
-        drawingCanvas.addCanvasShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond',  500, 200);
+        this.drawingCanvas1.addShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
+        //this.drawingCanvas1.addShape(ShapeTemplatesConstants.Media.name, settings, null, 'test image', 300, 300);
+        //this.drawingCanvas1.shapes[1].shape.nodes[0].properties['imageUrl'] = 'http://fabricjs.com/assets/jail_cell_bars.png';
+        //this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[1], ShapeTemplatesConstants.Media.name, settings);
         //settings.textPosition = TextPosition.Bottom;
         //let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', true, 100, 200);
         //let b = this.canvas.add(a.shapeObject);
@@ -201,7 +207,19 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
 
     }
 
-
+    updateShape() {
+        var changedDefinition: DrawingShapeDefinition = {
+            activeBackgroundColor: 'red',
+            backgroundColor: 'green',
+            borderColor: 'pink',
+            fontSize: 20,
+            textColor: '#d36249',
+            width: 200,
+            height: 300,
+            textPosition: TextPosition.Center,
+        } as DrawingShapeDefinition;
+        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[0], ShapeTemplatesConstants.Pentagon.name, changedDefinition, 'plan2');
+    }
 
     beforeDestroy() {
 
@@ -220,9 +238,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
                     <canvas id="test2" width="400" height="3000"></canvas>
                 </div>
                 <v-btn onClick={() => {
-                    console.log(this.canvas.toJSON());
-                    console.log(this.testShape.getShape());
-                    debugger;
+                    this.updateShape();
                 }} >change ui</v-btn>
             </div>
         );

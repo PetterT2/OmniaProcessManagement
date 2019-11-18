@@ -76,6 +76,7 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShapeNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\DiamondShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\MediaShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />

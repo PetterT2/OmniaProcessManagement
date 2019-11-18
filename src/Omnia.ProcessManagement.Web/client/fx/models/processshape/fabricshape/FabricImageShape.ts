@@ -7,7 +7,7 @@ export class FabricImageShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Image;
 
-    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {        
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
         this.initProperties(definition, properties);
     }
 
@@ -23,7 +23,18 @@ export class FabricImageShape implements FabricShapeExtention {
             this.properties["borderColor"] = definition.borderColor;
             //TO DO
         }
-        this.fabricObject = new fabric.Image(this.properties['element'], this.properties);
+        var image = new Image();
+        image.onload =  (img)=> {
+            var pug = new fabric.Image(image, {
+                angle: 45,
+                width: 500,
+                height: 500,
+                left: 50,
+                top: 70,
+                scaleX: .25,
+                scaleY: .25
+            });
+        };
     }
 
     get shapeNodeType() {
