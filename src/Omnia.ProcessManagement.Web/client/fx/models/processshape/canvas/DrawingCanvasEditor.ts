@@ -3,7 +3,7 @@ import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitio
 import { CircleShape, DiamondShape, Shape, PentagonShape } from '../shapes';
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
-import { DrawingCanvas } from '.';
+import { DrawingCanvas } from './DrawingCanvas';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
@@ -59,7 +59,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
 }
 
-export const TemplatesDictionary = {
+const TemplatesDictionary = {
     CircleShape,
     DiamondShape,
     PentagonShape
