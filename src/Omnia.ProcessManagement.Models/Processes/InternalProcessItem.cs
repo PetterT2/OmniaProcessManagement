@@ -11,8 +11,6 @@ namespace Omnia.ProcessManagement.Models.Processes
 
         public List<ProcessItem> Children { get; set; }
 
-        public MultilingualProcessContentRef MultilingualProcessContentRef { get; set; }
-
         public Guid ProcessMetadataId { get; set; }
     }
 }

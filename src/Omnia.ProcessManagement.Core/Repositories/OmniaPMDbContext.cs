@@ -48,6 +48,12 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
+            modelBuilder.Entity<Process>()
+               .HasIndex(c => new { c.OPMProcessId, c.VersionType })
+               .IsUnique()
+               .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
+
             SetOPMClusteredIndex<ProcessContent>(modelBuilder, c => new { c.Id });
             modelBuilder.Entity<ProcessContent>()
                  .HasOne(p => p.RootProcess)
@@ -59,12 +65,6 @@ namespace Omnia.ProcessManagement.Core.Repositories
                  .HasOne(p => p.RootProcess)
                  .WithMany(p => p.ProcessMetadata)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
-
-            //SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
-            //modelBuilder.Entity<Process>()
-            //   .HasIndex(c => new { c.OPMProcessId, c.VersionType })
-            //   .IsUnique()
-            //   .HasFilter($"[VersionType] IS NOT {ProcessVersionType.Published}");
         }
 
         /// <summary>

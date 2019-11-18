@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191115081651_AddProcessAndProcessTemplateTables")]
+    [Migration("20191118033622_AddProcessAndProcessTemplateTables")]
     partial class AddProcessAndProcessTemplateTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,7 +121,16 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<int>("VersionType")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("OPMProcessId", "VersionType")
+                        .IsUnique()
+                        .HasFilter("[VersionType] != 2");
 
                     b.ToTable("Processes");
                 });
