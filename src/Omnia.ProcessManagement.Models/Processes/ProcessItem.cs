@@ -16,7 +16,6 @@ namespace Omnia.ProcessManagement.Models.Processes
         }
 
         public virtual ProcessItemTypes Type { get; set; } = ProcessItemTypes.Undefined;
-
-        public MultilingualProcessContentRef MultilingualProcessContentRef { get; set; }
+        public MultilingualString Title { get; set; }
     }
 }

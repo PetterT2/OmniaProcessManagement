@@ -17,8 +17,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string EnterpriseProperties { get; set; }
         public string CheckedOutBy { get; set; }
         public ProcessVersionType VersionType { get; set; }
-        public ICollection<ProcessContent> ProcessContents { get; set; }
-        public ICollection<ProcessMetadata> ProcessMetadata { get; set; }
+        public ICollection<ProcessData> ProcessData { get; set; }
 
     }
 

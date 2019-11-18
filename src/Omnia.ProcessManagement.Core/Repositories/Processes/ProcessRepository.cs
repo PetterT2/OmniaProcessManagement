@@ -27,8 +27,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         internal class ProcessReference
         {
             public Entities.Processes.Process Process { get; set; }
-            public List<IdAndHash> MetadataIdAndHashList { get; set; }
-            public List<IdAndHash> ContentIdAndHashList { get; set; }
+            public List<IdAndHash> ProcessDataIdAndHashList { get; set; }
         }
 
         internal class ProcessContentHash
@@ -39,70 +38,66 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         #endregion
 
         IOmniaContext OmniaContext { get; }
-        OmniaPMDbContext DatabaseContext { get; }
+        OmniaPMDbContext DbContext { get; }
         public ProcessRepository(OmniaPMDbContext databaseContext, IOmniaContext omniaContext) :
             base(databaseContext, nameof(OmniaPMDbContext.Processes), nameof(Entities.Processes.Process.EnterpriseProperties))
         {
             OmniaContext = omniaContext;
-            DatabaseContext = databaseContext;
+            DbContext = databaseContext;
         }
 
         public async ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
         {
             var process = new Entities.Processes.Process();
-            process.Id = new Guid();
+            process.Id = createDraftProcessModel.Process.Id;
             process.OPMProcessId = new Guid();
-            process.EnterpriseProperties = JsonConvert.SerializeObject(createDraftProcessModel.EnterpriseProperties);
+            process.EnterpriseProperties = JsonConvert.SerializeObject(createDraftProcessModel.Process.RootProcessItem.EnterpriseProperties);
+            process.JsonValue = JsonConvert.SerializeObject(createDraftProcessModel.Process.RootProcessItem);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
 
-            var data = new InternalProcessItem();
-            data.Children = new List<ProcessItem>();
-            data.MultilingualProcessContentRef = new MultilingualProcessContentRef();
+            var processDataDict = createDraftProcessModel.ProcessData;
 
-            foreach (var title in createDraftProcessModel.Title)
-            {
-                var contentId = new Guid();
-                var validTitle = FallbackToEmptyStringIfNull(title.Value);
-                data.MultilingualProcessContentRef[title.Key] = new MultilingualProcessContent
-                {
-                    ProcessContentId = contentId,
-                    Title = validTitle
-                };
+            AddProcessDataRecursive(createDraftProcessModel.Process.Id, createDraftProcessModel.Process.RootProcessItem, processDataDict);
 
-                var processContent = new Entities.Processes.ProcessContent();
-                processContent.Id = contentId;
-                processContent.Title = validTitle;
-                processContent.Content = "";
-                processContent.CreatedBy = OmniaContext.Identity.LoginName;
-                processContent.ModifiedBy = OmniaContext.Identity.LoginName;
-                processContent.CreatedAt = DateTimeOffset.UtcNow;
-                processContent.ModifiedAt = DateTimeOffset.UtcNow;
-                processContent.RootProcessId = process.Id;
-                processContent.Hash = CommonUtils.CreateMd5Hash(JsonConvert.SerializeObject(new ProcessContentHash() { Content = processContent.Content, Title = processContent.Title }));
-
-
-                DatabaseContext.ProcessContents.Add(processContent);
-            }
-
-            var processMetadata = new Entities.Processes.ProcessMetadata();
-            processMetadata.Id = new Guid();
-            processMetadata.JsonValue = JsonConvert.SerializeObject(new ProcessMetadata());
-            processMetadata.RootProcessId = process.Id;
-            processMetadata.Hash = CommonUtils.CreateMd5Hash(processMetadata.JsonValue);
-
-            DatabaseContext.ProcessMetadata.Add(processMetadata);
-            data.ProcessMetadataId = processMetadata.Id;
-
-            process.JsonValue = JsonConvert.SerializeObject(data);
-
-            DatabaseContext.Processes.Add(process);
+            DbContext.Processes.Add(process);
             await DatabaseContext.SaveChangesAsync();
 
             var model = MapEfToModel(process);
             return model;
+        }
+
+        private void AddProcessDataRecursive(Guid rootProcessId, InternalProcessItem processItem, Dictionary<Guid, ProcessData> processDataDict)
+        {
+            if (processDataDict.TryGetValue(processItem.ProcessDataId, out var processData) && processData != null)
+            {
+                var processDataEf = new Entities.Processes.ProcessData();
+                processDataEf.Id = processItem.ProcessDataId;
+                processDataEf.RootProcessId = rootProcessId;
+                processDataEf.JsonValue = JsonConvert.SerializeObject(processData);
+                processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
+                processDataEf.CreatedBy = OmniaContext.Identity.LoginName;
+                processDataEf.ModifiedBy = OmniaContext.Identity.LoginName;
+                processDataEf.CreatedAt = DateTimeOffset.UtcNow;
+                processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
+            }
+            else
+            {
+                throw new ProcessDataNotFoundException(processItem.ProcessDataId);
+            }
+
+            if (processItem.ProcessItems != null)
+            {
+                foreach (var childProcessItem in processItem.ProcessItems)
+                {
+                    if (childProcessItem.Type == ProcessItem.ProcessItemTypes.Internal)
+                    {
+                        AddProcessDataRecursive(rootProcessId, childProcessItem.Cast<ProcessItem, InternalProcessItem>(), processDataDict);
+                    }
+                }
+            }
         }
 
         public async ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel)
@@ -121,175 +116,115 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             await EnsureRemovingExistingCheckedInProcessAsync(checkInProcessModel.Process.Id, checkInProcessModel.Process.OPMProcessId);
 
 
-            checkedOutProcessReference.Process.JsonValue = JsonConvert.SerializeObject(checkInProcessModel.Process.Data);
-            checkedOutProcessReference.Process.EnterpriseProperties = JsonConvert.SerializeObject(checkInProcessModel.Process.EnterpriseProperties);
+            checkedOutProcessReference.Process.JsonValue = JsonConvert.SerializeObject(checkInProcessModel.Process.RootProcessItem);
+            checkedOutProcessReference.Process.EnterpriseProperties = JsonConvert.SerializeObject(checkInProcessModel.Process.RootProcessItem.EnterpriseProperties);
             checkedOutProcessReference.Process.VersionType = Entities.Processes.ProcessVersionType.Draft;
 
-            var existingProcessContentDict = checkedOutProcessReference.ContentIdAndHashList.ToDictionary(p => p.Id, p => p);
-            var existingProcessMetadataDict = checkedOutProcessReference.MetadataIdAndHashList.ToDictionary(p => p.Id, p => p);
+            var existingProcessDataDict = checkedOutProcessReference.ProcessDataIdAndHashList.ToDictionary(p => p.Id, p => p);
+            var newProcessDataDict = checkInProcessModel.ProcessData;
 
-            var newProcessContentDict = checkInProcessModel.ProcessContents;
-            var newProcessMetadataDict = checkInProcessModel.ProcessMetadata;
+            var usingProcessDataIdHashSet = new HashSet<Guid>();
 
-            var usingProcessContentIdHashSet = new HashSet<Guid>();
-            var usingProcessMetadataIdHashSet = new HashSet<Guid>();
+            UpdateProcessDataRecursive(checkInProcessModel.Process.Id, checkInProcessModel.Process.RootProcessItem, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
+            RemoveOldProcessData(existingProcessDataDict, usingProcessDataIdHashSet);
 
-            UpdateProcessContentAndProcessMetadataRecursive(checkInProcessModel.Process.Id, checkInProcessModel.Process.Data,
-                existingProcessContentDict, existingProcessMetadataDict,
-                newProcessContentDict, newProcessMetadataDict,
-                usingProcessContentIdHashSet, usingProcessMetadataIdHashSet);
-
-            RemoveOldProcessContentAndProcessMetadata(existingProcessContentDict, existingProcessMetadataDict,
-                usingProcessContentIdHashSet, usingProcessMetadataIdHashSet);
-
-            await DatabaseContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
 
             var process = MapEfToModel(checkedOutProcessReference.Process);
             return process;
         }
 
-        private void RemoveOldProcessContentAndProcessMetadata(Dictionary<Guid, IdAndHash> existingProcessContentDict, Dictionary<Guid, IdAndHash> existingProcessMetadataDict,
-            HashSet<Guid> usingProcessContentIdHashSet, HashSet<Guid> usingProcessMetadataIdHashSet)
+        private void RemoveOldProcessData(Dictionary<Guid, IdAndHash> existingProcessDataDict, HashSet<Guid> usingProcessDataIdHashSet)
         {
-            foreach (var existingProcessContent in existingProcessContentDict)
+            foreach (var existingProcessContent in existingProcessDataDict)
             {
-                if (!usingProcessContentIdHashSet.Contains(existingProcessContent.Key))
+                if (!usingProcessDataIdHashSet.Contains(existingProcessContent.Key))
                 {
-                    RemoveProcessContent(existingProcessContent.Key);
-                }
-            }
-
-            foreach (var existingProcessMetadata in existingProcessMetadataDict)
-            {
-                if (!usingProcessMetadataIdHashSet.Contains(existingProcessMetadata.Key))
-                {
-                    RemoveProcessMetadata(existingProcessMetadata.Key);
+                    RemoveProcessData(existingProcessContent.Key);
                 }
             }
         }
 
-        private void RemoveProcessContent(Guid id)
+        private void UpdateProcessDataRecursive(Guid rootProcessId, ProcessItem processItem,
+                Dictionary<Guid, IdAndHash> existingProcessDataDict,
+                Dictionary<Guid, ProcessData> newProcessDataDict,
+                HashSet<Guid> usingProcessDataIdHashSet)
         {
-            var contentEf = new Entities.Processes.ProcessContent { Id = id };
-            DatabaseContext.ProcessContents.Attach(contentEf);
-            DatabaseContext.ProcessContents.Remove(contentEf);
-        }
-
-        private void RemoveProcessMetadata(Guid id)
-        {
-            var metadataEf = new Entities.Processes.ProcessMetadata { Id = id };
-            DatabaseContext.ProcessMetadata.Attach(metadataEf);
-            DatabaseContext.ProcessMetadata.Remove(metadataEf);
-        }
-
-
-        private void UpdateProcessContentAndProcessMetadataRecursive(Guid rootProcessId, ProcessItem processItem,
-                Dictionary<Guid, IdAndHash> existingProcessContentDict, Dictionary<Guid, IdAndHash> existingProcessMetadataDict,
-                Dictionary<Guid, ProcessContent> newProcessContentDict, Dictionary<Guid, ProcessMetadata> newProcessMetadataDict,
-                HashSet<Guid> usingProcessContentIdHashSet, HashSet<Guid> usingProcessMetadataIdHashSet)
-        {
-            foreach (var contentRef in processItem.MultilingualProcessContentRef)
-            {
-                var newProcessContent = newProcessContentDict.GetValueOrDefault(contentRef.Value.ProcessContentId);
-                if (newProcessContent == null)
-                {
-                    throw new ProcessContentNotFoundException(contentRef.Value.ProcessContentId);
-                }
-                if (usingProcessContentIdHashSet.Contains(contentRef.Value.ProcessContentId))
-                {
-                    throw new ProcessContentDuplicatedException(contentRef.Value.ProcessContentId);
-                }
-
-                var existingProcessContent = existingProcessContentDict.GetValueOrDefault(contentRef.Value.ProcessContentId);
-
-                Entities.Processes.ProcessContent contentEf = null;
-                if (existingProcessContent == null)
-                {
-                    contentEf = new Entities.Processes.ProcessContent();
-                    DatabaseContext.ProcessContents.Add(contentEf);
-
-                    contentEf.Id = contentRef.Value.ProcessContentId;
-                    contentEf.RootProcessId = rootProcessId;
-                    contentEf.CreatedAt = DateTimeOffset.UtcNow;
-                    contentEf.CreatedBy = OmniaContext.Identity.LoginName;
-                }
-                else
-                {
-                    contentEf = new Entities.Processes.ProcessContent { Id = contentRef.Value.ProcessContentId };
-                    DatabaseContext.ProcessContents.Attach(contentEf);
-                }
-
-                contentEf.Title = FallbackToEmptyStringIfNull(contentRef.Value.Title);
-                contentEf.Content = FallbackToEmptyStringIfNull(newProcessContent.Content);
-                contentEf.Hash = CommonUtils.CreateMd5Hash(JsonConvert.SerializeObject(new ProcessContentHash() { Content = contentEf.Content, Title = contentEf.Title }));
-
-                if (existingProcessContent == null || existingProcessContent.Hash != contentEf.Hash)
-                {
-                    contentEf.ModifiedAt = DateTimeOffset.UtcNow;
-                    contentEf.ModifiedBy = OmniaContext.Identity.LoginName;
-                }
-            }
-
             if (processItem.Type == ProcessItem.ProcessItemTypes.Internal)
             {
                 var internalProcessItem = processItem.Cast<ProcessItem, InternalProcessItem>();
 
-                var newProcessMetadata = newProcessMetadataDict.GetValueOrDefault(internalProcessItem.ProcessMetadataId);
-                if (newProcessMetadata == null)
+                var newProcesData = newProcessDataDict.GetValueOrDefault(internalProcessItem.ProcessDataId);
+                if (newProcesData == null)
                 {
-                    throw new ProcessMetadataNotFoundException(internalProcessItem.ProcessMetadataId);
+                    throw new ProcessDataNotFoundException(internalProcessItem.ProcessDataId);
                 }
-                if (usingProcessMetadataIdHashSet.Contains(internalProcessItem.ProcessMetadataId))
+                if (usingProcessDataIdHashSet.Contains(internalProcessItem.ProcessDataId))
                 {
-                    throw new ProcessMetadataDuplicatedException(internalProcessItem.ProcessMetadataId);
+                    throw new ProcessDataDuplicatedException(internalProcessItem.ProcessDataId);
                 }
 
-                var existingProcessMetadata = existingProcessMetadataDict.GetValueOrDefault(internalProcessItem.ProcessMetadataId);
+                var existingProcessData = existingProcessDataDict.GetValueOrDefault(internalProcessItem.ProcessDataId);
 
-                Entities.Processes.ProcessMetadata metadataEf = null;
-                if (existingProcessMetadata == null)
+                Entities.Processes.ProcessData processDataEf = null;
+                if (existingProcessData == null)
                 {
-                    metadataEf = new Entities.Processes.ProcessMetadata();
-                    DatabaseContext.ProcessMetadata.Add(metadataEf);
+                    processDataEf = new Entities.Processes.ProcessData();
+                    DbContext.ProcessData.Add(processDataEf);
 
-                    metadataEf.Id = internalProcessItem.ProcessMetadataId;
-                    metadataEf.RootProcessId = rootProcessId;
-                    metadataEf.CreatedAt = DateTimeOffset.UtcNow;
-                    metadataEf.CreatedBy = OmniaContext.Identity.LoginName;
+                    processDataEf.Id = internalProcessItem.ProcessDataId;
+                    processDataEf.RootProcessId = rootProcessId;
+                    processDataEf.CreatedAt = DateTimeOffset.UtcNow;
+                    processDataEf.CreatedBy = OmniaContext.Identity.LoginName;
                 }
                 else
                 {
-                    metadataEf = new Entities.Processes.ProcessMetadata { Id = internalProcessItem.ProcessMetadataId };
-                    DatabaseContext.ProcessMetadata.Attach(metadataEf);
+                    processDataEf = new Entities.Processes.ProcessData { Id = internalProcessItem.ProcessDataId };
+                    DbContext.ProcessData.Attach(processDataEf);
                 }
 
-                metadataEf.JsonValue = JsonConvert.SerializeObject(newProcessMetadata);
-                metadataEf.Hash = CommonUtils.CreateMd5Hash(metadataEf.JsonValue);
+                processDataEf.JsonValue = JsonConvert.SerializeObject(newProcesData);
+                processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
 
-                if (existingProcessMetadata == null || existingProcessMetadata.Hash != metadataEf.Hash)
+                if (existingProcessData == null || existingProcessData.Hash != processDataEf.Hash)
                 {
-                    metadataEf.ModifiedAt = DateTimeOffset.UtcNow;
-                    metadataEf.ModifiedBy = OmniaContext.Identity.LoginName;
+                    processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
+                    processDataEf.ModifiedBy = OmniaContext.Identity.LoginName;
                 }
 
-                usingProcessMetadataIdHashSet.Add(internalProcessItem.ProcessMetadataId);
+                usingProcessDataIdHashSet.Add(internalProcessItem.ProcessDataId);
 
-                if (internalProcessItem.Children != null)
+                if (internalProcessItem.ProcessItems != null)
                 {
-                    foreach (var child in internalProcessItem.Children)
+                    foreach (var childProcessItem in internalProcessItem.ProcessItems)
                     {
-                        UpdateProcessContentAndProcessMetadataRecursive(rootProcessId, child,
-                            existingProcessContentDict, existingProcessMetadataDict,
-                            newProcessContentDict, newProcessMetadataDict,
-                            usingProcessContentIdHashSet, usingProcessMetadataIdHashSet);
+                        UpdateProcessDataRecursive(rootProcessId, childProcessItem, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
                     }
                 }
             }
         }
 
+        private async ValueTask EnsureRemovingExistingCheckedInProcessAsync(Guid id, Guid opmProcessId)
+        {
+            var existingCheckedInProcessReference = await GetProcessReferenceAsync(opmProcessId, Entities.Processes.ProcessVersionType.Draft, true);
+
+            if (existingCheckedInProcessReference != null)
+            {
+                existingCheckedInProcessReference.ProcessDataIdAndHashList.ForEach(content => RemoveProcessData(content.Id));
+                DbContext.Processes.Remove(existingCheckedInProcessReference.Process);
+            }
+        }
+
+        private void RemoveProcessData(Guid id)
+        {
+            var processDataEf = new Entities.Processes.ProcessData { Id = id };
+            DbContext.ProcessData.Attach(processDataEf);
+            DbContext.ProcessData.Remove(processDataEf);
+        }
+
         public async ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId)
         {
-            var process = await DatabaseContext.Processes
+            var process = await DbContext.Processes
                 .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == Entities.Processes.ProcessVersionType.CheckedOut)
                 .FirstOrDefaultAsync();
 
@@ -306,34 +241,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<ProcessContent> GetMultilingualProcessContentAsync(Guid processContentId)
-        {
-            var content = await DatabaseContext.ProcessContents.Where(c => c.Id == processContentId).FirstOrDefaultAsync();
-            if (content == null)
-                throw new ProcessContentNotFoundException(processContentId);
-
-            return MapEfToModel(content);
-
-        }
-
-        public async ValueTask<ProcessMetadata> GetProcessMetadataAsync(Guid processMetadataId)
-        {
-            var metadata = await DatabaseContext.ProcessMetadata.Where(c => c.Id == processMetadataId).FirstOrDefaultAsync();
-            if (metadata == null)
-                throw new ProcessMetadataNotFoundException(processMetadataId);
-
-            return MapEfToModel(metadata);
-
-        }
-
-        public ValueTask<Process> GetLatestPublishedProcessAsync(Guid opmProcessId)
-        {
-            throw new NotImplementedException();
-        }
-
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
         {
-            using (var transaction = DatabaseContext.Database.BeginTransaction())
+            using (var transaction = DbContext.Database.BeginTransaction())
             {
                 try
                 {
@@ -346,26 +256,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                     var clonedProcess = await CloneProcessAsync(existingCheckedInProcessReference, Entities.Processes.ProcessVersionType.CheckedOut);
 
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                     return clonedProcess;
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw ex;
                 }
-            }
-        }
-
-        private async ValueTask EnsureRemovingExistingCheckedInProcessAsync(Guid id, Guid opmProcessId)
-        {
-            var existingCheckedInProcessReference = await GetProcessReferenceAsync(opmProcessId, Entities.Processes.ProcessVersionType.Draft, true);
-
-            if (existingCheckedInProcessReference != null)
-            {
-                existingCheckedInProcessReference.MetadataIdAndHashList.ForEach(metadata => RemoveProcessMetadata(metadata.Id));
-                existingCheckedInProcessReference.ContentIdAndHashList.ForEach(content => RemoveProcessContent(content.Id));
-                DatabaseContext.Processes.Remove(existingCheckedInProcessReference.Process);
             }
         }
 
@@ -386,67 +284,46 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 checkedOutProcess.CheckedOutBy = OmniaContext.Identity.LoginName;
             }
 
-            var data = JsonConvert.DeserializeObject<InternalProcessItem>(processReference.Process.JsonValue);
-            DatabaseContext.Processes.Add(checkedOutProcess);
+            var originalRootProcessItem = JsonConvert.DeserializeObject<RootProcessItem>(processReference.Process.JsonValue);
 
             StringBuilder sqlStrBuilder = new StringBuilder();
-            var existingProcessContentIdHastSet = processReference.ContentIdAndHashList.Select(c => c.Id).ToHashSet();
-            var existingProcessMetadataIdDictHashSet = processReference.MetadataIdAndHashList.Select(c => c.Id).ToHashSet();
+            var existingProcessDataIdHastSet = processReference.ProcessDataIdAndHashList.Select(c => c.Id).ToHashSet();
+            var rootProcessItem = (RootProcessItem)GenerateProcessItemRecursive(checkedOutProcess.Id, originalRootProcessItem, existingProcessDataIdHastSet, sqlStrBuilder);
 
-            data = (InternalProcessItem)GenerateCloneProcessDataRecursive(checkedOutProcess.Id, data, existingProcessContentIdHastSet, existingProcessMetadataIdDictHashSet, sqlStrBuilder);
+            checkedOutProcess.JsonValue = JsonConvert.SerializeObject(rootProcessItem);
 
-            checkedOutProcess.JsonValue = JsonConvert.SerializeObject(data);
-            await DatabaseContext.ExecuteSqlCommandAsync(sqlStrBuilder.ToString());
-            await DatabaseContext.SaveChangesAsync();
+            DbContext.Processes.Add(checkedOutProcess);
+            await DbContext.ExecuteSqlCommandAsync(sqlStrBuilder.ToString());
+            await DbContext.SaveChangesAsync();
 
             return checkedOutProcess;
         }
 
-
-        private ProcessItem GenerateCloneProcessDataRecursive(Guid rootProcessId, ProcessItem processItem,
-            HashSet<Guid> existingProcessContentIdHastSet, HashSet<Guid> existingProcessMetadataIdDictHashSet, StringBuilder sqlStrBuilder)
+        private ProcessItem GenerateProcessItemRecursive(Guid rootProcessId, ProcessItem processItem,
+            HashSet<Guid> existingProcessDataIdHastSet, StringBuilder sqlStrBuilder)
         {
-
-            foreach (var contentRef in processItem.MultilingualProcessContentRef.ToDictionary(i => i.Key, i => i.Value))
-            {
-                var processContent = existingProcessContentIdHastSet.Contains(contentRef.Value.ProcessContentId);
-                if (processContent == false)
-                {
-                    throw new ProcessContentNotFoundException(contentRef.Value.ProcessContentId);
-                }
-
-                var newProcessContentId = Guid.NewGuid();
-                sqlStrBuilder.Append(GenerateCloneContentRowSql(newProcessContentId, contentRef.Value.ProcessContentId));
-                processItem.MultilingualProcessContentRef[contentRef.Key] = new MultilingualProcessContent
-                {
-                    ProcessContentId = newProcessContentId,
-                    Title = contentRef.Value.Title
-                };
-            }
-
             if (processItem.Type == ProcessItem.ProcessItemTypes.Internal)
             {
                 var internalProcessItem = processItem.Cast<ProcessItem, InternalProcessItem>();
 
-                var processMetadata = existingProcessMetadataIdDictHashSet.Contains(internalProcessItem.ProcessMetadataId);
-                if (processMetadata == false)
+                var processData = existingProcessDataIdHastSet.Contains(internalProcessItem.ProcessDataId);
+                if (processData == false)
                 {
-                    throw new ProcessMetadataNotFoundException(internalProcessItem.ProcessMetadataId);
+                    throw new ProcessDataNotFoundException(internalProcessItem.ProcessDataId);
                 }
 
                 var newProcessMetadataId = Guid.NewGuid();
-                sqlStrBuilder.Append(GenerateCloneMetadataRowSql(newProcessMetadataId, internalProcessItem.ProcessMetadataId));
-                internalProcessItem.ProcessMetadataId = newProcessMetadataId;
+                sqlStrBuilder.Append(GenerateCloneMetadataRowSql(newProcessMetadataId, internalProcessItem.ProcessDataId));
+                internalProcessItem.ProcessDataId = newProcessMetadataId;
 
-                if (internalProcessItem.Children != null)
+                if (internalProcessItem.ProcessItems != null)
                 {
-                    var children = new List<ProcessItem>();
-                    foreach (var child in internalProcessItem.Children)
+                    var processItems = new List<ProcessItem>();
+                    foreach (var childProcessItem in internalProcessItem.ProcessItems)
                     {
-                        children.Add(GenerateCloneProcessDataRecursive(rootProcessId, child,
-                            existingProcessContentIdHastSet, existingProcessMetadataIdDictHashSet, sqlStrBuilder));
+                        processItems.Add(GenerateProcessItemRecursive(rootProcessId, childProcessItem, existingProcessDataIdHastSet, sqlStrBuilder));
                     }
-                    internalProcessItem.Children = children;
+                    internalProcessItem.ProcessItems = processItems;
                 }
 
                 processItem = internalProcessItem;
@@ -457,7 +334,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         private async ValueTask<ProcessReference> GetProcessReferenceAsync(Guid opmProcessId, Entities.Processes.ProcessVersionType versionType, bool tracking)
         {
-            var processes = tracking ? DatabaseContext.Processes.AsTracking() : DatabaseContext.Processes;
+            var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
 
             var processReference = await processes
                        .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType)
@@ -465,8 +342,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                        .Select(p => new ProcessReference
                        {
                            Process = p,
-                           ContentIdAndHashList = p.ProcessContents.Select(c => new IdAndHash { Id = c.Id, Hash = c.Hash }).ToList(),
-                           MetadataIdAndHashList = p.ProcessMetadata.Select(m => new IdAndHash { Id = m.Id, Hash = m.Hash }).ToList()
+                           ProcessDataIdAndHashList = p.ProcessData.Select(c => new IdAndHash { Id = c.Id, Hash = c.Hash }).ToList()
                        })
                        .FirstOrDefaultAsync();
 
@@ -476,38 +352,19 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         private string GenerateCloneMetadataRowSql(Guid newId, Guid oldId)
         {
             #region Names
-            var tableName = nameof(DatabaseContext.ProcessMetadata);
-            var idColumnName = nameof(Entities.Processes.ProcessMetadata.Id);
-            var rootProcessIdColumnName = nameof(Entities.Processes.ProcessMetadata.RootProcessId);
-            var jsonValueColumnName = nameof(Entities.Processes.ProcessMetadata.JsonValue);
-            var createdAtColumnName = nameof(Entities.Processes.ProcessMetadata.CreatedAt);
-            var modifiedAtColumnName = nameof(Entities.Processes.ProcessMetadata.ModifiedAt);
-            var createdByColumnName = nameof(Entities.Processes.ProcessMetadata.CreatedBy);
-            var modifiedByColumnName = nameof(Entities.Processes.ProcessMetadata.ModifiedBy);
+            var tableName = nameof(DbContext.ProcessData);
+            var idColumnName = nameof(Entities.Processes.ProcessData.Id);
+            var rootProcessIdColumnName = nameof(Entities.Processes.ProcessData.RootProcessId);
+            var jsonValueColumnName = nameof(Entities.Processes.ProcessData.JsonValue);
+            var hashColumnName = nameof(Entities.Processes.ProcessData.Hash);
+            var createdAtColumnName = nameof(Entities.Processes.ProcessData.CreatedAt);
+            var modifiedAtColumnName = nameof(Entities.Processes.ProcessData.ModifiedAt);
+            var createdByColumnName = nameof(Entities.Processes.ProcessData.CreatedBy);
+            var modifiedByColumnName = nameof(Entities.Processes.ProcessData.ModifiedBy);
             #endregion
 
             #region SQL
-            return @$"INSERT INTO {tableName} ({idColumnName}, {rootProcessIdColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) VALUES('{newId}', {rootProcessIdColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT {idColumnName}, {rootProcessIdColumnName}, {jsonValueColumnName},{createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName} FROM {tableName} WHERE {idColumnName} = '{oldId}' ";
-            #endregion
-        }
-
-        private string GenerateCloneContentRowSql(Guid newId, Guid oldId)
-        {
-            #region Names
-            var tableName = nameof(DatabaseContext.ProcessContents);
-            var idColumnName = nameof(Entities.Processes.ProcessContent.Id);
-            var rootProcessIdColumnName = nameof(Entities.Processes.ProcessContent.RootProcessId);
-            var languageTagColumnName = nameof(Entities.Processes.ProcessContent.LanguageTag);
-            var titleColumnName = nameof(Entities.Processes.ProcessContent.Title);
-            var contentColumnName = nameof(Entities.Processes.ProcessContent.Content);
-            var createdAtColumnName = nameof(Entities.Processes.ProcessMetadata.CreatedAt);
-            var modifiedAtColumnName = nameof(Entities.Processes.ProcessMetadata.ModifiedAt);
-            var createdByColumnName = nameof(Entities.Processes.ProcessMetadata.CreatedBy);
-            var modifiedByColumnName = nameof(Entities.Processes.ProcessMetadata.ModifiedBy);
-            #endregion
-
-            #region SQL
-            return @$"INSERT INTO {tableName} ({idColumnName}, {rootProcessIdColumnName}, {languageTagColumnName}, {titleColumnName}, {contentColumnName},{createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) VALUES('{newId}',  {rootProcessIdColumnName}, {languageTagColumnName}, {titleColumnName}, {contentColumnName}) SELECT {idColumnName}, {rootProcessIdColumnName}, {languageTagColumnName}, {titleColumnName}, {contentColumnName} FROM {tableName} WHERE {idColumnName} = '{oldId}'";
+            return @$"INSERT INTO {tableName} ({idColumnName}, {rootProcessIdColumnName},{hashColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) VALUES('{newId}', {rootProcessIdColumnName},{hashColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT {idColumnName}, {rootProcessIdColumnName}, {jsonValueColumnName},{createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName} FROM {tableName} WHERE {idColumnName} = '{oldId}' ";
             #endregion
         }
 
@@ -516,25 +373,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var model = new Process();
             model.OPMProcessId = processEf.OPMProcessId;
             model.Id = processEf.Id;
-            model.Data = JsonConvert.DeserializeObject<InternalProcessItem>(processEf.JsonValue);
-            model.EnterpriseProperties = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(processEf.EnterpriseProperties);
+            model.RootProcessItem = JsonConvert.DeserializeObject<RootProcessItem>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == Entities.Processes.ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
-            return model;
-        }
-
-        private ProcessContent MapEfToModel(Entities.Processes.ProcessContent contentEf)
-        {
-            var model = new ProcessContent();
-            model.Id = contentEf.Id;
-            model.Content = contentEf.Content;
-            model.LanguageTag = contentEf.LanguageTag;
-
-            return model;
-        }
-
-        private ProcessMetadata MapEfToModel(Entities.Processes.ProcessMetadata metadataEf)
-        {
-            var model = JsonConvert.DeserializeObject<ProcessMetadata>(metadataEf.JsonValue);
             return model;
         }
 
@@ -544,5 +384,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 return "";
             return content;
         }
+
     }
 }

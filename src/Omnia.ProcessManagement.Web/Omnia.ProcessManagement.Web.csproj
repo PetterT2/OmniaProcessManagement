@@ -59,6 +59,14 @@
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\CustomLinkProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\ExternalProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\InternalProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessItem.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
@@ -79,8 +87,10 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\MediaShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
+    <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
+    <TypeScriptCompile Remove="client\stores\ProcessStore.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessTemplateStore.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -137,6 +147,30 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\RootProcessItem.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\ProcessData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\InternalProcessItem.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\ExternalProcessItem.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\CustomLinkProcessItem.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\ProcessItem.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\Process.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processtemplates\index.ts">

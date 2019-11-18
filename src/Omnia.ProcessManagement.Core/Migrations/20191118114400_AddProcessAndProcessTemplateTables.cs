@@ -74,37 +74,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProcessContents",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<string>(nullable: true),
-                    ModifiedBy = table.Column<string>(nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
-                    ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
-                    ClusteredId = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RootProcessId = table.Column<Guid>(nullable: false),
-                    LanguageTag = table.Column<int>(nullable: false),
-                    Title = table.Column<string>(nullable: true),
-                    Content = table.Column<string>(nullable: true),
-                    Hash = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProcessContents", x => x.Id)
-                        .Annotation("SqlServer:Clustered", false);
-                    table.ForeignKey(
-                        name: "FK_ProcessContents_Processes_RootProcessId",
-                        column: x => x.RootProcessId,
-                        principalTable: "Processes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProcessMetadata",
+                name: "ProcessData",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -121,10 +91,10 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProcessMetadata", x => x.Id)
+                    table.PrimaryKey("PK_ProcessData", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
-                        name: "FK_ProcessMetadata_Processes_RootProcessId",
+                        name: "FK_ProcessData_Processes_RootProcessId",
                         column: x => x.RootProcessId,
                         principalTable: "Processes",
                         principalColumn: "Id",
@@ -132,15 +102,15 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProcessContents_ClusteredId",
-                table: "ProcessContents",
+                name: "IX_ProcessData_ClusteredId",
+                table: "ProcessData",
                 column: "ClusteredId",
                 unique: true)
                 .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProcessContents_RootProcessId",
-                table: "ProcessContents",
+                name: "IX_ProcessData_RootProcessId",
+                table: "ProcessData",
                 column: "RootProcessId");
 
             migrationBuilder.CreateIndex(
@@ -156,18 +126,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 columns: new[] { "OPMProcessId", "VersionType" },
                 unique: true,
                 filter: "[VersionType] != 2");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProcessMetadata_ClusteredId",
-                table: "ProcessMetadata",
-                column: "ClusteredId",
-                unique: true)
-                .Annotation("SqlServer:Clustered", true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProcessMetadata_RootProcessId",
-                table: "ProcessMetadata",
-                column: "RootProcessId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -179,10 +137,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "EntityExistedQuery");
 
             migrationBuilder.DropTable(
-                name: "ProcessContents");
-
-            migrationBuilder.DropTable(
-                name: "ProcessMetadata");
+                name: "ProcessData");
 
             migrationBuilder.DropTable(
                 name: "ProcessTemplates");

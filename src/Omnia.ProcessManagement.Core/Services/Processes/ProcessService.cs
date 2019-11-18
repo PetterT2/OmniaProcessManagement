@@ -16,17 +16,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ProcessRepository = processRepository;
         }
 
-        public async ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
-        {
-            var process = await ProcessRepository.CreateDraftProcessAsync(createDraftProcessModel);
-
-            if (createDraftProcessModel.CheckOut)
-            {
-                process = await CheckOutProcessAsync(process.OPMProcessId);
-            }
-
-            return process;
-        }
 
         public async ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel)
         {
@@ -40,15 +29,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public ValueTask<ProcessContent> GetMultilingualProcessContentAsync(Guid processContentId)
+        public async ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
         {
-            throw new NotImplementedException();
-        }
+            var process = await ProcessRepository.CreateDraftProcessAsync(createDraftProcessModel);
+            if (createDraftProcessModel.CheckOut)
+            {
+                process = await CheckOutProcessAsync(process.OPMProcessId);
+            }
 
-        public ValueTask<Process> GetProcessAsync(Guid processId)
-        {
-            throw new NotImplementedException();
+            return process;
         }
-
     }
 }

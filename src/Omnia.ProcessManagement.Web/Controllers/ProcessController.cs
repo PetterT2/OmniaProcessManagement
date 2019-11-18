@@ -25,7 +25,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("createdraft")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
+        public async ValueTask<ApiResponse<Process>> CreateDraftProcessAsync([FromBody] CreateDraftProcessModel createDraftProcessModel)
         {
             try
             {

@@ -9,15 +9,12 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Entities.Processes
 {
-    internal class ProcessContent : OPMClusteredIndexAuditingEntityBase
+    internal class ProcessData : OPMClusteredIndexAuditingEntityBase
     {
         [Key]
         public Guid Id { get; set; }
         public Guid RootProcessId { get; set; }
-        public LanguageTag LanguageTag { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-
+        public string JsonValue { get; set; }
         public string Hash { get; set; }
 
         [ForeignKey("RootProcessId")]

@@ -10,8 +10,7 @@ namespace Omnia.ProcessManagement.Models.Processes
     {
         public Guid Id { get; set; }
         public Guid OPMProcessId { get; set; }
-        public InternalProcessItem Data { get; set; }
-        public Dictionary<string, JToken> EnterpriseProperties { get; set; }
+        public RootProcessItem RootProcessItem { get; set; }
         public string CheckedOutBy { get; set; }
     }
 }

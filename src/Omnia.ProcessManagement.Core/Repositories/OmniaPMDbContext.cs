@@ -42,8 +42,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         }
 
         public DbSet<Process> Processes { get; set; }
-        public DbSet<ProcessContent> ProcessContents { get; set; }
-        public DbSet<ProcessMetadata> ProcessMetadata { get; set; }
+        public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,16 +53,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
                .IsUnique()
                .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
 
-            SetOPMClusteredIndex<ProcessContent>(modelBuilder, c => new { c.Id });
-            modelBuilder.Entity<ProcessContent>()
+            SetOPMClusteredIndex<ProcessData>(modelBuilder, c => new { c.Id });
+            modelBuilder.Entity<ProcessData>()
                  .HasOne(p => p.RootProcess)
-                 .WithMany(p => p.ProcessContents)
-                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
-
-            SetOPMClusteredIndex<ProcessMetadata>(modelBuilder, c => new { c.Id });
-            modelBuilder.Entity<ProcessMetadata>()
-                 .HasOne(p => p.RootProcess)
-                 .WithMany(p => p.ProcessMetadata)
+                 .WithMany(p => p.ProcessData)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
         }
 

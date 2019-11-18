@@ -6,8 +6,9 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Processes
 {
-    public class ProcessMetadata
+    public class ProcessData
     {
+        public MultilingualString Content { get; set; }
         public CanvasDefinition CanvasDefinition { get; set; }
         public object Documents { get; set; } //TODO
         public object Links { get; set; } //TODO

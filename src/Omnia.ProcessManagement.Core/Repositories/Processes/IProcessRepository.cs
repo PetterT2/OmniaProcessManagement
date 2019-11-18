@@ -12,7 +12,5 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel);
         ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
-        ValueTask<Process> GetLatestPublishedProcessAsync(Guid opmProcessId);
-        ValueTask<ProcessContent> GetMultilingualProcessContentAsync(Guid processContentId);
     }
 }

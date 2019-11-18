@@ -133,60 +133,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("Processes");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessContent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("ClusteredId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Hash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("LanguageTag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RootProcessId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("ClusteredId")
-                        .IsUnique()
-                        .HasAnnotation("SqlServer:Clustered", true);
-
-                    b.HasIndex("RootProcessId");
-
-                    b.ToTable("ProcessContents");
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessMetadata", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,22 +177,13 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
                     b.HasIndex("RootProcessId");
 
-                    b.ToTable("ProcessMetadata");
+                    b.ToTable("ProcessData");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessContent", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
                 {
                     b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "RootProcess")
-                        .WithMany("ProcessContents")
-                        .HasForeignKey("RootProcessId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessMetadata", b =>
-                {
-                    b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "RootProcess")
-                        .WithMany("ProcessMetadata")
+                        .WithMany("ProcessData")
                         .HasForeignKey("RootProcessId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
