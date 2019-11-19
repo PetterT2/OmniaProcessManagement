@@ -76,24 +76,25 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "ProcessData",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    RootProcessId = table.Column<Guid>(nullable: false),
+                    InternalProcessItemId = table.Column<Guid>(nullable: false),
+                    ProcessId = table.Column<Guid>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ReferenceProcessItemIds = table.Column<string>(nullable: true),
                     JsonValue = table.Column<string>(nullable: true),
                     Hash = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProcessData", x => new { x.Id, x.RootProcessId })
+                    table.PrimaryKey("PK_ProcessData", x => new { x.InternalProcessItemId, x.ProcessId })
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
-                        name: "FK_ProcessData_Processes_RootProcessId",
-                        column: x => x.RootProcessId,
+                        name: "FK_ProcessData_Processes_ProcessId",
+                        column: x => x.ProcessId,
                         principalTable: "Processes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -107,9 +108,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProcessData_RootProcessId",
+                name: "IX_ProcessData_ProcessId",
                 table: "ProcessData",
-                column: "RootProcessId");
+                column: "ProcessId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Processes_ClusteredId",

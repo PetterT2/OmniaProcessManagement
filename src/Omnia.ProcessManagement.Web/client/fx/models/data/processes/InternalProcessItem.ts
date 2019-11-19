@@ -4,5 +4,4 @@ import { ProcessItem, ProcessItemTypes } from './ProcessItem';
 export interface InternalProcessItem extends ProcessItem {
     type: ProcessItemTypes.Internal;
     children: Array<ProcessItem>;
-    processMetadataId: GuidValue;
 }

@@ -10,4 +10,5 @@ export enum ProcessItemTypes {
 export interface ProcessItem {
     type: ProcessItemTypes;
     title: MultilingualString;
+    id: GuidValue;
 }
