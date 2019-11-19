@@ -30,6 +30,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     errMsg: { [id: string]: string } = {};
 
     created() {
+        this.isLoading = true;
         Promise.all([
             this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch()]
         ).then(() => {

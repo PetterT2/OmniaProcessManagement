@@ -7,6 +7,8 @@ import { OPMAdminLocalization } from '../../../../loc/localize';
 import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition, ShapeTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants } from '../../../../../fx/constants';
+import { DrawingCanvas, DrawingCanvasEditor } from '../../../../../fx/models/processshape/canvas';
+import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
 
 interface ProcessTemplateShapeSettingsBladeProps {
@@ -56,14 +58,43 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
             shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
         })
+
+        setTimeout(() => {
+            this.editingShapeTitle = this.processTemplateJournayStore.getters.editingShapeDefinitionTitle();
+            if (!Utils.isNullOrEmpty(this.editingShapeTitle) && this.editingShape.type == ShapeDefinitionTypes.Drawing) {
+                let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
+                    width: 400,
+                    height: 500,
+                    shapes: [],
+                    gridX: 50,
+                    gridY: 50,
+                });
+                drawingCanvas.addShape(ShapeTemplatesConstants.Pentagon.name, (this.editingShape as DrawingShapeDefinition), null, 'circle', 50, 50);
+            }
+        }, 1000)
     }
 
     onShapeTemplateChanged() {
-        this.editingShape.title = Utils.clone(this.selectedShapeTemplate.title);
+        this.editingShape.title = Utils.clone((this.editingShape as DrawingShapeDefinition).shapeTemplate.title);
     }
 
     saveShape() {
+        if (this.internalValidator.validateAll()) {
+            var editingProcessTemplate: ProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+            this.editingShape.multilingualTitle = this.multilingualStore.getters.stringValue(this.editingShape.title);
+            if (Utils.isNullOrEmpty(this.editingShapeTitle)) {
+                editingProcessTemplate.settings.shapeDefinitions = editingProcessTemplate.settings.shapeDefinitions ? editingProcessTemplate.settings.shapeDefinitions : [];
+                editingProcessTemplate.settings.shapeDefinitions.push(this.editingShape);
+            }
+            else {
+                var index = this.processTemplateJournayStore.getters.editingShapeDefinitionIndex();
+                editingProcessTemplate.settings.shapeDefinitions[index] = this.editingShape;
+            }
+            this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(editingProcessTemplate);
 
+            this.journey().travelBackToFirstBlade();
+            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
+        }
     }
 
     render(h) {
@@ -89,12 +120,12 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing &&
-                        <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={this.selectedShapeTemplate}
+                        <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
                             onChange={this.onShapeTemplateChanged}></v-select>
                     }
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing &&
-                        <div>
+                        <div style={{ display: "flex" }}>
                             <v-flex lg4>
                                 <omfx-color-picker
                                     dark={this.omniaTheming.promoted.body.dark}
@@ -148,9 +179,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                     type="number" suffix="px"></v-text-field>
                             </v-flex>
                             <v-flex lg8>
-
+                                <canvas id="mycanvas" width="100%" height="100%"></canvas>
                             </v-flex>
-                            
                         </div>
                     }
                     <div class='text-right'>

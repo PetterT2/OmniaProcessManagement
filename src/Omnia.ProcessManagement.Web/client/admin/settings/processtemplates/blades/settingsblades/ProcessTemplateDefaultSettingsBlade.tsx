@@ -51,6 +51,7 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
     save() {
         if (this.internalValidator.validateAll()) {
             this.isSaving = true;
+            this.editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
             this.processTemplateStore.actions.addOrUpdateProcessTemplate.dispatch(this.editingProcessTemplate).then(() => {
                 this.isSaving = false;
                 this.journey().travelBackToFirstBlade();

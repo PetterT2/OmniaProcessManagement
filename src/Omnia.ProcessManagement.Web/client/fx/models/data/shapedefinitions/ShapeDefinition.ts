@@ -21,6 +21,7 @@ export const ShapeDefinitionFactory = {
     createDefaultProcessTemplate(type?: ShapeDefinitionTypes): ShapeDefinition {
         let shapeDefinition: ShapeDefinition = {
             type: type ? type : ShapeDefinitionTypes.Drawing,
+            title: { isMultilingualString: true }
         } as ShapeDefinition
 
         return shapeDefinition;

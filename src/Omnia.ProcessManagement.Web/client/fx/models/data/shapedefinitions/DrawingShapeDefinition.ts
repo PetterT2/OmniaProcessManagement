@@ -1,4 +1,5 @@
 ﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
+import { ShapeTemplate } from '../../processshape/ShapeTemplate';
 import { Enums } from '../../../../core';
 
 export enum TextPosition {
@@ -10,6 +11,7 @@ export enum TextPosition {
 export interface DrawingShapeDefinition extends ShapeDefinition {
     type: ShapeDefinitionTypes.Drawing;
 
+    shapeTemplate: ShapeTemplate;
     backgroundColor: string;
     borderColor: string;
     textColor: string;

@@ -26,7 +26,8 @@ export class ProcessTemplateJourneyStore extends Store {
         editingProcessTemplateTitle: () => this.editingProcessTemplateTitle.state,
         editingShapeDefinition: () => this.editingShapeDefinition.state,
         editingShapeDefinitionTitle: () => this.editingShapeDefinitionTitle.state,
-        editingShapeDefinitionType: () => this.editingShapeDefinitionType.state
+        editingShapeDefinitionType: () => this.editingShapeDefinitionType.state,
+        editingShapeDefinitionIndex: () => this.editingShapeDefinitionIndex.state
     }
 
     mutations = {

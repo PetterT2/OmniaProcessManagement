@@ -29,7 +29,8 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     private shapes: Array<ShapeDefinition> = []
 
     created() {
-
+        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+        this.shapes = (editingProcessTemplate.settings && editingProcessTemplate.settings.shapeDefinitions) ? editingProcessTemplate.settings.shapeDefinitions : [];
     }
 
     openShapeSettingBlade(shape?: ShapeDefinition, index: number = -1) {
@@ -48,8 +49,15 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
         this.openShapeSettingBlade(shape);
     }
 
-    private removeShape(index: number) {
+    updateShapes() {
+        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+        editingProcessTemplate.settings.shapeDefinitions = this.shapes;
+        this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(editingProcessTemplate);
+    }
 
+    removeShape(index: number) {
+        this.shapes.splice(index, 1);
+        this.updateShapes();
     }
 
     render(h) {
@@ -64,7 +72,8 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                         <draggable
                             options={{ handle: ".drag-handle", animation: "100" }}
                             element="v-list"
-                            v-model={this.shapes}>
+                            v-model={this.shapes}
+                            onChange={this.updateShapes}>
                             {
                                 this.shapes.map((shape, index) => {
 
