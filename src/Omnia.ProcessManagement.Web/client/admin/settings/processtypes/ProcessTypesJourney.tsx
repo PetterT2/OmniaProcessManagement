@@ -6,6 +6,7 @@ import { ProcessTypesJourneyBladeIds } from './ProcessTypesJourneyConstants';
 import { IProcessTypesJourney } from './IProcessTypesJourney';
 import DefaultBlade from './blades/DefaultBlade';
 import ItemSettingsBlade from './blades/ItemSettingsBlade';
+import SyncStatusBlade from './blades/SyncStatusBlade';
 
 @Component
 export default class ProcessTypesJourney extends Vue implements IWebComponentInstance, IProcessTypesJourney {
@@ -52,10 +53,21 @@ export default class ProcessTypesJourney extends Vue implements IWebComponentIns
         return blade;
     }
 
+    getSyncTrackingBlade() {
+        let h = this.$createElement;
+        let blade: Blade = {
+            id: ProcessTypesJourneyBladeIds.syncStatus,
+            size: BladeSizes.medium,
+            content: <SyncStatusBlade journey={this.getJourneyInstance}></SyncStatusBlade>
+        }
+
+        return blade;
+    }
+
     render(h) {
         return (
             <omfx-journey onInstanceCreated={this.gotInstance}
-                blades={[this.getDefaultBlade(), this.getItemSettingsBlade()]}></omfx-journey>
+                blades={[this.getDefaultBlade(), this.getItemSettingsBlade(), this.getSyncTrackingBlade()]}></omfx-journey>
         )
     }
 }
