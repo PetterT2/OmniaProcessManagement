@@ -49,6 +49,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\ItemSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\ItemSettingsJourney\ItemSettingsTabs\PublishTab.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\SyncStatusBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\ProcessTypeHelper.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\IProcessTypesJourney.ts" />
