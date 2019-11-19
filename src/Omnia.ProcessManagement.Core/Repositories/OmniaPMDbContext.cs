@@ -55,9 +55,9 @@ namespace Omnia.ProcessManagement.Core.Repositories
                .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
 
             modelBuilder.Entity<ProcessData>()
-                .HasKey(pd => new { pd.InternalProcessItemId, pd.ProcessId });
+                .HasKey(pd => new { pd.ProcessStepId, pd.ProcessId });
 
-            SetOPMClusteredIndex<ProcessData>(modelBuilder, p => new { p.InternalProcessItemId, p.ProcessId });
+            SetOPMClusteredIndex<ProcessData>(modelBuilder, p => new { p.ProcessStepId, p.ProcessId });
             modelBuilder.Entity<ProcessData>()
                  .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)

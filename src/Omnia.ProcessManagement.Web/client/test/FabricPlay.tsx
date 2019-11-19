@@ -126,7 +126,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas',{}, {
             width: 800,
             height: 1000,
-            shapes: [],
+            drawingShapes: [],
             gridX: 200,
             gridY: 100,
         });
@@ -138,7 +138,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         this.drawingCanvas1 = new DrawingCanvasEditor('test2', {}, {
             width: 800,
             height: 1000,
-            shapes: [],
+            drawingShapes: [],
             gridX: 200,
             gridY: 100,
          //   imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
@@ -218,7 +218,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             height: 300,
             textPosition: TextPosition.Center,
         } as DrawingShapeDefinition;
-        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[0], ShapeTemplatesConstants.Pentagon.name, changedDefinition, 'plan2');
+        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.drawingShapes[0], ShapeTemplatesConstants.Pentagon.name, changedDefinition, 'plan2');
     }
 
     beforeDestroy() {

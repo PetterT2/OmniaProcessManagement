@@ -30,8 +30,8 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 }
             }
 
-            if (definition.shapes) {
-                definition.shapes.forEach(s => {
+            if (definition.drawingShapes) {
+                definition.drawingShapes.forEach(s => {
                     this.addShapeFromTemplateClassName(s.shape.name, Guid.newGuid(), s.shape.nodes, null);
                 })
             }

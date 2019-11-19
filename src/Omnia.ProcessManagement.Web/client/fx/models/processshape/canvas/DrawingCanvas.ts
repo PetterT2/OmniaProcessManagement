@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../data/drawingdefinitions';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape } from '../shapes';
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
@@ -11,12 +11,12 @@ export class DrawingCanvas implements CanvasDefinition {
     height: number;
     gridX?: number;
     gridY?: number;
-    shapes: IDrawingShapeNode[];
+    drawingShapes: DrawingShape[];
     protected selectable = false;
     protected canvasObject: fabric.Canvas;
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.shapes = [];
+        this.drawingShapes = [];
         this.initShapes(elementId, options, definition);
         this.renderBackgroundImage(definition);
     }
@@ -60,8 +60,8 @@ export class DrawingCanvas implements CanvasDefinition {
                 }
             }
 
-            if (definition.shapes) {
-                definition.shapes.forEach(s => {
+            if (definition.drawingShapes) {
+                definition.drawingShapes.forEach(s => {
                     if (TemplatesDictionary[s.shape.name]) {
                         this.addShapeFromTemplateClassName(s.shape.name, Guid.newGuid(), s.shape.nodes, null);
                     }
@@ -77,10 +77,10 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    updateShapeDefinition(oldDrawingShape: IDrawingShapeNode, newShapeName: string, definition: DrawingShapeDefinition, text?: string, left?: number, top?: number) {
-        let oldShapeIndex = this.shapes.findIndex(s => s.id == oldDrawingShape.id);
+    updateShapeDefinition(oldDrawingShape: DrawingShape, newShapeName: string, definition: DrawingShapeDefinition, text?: string, left?: number, top?: number) {
+        let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == oldDrawingShape.id);
         if (oldShapeIndex > -1) {
-            this.shapes.splice(oldShapeIndex, 1);
+            this.drawingShapes.splice(oldShapeIndex, 1);
             (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
         }
         this.addShapeFromTemplateClassName(newShapeName, oldDrawingShape.id, newShapeName == oldDrawingShape.shape.name ? oldDrawingShape.shape.nodes : null, definition, text, left, top);
@@ -90,7 +90,7 @@ export class DrawingCanvas implements CanvasDefinition {
         let shape: Shape = new TemplatesDictionary[shapeName](definition, nodes, text, this.selectable, left, top);
         shape.addListenerEvent(this.canvasObject, this.gridX, this.gridY);
         shape.shapeObject.forEach(s => this.canvasObject.add(s));
-        this.shapes.push({ id: id, shape: shape });
+        this.drawingShapes.push({ id: id, shape: shape, type: DrawingShapeTypes.Undefined });
     }
 
 }

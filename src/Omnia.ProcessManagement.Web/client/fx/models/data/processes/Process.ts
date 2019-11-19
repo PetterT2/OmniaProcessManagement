@@ -1,9 +1,9 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
-import { RootProcessItem } from './RootProcessItem';
+import { RootProcessStep } from './RootProcessStep';
 
 export interface Process {
     id: GuidValue;
     opmProcessId: GuidValue;
-    rootProcessItem: RootProcessItem;
+    rootProcessStep: RootProcessStep;
     checkedOutBy: string
 }

@@ -10,7 +10,7 @@ namespace Omnia.ProcessManagement.Models.Processes
     {
         public Guid Id { get; set; }
         public Guid OPMProcessId { get; set; }
-        public RootProcessItem RootProcessItem { get; set; }
+        public RootProcessStep RootProcessStep { get; set; }
         public string CheckedOutBy { get; set; }
     }
 }

@@ -45,6 +45,8 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     JsonValue = table.Column<string>(nullable: true),
                     EnterpriseProperties = table.Column<string>(nullable: true),
                     CheckedOutBy = table.Column<string>(nullable: true),
+                    SiteId = table.Column<Guid>(nullable: false),
+                    WebId = table.Column<Guid>(nullable: false),
                     VersionType = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -76,7 +78,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "ProcessData",
                 columns: table => new
                 {
-                    InternalProcessItemId = table.Column<Guid>(nullable: false),
+                    ProcessStepId = table.Column<Guid>(nullable: false),
                     ProcessId = table.Column<Guid>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
@@ -84,13 +86,13 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ReferenceProcessItemIds = table.Column<string>(nullable: true),
+                    ReferenceProcessStepIds = table.Column<string>(nullable: true),
                     JsonValue = table.Column<string>(nullable: true),
                     Hash = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProcessData", x => new { x.InternalProcessItemId, x.ProcessId })
+                    table.PrimaryKey("PK_ProcessData", x => new { x.ProcessStepId, x.ProcessId })
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_ProcessData_Processes_ProcessId",
