@@ -1,4 +1,4 @@
-﻿import { IDrawingShapeNode } from './IDrawingShapeNode';
+﻿import { DrawingShape } from './DrawingShape';
 
 export interface CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -6,5 +6,5 @@ export interface CanvasDefinition {
     height: number;
     gridX?: number;
     gridY?: number;
-    shapes: Array<IDrawingShapeNode>;
+    drawingShapes: Array<DrawingShape>;
 }

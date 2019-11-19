@@ -67,7 +67,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                     width: 400,
                     height: 500,
-                    shapes: [],
+                    drawingShapes: [],
                     gridX: 50,
                     gridY: 50,
                 });
@@ -86,14 +86,14 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                 width: 400,
                 height: 500,
-                shapes: [],
+                drawingShapes: [],
                 gridX: 50,
                 gridY: 50,
             });
             this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, '', 50, 50);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.shapes[0], (this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), "");
         }
         this.$forceUpdate();
     }

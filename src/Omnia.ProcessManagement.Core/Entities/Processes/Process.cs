@@ -16,6 +16,8 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string JsonValue { get; set; }
         public string EnterpriseProperties { get; set; }
         public string CheckedOutBy { get; set; }
+        public Guid SiteId { get; set; }
+        public Guid WebId { get; set; }
         public ProcessVersionType VersionType { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
 

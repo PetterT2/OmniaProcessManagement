@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Processes
 {
-    public class RootProcessItem : InternalProcessItem
+    public class RootProcessStep : ProcessStep
     {
         public Dictionary<string, JToken> EnterpriseProperties { get; set; }
     }

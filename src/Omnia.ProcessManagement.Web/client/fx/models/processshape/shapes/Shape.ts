@@ -13,6 +13,3 @@ export declare abstract class Shape implements IShape {
     abstract addListenerEvent(canvas: fabric.Canvas, gridX?: number, gridY?: number);
 }
 
-export interface Shape {
-
-}

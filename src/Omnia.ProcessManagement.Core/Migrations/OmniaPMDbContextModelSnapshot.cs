@@ -113,8 +113,14 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<Guid>("OPMProcessId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("VersionType")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("WebId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
@@ -132,7 +138,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
                 {
-                    b.Property<Guid>("InternalProcessItemId")
+                    b.Property<Guid>("ProcessStepId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProcessId")
@@ -161,10 +167,10 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ReferenceProcessItemIds")
+                    b.Property<string>("ReferenceProcessStepIds")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("InternalProcessItemId", "ProcessId")
+                    b.HasKey("ProcessStepId", "ProcessId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("ClusteredId")
