@@ -16,10 +16,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ProcessRepository = processRepository;
         }
 
-
-        public async ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel)
+        public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
-            var process = await ProcessRepository.CheckInProcessAsync(checkInProcessModel);
+            var process = await ProcessRepository.SaveCheckedOutProcessAsync(actionModel);
+            return process;
+        }
+
+        public async ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel)
+        {
+            var process = await ProcessRepository.CheckInProcessAsync(actionModel);
             return process;
         }
 
@@ -29,15 +34,29 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel)
+        public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
-            var process = await ProcessRepository.CreateDraftProcessAsync(createDraftProcessModel);
-            if (createDraftProcessModel.CheckOut)
-            {
-                process = await CheckOutProcessAsync(process.OPMProcessId);
-            }
-
+            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId);
             return process;
+        }
+
+        public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
+        {
+            var process = await ProcessRepository.CreateDraftProcessAsync(actionModel);
+            process = await CheckOutProcessAsync(process.OPMProcessId);
+            return process;
+        }
+
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId)
+        {
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId);
+            return process;
+        }
+
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid internalProcessItemId, string hash)
+        {
+            var processData = await ProcessRepository.GetProcessDataAsync(internalProcessItemId, hash);
+            return processData;
         }
     }
 }

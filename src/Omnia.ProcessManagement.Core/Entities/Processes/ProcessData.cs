@@ -11,13 +11,13 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
 {
     internal class ProcessData : OPMClusteredIndexAuditingEntityBase
     {
-        [Key]
-        public Guid Id { get; set; }
-        public Guid RootProcessId { get; set; }
+        public Guid InternalProcessItemId { get; set; }
+        public Guid ProcessId { get; set; }
+        public string ReferenceProcessItemIds { get; set; }
         public string JsonValue { get; set; }
         public string Hash { get; set; }
 
-        [ForeignKey("RootProcessId")]
-        public virtual Process RootProcess { get; set; }
+        [ForeignKey("ProcessId")]
+        public virtual Process Process { get; set; }
     }
 }

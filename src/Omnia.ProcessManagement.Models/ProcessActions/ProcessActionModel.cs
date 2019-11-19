@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.ProcessActions
 {
-    public class CheckInProcessModel
+    public class ProcessActionModel
     {
         public Process Process { get; set; }
         public Dictionary<Guid, ProcessData> ProcessData { get; set; }

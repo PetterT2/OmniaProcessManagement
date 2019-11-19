@@ -9,8 +9,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
     public interface IProcessRepository
     {
-        ValueTask<Process> CreateDraftProcessAsync(CreateDraftProcessModel createDraftProcessModel);
-        ValueTask<Process> CheckInProcessAsync(CheckInProcessModel checkInProcessModel);
+        ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
+        ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
+        ValueTask<Process> PublishProcessAsync(Guid opmProcessId);
+        ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid internalProcessItemId, string hash);
     }
 }

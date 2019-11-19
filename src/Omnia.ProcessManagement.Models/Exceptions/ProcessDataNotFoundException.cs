@@ -6,7 +6,7 @@ namespace Omnia.ProcessManagement.Models.Exceptions
 {
     public class ProcessDataNotFoundException : Exception
     {
-        public ProcessDataNotFoundException(Guid id, Exception? innerException = null) : base($"Process data with id: {id} not found", innerException)
+        public ProcessDataNotFoundException(Guid id, Exception? innerException = null) : base($"Process data for internal process item with id: {id} not found", innerException)
         {
         }
     }

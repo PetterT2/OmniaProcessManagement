@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191118114400_AddProcessAndProcessTemplateTables")]
+    [Migration("20191118155317_AddProcessAndProcessTemplateTables")]
     partial class AddProcessAndProcessTemplateTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,9 +100,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("EnterpriseProperties")
                         .HasColumnType("nvarchar(max)");
 
@@ -138,7 +135,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RootProcessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("ClusteredId")
@@ -152,9 +151,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("Hash")
                         .HasColumnType("nvarchar(max)");
 
@@ -167,10 +163,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("RootProcessId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id")
+                    b.HasKey("Id", "RootProcessId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("ClusteredId")

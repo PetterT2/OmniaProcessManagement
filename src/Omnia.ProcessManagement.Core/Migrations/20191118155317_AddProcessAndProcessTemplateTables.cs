@@ -39,7 +39,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     ModifiedBy = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OPMProcessId = table.Column<Guid>(nullable: false),
@@ -78,20 +77,19 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    RootProcessId = table.Column<Guid>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RootProcessId = table.Column<Guid>(nullable: false),
                     JsonValue = table.Column<string>(nullable: true),
                     Hash = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProcessData", x => x.Id)
+                    table.PrimaryKey("PK_ProcessData", x => new { x.Id, x.RootProcessId })
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_ProcessData_Processes_RootProcessId",

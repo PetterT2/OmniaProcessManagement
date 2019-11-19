@@ -65,6 +65,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\InternalProcessItem.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessItem.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessItem.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
@@ -147,6 +148,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\ProcessDataWithAuditing.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\RootProcessItem.ts">

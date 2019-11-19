@@ -5,4 +5,4 @@ export * from './RootProcessItem';
 export * from './Process';
 export * from './ProcessData';
 export * from './ProcessItem';
-
+export * from './ProcessDataWithAuditing';

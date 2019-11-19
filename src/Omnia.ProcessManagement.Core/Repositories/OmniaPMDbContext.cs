@@ -47,15 +47,19 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
             modelBuilder.Entity<Process>()
                .HasIndex(c => new { c.OPMProcessId, c.VersionType })
                .IsUnique()
                .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
 
-            SetOPMClusteredIndex<ProcessData>(modelBuilder, c => new { c.Id });
             modelBuilder.Entity<ProcessData>()
-                 .HasOne(p => p.RootProcess)
+                .HasKey(pd => new { pd.InternalProcessItemId, pd.ProcessId });
+
+            SetOPMClusteredIndex<ProcessData>(modelBuilder, p => new { p.InternalProcessItemId, p.ProcessId });
+            modelBuilder.Entity<ProcessData>()
+                 .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
         }
