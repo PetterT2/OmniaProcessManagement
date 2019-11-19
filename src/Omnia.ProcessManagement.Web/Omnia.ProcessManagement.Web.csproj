@@ -48,9 +48,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\ProcessTemplateJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
-    <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
-    <TypeScriptCompile Remove="client\core\Enums.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
@@ -59,7 +57,11 @@
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\enums\Enums.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\enums\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processactions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processactions\ProcessActionModel.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
@@ -151,6 +153,18 @@
     <None Update="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\fx\models\data\enums\Enums.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\enums\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processactions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processactions\ProcessActionModel.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\data\processes\ProcessDataWithAuditing.ts">
       <SubType>Code</SubType>
     </None>
@@ -188,12 +202,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\shapedefinitions\ShapeDefinition.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\core\Constants.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\core\Enums.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\core\index.ts">

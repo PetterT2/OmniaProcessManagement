@@ -11,6 +11,7 @@ using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -51,6 +52,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var process = new Entities.Processes.Process();
             process.Id = actionModel.Process.Id;
+            DbContext.Processes.Add(process);
+
+            var processDataDict = actionModel.ProcessData;
+            AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
+
             process.OPMProcessId = new Guid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -59,11 +65,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
 
-            var processDataDict = actionModel.ProcessData;
-
-            AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
-
-            DbContext.Processes.Add(process);
             await DatabaseContext.SaveChangesAsync();
 
             var model = MapEfToModel(process);
@@ -86,6 +87,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processDataEf.ModifiedBy = OmniaContext.Identity.LoginName;
                 processDataEf.CreatedAt = DateTimeOffset.UtcNow;
                 processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
+
+                processStep.ProcessDataHash = processDataEf.Hash;
             }
             else
             {
@@ -103,8 +106,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId)
         {
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, Entities.Processes.ProcessVersionType.CheckedOut, true);
-            var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, Entities.Processes.ProcessVersionType.Draft, true);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+            var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
 
             if (draftProcessWithProcessDataIdHash == null)
             {
@@ -127,7 +130,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
             processEf.CheckedOutBy = "";
-            processEf.VersionType = Entities.Processes.ProcessVersionType.Published;
+            processEf.VersionType = ProcessVersionType.Published;
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
             return process;
@@ -136,7 +139,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, Entities.Processes.ProcessVersionType.CheckedOut, true);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.CheckedOut, true);
             if (checkedOutProcessWithProcessDataIdHash == null)
             {
                 throw new ProcessCheckedOutVersionNotFoundException(actionModel.Process.OPMProcessId);
@@ -167,7 +170,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel)
         {
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, Entities.Processes.ProcessVersionType.CheckedOut, true);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.CheckedOut, true);
 
             if (checkedOutProcessWithProcessDataIdHash == null)
             {
@@ -178,13 +181,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessCheckedOutByAnotherUserException();
             }
 
-            var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, Entities.Processes.ProcessVersionType.Draft, true);
+            var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.Draft, true);
             EnsureRemovingExistingProcess(existingDraftProcessWithProcessDataIdHash);
 
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
-            checkedOutProcessWithProcessDataIdHash.Process.VersionType = Entities.Processes.ProcessVersionType.Draft;
+            checkedOutProcessWithProcessDataIdHash.Process.VersionType = ProcessVersionType.Draft;
             checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy = "";
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
@@ -236,15 +239,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 HashSet<Guid> usingProcessDataIdHashSet)
         {
             var newProcesData = newProcessDataDict.GetValueOrDefault(processStep.Id);
-            var existingProcessData = existingProcessDataIdHashDict.GetValueOrDefault(processStep.Id);
+            var existingProcessDataIdHash = existingProcessDataIdHashDict.GetValueOrDefault(processStep.Id);
 
-          
+
             if (newProcesData == null)
             {
-                if (existingProcessData == null)
+                if (existingProcessDataIdHash == null)
                 {
                     throw new ProcessDataNotFoundException(processStep.Id);
                 }
+
+                processStep.ProcessDataHash = existingProcessDataIdHash.Hash;
             }
             else
             {
@@ -254,7 +259,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
 
                 Entities.Processes.ProcessData processDataEf = null;
-                if (existingProcessData == null)
+                if (existingProcessDataIdHash == null)
                 {
                     processDataEf = new Entities.Processes.ProcessData();
                     DbContext.ProcessData.Add(processDataEf);
@@ -274,8 +279,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processDataEf.ReferenceProcessStepIds = referenceProcessStepIds;
                 processDataEf.JsonValue = JsonConvert.SerializeObject(newProcesData);
                 processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
+                processStep.ProcessDataHash = processDataEf.Hash;
 
-                if (existingProcessData == null || existingProcessData.Hash != processDataEf.Hash)
+                if (existingProcessDataIdHash == null || existingProcessDataIdHash.Hash != processDataEf.Hash)
                 {
                     processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
                     processDataEf.ModifiedBy = OmniaContext.Identity.LoginName;
@@ -310,9 +316,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.ProcessData.Remove(processDataEf);
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, ProcessVersionType vertionType, string hash)
         {
-            var processData = await DbContext.ProcessData.FirstOrDefaultAsync(p => p.ProcessStepId == processStepId && p.Hash == hash);
+            var processData = await DbContext.ProcessData
+                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash && p.Process.VersionType == vertionType)
+                .OrderByDescending(p => p.ClusteredId)
+                .FirstOrDefaultAsync();
+
             if (processData == null)
             {
                 throw new ProcessDataNotFoundException(processStepId);
@@ -325,10 +335,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
             var draftProcess = await DbContext.Processes
-                       .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == Entities.Processes.ProcessVersionType.Draft)
+                       .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Draft)
                        .SingleOrDefaultAsync();
 
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, Entities.Processes.ProcessVersionType.CheckedOut, false);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, false);
 
             if (checkedOutProcessWithProcessDataIdHash == null)
             {
@@ -353,7 +363,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public async ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId)
         {
             var process = await DbContext.Processes
-                .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == Entities.Processes.ProcessVersionType.CheckedOut)
+                .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.CheckedOut)
                 .FirstOrDefaultAsync();
 
             if (process == null)
@@ -375,14 +385,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 try
                 {
-                    var existingCheckedInProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, Entities.Processes.ProcessVersionType.Draft, false);
+                    var existingCheckedInProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, false);
 
                     if (existingCheckedInProcessWithProcessDataIdHash == null)
                     {
                         throw new ProcessDraftVersionNotFoundException(opmProcessId);
                     }
 
-                    var clonedProcess = await CloneProcessAsync(existingCheckedInProcessWithProcessDataIdHash, Entities.Processes.ProcessVersionType.CheckedOut);
+                    var clonedProcess = await CloneProcessAsync(existingCheckedInProcessWithProcessDataIdHash, ProcessVersionType.CheckedOut);
 
                     await transaction.CommitAsync();
                     return clonedProcess;
@@ -395,7 +405,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        private async ValueTask<Entities.Processes.Process> CloneProcessAsync(ProcessWithProcessDataIdHash processWithProcessDataIdHash, Entities.Processes.ProcessVersionType versionType)
+        private async ValueTask<Entities.Processes.Process> CloneProcessAsync(ProcessWithProcessDataIdHash processWithProcessDataIdHash, ProcessVersionType versionType)
         {
             var checkedOutProcess = new Entities.Processes.Process();
             checkedOutProcess.Id = new Guid();
@@ -407,7 +417,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             checkedOutProcess.ModifiedAt = processWithProcessDataIdHash.Process.ModifiedAt;
             checkedOutProcess.ModifiedBy = processWithProcessDataIdHash.Process.ModifiedBy;
 
-            if (versionType == Entities.Processes.ProcessVersionType.CheckedOut)
+            if (versionType == ProcessVersionType.CheckedOut)
             {
                 checkedOutProcess.CheckedOutBy = OmniaContext.Identity.LoginName;
             }
@@ -452,7 +462,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        private async ValueTask<ProcessWithProcessDataIdHash> GetProcessWithProcessDataIdHashAsync(Guid opmProcessId, Entities.Processes.ProcessVersionType versionType, bool tracking)
+        private async ValueTask<ProcessWithProcessDataIdHash> GetProcessWithProcessDataIdHashAsync(Guid opmProcessId, ProcessVersionType versionType, bool tracking)
         {
             var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
 
@@ -505,7 +515,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.OPMProcessId = processEf.OPMProcessId;
             model.Id = processEf.Id;
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
-            model.CheckedOutBy = processEf.VersionType == Entities.Processes.ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             return model;
         }
 

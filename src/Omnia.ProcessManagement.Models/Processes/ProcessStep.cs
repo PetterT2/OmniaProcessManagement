@@ -8,6 +8,7 @@ namespace Omnia.ProcessManagement.Models.Processes
     public class ProcessStep : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
     {
         public Guid Id { get; set; }
+        public string ProcessDataHash { get; set; }
         public MultilingualString Title { get; set; }
         public List<ProcessStep> ProcessSteps { get; set; }
     }

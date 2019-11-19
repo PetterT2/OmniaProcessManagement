@@ -5,7 +5,6 @@ import { Component } from 'vue-property-decorator';
 import { fabric } from 'fabric';
 import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
-import { Enums } from '../core';
 import { ShapeTemplatesConstants } from '../fx';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
@@ -216,7 +215,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             textColor: '#d36249',
             width: 200,
             height: 300,
-            textPosition: TextPosition.Center,
+            textPosition: TextPosition.Center
         } as DrawingShapeDefinition;
         this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.drawingShapes[0], ShapeTemplatesConstants.Pentagon.name, changedDefinition, 'plan2');
     }

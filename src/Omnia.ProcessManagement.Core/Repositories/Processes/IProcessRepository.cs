@@ -1,4 +1,5 @@
-﻿using Omnia.ProcessManagement.Models.ProcessActions;
+﻿using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId);
-        ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid internalProcessItemId, string hash);
+        ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, ProcessVersionType vertionType, string hash);
     }
 }

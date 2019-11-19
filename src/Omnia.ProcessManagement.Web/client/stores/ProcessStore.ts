@@ -2,12 +2,12 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes } from '@omnia/fx-models';
 import { ProcessService } from '../services';
+import { ProcessActionModel } from '../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 export class ProcessStore extends Store {
-
     @Inject(ProcessService) private processService: ProcessService;
 
     constructor() {
@@ -21,7 +21,12 @@ export class ProcessStore extends Store {
     }
 
     public actions = {
-       
+        createDraft: this.action((actionModel: ProcessActionModel) => {
+            return this.processService.createDraftProcess(actionModel).then((process) => {
+
+                return null;
+            })
+        })
     }
 
     protected onActivated() {

@@ -1,4 +1,5 @@
 ﻿using Omnia.Fx.NetCore.Repositories.EntityFramework.Entities;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,5 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public ProcessVersionType VersionType { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
 
-    }
-
-    internal enum ProcessVersionType
-    {
-        Draft = 0,
-        CheckedOut = 1,
-        Published = 2
     }
 }
