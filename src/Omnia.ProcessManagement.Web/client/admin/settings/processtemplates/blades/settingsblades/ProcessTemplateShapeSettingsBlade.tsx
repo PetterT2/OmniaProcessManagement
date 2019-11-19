@@ -2,7 +2,7 @@
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
-import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator } from '@omnia/fx/ux';
+import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
 import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, HeadingShapeDefinition, TextPosition, ShapeTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
@@ -26,20 +26,22 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
-    private internalValidator: FormValidator = new FormValidator(this);
-    private editingShape: ShapeDefinition = null;
-    private editingShapeTitle: string = "";
-    private editingShapeType: ShapeDefinitionTypes = null;
-    private shapeTemplateSelections: Array<ShapeTemplate> = [
+    internalValidator: FormValidator = new FormValidator(this);
+    editingShape: ShapeDefinition = null;
+    editingShapeTitle: string = "";
+    editingShapeType: ShapeDefinitionTypes = null;
+    shapeTemplateSelections: Array<ShapeTemplate> = [
         ShapeTemplatesConstants.Circle,
         ShapeTemplatesConstants.Diamond,
         ShapeTemplatesConstants.Freeform,
         ShapeTemplatesConstants.Media,
         ShapeTemplatesConstants.Pentagon
     ];
-    private selectedShapeTemplate: ShapeTemplate = null;
+    selectedShapeTemplate: ShapeTemplate = null;
+    drawingCanvas: DrawingCanvas = null;
+    canvasId: string = "opm_template_canvas";
 
-    private textPositions = [
+    textPositions = [
         {
             value: TextPosition.Above,
             title: this.loc.ProcessTemplates.ShapeSettings.Above
@@ -62,20 +64,38 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         setTimeout(() => {
             this.editingShapeTitle = this.processTemplateJournayStore.getters.editingShapeDefinitionTitle();
             if (!Utils.isNullOrEmpty(this.editingShapeTitle) && this.editingShape.type == ShapeDefinitionTypes.Drawing) {
-                let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
+                this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                     width: 400,
                     height: 500,
                     shapes: [],
                     gridX: 50,
                     gridY: 50,
                 });
-                drawingCanvas.addShape(ShapeTemplatesConstants.Pentagon.name, (this.editingShape as DrawingShapeDefinition), null, 'circle', 50, 50);
+                this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, '', 50, 50);
             }
         }, 1000)
     }
 
     onShapeTemplateChanged() {
         this.editingShape.title = Utils.clone((this.editingShape as DrawingShapeDefinition).shapeTemplate.title);
+        this.updateTemplateShape();
+    }
+
+    updateTemplateShape() {
+        if (!this.drawingCanvas) {
+            this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
+                width: 400,
+                height: 500,
+                shapes: [],
+                gridX: 50,
+                gridY: 50,
+            });
+            this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, '', 50, 50);
+        }
+        else {
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.shapes[0], (this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), "");
+        }
+        this.$forceUpdate();
     }
 
     saveShape() {
@@ -120,66 +140,104 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing &&
-                        <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
-                            onChange={this.onShapeTemplateChanged}></v-select>
+                        [
+                            <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
+                                onChange={this.onShapeTemplateChanged}></v-select>,
+                            <omfx-field-validation
+                                useValidator={this.internalValidator}
+                                checkValue={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
+                                rules={new FieldValueValidation().IsRequired().getRules()}>
+                            </omfx-field-validation>
+                        ]
                     }
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing &&
                         <div style={{ display: "flex" }}>
                             <v-flex lg4>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.omniaUxLoc.Common.BackgroundColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.omniaUxLoc.Common.BorderColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).borderColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.loc.ProcessTemplates.ShapeSettings.TextColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.loc.ProcessTemplates.ShapeSettings.ActiveBackgroundColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.loc.ProcessTemplates.ShapeSettings.ActiveBorderColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).activeBorderColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBorderColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBorderColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
                                 <omfx-color-picker
+                                    required={true}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     label={this.loc.ProcessTemplates.ShapeSettings.ActiveTextColor}
                                     model={{ color: (this.editingShape as DrawingShapeDefinition).activeTextColor }}
                                     disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; }}>
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; this.updateTemplateShape(); }}>
                                 </omfx-color-picker>
+
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.loc.ProcessTemplates.ShapeSettings.Width}
-                                    type="number" suffix="px"></v-text-field>
+                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).width}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.loc.ProcessTemplates.ShapeSettings.Height}
-                                    type="number" suffix="px"></v-text-field>
+                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).height}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+
                                 <v-select item-value="value" item-text="title" items={this.textPositions} label={this.loc.ProcessTemplates.ShapeSettings.TextPosition}
-                                    v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
+                                    onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.loc.ProcessTemplates.ShapeSettings.FontSize}
-                                    type="number" suffix="px"></v-text-field>
+                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+
                             </v-flex>
                             <v-flex lg8>
-                                <canvas id="mycanvas" width="100%" height="100%"></canvas>
+                                <canvas id={this.canvasId} width="100%" height="100%"></canvas>
                             </v-flex>
                         </div>
                     }
