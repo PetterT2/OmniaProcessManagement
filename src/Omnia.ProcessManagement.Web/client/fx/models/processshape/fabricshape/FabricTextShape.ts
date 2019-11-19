@@ -7,26 +7,26 @@ export class FabricTextShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Text;
 
-    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {        
-        this.initProperties(definition, properties);
+    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {        
+        this.initProperties(definition, isActive, properties);
     }
 
-    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
         this.properties = {};
-        if (definition) {
-            this.properties["left"] = 0;
-            this.properties["top"] = 0;
-            this.properties["width"] = definition.width;
-            this.properties["fill"] = definition.textColor;
-            this.properties["fontSize"] = definition.fontSize;
-            this.properties["originX"] = 'center';
-            this.properties["textAlign"] = 'center';
-        }
+        this.properties["originX"] = "left";
+        this.properties["originY"] = "top";
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];
             });
-        } 
+        }
+        if (definition) {
+            this.properties["width"] = definition.width;
+            this.properties["fill"] = isActive ? definition.activeTextColor : definition.textColor;
+            this.properties["fontSize"] = definition.fontSize;
+            this.properties["originX"] = 'center';
+            this.properties["textAlign"] = 'center';
+        }
         this.fabricObject = new fabric.Text(this.properties['text'] || "", this.properties);       
     }
 
@@ -34,7 +34,7 @@ export class FabricTextShape implements FabricShapeExtention {
         return FabricShapeNodeTypes.text;
     }
 
-    getShapeNode(): IShapeNode {
+    getShapeNodeJson(): IShapeNode {
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             this.properties = [];

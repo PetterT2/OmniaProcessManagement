@@ -15,17 +15,24 @@ export class CircleShape implements Shape {
     private startPoint: { x: number, y: number } = { x: 0, y: 0 };
     private originPos: { x: number, y: number } = { x: 0, y: 0 };
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number) {
+    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number) {
         this.definition = definition;
         this.nodes = nodes;
-        this.initNodes(text, selectable, left, top);
+        this.initNodes(isActive || false, text, selectable, left, top);
     }
 
     get name() {
         return ShapeTemplatesConstants.Circle.name;
     }
 
-    private initNodes(text?: string, selectable?: boolean, left?: number, top?: number) {
+    ready(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            resolve(true);
+        })
+    }
+
+    private initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
@@ -34,17 +41,19 @@ export class CircleShape implements Shape {
             let ellipseNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.ellipse);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.text);
             if (circleNode) {
-                this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ selectable: selectable }, circleNode.properties || {})));
+                this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, Object.assign({ selectable: selectable }, circleNode.properties || {})));
             }
             if (ellipseNode) {
-                this.fabricShapes.push(new FabricEllipseShape(this.definition, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
+                this.fabricShapes.push(new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties || {})));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties || {})));
             }
         }
         else if (this.definition) {
             left = left || 0; top = top || 0;
+            left = parseFloat(left.toString());
+            top = parseFloat(top.toString());
             let cleft = left, ctop = top, tleft = left + Math.floor(this.definition.width / 2), ttop = top;
             switch (this.definition.textPosition) {
                 case TextPosition.Center:
@@ -58,26 +67,28 @@ export class CircleShape implements Shape {
                     ctop += this.definition.fontSize + TextSpacingWithShape;
                     break;
             }
-            this.fabricShapes.push(new FabricCircleShape(this.definition, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
-        this.nodes = this.fabricShapes.map(n => n.getShapeNode());
+        this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
     get shapeObject(): fabric.Object[] {
         return this.fabricObjects;
     }
 
-    getShape(): IShape {
+    getShapeJson(): IShape {
         return {
             name: this.name,
-            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNode()) : [],
+            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
             definition: this.definition
         }
     }
 
-    addListenerEvent(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+        if (this.fabricObjects.length < 2 || this.fabricObjects.findIndex(f => f == null) > -1)
+            return;
         let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
         let left0 = this.fabricObjects[0].left; let top0 = this.fabricObjects[0].top;
         this.fabricObjects[0].on({

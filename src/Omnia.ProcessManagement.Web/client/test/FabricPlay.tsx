@@ -11,6 +11,7 @@ import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
 import { FabricShapeNodeTypes } from '../fx/models';
 import { DrawingCanvas, DrawingCanvasEditor } from '../fx/models/processshape/canvas';
+import { Guid } from '@omnia/fx-models';
 
 
 @Component
@@ -44,9 +45,9 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             textColor: '#faf',
             width: 100,
             height: 100,
-            textPosition: TextPosition.Above,
+            textPosition: TextPosition.Center,
         } as DrawingShapeDefinition;
-       
+
         ////this.testShape = new CircleShape(settings);
         ////this.testShape.schema.forEach(s => this.canvas.add(s));
 
@@ -123,17 +124,20 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
         //settings.textPosition = TextPosition.Center;
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
-        let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas',{}, {
+        let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
             width: 800,
             height: 1000,
             shapes: [],
             gridX: 200,
             gridY: 100,
         });
-        drawingCanvas.addShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
-        drawingCanvas.addShape(ShapeTemplatesConstants.Circle.name, settings, null, 'circle', 400, 200);
-        drawingCanvas.addShape(ShapeTemplatesConstants.Diamond.name, settings, null, 'diamond', 500, 200);
-
+        settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
+        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'pentagon');
+        settings.shapeTemplate = ShapeTemplatesConstants.Circle;
+        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'circle');
+        settings.shapeTemplate = ShapeTemplatesConstants.Diamond;
+        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'diamond');
+      
 
         this.drawingCanvas1 = new DrawingCanvasEditor('test2', {}, {
             width: 800,
@@ -141,12 +145,43 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             shapes: [],
             gridX: 200,
             gridY: 100,
-         //   imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
+            //   imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
         });
-        this.drawingCanvas1.addShape(ShapeTemplatesConstants.Pentagon.name, settings, null, 'pentagon', 100, 200);
-        //this.drawingCanvas1.addShape(ShapeTemplatesConstants.Media.name, settings, null, 'test image', 300, 300);
+        settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
+        this.drawingCanvas1.addShape(Guid.newGuid(), settings, null, false, 'pentagon', 100, 200);
+        //settings.shapeTemplate = ShapeTemplatesConstants.Media;
+        //this.drawingCanvas1.addShape(Guid.newGuid(), settings, null, false, 'test image', 300, 300);
+        //settings.shapeTemplate = ShapeTemplatesConstants.Freeform;
+        //this.drawingCanvas1.addShape(Guid.newGuid(), settings,
+        //    [{
+        //        shapeNodeType: FabricShapeNodeTypes.rect,
+        //        properties: {
+        //            left: 100,
+        //            top: 100,
+        //            width: 50,
+        //            height: 50,
+        //            fill: '#faa',
+        //            originX: 'left',
+        //            originY: 'top',
+        //            angle: 45,
+        //        }, specificProperties: {}
+        //    },
+        //    {
+        //        shapeNodeType: FabricShapeNodeTypes.text,
+        //        properties: {
+        //            text: 'diamond',
+        //            left: 300,
+        //            top: 280,
+        //            fill: '#000',
+        //            fontSize: 20,
+        //            lockScalingX: true,
+        //            lockScalingY: true
+        //        }, specificProperties: {}
+        //    }
+        //    ]
+        //    , false, 'freeform', 100, 200);
         //this.drawingCanvas1.shapes[1].shape.nodes[0].properties['imageUrl'] = 'http://fabricjs.com/assets/jail_cell_bars.png';
-        //this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[1], ShapeTemplatesConstants.Media.name, settings);
+        //this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[1], settings);
         //settings.textPosition = TextPosition.Bottom;
         //let a: PentagonShape = new PentagonShape(settings, null, 'pentagon', true, 100, 200);
         //let b = this.canvas.add(a.shapeObject);
@@ -217,8 +252,9 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             width: 200,
             height: 300,
             textPosition: TextPosition.Center,
+            shapeTemplate: ShapeTemplatesConstants.Pentagon
         } as DrawingShapeDefinition;
-        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[0], ShapeTemplatesConstants.Pentagon.name, changedDefinition, 'plan2');
+        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[0], changedDefinition, false, 'plan2');
     }
 
     beforeDestroy() {
@@ -235,11 +271,27 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             <div>
                 <div class="container">
                     <canvas id="mycanvas" width="400" height="3000"></canvas>
+
+                </div>
+                <div>
                     <canvas id="test2" width="400" height="3000"></canvas>
                 </div>
+                <br/>
+                <div>
+                    <canvas id="test1" width="400" height="3000"></canvas>
+                </div>
                 <v-btn onClick={() => {
-                    this.updateShape();
+                    var drawingCanvas2 = new DrawingCanvasEditor('test1', {}, this.drawingCanvas1.getCanvasDefinitionJson());
+                    //this.updateShape();
                 }} >change ui</v-btn>
+                <v-btn onClick={() => {
+                    var drawingCanvas2 = new DrawingCanvasEditor('test3', {}, this.drawingCanvas1.getCanvasDefinitionJson());
+                    //this.updateShape();
+                }} >change ui1</v-btn>
+                <br />
+                <div>
+                    <canvas id="test3" width="400" height="3000"></canvas>
+                </div>
             </div>
         );
     }
