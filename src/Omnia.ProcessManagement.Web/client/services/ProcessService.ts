@@ -79,9 +79,22 @@ export class ProcessService {
         })
     }
 
-    public getProcessData = (processStepId: GuidValue, versionType: ProcessVersionType, hash: string) => {
+    public getProcess = (processId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/process/${processId}`).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public getProcessData = (processStepId: GuidValue, hash: string) => {
         return new Promise<ProcessDataWithAuditing>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${versionType}/${hash}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
