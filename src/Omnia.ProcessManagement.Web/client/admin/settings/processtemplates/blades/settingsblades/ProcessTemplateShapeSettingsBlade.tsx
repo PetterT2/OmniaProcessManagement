@@ -74,7 +74,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 });
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
             }
-        }, 1000)
+        }, 500)
     }
 
     onShapeTemplateChanged() {
@@ -89,12 +89,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 height: 500,
                 drawingShapes: []
             });
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 0, 0);
         }
         else {
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition), false, "");
         }
-        this.$forceUpdate();
     }
 
     saveShape() {
@@ -150,7 +149,9 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         ]
                     }
                     {
-                        this.editingShapeType == ShapeDefinitionTypes.Drawing &&
+                        this.editingShapeType == ShapeDefinitionTypes.Drawing && (!(this.editingShape as DrawingShapeDefinition).shapeTemplate || ((this.editingShape as DrawingShapeDefinition).shapeTemplate &&
+                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Media.id &&
+                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)) &&
                         <div style={{ display: "flex" }}>
                             <v-flex lg4>
                                 <omfx-color-picker
@@ -235,7 +236,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 </omfx-field-validation>
 
                             </v-flex>
-                            <v-flex lg8>
+                            <v-flex lg8 style={{ paddingLeft: '15px' }}>
                                 <canvas id={this.canvasId} width="100%" height="100%"></canvas>
                             </v-flex>
                         </div>

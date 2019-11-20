@@ -44,8 +44,6 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
 
     selectTab(selectedTab: number) {
         this.selectedTab = selectedTab;
-        this.journey().travelBackToFirstBlade();
-        this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
     }
 
     save() {
@@ -85,9 +83,12 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
                                     <v-tab onClick={() => { this.selectTab(TabNames.shapes) }}>
                                         {this.loc.ProcessTemplates.SettingsTabs.Shapes}
                                     </v-tab>
-                                    <v-tab onClick={() => { this.selectTab(TabNames.defaultContent) }}>
-                                        {this.loc.ProcessTemplates.SettingsTabs.DefaultContent}
-                                    </v-tab>
+                                    {
+                                        //<v-tab onClick={() => { this.selectTab(TabNames.defaultContent) }}>
+                                        //    {this.loc.ProcessTemplates.SettingsTabs.DefaultContent}
+                                        //</v-tab>
+                                    }
+                                    
                                 </v-tabs>
                             ]
                         }

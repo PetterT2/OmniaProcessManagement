@@ -4,7 +4,6 @@ import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFacto
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
 import { Guid, GuidValue } from '@omnia/fx-models';
-import { IDrawingShapeNode } from '../../data/drawingdefinitions/IDrawingShapeNode';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
