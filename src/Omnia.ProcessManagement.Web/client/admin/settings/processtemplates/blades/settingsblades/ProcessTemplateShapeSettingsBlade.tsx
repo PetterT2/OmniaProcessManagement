@@ -1,4 +1,5 @@
-﻿import { Inject, Localize, Utils } from '@omnia/fx';
+﻿/// <reference path="../../../../../fx/models/data/processtemplates/processtemplatesettings.ts" />
+import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
@@ -10,6 +11,8 @@ import { ShapeTemplatesConstants } from '../../../../../fx/constants';
 import { DrawingCanvas, DrawingCanvasEditor } from '../../../../../fx/models/processshape/canvas';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
+import { DrawingShapeTypes } from '../../../../../fx/models/data/drawingdefinitions';
+import { Guid } from '@omnia/fx-models';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -67,13 +70,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                     width: 400,
                     height: 500,
-                    drawingShapes: [],
-                    gridX: 50,
-                    gridY: 50,
+                    drawingShapes: []
                 });
-                this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, '', 50, 50);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
             }
-        }, 1000)
+        }, 500)
     }
 
     onShapeTemplateChanged() {
@@ -86,16 +87,13 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                 width: 400,
                 height: 500,
-                drawingShapes: [],
-                gridX: 50,
-                gridY: 50,
+                drawingShapes: []
             });
-            this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, '', 50, 50);
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 0, 0);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition), false, "");
         }
-        this.$forceUpdate();
     }
 
     saveShape() {
@@ -151,7 +149,9 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         ]
                     }
                     {
-                        this.editingShapeType == ShapeDefinitionTypes.Drawing &&
+                        this.editingShapeType == ShapeDefinitionTypes.Drawing && (!(this.editingShape as DrawingShapeDefinition).shapeTemplate || ((this.editingShape as DrawingShapeDefinition).shapeTemplate &&
+                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Media.id &&
+                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)) &&
                         <div style={{ display: "flex" }}>
                             <v-flex lg4>
                                 <omfx-color-picker
@@ -236,7 +236,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 </omfx-field-validation>
 
                             </v-flex>
-                            <v-flex lg8>
+                            <v-flex lg8 style={{ paddingLeft: '15px' }}>
                                 <canvas id={this.canvasId} width="100%" height="100%"></canvas>
                             </v-flex>
                         </div>

@@ -3,10 +3,10 @@ import { fabric } from 'fabric';
 import { DrawingShapeDefinition } from '../../data';
 
 export declare abstract class FabricShapeExtention implements IShapeNode {
-    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; });
+    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
-    abstract getShapeNode(): IShapeNode;
+    abstract getShapeNodeJson(): IShapeNode;
     abstract readonly shapeNodeType: ShapeNodeType;
 }
 

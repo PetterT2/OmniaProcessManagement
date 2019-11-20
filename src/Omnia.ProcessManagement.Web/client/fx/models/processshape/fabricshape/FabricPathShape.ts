@@ -8,23 +8,25 @@ export class FabricPathShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Path;
 
-    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
-        this.initProperties(definition, properties);
+    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
+        this.initProperties(definition, isActive, properties);
     }
 
-    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
         this.properties = {};
-        if (definition) {
-            this.properties["path"] = [];
-            this.properties["left"] = 0;
-            this.properties["top"] = 0;
-            this.properties["fill"] = definition.backgroundColor;
-            this.properties["borderColor"] = definition.borderColor;
-        }
+        this.properties["originX"] = "left";
+        this.properties["originY"] = "top";
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];
             });
+        }
+        if (definition) {
+            this.properties["path"] = [];
+            this.properties["left"] = 0;
+            this.properties["top"] = 0;
+            this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Path(this.properties['path'], this.properties);
     }
@@ -33,7 +35,7 @@ export class FabricPathShape implements FabricShapeExtention {
         return FabricShapeNodeTypes.path;
     }
 
-    getShapeNode(): IShapeNode {
+    getShapeNodeJson(): IShapeNode {
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             this.properties = [];

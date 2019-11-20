@@ -6,42 +6,48 @@ import { DrawingShapeDefinition } from '../../data';
 export class FabricImageShape implements FabricShapeExtention {
     properties: { [k: string]: any; };
     fabricObject: fabric.Image;
+    imageUrl: string;
 
-    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
-        this.initProperties(definition, properties);
+    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {
+        this.initProperties(definition, isActive, properties, imageUrl);
     }
 
-    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {
         this.properties = {};
+        this.properties["originX"] = "left";
+        this.properties["originY"] = "top";
         if (properties) {
-            this.properties = properties;
+            this.imageUrl = this.properties['imageUrl'];
+            Object.keys(properties).forEach(key => {
+                this.properties[key] = properties[key];
+            });
         }
-        else if (definition) {
+        if (definition) {
             this.properties["left"] = 0;
             this.properties["top"] = 0;
-            this.properties["fill"] = definition.backgroundColor;
-            this.properties["borderColor"] = definition.borderColor;
-            //TO DO
+            this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
-        var image = new Image();
-        image.onload =  (img)=> {
-            var pug = new fabric.Image(image, {
-                angle: 45,
-                width: 500,
-                height: 500,
-                left: 50,
-                top: 70,
-                scaleX: .25,
-                scaleY: .25
-            });
-        };
+    }
+
+    ready(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            if (this.imageUrl && this.imageUrl != '') {
+                var image = new Image();
+                image.onload = (img) => {
+                    this.fabricObject = new fabric.Image(image, this.properties);
+                    resolve(true);
+                };
+                image.src = this.imageUrl;
+            }
+        })
     }
 
     get shapeNodeType() {
         return FabricShapeNodeTypes.image;
     }
 
-    getShapeNode(): IShapeNode {
+    getShapeNodeJson(): IShapeNode {
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             this.properties = [];
@@ -49,6 +55,7 @@ export class FabricImageShape implements FabricShapeExtention {
                 if (options[key])
                     this.properties[key] = options[key];
             });
+            this.properties['imageUrl'] = this.imageUrl;
         }
         return {
             shapeNodeType: FabricShapeNodeTypes.image,

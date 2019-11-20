@@ -36,9 +36,11 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     openShapeSettingBlade(shape?: ShapeDefinition, index: number = -1) {
         this.journey().travelBackToFirstBlade();
         this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
-        let shapeItem = shape || ShapeDefinitionFactory.createDefaultProcessTemplate();
-        this.processTemplateJournayStore.mutations.setEditingShapeDefinition.commit(shapeItem, index);
-        this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes);
+        this.$nextTick(() => {
+            let shapeItem = shape || ShapeDefinitionFactory.createDefaultProcessTemplate();
+            this.processTemplateJournayStore.mutations.setEditingShapeDefinition.commit(shapeItem, index);
+            this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes);
+        });
     }
 
     travelToEditShape(shape: ShapeDefinition, index: number) {

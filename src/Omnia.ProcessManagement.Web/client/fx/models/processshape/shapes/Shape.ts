@@ -8,8 +8,26 @@ export declare abstract class Shape implements IShape {
     name: string;
     nodes: IShapeNode[];
     readonly shapeObject: fabric.Object[];
-    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], text?: string, selectable?: boolean, left?: number, top?: number);
-    abstract getShape(): IShape;
-    abstract addListenerEvent(canvas: fabric.Canvas, gridX?: number, gridY?: number);
+    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number, grouping?: boolean);
+    abstract ready(): Promise<boolean>;
+    abstract getShapeJson(): IShape;
+    abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
 }
 
+export interface Shape {
+
+}
+
+interface ShapeClasses<T> {
+    new(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number, grouping?: boolean): T;
+}
+
+class ShapeClassesFactory<T> {
+    public createService(ctor: ShapeClasses<T>, definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number, grouping?: boolean) {
+        return new ctor(definition, nodes, isActive, text, selectable, left, top, grouping);
+    }
+}
+export const ShapeFactory: ShapeClassesFactory<Shape> = new ShapeClassesFactory<Shape>();
