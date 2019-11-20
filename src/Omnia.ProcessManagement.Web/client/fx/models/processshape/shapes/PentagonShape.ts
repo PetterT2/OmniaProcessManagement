@@ -48,7 +48,7 @@ export class PentagonShape implements Shape {
             fabricGroupObjects.push(triangleShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties || {}));
+            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}));
             this.fabricShapes.push(textShape);
             fabricTextObject = textShape.fabricObject;
         }
@@ -76,12 +76,11 @@ export class PentagonShape implements Shape {
             left = left || 0; top = top || 0;
             left = parseFloat(left.toString());
             top = parseFloat(top.toString());
-            let recleft = left, rectop = top, tleft = left + Math.floor(recDefinition.width / 2),
+            let recleft = left, rectop = top, tleft = recleft + TextSpacingWithShape,
                 ttop = top, trleft = this.definition.width + left, trtop = top;
 
             switch (this.definition.textPosition) {
                 case TextPosition.Center:
-                    tleft += TextSpacingWithShape;
                     ttop += Math.floor(this.definition.height / 2 - this.definition.fontSize / 2 - 2);
                     break;
                 case TextPosition.Bottom:
@@ -92,14 +91,15 @@ export class PentagonShape implements Shape {
                     trtop = rectop - 1;
                     break;
             }
-
-            this.fabricShapes.push(new FabricRectShape(recDefinition, isActive, { left: recleft, top: rectop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTriangleShape(triangleDefinition, isActive, { left: trleft, top: trtop, selectable: selectable, angle: 90 }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+            let daskArray = [recDefinition.width, recDefinition.height, recDefinition.width + recDefinition.height, recDefinition.width];
+            let triangleDaskArray = [(Math.floor(Math.sqrt(Math.pow(triangleDefinition.height, 2) * 2)) + 1) * 2];
+            this.fabricShapes.push(new FabricRectShape(recDefinition, isActive, { strokeDashArray: daskArray, left: recleft, top: rectop, selectable: selectable }));
+            this.fabricShapes.push(new FabricTriangleShape(triangleDefinition, isActive, { strokeDashArray: triangleDaskArray, left: trleft, top: trtop, selectable: selectable, angle: 90 }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
 
             fabricGroupObjects = [this.fabricShapes[0].fabricObject, this.fabricShapes[1].fabricObject];
             fabricTextObject = this.fabricShapes[2].fabricObject;
-            this.fabricObjects.push(new fabric.Group(fabricGroupObjects, { selectable: selectable }));
+            this.fabricObjects.push(new fabric.Group(fabricGroupObjects, { selectable: selectable, left: recleft, top: rectop }));
             this.fabricObjects.push(fabricTextObject);
         }
     }

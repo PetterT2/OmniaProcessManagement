@@ -24,7 +24,7 @@ export class FabricRectShape implements FabricShapeExtention {
             this.properties["width"] = definition.width
             this.properties["height"] = definition.height;
             this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["borderColor"] = isActive ? definition.activeBorderColor : definition.borderColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Rect(this.properties);
     }

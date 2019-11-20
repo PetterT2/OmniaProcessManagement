@@ -24,7 +24,7 @@ export class FabricCircleShape implements FabricShapeExtention {
         if (definition) {
             this.properties["radius"] = definition.width / 2;
             this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["borderColor"] = isActive ? definition.activeBorderColor : definition.borderColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Circle(this.properties);
     }

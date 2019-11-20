@@ -16,6 +16,7 @@ export class DiamondShape implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
         left?: number, top?: number) {
         this.definition = definition;
+        this.definition.height = this.definition.width;
         this.nodes = nodes;
         this.initNodes(isActive || false, text, selectable, left, top);
     }
@@ -40,28 +41,29 @@ export class DiamondShape implements Shape {
             if (rectNode)
                 this.fabricShapes.push(new FabricRectShape(this.definition, isActive, Object.assign({ selectable: selectable }, rectNode.properties || {})));
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties) || {}));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}));
         }
         else if (this.definition) {
+            let diamondWidth = Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) / 2));
             left = left || 0; top = top || 0;
             left = parseFloat(left.toString());
+            left = left - diamondWidth;
+            if (left < 0) left = 0;
             top = parseFloat(top.toString());
-            let diamondWidth = Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) / 2));
             let recleft = this.definition.width + left, rectop = top, tleft = left + diamondWidth + (this.definition.width - diamondWidth), ttop = top;
             switch (this.definition.textPosition) {
                 case TextPosition.Center:
-                    tleft += TextSpacingWithShape;
                     ttop = top + Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) / 2) - this.definition.fontSize / 2 - 2);
                     break;
                 case TextPosition.Bottom:
-                    ttop += this.definition.height + TextSpacingWithShape;
+                    ttop += Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) * 2)) + TextSpacingWithShape;
                     break;
                 default:
                     rectop += this.definition.fontSize + TextSpacingWithShape;
                     break;
             }
             this.fabricShapes.push(new FabricRectShape(this.definition, isActive, { left: recleft, top: rectop, angle: 45, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

@@ -24,7 +24,7 @@ export class FabricEllipseShape implements FabricShapeExtention {
             this.properties["tx"] = definition.width / 2;
             this.properties["ry"] = definition.height / 2;
             this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["borderColor"] = isActive ? definition.activeBorderColor : definition.borderColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Ellipse(this.properties);
     }

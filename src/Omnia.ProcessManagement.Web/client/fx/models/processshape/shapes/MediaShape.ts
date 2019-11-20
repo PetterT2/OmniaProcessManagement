@@ -54,7 +54,7 @@ export class MediaShape implements Shape {
                 this.fabricShapes.push(new FabricImageShape(this.definition, isActive, Object.assign({ selectable: selectable }, imageNode.properties || {})));
             }
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties) || {}));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}));
         }
         else if (this.definition) {
             left = left || 0; top = top || 0;
@@ -74,7 +74,7 @@ export class MediaShape implements Shape {
                     break;
             }
             this.fabricShapes.push(new FabricImageShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
         }
 
     }

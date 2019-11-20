@@ -18,6 +18,7 @@ export class CircleShape implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
         left?: number, top?: number) {
         this.definition = definition;
+        this.definition.height = this.definition.width;
         this.nodes = nodes;
         this.initNodes(isActive || false, text, selectable, left, top);
     }
@@ -47,7 +48,7 @@ export class CircleShape implements Shape {
                 this.fabricShapes.push(new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties || {})));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {})));
             }
         }
         else if (this.definition) {
@@ -57,18 +58,17 @@ export class CircleShape implements Shape {
             let cleft = left, ctop = top, tleft = left + Math.floor(this.definition.width / 2), ttop = top;
             switch (this.definition.textPosition) {
                 case TextPosition.Center:
-                    tleft += TextSpacingWithShape;
-                    ttop += Math.floor(this.definition.height / 2 - this.definition.fontSize / 2 - 2);
+                    ttop += Math.floor(this.definition.width / 2 - this.definition.fontSize / 2 - 2);
                     break;
                 case TextPosition.Bottom:
-                    ttop += this.definition.height + TextSpacingWithShape;
+                    ttop += this.definition.width + TextSpacingWithShape;
                     break;
                 default:
                     ctop += this.definition.fontSize + TextSpacingWithShape;
                     break;
             }
             this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { left: tleft, top: ttop, selectable: selectable, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

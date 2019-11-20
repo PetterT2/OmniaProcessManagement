@@ -1,4 +1,5 @@
-﻿import { Inject, Localize, Utils } from '@omnia/fx';
+﻿/// <reference path="../../../../../fx/models/data/processtemplates/processtemplatesettings.ts" />
+import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
@@ -69,9 +70,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                     width: 400,
                     height: 500,
-                    drawingShapes: [],
-                    gridX: 50,
-                    gridY: 50,
+                    drawingShapes: []
                 });
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
             }
@@ -88,9 +87,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                 width: 400,
                 height: 500,
-                drawingShapes: [],
-                gridX: 50,
-                gridY: 50,
+                drawingShapes: []
             });
             this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
         }

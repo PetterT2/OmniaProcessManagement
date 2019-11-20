@@ -16,8 +16,9 @@ export class DrawingCanvas implements CanvasDefinition {
     protected selectable = false;
     protected canvasObject: fabric.Canvas;
     private lineColor = '#ccc';
+    private defaultPosition = 10;
 
-    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
         this.drawingShapes = [];
         this.initShapes(elementId, options, definition);
         this.renderBackgroundImage(definition);
@@ -50,21 +51,27 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
+    private correctCanvasDefinition(definition: CanvasDefinition) {
+        definition.width = definition.width ? parseFloat(definition.width.toString()) : 0;
+        definition.height = definition.height ? parseFloat(definition.height.toString()) : 0;
+        definition.gridX = definition.gridX ? parseFloat(definition.gridX.toString()) : 0;
+        definition.gridY = definition.gridY ? parseFloat(definition.gridY.toString()) : 0;
+        this.width = definition.width;
+        this.height = definition.height;
+        this.gridX = definition.gridX;
+        this.gridY = definition.gridY;
+    }
+
+    protected initShapes(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
         this.selectable = false;
         this.renderGridView(elementId, options, definition);
     }
 
-    protected renderGridView(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
+    protected renderGridView(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
         options = Object.assign({ selection: this.selectable }, options || {});
         this.canvasObject = new fabric.Canvas(elementId, options);
-        this.canvasObject.renderAll();
         if (definition) {
-            this.width = parseInt(definition.width.toString());
-            this.height = parseInt(definition.height.toString());
-            this.gridX = parseInt(definition.gridX.toString());
-            this.gridY = parseInt(definition.gridY.toString());
-
+            this.correctCanvasDefinition(definition);
             this.canvasObject.setWidth(definition.width);
             this.canvasObject.setHeight(definition.height);
             if (definition.gridX) {
@@ -90,27 +97,35 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
+    private correctDefinition(definition: DrawingShapeDefinition, left: number, top: number) {
+        definition.width = definition.width ? parseFloat(definition.width.toString()) : 0;
+        definition.height = definition.height ? parseFloat(definition.height.toString()) : 0;
+        definition.fontSize = definition.fontSize ? parseFloat(definition.fontSize.toString()) : 0;
+        if (!left && !top) {
+            left = (this.width - definition.width) / 2;
+            if (left + definition.width > this.width)
+                left = left - (left + definition.width - this.width);
+            if (left < 0 || definition.width >= this.width)
+                left = this.defaultPosition;
+            top = this.defaultPosition;
+        }
+        return { left: left, top: top };
+    }
+
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, left?: number, top?: number) {
-        definition.width = parseFloat(definition.width.toString());
-        definition.height = parseFloat(definition.height.toString());
-        definition.fontSize = parseFloat(definition.fontSize.toString());
+        if (!definition.shapeTemplate)
+            return;
+        let position = this.correctDefinition(definition, left, top);
         if (this.canvasObject && ShapeTemplatesDictionary[definition.shapeTemplate.name]) {
-            if (!left && !top) {
-                left = (this.width - definition.width) / 2;
-                top = (this.height - definition.height) / 2;
-            }
-            this.addShapeFromTemplateClassName(id, type, nodes, definition, isActive, text, left, top);
+
+            this.addShapeFromTemplateClassName(id, type, nodes, definition, isActive, text, position.left, position.top);
         }
     }
 
     updateShapeDefinition(oldDrawingShape: DrawingShape, definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
-        if (!left && !top) {
-            left = (this.width - definition.width) / 2;
-            top = (this.height - definition.height) / 2;
-        }
-        definition.width = parseFloat(definition.width.toString());
-        definition.height = parseFloat(definition.height.toString());
-        definition.fontSize = parseFloat(definition.fontSize.toString());
+        if (!definition.shapeTemplate)
+            return;
+        let position = this.correctDefinition(definition, left, top);
         let id = Guid.newGuid();
         let type: DrawingShapeTypes = DrawingShapeTypes.Undefined;
         if (oldDrawingShape) {
@@ -122,7 +137,7 @@ export class DrawingCanvas implements CanvasDefinition {
                 (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
             }
         }
-        this.addShapeFromTemplateClassName(id, type, null, definition, isActive, text, left, top);
+        this.addShapeFromTemplateClassName(id, type, null, definition, isActive, text, position.left, position.top);
     }
 
     protected addShapeFromTemplateClassName(id: GuidValue, type: DrawingShapeTypes, nodes: IShapeNode[], definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {

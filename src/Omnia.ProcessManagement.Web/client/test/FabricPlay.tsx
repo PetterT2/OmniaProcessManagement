@@ -39,8 +39,8 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
 
         var settings: DrawingShapeDefinition = {
             activeBackgroundColor: 'red',
-            backgroundColor: 'blue',
-            borderColor: 'black',
+            backgroundColor: 'green',
+            borderColor: '',
             fontSize: 15,
             textColor: '#faf',
             width: 100,
@@ -124,7 +124,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
         //settings.textPosition = TextPosition.Center;
         //new PentagonShape(settings, 'pentagon').nodes.forEach(n => this.canvas.add(n.fabricObject));
-        let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
+        let drawingCanvas: DrawingCanvasEditor = new DrawingCanvasEditor('mycanvas', {}, {
             width: 800,
             height: 1000,
             drawingShapes: [],
@@ -132,12 +132,12 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             gridY: 100,
         });
         settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'pentagon');
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'pentagon lfjadslf jalsdfkj lsdkfasdf', 100, 200);
         settings.shapeTemplate = ShapeTemplatesConstants.Circle;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'circle');
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'circle', 200, 400);
         settings.shapeTemplate = ShapeTemplatesConstants.Diamond;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'diamond');
-      
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'diamond', 200, 600);
+
 
         this.drawingCanvas1 = new DrawingCanvasEditor('test2', {}, {
             width: 800,
@@ -275,7 +275,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
                 <div>
                     <canvas id="test2" width="400" height="3000"></canvas>
                 </div>
-                <br/>
+                <br />
                 <div>
                     <canvas id="test1" width="400" height="3000"></canvas>
                 </div>

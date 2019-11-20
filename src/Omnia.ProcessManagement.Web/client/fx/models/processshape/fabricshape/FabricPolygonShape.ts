@@ -25,7 +25,7 @@ export class FabricPolygonShape implements FabricShapeExtention {
             this.properties["left"] = 0;
             this.properties["top"] = 0;
             this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["borderColor"] = isActive ? definition.activeBorderColor : definition.borderColor;
+            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Polygon(this.properties['points'], this.properties);
     }
