@@ -5,13 +5,13 @@ import { Component } from 'vue-property-decorator';
 import { fabric } from 'fabric';
 import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
-import { Enums } from '../core';
 import { ShapeTemplatesConstants } from '../fx';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 import { CircleShape, FabricShapeExtention, ShapeNodeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
 import { FabricShapeNodeTypes } from '../fx/models';
 import { DrawingCanvas, DrawingCanvasEditor } from '../fx/models/processshape/canvas';
 import { Guid } from '@omnia/fx-models';
+import { DrawingShapeTypes } from '../fx/models/data/drawingdefinitions';
 
 
 @Component
@@ -127,28 +127,28 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
         let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
             width: 800,
             height: 1000,
-            shapes: [],
+            drawingShapes: [],
             gridX: 200,
             gridY: 100,
         });
         settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
-        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'pentagon');
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'pentagon');
         settings.shapeTemplate = ShapeTemplatesConstants.Circle;
-        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'circle');
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'circle');
         settings.shapeTemplate = ShapeTemplatesConstants.Diamond;
-        drawingCanvas.addShape(Guid.newGuid(), settings, null, false, 'diamond');
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'diamond');
       
 
         this.drawingCanvas1 = new DrawingCanvasEditor('test2', {}, {
             width: 800,
             height: 1000,
-            shapes: [],
+            drawingShapes: [],
             gridX: 200,
             gridY: 100,
             //   imageBackgroundUrl:'http://fabricjs.com/assets/jail_cell_bars.png'
         });
         settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
-        this.drawingCanvas1.addShape(Guid.newGuid(), settings, null, false, 'pentagon', 100, 200);
+        this.drawingCanvas1.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, null, false, 'pentagon', 100, 200);
         //settings.shapeTemplate = ShapeTemplatesConstants.Media;
         //this.drawingCanvas1.addShape(Guid.newGuid(), settings, null, false, 'test image', 300, 300);
         //settings.shapeTemplate = ShapeTemplatesConstants.Freeform;
@@ -251,10 +251,9 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             textColor: '#d36249',
             width: 200,
             height: 300,
-            textPosition: TextPosition.Center,
-            shapeTemplate: ShapeTemplatesConstants.Pentagon
+            textPosition: TextPosition.Center
         } as DrawingShapeDefinition;
-        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.shapes[0], changedDefinition, false, 'plan2');
+        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.drawingShapes[0], changedDefinition, false, 'plan2');
     }
 
     beforeDestroy() {

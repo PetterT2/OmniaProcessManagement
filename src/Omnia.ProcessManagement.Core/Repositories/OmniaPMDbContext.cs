@@ -6,6 +6,7 @@ using Omnia.Fx.NetCore.Repositories.EntityFramework;
 using Omnia.ProcessManagement.Core.Entities;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
+using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -55,9 +56,9 @@ namespace Omnia.ProcessManagement.Core.Repositories
                .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
 
             modelBuilder.Entity<ProcessData>()
-                .HasKey(pd => new { pd.InternalProcessItemId, pd.ProcessId });
+                .HasKey(pd => new { pd.ProcessStepId, pd.ProcessId });
 
-            SetOPMClusteredIndex<ProcessData>(modelBuilder, p => new { p.InternalProcessItemId, p.ProcessId });
+            SetOPMClusteredIndex<ProcessData>(modelBuilder, p => new { p.ProcessStepId, p.ProcessId });
             modelBuilder.Entity<ProcessData>()
                  .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)

@@ -5,6 +5,7 @@ Composer
     .registerManifest(OPMResourceManifests.Core, "omnia.pm.core")
     .registerResources({
         resourcePaths: [
+            "../stores/**/*.js",
             "../services/**/*.js",
             "./index.js"
         ]

@@ -11,6 +11,6 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
         public int Height { get; set; }
         public int GridX { get; set; }
         public int GridY { get; set; }
-        public List<DrawingShapeNode> Shapes { get; set; }
+        public List<DrawingShape> DrawingShapes { get; set; }
     }
 }

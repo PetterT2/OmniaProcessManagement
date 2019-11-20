@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -103,13 +105,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{internalProcessItemId:guid}/{hash}")]
+        [HttpGet, Route("processdata/{processStepId:guid}/{versionType:int}/{hash}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid internalProcessItemId, string hash)
+        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, ProcessVersionType versionType, string hash)
         {
             try
             {
-                var processData = await ProcessService.GetProcessDataAsync(internalProcessItemId, hash);
+                var processData = await ProcessService.GetProcessDataAsync(processStepId, versionType, hash);
+
+                Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                {
+                    Public = true,
+                    MaxAge = TimeSpan.FromDays(31536000)
+                };
+
                 return processData.AsApiResponse();
             }
             catch (Exception ex)

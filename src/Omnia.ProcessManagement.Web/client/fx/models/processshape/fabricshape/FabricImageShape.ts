@@ -9,7 +9,7 @@ export class FabricImageShape implements FabricShapeExtention {
     imageUrl: string;
 
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {
-        this.initProperties(definition, isActive, properties,imageUrl);
+        this.initProperties(definition, isActive, properties, imageUrl);
     }
 
     private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {

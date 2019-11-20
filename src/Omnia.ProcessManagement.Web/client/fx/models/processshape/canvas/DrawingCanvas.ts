@@ -1,9 +1,10 @@
 ﻿import { fabric } from 'fabric';
-import { CanvasDefinition, IDrawingShapeNode } from '../../data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../data/drawingdefinitions';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape } from '../shapes';
 import { FabricShapeExtention, IShapeNode } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
 import { Guid, GuidValue } from '@omnia/fx-models';
+import { IDrawingShapeNode } from '../../data/drawingdefinitions/IDrawingShapeNode';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -11,30 +12,29 @@ export class DrawingCanvas implements CanvasDefinition {
     height: number;
     gridX?: number;
     gridY?: number;
-    shapes: IDrawingShapeNode[];
+    drawingShapes: DrawingShape[];
     protected selectable = false;
     protected canvasObject: fabric.Canvas;
-    private newShapeId: GuidValue;
     private lineColor = '#ccc';
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
-        this.shapes = [];
+        this.drawingShapes = [];
         this.initShapes(elementId, options, definition);
         this.renderBackgroundImage(definition);
     }
 
     getCanvasDefinitionJson(): CanvasDefinition {
-        let shapes: IDrawingShapeNode[] = [];
-        this.shapes.forEach(s => shapes.push(Object.assign({}, s)));
+        let shapes: DrawingShape[] = [];
+        this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
         shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
-      
+
         return {
             imageBackgroundUrl: this.imageBackgroundUrl,
             width: this.width,
             height: this.height,
             gridX: this.gridX,
             gridY: this.gridY,
-            shapes: shapes
+            drawingShapes: shapes
         }
     }
 
@@ -80,48 +80,63 @@ export class DrawingCanvas implements CanvasDefinition {
                 this.canvasObject.add(new fabric.Line([0, definition.height - 1, definition.width, definition.height - 1], { stroke: this.lineColor, selectable: false }));
             }
 
-            if (definition.shapes) {
-                definition.shapes.forEach(s => {
+            if (definition.drawingShapes) {
+                definition.drawingShapes.forEach(s => {
                     if (ShapeTemplatesDictionary[s.shape.name]) {
-                        this.addShapeFromTemplateClassName(s.id, s.shape.nodes, s.shape.definition);
+                        this.addShapeFromTemplateClassName(s.id, s.type, s.shape.nodes, s.shape.definition);
                     }
                 })
             }
         }
     }
 
-    addShape(id: GuidValue, definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, left?: number, top?: number) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, left?: number, top?: number) {
+        definition.width = parseFloat(definition.width.toString());
+        definition.height = parseFloat(definition.height.toString());
+        definition.fontSize = parseFloat(definition.fontSize.toString());
         if (this.canvasObject && ShapeTemplatesDictionary[definition.shapeTemplate.name]) {
             if (!left && !top) {
                 left = (this.width - definition.width) / 2;
                 top = (this.height - definition.height) / 2;
             }
-            this.addShapeFromTemplateClassName(id, nodes, definition, isActive, text, left, top);
+            this.addShapeFromTemplateClassName(id, type, nodes, definition, isActive, text, left, top);
         }
     }
 
-    updateShapeDefinition(oldDrawingShape: IDrawingShapeNode, definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
-        let oldShapeIndex = this.shapes.findIndex(s => s.id == oldDrawingShape.id);
-        if (oldShapeIndex > -1) {
-            this.shapes.splice(oldShapeIndex, 1);
-            (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+    updateShapeDefinition(oldDrawingShape: DrawingShape, definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
+        if (!left && !top) {
+            left = (this.width - definition.width) / 2;
+            top = (this.height - definition.height) / 2;
         }
-        this.addShapeFromTemplateClassName(oldDrawingShape.id, null, definition, isActive, text, left, top);
+        definition.width = parseFloat(definition.width.toString());
+        definition.height = parseFloat(definition.height.toString());
+        definition.fontSize = parseFloat(definition.fontSize.toString());
+        let id = Guid.newGuid();
+        let type: DrawingShapeTypes = DrawingShapeTypes.Undefined;
+        if (oldDrawingShape) {
+            type = oldDrawingShape.type;
+            id = oldDrawingShape.id;
+            let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == oldDrawingShape.id);
+            if (oldShapeIndex > -1) {
+                this.drawingShapes.splice(oldShapeIndex, 1);
+                (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+            }
+        }
+        this.addShapeFromTemplateClassName(id, type, null, definition, isActive, text, left, top);
     }
 
-    protected addShapeFromTemplateClassName(id: GuidValue, nodes: IShapeNode[], definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
-        this.newShapeId = id;
+    protected addShapeFromTemplateClassName(id: GuidValue, type: DrawingShapeTypes, nodes: IShapeNode[], definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
         let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[definition.shapeTemplate.name], definition, nodes, isActive, text, this.selectable, left, top);
         newShape.ready().then((result) => {
             if (result)
-                this.addShapeToCanvas(newShape);
+                this.addShapeToCanvas(id, newShape, type);
         })
     }
 
-    private addShapeToCanvas(newShape: Shape) {
+    private addShapeToCanvas(id: GuidValue, newShape: Shape, type: DrawingShapeTypes) {
         newShape.addEventListener(this.canvasObject, this.gridX, this.gridY);
         newShape.shapeObject.forEach(s => this.canvasObject.add(s));
-        this.shapes.push({ id: this.newShapeId, shape: newShape });
+        this.drawingShapes.push({ id: id, shape: newShape, type: type });
     }
 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -53,9 +54,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid internalProcessItemId, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, ProcessVersionType vertionType, string hash)
         {
-            var processData = await ProcessRepository.GetProcessDataAsync(internalProcessItemId, hash);
+            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, vertionType, hash);
             return processData;
         }
     }

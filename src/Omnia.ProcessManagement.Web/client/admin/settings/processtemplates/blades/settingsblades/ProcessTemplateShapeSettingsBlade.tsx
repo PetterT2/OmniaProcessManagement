@@ -10,6 +10,8 @@ import { ShapeTemplatesConstants } from '../../../../../fx/constants';
 import { DrawingCanvas, DrawingCanvasEditor } from '../../../../../fx/models/processshape/canvas';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
+import { DrawingShapeTypes } from '../../../../../fx/models/data/drawingdefinitions';
+import { Guid } from '@omnia/fx-models';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -67,11 +69,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                     width: 400,
                     height: 500,
-                    shapes: [],
+                    drawingShapes: [],
                     gridX: 50,
                     gridY: 50,
                 });
-                this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
             }
         }, 1000)
     }
@@ -86,14 +88,14 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                 width: 400,
                 height: 500,
-                shapes: [],
+                drawingShapes: [],
                 gridX: 50,
                 gridY: 50,
             });
-            this.drawingCanvas.addShape((this.editingShape as DrawingShapeDefinition).shapeTemplate.name, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, '', 50, 50);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.shapes[0], (this.editingShape as DrawingShapeDefinition), false, "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition), false, "");
         }
         this.$forceUpdate();
     }

@@ -46,31 +46,45 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\ProcessTemplatesJourneyConstants.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\store\ProcessTemplateJourneyStore.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\DefaultBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\ItemSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\ItemSettingsJourney\ItemSettingsTabs\PublishTab.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\blades\SyncStatusBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\core\index.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\core\ProcessTypeHelper.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\IProcessTypesJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\store\index.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
-    <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
-    <TypeScriptCompile Remove="client\core\Enums.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkNode.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\enums\Enums.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\enums\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\CustomLinkProcessItem.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\ExternalProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processactions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processactions\ProcessActionModel.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\InternalProcessItem.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessItem.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessType.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
@@ -112,13 +126,13 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\test\FabricPlay.manifest.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="client\admin\settings\globalsettings\" />
-    <Folder Include="client\admin\settings\processtypes\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -151,10 +165,25 @@
     <None Update="client\fx\index.ts">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\enums\Enums.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\enums\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processactions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processactions\ProcessActionModel.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\data\processes\ProcessDataWithAuditing.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\processes\RootProcessItem.ts">
+    <None Update="client\fx\models\data\processes\RootProcessStep.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\index.ts">
@@ -163,16 +192,7 @@
     <None Update="client\fx\models\data\processes\ProcessData.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\processes\InternalProcessItem.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processes\ExternalProcessItem.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processes\CustomLinkProcessItem.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processes\ProcessItem.ts">
+    <None Update="client\fx\models\data\processes\ProcessStep.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\Process.ts">
@@ -197,12 +217,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\shapedefinitions\ShapeDefinition.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\core\Constants.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\core\Enums.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\core\index.ts">
@@ -280,13 +294,13 @@
     <None Update="client\fx\models\processshape\ShapeTemplate.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\drawingdefinitions\IDrawingShapeNode.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\drawingdefinitions\DrawingCustomLinkNode.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepNode.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>
