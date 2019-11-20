@@ -1,4 +1,5 @@
-﻿export * from "./IShapeNode";
+﻿export * from "./IFabricShape";
+export * from "./FabricShape";
 export * from "./FabricShapeExtention";
 export * from "./FabricCircleShape";
 export * from "./FabricEllipseShape";
@@ -8,4 +9,3 @@ export * from "./FabricPolygonShape";
 export * from "./FabricRectShape";
 export * from "./FabricTextShape";
 export * from "./FabricTriangleShape";
-export * from "./FabricPolylineShape";

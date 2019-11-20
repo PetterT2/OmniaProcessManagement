@@ -97,11 +97,13 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvas.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvasEditor.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\canvas\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShapeNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IFabricShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\DiamondShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\FreeformShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\MediaShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\shapes\PentagonShape.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\ShapeExtension.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
@@ -113,7 +115,6 @@
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricImageShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricPathShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricPolygonShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricPolylineShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricRectShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricShapeExtention.ts" />
     <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricTextShape.ts" />
@@ -210,7 +211,7 @@
     <None Update="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts">
+    <None Update="client\fx\models\processshape\canvas\HeadingShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\shapedefinitions\index.ts">
@@ -246,6 +247,9 @@
     <None Update="client\fx\models\processshape\fabricshape\FabricPolygonShape.ts">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\fx\models\processshape\fabricshape\FabricShape.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\processshape\fabricshape\FabricTextShape.ts">
       <SubType>Code</SubType>
     </None>
@@ -253,9 +257,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\fabricshape\FabricImageShape.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricPolylineShape.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processshape\fabricshape\FabricTriangleShape.ts">
@@ -279,7 +280,7 @@
     <None Update="client\fx\models\processshape\fabricshape\FabricShapeExtention.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\IShapeNode.ts">
+    <None Update="client\fx\models\processshape\fabricshape\IFabricShape.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\index.ts">

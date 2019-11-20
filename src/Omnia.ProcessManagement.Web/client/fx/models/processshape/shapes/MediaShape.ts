@@ -1,26 +1,17 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShapeNodeTypes, FabricShapeExtention, FabricCircleShape, IShapeNode, FabricImageShape } from '../fabricshape';
+import { FabricShapeTypes, FabricShape, FabricCircleShape, IFabricShape, FabricImageShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
 import { IShape } from './IShape';
 import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
 import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
-import { resolve } from 'path';
+import { ShapeExtension } from './ShapeExtension';
 
-export class MediaShape implements Shape {
-    definition: DrawingShapeDefinition;
-    nodes: IShapeNode[];
-    private fabricShapes: Array<FabricShapeExtention> = [];
-    private fabricObjects: fabric.Object[] = [];
-    private startPoint: { x: number, y: number } = { x: 0, y: 0 };
-    private originPos: { x: number, y: number } = { x: 0, y: 0 };
-
-    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
+export class MediaShape extends ShapeExtension implements Shape {
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
         left?: number, top?: number) {
-        this.definition = definition;
-        this.nodes = nodes;
-        this.initNodes(isActive || false, text, selectable, left, top);
+        super(definition, nodes, isActive, text, selectable, left, top);
     }
 
     get name() {
@@ -29,7 +20,7 @@ export class MediaShape implements Shape {
 
     ready(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            let fabricImageObj = this.fabricShapes.find(f => f.shapeNodeType == FabricShapeNodeTypes.image);
+            let fabricImageObj = this.fabricShapes.find(f => f.shapeNodeType == FabricShapeTypes.image);
             if (fabricImageObj) {
                 (fabricImageObj as FabricImageShape).ready()
                     .then(() => {
@@ -43,13 +34,10 @@ export class MediaShape implements Shape {
         })
     }
 
-    private initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
-        this.startPoint = { x: 0, y: 0 };
-        this.originPos = { x: 0, y: 0 };
-        this.fabricShapes = [];
+    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
-            let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.image);
-            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeNodeTypes.text);
+            let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.image);
+            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (imageNode) {
                 this.fabricShapes.push(new FabricImageShape(this.definition, isActive, Object.assign({ selectable: selectable }, imageNode.properties || {})));
             }

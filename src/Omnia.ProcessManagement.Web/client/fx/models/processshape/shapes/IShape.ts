@@ -1,8 +1,8 @@
-﻿import { IShapeNode } from '../fabricshape';
+﻿import { IFabricShape } from '../fabricshape';
 import { DrawingShapeDefinition } from '../..';
 
 export interface IShape {
     name: string;
-    nodes: IShapeNode[];
+    nodes: IFabricShape[];
     definition: DrawingShapeDefinition;
 }
