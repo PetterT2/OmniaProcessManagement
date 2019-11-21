@@ -98,9 +98,15 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
                 </v-toolbar>
                 <v-divider></v-divider>
                 <v-container>
-                    {this.selectedTab == TabNames.general && <ProcessTemplatSettingsGeneralTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate} formValidator={this.internalValidator}></ProcessTemplatSettingsGeneralTab>}
-                    {this.selectedTab == TabNames.shapes && <ProcessTemplatSettingsShapesTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsShapesTab>}
-                    {this.selectedTab == TabNames.defaultContent && <ProcessTemplatSettingsDefaultContentTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsDefaultContentTab>}
+                    <div v-show={this.selectedTab == TabNames.general}>
+                        <ProcessTemplatSettingsGeneralTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate} formValidator={this.internalValidator}></ProcessTemplatSettingsGeneralTab>
+                    </div>
+                    <div v-show={this.selectedTab == TabNames.shapes}>
+                        <ProcessTemplatSettingsShapesTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsShapesTab>
+                    </div>
+                    <div v-show={this.selectedTab == TabNames.defaultContent}>
+                        <ProcessTemplatSettingsDefaultContentTab journey={this.journey} editingProcessTemplate={this.editingProcessTemplate}></ProcessTemplatSettingsDefaultContentTab>
+                    </div>
                     <div class='text-right'>
                         <v-btn dark={this.omniaTheming.promoted.body.dark} text loading={this.isSaving} onClick={() => { this.save() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
                     </div>

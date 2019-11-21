@@ -24,8 +24,6 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
 
-    isLoading: boolean = true;
-
     private shapes: Array<ShapeDefinition> = []
 
     created() {
@@ -37,7 +35,7 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
         this.journey().travelBackToFirstBlade();
         this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
         this.$nextTick(() => {
-            let shapeItem = shape || ShapeDefinitionFactory.createDefaultProcessTemplate();
+            let shapeItem = shape || ShapeDefinitionFactory.createDefaultProcessTemplate(this.omniaTheming);
             this.processTemplateJournayStore.mutations.setEditingShapeDefinition.commit(shapeItem, index);
             this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes);
         });
@@ -63,10 +61,13 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     }
 
     render(h) {
+        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+        this.shapes = (editingProcessTemplate.settings && editingProcessTemplate.settings.shapeDefinitions) ? editingProcessTemplate.settings.shapeDefinitions : [];
+
         return (
             <div>
                 <div class='text-right'>
-                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape(ShapeDefinitionFactory.createDefaultProcessTemplate(ShapeDefinitionTypes.Heading)) }}>{this.loc.ProcessTemplates.AddHeading}</v-btn>
+                    <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape(ShapeDefinitionFactory.createDefaultProcessTemplate(this.omniaTheming, ShapeDefinitionTypes.Heading)) }}>{this.loc.ProcessTemplates.AddHeading}</v-btn>
                     <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape() }}>{this.loc.ProcessTemplates.AddShape}</v-btn>
                 </div>
                 {

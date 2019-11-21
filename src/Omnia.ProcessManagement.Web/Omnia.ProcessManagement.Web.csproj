@@ -36,6 +36,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateShapeSettingsBlade.css.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateShapeSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsDefaultContentTab.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\tabs\ProcessTemplatSettingsGeneralTab.tsx" />
@@ -109,6 +110,8 @@
     <TypeScriptCompile Remove="client\fx\processshape\shapes\MediaShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
+	<TypeScriptCompile Remove="client\models\styles\index.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />    
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
