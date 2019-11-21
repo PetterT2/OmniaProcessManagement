@@ -1,28 +1,29 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
 import { FabricShapeTypes, FabricRectShape, FabricTextShape, IFabricShape } from '../fabricshape';
-import { DrawingShapeDefinition, TextPosition } from '../../data';
+import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
+import { MultilingualString } from '@omnia/fx-models';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 
 export class DiamondShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
-        super(definition, nodes, isActive, text, selectable, left, top);
+        super(definition, nodes, isActive, title, selectable, left, top);
     }
 
     get name() {
         return ShapeTemplatesConstants.Diamond.name;
     }
 
-    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
             let rectNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.rect);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (rectNode)
                 this.fabricShapes.push(new FabricRectShape(this.definition, isActive, Object.assign({ selectable: selectable }, rectNode.properties || {})));
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}, title));
         }
         else if (this.definition) {
             let diamondWidth = Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) / 2));
@@ -44,7 +45,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
                     break;
             }
             this.fabricShapes.push(new FabricRectShape(this.definition, isActive, { left: recleft, top: rectop, angle: 45, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false }, title));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

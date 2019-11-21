@@ -1,7 +1,7 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
 import { FabricShapeTypes, IFabricShape } from './IFabricShape';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
 export class FabricImageShape extends FabricShapeExtension implements FabricShape {

@@ -98,17 +98,17 @@
     <TypeScriptCompile Remove="client\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\models\processes\ProcessReference.ts" />
     <TypeScriptCompile Remove="client\models\processes\ProcessReferenceData.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\CanvasExtension.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvas.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\DrawingCanvasEditor.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\canvas\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IFabricShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\DiamondShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\FreeformShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\MediaShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\PentagonShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\shapes\ShapeExtension.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\CanvasExtension.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvas.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasEditor.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\canvas\index.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\IFabricShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\DiamondShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\FreeformShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\MediaShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\PentagonShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
@@ -116,23 +116,23 @@
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessStore.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessTemplateStore.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricCircleShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricEllipseShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricImageShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricPathShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricPolygonShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricRectShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricShapeExtention.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricTextShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\FabricTriangleShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\fabricshape\IShape.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\HeadingShapeSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\IShapeSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\Shape - Copy.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricImageShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPathShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolygonShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricRectShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShapeExtention.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricTextShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricTriangleShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\IShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\HeadingShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\index.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\IShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\test\FabricPlay.manifest.ts" />
     <None Include="gulpfile.js" />
@@ -217,9 +217,6 @@
     <None Update="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\canvas\HeadingShapeDefinition.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\data\shapedefinitions\index.ts">
       <SubType>Code</SubType>
     </None>
@@ -247,58 +244,49 @@
     <None Update="client\models\processes\ProcessReference.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\canvas\DrawingCanvasEditor.ts">
+    <None Update="client\fx\processshape\canvas\DrawingCanvasEditor.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\canvas\DrawingCanvas.ts">
+    <None Update="client\fx\processshape\canvas\DrawingCanvas.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\canvas\index.ts">
+    <None Update="client\fx\processshape\canvas\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\CircleShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricEllipseShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricEllipseShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricPolygonShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricPolygonShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricTextShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricTextShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricPathShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricPathShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricImageShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricImageShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricTriangleShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricTriangleShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricRectShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricRectShape.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricCircleShape.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricCircleShape.ts">
+    <None Update="client\fx\processshape\fabricshape\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\fabricshape\index.ts">
+    <None Update="client\fx\processshape\fabricshape\FabricShapeExtention.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\Shape.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\IShape.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\fabricshape\FabricShapeExtention.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\processshape\fabricshape\IFabricShape.ts">
+    <None Update="client\fx\processshape\fabricshape\IFabricShape.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\index.ts">
@@ -307,10 +295,10 @@
     <None Update="client\fx\models\ManifestIds.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\index.ts">
+    <None Update="client\fx\processshape\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\processshape\ShapeTemplate.ts">
+    <None Update="client\fx\models\data\drawingdefinitions\ShapeTemplate.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingShape.ts">

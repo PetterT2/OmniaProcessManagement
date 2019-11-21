@@ -5,14 +5,14 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, ShapeTemplate } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants } from '../../../../../fx/constants';
-import { DrawingCanvas, DrawingCanvasEditor } from '../../../../../fx/models/processshape/canvas';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
-import { DrawingShapeTypes } from '../../../../../fx/models/data/drawingdefinitions';
+import { DrawingShapeTypes, ShapeTemplate } from '../../../../../fx/models/data/drawingdefinitions';
 import { Guid } from '@omnia/fx-models';
+import { DrawingCanvas } from '../../../../../fx/processshape';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -72,7 +72,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     height: 500,
                     drawingShapes: []
                 });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), false, '', 50, 50);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, 50, 50);
             }
         }, 500)
     }
@@ -89,10 +89,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 height: 500,
                 drawingShapes: []
             });
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), false, '', 0, 0);
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, 0, 0);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition), false, "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.editingShape as DrawingShapeDefinition), null, false);
         }
     }
 
@@ -151,8 +151,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     }
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Drawing && (!(this.editingShape as DrawingShapeDefinition).shapeTemplate || ((this.editingShape as DrawingShapeDefinition).shapeTemplate &&
-                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Media.id &&
-                        (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)) &&
+                            (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Media.id &&
+                            (this.editingShape as DrawingShapeDefinition).shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)) &&
                         <div style={{ display: "flex" }}>
                             <v-flex lg4>
                                 <omfx-color-picker

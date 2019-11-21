@@ -1,8 +1,9 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition } from '../../models';
 import { IShape } from './IShape';
 import { IFabricShape, FabricShape } from '../fabricshape';
+import { MultilingualString } from '@omnia/fx-models';
 
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
@@ -12,7 +13,7 @@ export class ShapeExtension implements Shape {
     protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
     protected originPos: { x: number, y: number } = { x: 0, y: 0 };
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
         this.definition = definition;
         this.definition.height = this.definition.width;
@@ -20,7 +21,7 @@ export class ShapeExtension implements Shape {
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
-        this.initNodes(isActive || false, text, selectable, left, top);
+        this.initNodes(isActive || false, title, selectable, left, top);
     }
 
     get name() {
@@ -33,7 +34,7 @@ export class ShapeExtension implements Shape {
         })
     }
 
-    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
     }
 
     get shapeObject(): fabric.Object[] {

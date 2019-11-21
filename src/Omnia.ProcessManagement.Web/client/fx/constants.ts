@@ -1,4 +1,4 @@
-﻿import { ShapeTemplate } from './models';
+﻿import { ShapeTemplate } from './models/data/drawingdefinitions';
 
 export const TextSpacingWithShape = 8;
 

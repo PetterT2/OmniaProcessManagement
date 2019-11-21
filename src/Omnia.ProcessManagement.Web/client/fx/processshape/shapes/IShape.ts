@@ -1,5 +1,5 @@
 ﻿import { IFabricShape } from '../fabricshape';
-import { DrawingShapeDefinition } from '../..';
+import { DrawingShapeDefinition } from '../../models';
 
 export interface IShape {
     name: string;

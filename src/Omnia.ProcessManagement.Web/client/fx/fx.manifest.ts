@@ -7,6 +7,7 @@ Composer
     .registerResources({
         resourcePaths: [
             "./models/**/*.js",
-            "./constants.js"
+            "./constants.js",
+            "./processshape/**/*.js"
         ]
     })

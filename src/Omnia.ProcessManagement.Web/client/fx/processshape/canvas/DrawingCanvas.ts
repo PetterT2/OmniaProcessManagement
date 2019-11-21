@@ -1,9 +1,8 @@
 ﻿import { fabric } from 'fabric';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../data/drawingdefinitions';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape } from '../shapes';
-import { FabricShape, IFabricShape } from '../fabricshape';
-import { DrawingShapeDefinition } from '../..';
-import { Guid, GuidValue } from '@omnia/fx-models';
+import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
+import { DrawingShapeDefinition } from '../../models';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -117,7 +116,7 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
         if (!definition.shapeTemplate)
             return;
         let position = this.correctDefinition(definition, left, top);
@@ -129,13 +128,14 @@ export class DrawingCanvas implements CanvasDefinition {
                     name: definition.shapeTemplate.name,
                     nodes: null,
                     definition: definition
-                }
+                },
+                title: title
             };
-            this.addShapeFromTemplateClassName(drawingShape, isActive, text, position.left, position.top);
+            this.addShapeFromTemplateClassName(drawingShape, isActive, position.left, position.top);
         }
     }
 
-    updateShapeDefinition(oldDrawingShape: DrawingShape, definition: DrawingShapeDefinition, isActive?: boolean, text?: string, left?: number, top?: number) {
+    updateShapeDefinition(oldDrawingShape: DrawingShape, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
         if (!definition.shapeTemplate)
             return;
         let position = this.correctDefinition(definition, left, top);
@@ -149,7 +149,8 @@ export class DrawingCanvas implements CanvasDefinition {
         else
             oldDrawingShape = {
                 id: Guid.newGuid(),
-                type: DrawingShapeTypes.Undefined
+                type: DrawingShapeTypes.Undefined,
+                title: title
             } as DrawingShape;
 
         oldDrawingShape.shape = {
@@ -157,11 +158,11 @@ export class DrawingCanvas implements CanvasDefinition {
             nodes: null,
             definition: definition
         };
-        this.addShapeFromTemplateClassName(oldDrawingShape, isActive, text, position.left, position.top);
+        this.addShapeFromTemplateClassName(oldDrawingShape, isActive, position.left, position.top);
     }
 
-    protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, text?: string, left?: number, top?: number) {
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[drawingShape.shape.definition.shapeTemplate.name], drawingShape.shape.definition, drawingShape.shape.nodes, isActive, text, this.selectable, left, top);
+    protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[drawingShape.shape.definition.shapeTemplate.name], drawingShape.shape.definition, drawingShape.shape.nodes, isActive, drawingShape.title, this.selectable, left, top);
         newShape.ready().then((result) => {
             if (result)
                 this.addShapeToCanvas(drawingShape, newShape);
