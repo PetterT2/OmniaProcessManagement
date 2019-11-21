@@ -15,6 +15,7 @@ export class FabricShapeExtension implements FabricShape {
         this.properties = {};
         this.properties["originX"] = "left";
         this.properties["originY"] = "top";
+        this.properties["hoverCursor"] = "pointer";
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];
