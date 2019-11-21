@@ -1,50 +1,23 @@
-﻿import { FabricShapeExtention } from '.';
-import { FabricShapeNodeTypes, IShapeNode } from './IShapeNode';
+﻿import { FabricShapeTypes } from './IFabricShape';
 import { fabric } from 'fabric';
 import { DrawingShapeDefinition } from '../../data';
-import { isatty } from 'tty';
+import { FabricShapeExtension } from './FabricShapeExtention';
+import { FabricShape } from './FabricShape';
 
-export class FabricCircleShape implements FabricShapeExtention {
-    properties: { [k: string]: any; };
-    fabricObject: fabric.Circle;
-
+export class FabricCircleShape extends FabricShapeExtension implements FabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        this.initProperties(definition, isActive, properties);
+        super(definition, isActive, properties);
+        this.initCircleProperties(definition);
     }
 
-    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        this.properties = {};
-        this.properties["originX"] = "left";
-        this.properties["originY"] = "top";
-        if (properties) {
-            Object.keys(properties).forEach(key => {
-                this.properties[key] = properties[key];
-            });
-        }
+    private initCircleProperties(definition: DrawingShapeDefinition) {
         if (definition) {
             this.properties["radius"] = definition.width / 2;
-            this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
         this.fabricObject = new fabric.Circle(this.properties);
     }
 
     get shapeNodeType() {
-        return FabricShapeNodeTypes.circle;
-    }
-
-    getShapeNodeJson(): IShapeNode {
-        if (this.fabricObject) {
-            let options = this.fabricObject.toJSON();
-            this.properties = [];
-            Object.keys(options).forEach(key => {
-                if (options[key])
-                    this.properties[key] = options[key];
-            });
-        }
-        return {
-            shapeNodeType: FabricShapeNodeTypes.circle,
-            properties: this.properties
-        };
+        return FabricShapeTypes.circle;
     }
 }

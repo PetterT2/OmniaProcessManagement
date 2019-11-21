@@ -1,36 +1,22 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../constants';
-import { FabricShapeExtention, FabricRectShape, FabricTextShape, FabricTriangleShape, IShapeNode, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, ShapeNodeType, FabricShapeNodeTypes } from '../fabricshape';
+import { FabricShape, FabricRectShape, FabricTextShape, FabricTriangleShape, IFabricShape, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, FabricShapeType, FabricShapeTypes } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../data';
-import { IShape } from './IShape';
+import { ShapeExtension } from './ShapeExtension';
 
-export class FreeformShape implements Shape {
-    definition: DrawingShapeDefinition;
-    nodes: IShapeNode[];
-    private fabricShapes: Array<FabricShapeExtention> = [];
-    private fabricObjects: fabric.Object[] = [];
+export class FreeformShape extends ShapeExtension implements Shape {
     private grouping: boolean = false;
-
-    constructor(definition: DrawingShapeDefinition, nodes?: IShapeNode[], isActive?: boolean, text?: string, selectable?: boolean,
-        left?: number, top?: number, grouping?: boolean) {
-        this.definition = definition;
-        this.nodes = nodes;
-        this.grouping = grouping;
-        this.initNodes(isActive || false, selectable || false);
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number) {
+        super(definition, nodes, isActive, text, selectable, left, top);
     }
 
     get name() {
         return ShapeTemplatesConstants.Pentagon.name;
     }
 
-    ready(): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            resolve(true);
-        })
-    }
-
-    private initNodes(isActive: boolean, selectable: boolean) {
+    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
         var fabricGroupObjects: fabric.Object[] = [];
         if (this.nodes) {
@@ -47,32 +33,20 @@ export class FreeformShape implements Shape {
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
-    private getObjectClass(node: IShapeNode, isActive: boolean, selectable: boolean): FabricShapeExtention {
+    private getObjectClass(node: IFabricShape, isActive: boolean, selectable: boolean): FabricShape {
         switch (node.shapeNodeType) {
-            case FabricShapeNodeTypes.circle:
+            case FabricShapeTypes.circle:
                 return new FabricCircleShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-            case FabricShapeNodeTypes.ellipse:
+            case FabricShapeTypes.ellipse:
                 return new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-            case FabricShapeNodeTypes.polygon:
+            case FabricShapeTypes.polygon:
                 return new FabricPolygonShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-            case FabricShapeNodeTypes.text:
+            case FabricShapeTypes.text:
                 return new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-            case FabricShapeNodeTypes.triangle:
+            case FabricShapeTypes.triangle:
                 return new FabricTriangleShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-            case FabricShapeNodeTypes.rect:
+            case FabricShapeTypes.rect:
                 return new FabricRectShape(this.definition, isActive, Object.assign({ selectable: selectable }, node.properties || {}));
-        }
-    }
-
-    get shapeObject(): fabric.Object[] {
-        return this.fabricObjects;
-    }
-
-    getShapeJson(): IShape {
-        return {
-            name: this.name,
-            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
-            definition: this.definition
         }
     }
 

@@ -1,0 +1,96 @@
+﻿import { fabric } from 'fabric';
+import { Shape } from './Shape';
+import { DrawingShapeDefinition } from '../../data';
+import { IShape } from './IShape';
+import { IFabricShape, FabricShape } from '../fabricshape';
+
+export class ShapeExtension implements Shape {
+    definition: DrawingShapeDefinition;
+    nodes: IFabricShape[];
+    protected fabricShapes: Array<FabricShape> = [];
+    protected fabricObjects: fabric.Object[] = [];
+    protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
+    protected originPos: { x: number, y: number } = { x: 0, y: 0 };
+
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+        left?: number, top?: number) {
+        this.definition = definition;
+        this.definition.height = this.definition.width;
+        this.nodes = nodes;
+        this.startPoint = { x: 0, y: 0 };
+        this.originPos = { x: 0, y: 0 };
+        this.fabricShapes = [];
+        this.initNodes(isActive || false, text, selectable, left, top);
+    }
+
+    get name() {
+        return "";
+    }
+
+    ready(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            resolve(true);
+        })
+    }
+
+    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {        
+    }
+
+    get shapeObject(): fabric.Object[] {
+        return this.fabricObjects;
+    }
+
+    getShapeJson(): IShape {
+        return {
+            name: this.name,
+            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
+            definition: this.definition
+        }
+    }
+
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+        if (this.fabricObjects.length < 2 || this.fabricObjects.findIndex(f => f == null) > -1)
+            return;
+        let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
+        let left0 = this.fabricObjects[0].left; let top0 = this.fabricObjects[0].top;
+        this.fabricObjects[0].on({
+            "mousedown": (e) => {
+                this.startPoint = canvas.getPointer(e.e);
+                this.originPos = { x: this.fabricObjects[1].left, y: this.fabricObjects[1].top };
+            },
+            "moving": (e) => {
+                var currPos = canvas.getPointer(e.e),
+                    moveX = currPos.x - this.startPoint.x,
+                    moveY = currPos.y - this.startPoint.y;
+
+                if (gridX)
+                    this.fabricObjects[1].set({
+                        left: Math.round(this.fabricObjects[0].left / gridX) * gridX - left0 + left
+                    });
+                else
+                    this.fabricObjects[1].set({
+                        left: this.originPos.x + moveX
+                    });
+
+                if (gridY)
+                    this.fabricObjects[1].set({
+                        top: Math.round(this.fabricObjects[0].top / gridY) * gridY - top0 + top
+                    });
+                else
+                    this.fabricObjects[1].set({
+                        top: this.originPos.y + moveY
+                    });
+
+                this.fabricObjects[1].setCoords();
+            },
+            "scaling": (e) => {
+                this.fabricObjects[1].set({
+                    left: (e.target.left - left0) + left,
+                    top: (e.target.top - top0) + top,
+                });
+            }
+        })
+
+    }
+
+}

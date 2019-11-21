@@ -5,3 +5,4 @@ export * from "./DiamondShape";
 export * from "./PentagonShape";
 export * from "./MediaShape";
 export * from "./FreeformShape";
+export * from "./ShapeExtension"; 

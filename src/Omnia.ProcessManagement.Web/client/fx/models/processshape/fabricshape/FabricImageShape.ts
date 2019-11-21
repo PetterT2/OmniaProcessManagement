@@ -1,32 +1,15 @@
-﻿import { FabricShapeExtention } from './FabricShapeExtention';
+﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeNodeTypes, IShapeNode } from './IShapeNode';
+import { FabricShapeTypes, IFabricShape } from './IFabricShape';
 import { DrawingShapeDefinition } from '../../data';
+import { FabricShape } from './FabricShape';
 
-export class FabricImageShape implements FabricShapeExtention {
-    properties: { [k: string]: any; };
-    fabricObject: fabric.Image;
-    imageUrl: string;
-
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {
-        this.initProperties(definition, isActive, properties, imageUrl);
-    }
-
-    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, imageUrl?: string) {
-        this.properties = {};
-        this.properties["originX"] = "left";
-        this.properties["originY"] = "top";
+export class FabricImageShape extends FabricShapeExtension implements FabricShape {
+    imageUrl?: string;
+    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
+        super(definition, isActive, properties);
         if (properties) {
             this.imageUrl = this.properties['imageUrl'];
-            Object.keys(properties).forEach(key => {
-                this.properties[key] = properties[key];
-            });
-        }
-        if (definition) {
-            this.properties["left"] = 0;
-            this.properties["top"] = 0;
-            this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
         }
     }
 
@@ -44,10 +27,10 @@ export class FabricImageShape implements FabricShapeExtention {
     }
 
     get shapeNodeType() {
-        return FabricShapeNodeTypes.image;
+        return FabricShapeTypes.image;
     }
 
-    getShapeNodeJson(): IShapeNode {
+    getShapeNodeJson(): IFabricShape {
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             this.properties = [];
@@ -58,7 +41,7 @@ export class FabricImageShape implements FabricShapeExtention {
             this.properties['imageUrl'] = this.imageUrl;
         }
         return {
-            shapeNodeType: FabricShapeNodeTypes.image,
+            shapeNodeType: FabricShapeTypes.image,
             properties: this.properties
         };
     }
