@@ -6,6 +6,7 @@ using Omnia.Fx.NetCore.Repositories.EntityFramework;
 using Omnia.ProcessManagement.Core.Entities;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
+using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
 using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<Process> Processes { get; set; }
         public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
+        public DbSet<ProcessType> ProcessTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

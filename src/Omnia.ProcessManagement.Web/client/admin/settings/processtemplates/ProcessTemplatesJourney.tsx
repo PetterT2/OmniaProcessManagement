@@ -57,7 +57,7 @@ export default class ProcessTemplatesJourney extends Vue implements IWebComponen
         let h = this.$createElement;
         let blade: Blade = {
             id: ProcessTemplatesJourneyBladeIds.processTemplateSettingsShapes,
-            size: BladeSizes.medium,
+            size: BladeSizes.large,
             content: <ProcessTemplateShapeSettingsBlade journey={this.getJourneyInstance}></ProcessTemplateShapeSettingsBlade>
         }
 

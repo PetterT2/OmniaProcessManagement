@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Omnia.ProcessManagement.Models\Omnia.ProcessManagement.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\ProcessTypes\Validation\" />
+  </ItemGroup>
+
 </Project>
