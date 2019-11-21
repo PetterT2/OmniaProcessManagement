@@ -97,6 +97,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     }
 
     saveShape() {
+        debugger;
         if (this.internalValidator.validateAll()) {
             var editingProcessTemplate: ProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
             this.editingShape.multilingualTitle = this.multilingualStore.getters.stringValue(this.editingShape.title);
