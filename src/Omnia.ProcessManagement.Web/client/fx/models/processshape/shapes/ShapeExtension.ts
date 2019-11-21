@@ -53,8 +53,15 @@ export class ShapeExtension implements Shape {
             return;
         let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
         let left0 = this.fabricObjects[0].left; let top0 = this.fabricObjects[0].top;
+        let scaleX0 = this.fabricObjects[0].scaleX;
+        let scaleY0 = this.fabricObjects[0].scaleY;
+
         this.fabricObjects[0].on({
             "mousedown": (e) => {
+                left = this.fabricObjects[1].left; top = this.fabricObjects[1].top;
+                left0 = this.fabricObjects[0].left; top0 = this.fabricObjects[0].top;
+                scaleX0 = this.fabricObjects[0].scaleX;
+                scaleY0 = this.fabricObjects[0].scaleY;
                 this.startPoint = canvas.getPointer(e.e);
                 this.originPos = { x: this.fabricObjects[1].left, y: this.fabricObjects[1].top };
             },
@@ -84,19 +91,15 @@ export class ShapeExtension implements Shape {
                 this.fabricObjects[1].setCoords();
             },
             "scaling": (e) => {
-                if (this.fabricObjects[1].originX == 'center') {
-                    this.fabricObjects[1].set({
-                        left: e.target.left != left0 || e.target.top != top0 ? (e.target.left - left0) / 2 + left : (e.target.skewX - 1) * e.target.width / 2 + left,
-                        top: e.target.left != left0 || e.target.top != top0 ? (e.target.top - top0) / 2 + top : (e.target.skewY - 1) * e.target.height / 2 + top
-                    });
+                let isScaleLeft = e.target.left != left0 || e.target.top != top0;
+                let oLeft = isScaleLeft ? (e.target.left - left0) / 2 + left : ((this.fabricObjects[0].scaleX - scaleX0) * this.fabricObjects[0].width) / 2 + left;
+                if (this.fabricObjects[1].originX == 'left') {
+                    oLeft = isScaleLeft ? (e.target.left - left0) + left : left;
                 }
-                else {
-                    this.fabricObjects[1].set({
-                        left: (e.target.left - left0) + left,
-                        top: (e.target.top - top0) / 2 + top
-                    });
-                }
-                this.fabricObjects[1].setCoords();
+                this.fabricObjects[1].set({
+                    left: oLeft,
+                    top: isScaleLeft ? (e.target.top - top0) / 2 + top : ((this.fabricObjects[0].scaleY - scaleY0) * this.fabricObjects[0].height) / 2 + top
+                });
             }
         })
 
