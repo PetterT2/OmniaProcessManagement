@@ -118,9 +118,6 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     }
 
     render(h) {
-        if (this.isLoading)
-            return (<div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>)
-
         let processTemplates = this.processTemplateStore.getters.processTemplates();
 
         return (
@@ -132,19 +129,23 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                 </v-toolbar>
                 <v-divider></v-divider>
                 <v-container>
-                    <v-data-table
-                        items-per-page={Number.MAX_SAFE_INTEGER}
-                        hide-default-footer
-                        hide-default-header
-                        headers={[]}
-                        items={processTemplates}
-                        no-data-text={this.loc.ProcessTemplates.Messages.NoProcessTemplate}
-                        scopedSlots={{
-                            item: p => this.renderTableRow(h, p.item),
-                            header: p => this.renderTableHeader(h)
-                        }}>
-
-                    </v-data-table>
+                    {
+                        this.isLoading ?
+                            <v-skeleton-loader loading={true} height="100%" type="table"></v-skeleton-loader>
+                            :
+                            <v-data-table
+                                items-per-page={Number.MAX_SAFE_INTEGER}
+                                hide-default-footer
+                                hide-default-header
+                                headers={[]}
+                                items={processTemplates}
+                                no-data-text={this.loc.ProcessTemplates.Messages.NoProcessTemplate}
+                                scopedSlots={{
+                                    item: p => this.renderTableRow(h, p.item),
+                                    header: p => this.renderTableHeader(h)
+                                }}>
+                            </v-data-table>
+                    }
                 </v-container>
             </div>
         );

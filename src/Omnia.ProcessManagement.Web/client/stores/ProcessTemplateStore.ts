@@ -60,8 +60,8 @@ export class ProcessTemplateStore extends Store {
                 return null;
             })
         }),
-        deleteProcessTemplate: this.action((processTemplate: any) => {
-            return this.processTemplateSerivice.deleteProcessTemplate(processTemplate).then(() => {
+        deleteProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
+            return this.processTemplateSerivice.deleteProcessTemplate(processTemplate.id).then(() => {
                 this.privateMutations.addOrUpdateDocumentTemplates.commit([processTemplate], true);
                 return null;
             })
