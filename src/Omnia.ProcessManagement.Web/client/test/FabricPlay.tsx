@@ -46,7 +46,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             textPosition: TextPosition.Center,
         } as DrawingShapeDefinition;
 
-        let drawingCanvas: DrawingCanvas = new DrawingCanvas('mycanvas', {}, {
+        let drawingCanvas: DrawingCanvasEditor = new DrawingCanvasEditor('mycanvas', {}, {
             width: 800,
             height: 1000,
             drawingShapes: [],

@@ -33,7 +33,7 @@ export class ShapeExtension implements Shape {
         })
     }
 
-    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {        
+    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
     }
 
     get shapeObject(): fabric.Object[] {
@@ -84,10 +84,19 @@ export class ShapeExtension implements Shape {
                 this.fabricObjects[1].setCoords();
             },
             "scaling": (e) => {
-                this.fabricObjects[1].set({
-                    left: (e.target.left - left0) + left,
-                    top: (e.target.top - top0) + top,
-                });
+                if (this.fabricObjects[1].originX == 'center') {
+                    this.fabricObjects[1].set({
+                        left: e.target.left != left0 || e.target.top != top0 ? (e.target.left - left0) / 2 + left : (e.target.skewX - 1) * e.target.width / 2 + left,
+                        top: e.target.left != left0 || e.target.top != top0 ? (e.target.top - top0) / 2 + top : (e.target.skewY - 1) * e.target.height / 2 + top
+                    });
+                }
+                else {
+                    this.fabricObjects[1].set({
+                        left: (e.target.left - left0) + left,
+                        top: (e.target.top - top0) / 2 + top
+                    });
+                }
+                this.fabricObjects[1].setCoords();
             }
         })
 

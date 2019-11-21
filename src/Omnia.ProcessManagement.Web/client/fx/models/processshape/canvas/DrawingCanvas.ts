@@ -38,6 +38,12 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
+    protected findDrawingShape(object: fabric.Object): DrawingShape {
+        return this.drawingShapes.find(d => {
+            return (d.shape as Shape).shapeObject.find(s => s == object) != null;
+        });
+    }
+
     private renderBackgroundImage(definition?: CanvasDefinition) {
         if (definition && definition.imageBackgroundUrl) {
             fabric.Image.fromURL(definition.imageBackgroundUrl, (img) => {

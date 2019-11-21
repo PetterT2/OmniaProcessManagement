@@ -10,6 +10,6 @@ export enum DrawingShapeTypes {
 
 export interface DrawingShape {
     id: GuidValue,
-    type: DrawingShapeTypes
+    type: DrawingShapeTypes,
     shape: IShape;
 }
