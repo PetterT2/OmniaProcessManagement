@@ -87,6 +87,9 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessType.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
@@ -115,6 +118,7 @@
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
+    <TypeScriptCompile Remove="client\services\ProcessTypeService.ts" />
     <TypeScriptCompile Remove="client\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessStore.ts" />

@@ -1,69 +1,90 @@
 ﻿import { Store, MultilingualStore } from '@omnia/fx/store';
 import { Injectable, Inject } from '@omnia/fx';
-import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
-import { ProcessTemplateService } from '../services';
+import { InstanceLifetimes, GuidValue, Guid } from '@omnia/fx-models';
+import { ProcessTemplateService, ProcessTypeService } from '../services';
 import { ProcessType } from '../fx/models';
+import { TermStore } from '@omnia/fx-sp';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 export class ProcessTypeStore extends Store {
 
-    private processTypes = this.state<Array<ProcessType>>([]);
+    @Inject(ProcessTypeService) private processTypeService: ProcessTypeService;
+    @Inject(TermStore) private termStore: TermStore;
+    @Inject(MultilingualStore) private multilingualTextsStore: MultilingualStore;
 
-    private ensureLoadProcessTypesPromise: Promise<null> = null;
+    private processTypeTermSetId: GuidValue = null;
+    private processTypes = this.state<Array<ProcessType>>([]);
+    private processTypesDict = this.state<{ [processTypeId: string]: ProcessType }>({});
+
+    private ensureRootProcessTypePromise: Promise<null> = null;
+    private ensuredProcessTypesPromises: Promise<null> = null;
+    private ensuredProcessTypePromises: { [processTypeId: string]: Promise<null> } = {};
+
 
     constructor() {
         super({
-            id: "7cda1364-100d-4b16-81cf-63702828c87e"
+            id: "1f09d987-df87-4ede-971a-f7e95a18278d"
         });
     }
 
     public getters = {
         processTypes: () => this.processTypes.state,
+        byId: (id: GuidValue): ProcessType => {
+            let idKey = id.toString().toLowerCase();
+            let documentType = this.processTypesDict.state[idKey];
+            return documentType;
+        }
     }
 
     private privateMutations = {
-        //addOrUpdateDocumentTemplates: this.mutation((templates: Array<any>, remove?: boolean) => {
-        //    this.processTypes.mutate(state => {
-        //        let ids = templates.map(t => t.id);
+        addOrUpdateProcessTypes: this.mutation((processTypes: Array<ProcessType>, remove?: boolean) => {
+            this.processTypesDict.mutate(dictState => {
+                processTypes.forEach(processType => {
+                    processType.multilingualTitle = this.multilingualTextsStore.getters.stringValue(processType.title);
 
-        //        state.state = state.state.filter(s => ids.indexOf(s.id) == -1);
-
-        //        if (!remove) {
-        //            state.state = state.state.concat(templates);
-
-        //            state.state.sort((a, b) => {
-        //                return a.multilingualTitle > b.multilingualTitle ? 1 : -1;
-        //            });
-        //        }
-        //    })
-        //})
+                    let processTypeId = processType.id.toString().toLowerCase();
+                    dictState.state[processTypeId] = remove ? null : processType;
+                    if (!this.ensuredProcessTypePromises[processTypeId])
+                        this.ensuredProcessTypePromises[processTypeId] = Promise.resolve(null);
+                })
+            })
+            this.processTypes.mutate(processTypes);
+        })
     }
 
     public actions = {
-        //ensureLoadProcessTemplates: this.action(() => {
-        //    if (!this.ensureLoadProcessTypesPromise) {
-        //        this.ensureLoadProcessTypesPromise = this.processTemplateSerivice.getAllProcessTemplates().then(templates => {
-        //            this.privateMutations.addOrUpdateDocumentTemplates.commit(templates);
-        //            return null;
-        //        })
-        //    }
+        ensureRootProcessType: this.action(() => {
+            if (!this.ensureRootProcessTypePromise) {
+                this.ensureRootProcessTypePromise = new Promise<null>((resolve, reject) => {
+                    this.processTypeService.getProcessTypeTermSetId().then((guidId) => {
+                        if (guidId != Guid.empty) {
+                            this.processTypeTermSetId = guidId;
+                            this.termStore.actions.ensureTermSet.dispatch(this.processTypeTermSetId).then(() => { resolve(); }).catch(reject);
+                        }
+                        else {
+                            this.ensureRootProcessTypePromise = null;
+                            resolve(null);
+                        }
+                    }).catch(reject)
+                })
+            }
 
-        //    return this.ensureLoadProcessTypesPromise;
-        //}),
-        //addOrUpdateProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
-        //    return this.processTemplateSerivice.addOrUpdateProcessTemplate(processTemplate).then((result) => {
-        //        this.privateMutations.addOrUpdateDocumentTemplates.commit([result]);
-        //        return null;
-        //    })
-        //}),
-        //deleteProcessTemplate: this.action((processTemplate: any) => {
-        //    return this.processTemplateSerivice.deleteProcessTemplate(processTemplate).then(() => {
-        //        this.privateMutations.addOrUpdateDocumentTemplates.commit([processTemplate], true);
-        //        return null;
-        //    })
-        //})
+            return this.ensureRootProcessTypePromise;
+        }),
+        ensureProcessTypes: this.action(() => {
+            if (!this.ensuredProcessTypesPromises) {
+                this.ensuredProcessTypesPromises = new Promise<null>((resolve, reject) => {
+                    this.processTypeService.getAllProcessTypes(this.processTypeTermSetId).then((processTypes: Array<ProcessType>) => {
+                        this.privateMutations.addOrUpdateProcessTypes.commit(processTypes);
+                        return null;
+                    }).catch(reject)
+                })
+            }
+
+            return this.ensuredProcessTypesPromises;
+        })
     }
 
     protected onActivated() {

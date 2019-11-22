@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Omnia.ProcessManagement.Worker</AssemblyName>
   </PropertyGroup>
 
@@ -38,6 +38,10 @@
 
   <ItemGroup>
     <PackageReference Include="Omnia.Fx.NetCore.Worker" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
   </ItemGroup>
 
   <!--***************************************************************************************-->
