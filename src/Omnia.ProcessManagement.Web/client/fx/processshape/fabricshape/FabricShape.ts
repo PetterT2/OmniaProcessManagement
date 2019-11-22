@@ -1,6 +1,6 @@
 ﻿import { IFabricShape, FabricShapeType } from './IFabricShape';
 import { fabric } from 'fabric';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition } from '../../models';
 
 export declare abstract class FabricShape implements IFabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; });

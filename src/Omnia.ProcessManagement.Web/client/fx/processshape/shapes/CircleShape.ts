@@ -1,24 +1,24 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
 import { FabricShapeTypes, FabricShape, FabricCircleShape, IFabricShape } from '../fabricshape';
-import { DrawingShapeDefinition, TextPosition } from '../../data';
-import { IShape } from './IShape';
 import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
-import { TextSpacingWithShape, ShapeTemplatesConstants } from '../../../constants';
 import { ShapeExtension } from './ShapeExtension';
+import { MultilingualString } from '@omnia/fx-models';
+import { DrawingShapeDefinition, TextPosition } from '../../models';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 
 export class CircleShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
-        super(definition, nodes, isActive, text, selectable, left, top);
+        super(definition, nodes, isActive, title, selectable, left, top);
     }
 
     get name() {
         return ShapeTemplatesConstants.Circle.name;
     }
 
-    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
             let circleNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.circle);
             let ellipseNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.ellipse);
@@ -30,7 +30,7 @@ export class CircleShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {})));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}), title));
             }
         }
         else if (this.definition) {
@@ -50,7 +50,7 @@ export class CircleShape extends ShapeExtension implements Shape {
                     break;
             }
             this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false, text: text || "Sample Text" }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false }, title));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

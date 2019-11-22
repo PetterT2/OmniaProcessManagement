@@ -3,19 +3,20 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { fabric } from 'fabric';
-import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
+import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement, Inject } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
-import { ShapeTemplatesConstants } from '../fx';
+import { ShapeTemplatesConstants, CircleShape } from '../fx';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
-import { CircleShape, FabricShape, FabricShapeType, FabricCircleShape, DiamondShape, Shape, PentagonShape } from '../fx/models/processshape';
-import { FabricShapeTypes } from '../fx/models';
-import { DrawingCanvas, DrawingCanvasEditor } from '../fx/models/processshape/canvas';
 import { Guid } from '@omnia/fx-models';
 import { DrawingShapeTypes } from '../fx/models/data/drawingdefinitions';
+import { MultilingualStore } from '@omnia/fx/store';
+import { DrawingCanvasEditor, DrawingCanvas } from '../fx/processshape';
 
 
 @Component
 export class FabricPlayComponent extends Vue implements IWebComponentInstance {
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+
     canvas: fabric.Canvas;
     testShape: CircleShape;
     drawingCanvas1: DrawingCanvas;
@@ -54,11 +55,11 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             gridY: 100
         });
         settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, false, 'pentagon', 100, 200);
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, { isMultilingualString: true, "en-us": "pentagon", "sv-se": "pentagon sv" }, false, 100, 200);
         settings.shapeTemplate = ShapeTemplatesConstants.Circle;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, false, 'circle', 200, 400);
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle sv" }, false, 200, 400);
         settings.shapeTemplate = ShapeTemplatesConstants.Diamond;
-        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, false, 'diamond', 200, 600);
+        drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, { isMultilingualString: true, "en-us": "diamond", "sv-se": "diamond sv" }, false, 200, 600);
 
         this.drawingCanvas1 = new DrawingCanvasEditor('test1', {}, {
             width: 800,
@@ -68,7 +69,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             gridY: 100
         });
         settings.shapeTemplate = ShapeTemplatesConstants.Pentagon;
-        this.drawingCanvas1.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, false, 'pentagon', 100, 200);
+        this.drawingCanvas1.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, { isMultilingualString: true, "en-us": "pentagon", "sv-se": "pentagon sv" }, false, 100, 200);
 
     }
 
@@ -84,7 +85,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             textPosition: TextPosition.Center,
             shapeTemplate: ShapeTemplatesConstants.Pentagon
         } as DrawingShapeDefinition;
-        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.drawingShapes[0], changedDefinition, false, 'plan2');
+        this.drawingCanvas1.updateShapeDefinition(this.drawingCanvas1.drawingShapes[0], changedDefinition, null, false);
     }
 
     beforeDestroy() {

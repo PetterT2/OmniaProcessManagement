@@ -1,6 +1,6 @@
 ﻿import { fabric } from 'fabric';
 import { FabricShapeTypes } from './IFabricShape';
-import { DrawingShapeDefinition } from '../../data';
+import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 import { FabricShapeExtension } from './FabricShapeExtention';
 

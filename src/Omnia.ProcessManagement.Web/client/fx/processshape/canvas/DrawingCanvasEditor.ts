@@ -1,8 +1,7 @@
 ﻿import { fabric } from 'fabric';
-import { Guid } from '@omnia/fx-models';
-import { CanvasDefinition, DrawingShape } from '../../data/drawingdefinitions';
 import { DrawingCanvas } from './DrawingCanvas';
-import { Shape } from '..';
+import { Shape } from '../shapes';
+import { CanvasDefinition, DrawingShape } from '../../models/data/drawingdefinitions';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     callback: (drawingShape: DrawingShape) => void;

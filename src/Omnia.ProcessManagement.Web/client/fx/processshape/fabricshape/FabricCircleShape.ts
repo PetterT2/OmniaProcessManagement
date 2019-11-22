@@ -1,8 +1,8 @@
 ﻿import { FabricShapeTypes } from './IFabricShape';
 import { fabric } from 'fabric';
-import { DrawingShapeDefinition } from '../../data';
 import { FabricShapeExtension } from './FabricShapeExtention';
 import { FabricShape } from './FabricShape';
+import { DrawingShapeDefinition } from '../../models';
 
 export class FabricCircleShape extends FabricShapeExtension implements FabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {

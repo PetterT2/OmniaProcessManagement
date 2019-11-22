@@ -1,9 +1,10 @@
 ﻿import { fabric } from 'fabric';
 import { IFabricShape, FabricShapeType } from './IFabricShape';
 import { FabricShape } from './FabricShape';
-import { DrawingShapeDefinition } from '../..';
+import { DrawingShapeDefinition } from '../../models';
 
-export class FabricShapeExtension implements FabricShape {
+
+export class FabricShapeExtension implements FabricShape {   
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
 

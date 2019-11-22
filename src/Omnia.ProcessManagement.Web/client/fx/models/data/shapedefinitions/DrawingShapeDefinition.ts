@@ -1,6 +1,6 @@
 ﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
-import { ShapeTemplate } from '../../processshape/ShapeTemplate';
 import { TextPosition } from '..';
+import { ShapeTemplate } from '../drawingdefinitions';
 
 export interface DrawingShapeDefinition extends ShapeDefinition {
     type: ShapeDefinitionTypes.Drawing;

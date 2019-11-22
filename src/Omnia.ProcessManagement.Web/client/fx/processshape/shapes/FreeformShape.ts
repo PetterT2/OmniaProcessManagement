@@ -1,22 +1,23 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../constants';
 import { FabricShape, FabricRectShape, FabricTextShape, FabricTriangleShape, IFabricShape, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, FabricShapeType, FabricShapeTypes } from '../fabricshape';
-import { DrawingShapeDefinition, TextPosition } from '../../data';
+import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
+import { MultilingualString } from '@omnia/fx-models';
+import { ShapeTemplatesConstants } from '../../constants';
 
 export class FreeformShape extends ShapeExtension implements Shape {
     private grouping: boolean = false;
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, text?: string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
-        super(definition, nodes, isActive, text, selectable, left, top);
+        super(definition, nodes, isActive, title, selectable, left, top);
     }
 
     get name() {
         return ShapeTemplatesConstants.Pentagon.name;
     }
 
-    protected initNodes(isActive: boolean, text?: string, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
         var fabricGroupObjects: fabric.Object[] = [];
         if (this.nodes) {
