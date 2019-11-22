@@ -10,6 +10,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 Category: "Process Management",
                 Description: "Creates a library to manage process in the site.",
                 Title: "Processes"
+            },
+            ProcessManagement: {
+                Category: "Tenant",
+                Description: "",
+                Title: "Process Management"
             }
         }
     });
