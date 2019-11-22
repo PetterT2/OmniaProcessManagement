@@ -30,14 +30,19 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.local.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>appsettings.json</DependentUpon>
     </Content>
     <None Include="gulpfile.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Omnia.Fx.NetCore.Worker" Version="2.0.0" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.38-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.Worker" Version="3.0.38-dev" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
