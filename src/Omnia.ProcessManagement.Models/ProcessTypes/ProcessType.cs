@@ -18,8 +18,6 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         /// </summary>
         public Guid Id { get; set; }
 
-        public Guid? ParentId { get; set; }
-
         public int ChildCount { get; set; }
 
         public MultilingualString Title { get; set; }

@@ -47,6 +47,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
         public DbSet<ProcessType> ProcessTypes { get; set; }
+        public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
