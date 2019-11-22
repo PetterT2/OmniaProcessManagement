@@ -63,6 +63,8 @@
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
+    <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\core\loc\localize.ts" />
     <TypeScriptCompile Remove="client\core\Utils.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />

@@ -6,6 +6,7 @@ using Omnia.Fx.HostConfiguration;
 using Omnia.Fx.HostConfiguration.Extensions;
 using Omnia.Fx.Models.AppSettings;
 using Omnia.Fx.NetCore.Worker.Hosting;
+using Omnia.ProcessManagement.Core.Extensions;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -21,7 +22,15 @@ namespace Omnia.ProcessManagement.Worker
                         omniaConfig.AddAppSettingsJsonFile("appsettings.json", Directory.GetCurrentDirectory());
                         omniaConfig.AddAppSettingsJsonFile("appsettings.local.json", Directory.GetCurrentDirectory());
 
-                        omniaConfig.AddOmniaFxNetCore();
+                        omniaConfig.AddOmniaFxNetCore((options) =>
+                        {
+                            options.AddFeatureHandlers((featureProviderOptions) =>
+                            {
+                                featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryHandler>();
+                            });
+                        })
+                        .AddOmniaFxNetCoreSharePoint()
+                        .AddOmniaPMCore();
 
                         omniaConfig.Configuration((configBuilder) =>
                         {
@@ -33,7 +42,6 @@ namespace Omnia.ProcessManagement.Worker
                                 serviceCollection.AddLogging();
                                 serviceCollection.AddAsOption<OmniaAppSettings>(configuration);
                                 serviceCollection.AddHostedService<ExampleWorker>();
-
                             });
                         });
                     })

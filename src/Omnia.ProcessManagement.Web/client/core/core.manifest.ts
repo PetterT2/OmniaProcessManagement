@@ -8,6 +8,7 @@ Composer
             "../stores/**/*.js",
             "../services/**/*.js",
             "../models/**/*.js",
+            "./loc/**/*.js",
             "./index.js"
         ]
     })
