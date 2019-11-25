@@ -547,6 +547,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.Id = processEf.Id;
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.VersionType = processEf.VersionType;
             return model;
         }
 
