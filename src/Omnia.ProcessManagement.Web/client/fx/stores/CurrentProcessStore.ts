@@ -129,7 +129,7 @@ export class CurrentProcessStore extends Store {
     }
 
     public getters = {
-
+        referenceData: () => this.currentProcessReferenceData.state
     }
 
     public actions = {

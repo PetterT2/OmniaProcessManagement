@@ -2,9 +2,9 @@
 import { Process, ProcessStep, ProcessData } from '..';
 
 export interface ProcessReferenceData {
-    process: Process;
+    readonly process: Process;
 
-    isRootProcessStep: boolean;
-    currentProcessStep: ProcessStep;
-    currentProcessData: ProcessData;
+    readonly isRootProcessStep: boolean;
+    readonly currentProcessStep: ProcessStep;
+    readonly currentProcessData: ProcessData;
 }
