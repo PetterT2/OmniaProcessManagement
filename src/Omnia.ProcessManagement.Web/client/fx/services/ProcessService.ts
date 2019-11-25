@@ -105,6 +105,19 @@ export class ProcessService {
         })
     }
 
+    public deleteDraftProcess = (opmProcessId: GuidValue) => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.delete<IHttpApiOperationResult<void>>(`/api/processes/draft/${opmProcessId}`).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     public getProcessByProcessStepId = (processStepId: GuidValue, versionType: ProcessVersionType) => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processStepId}/${versionType}`).then((response) => {

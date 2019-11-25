@@ -100,6 +100,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRoute.ts" />
+    <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
     <TypeScriptCompile Remove="client\fx\routing\index.ts" />
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
@@ -237,6 +238,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\route\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\route\OPMRouteStateData.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\route\OPMRoute.ts">

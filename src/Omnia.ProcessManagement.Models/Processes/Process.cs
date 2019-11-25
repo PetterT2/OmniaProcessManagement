@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Omnia.Fx.Models.Language;
+using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,5 +13,6 @@ namespace Omnia.ProcessManagement.Models.Processes
         public Guid OPMProcessId { get; set; }
         public RootProcessStep RootProcessStep { get; set; }
         public string CheckedOutBy { get; set; }
+        public ProcessVersionType VersionType { get; set; }
     }
 }

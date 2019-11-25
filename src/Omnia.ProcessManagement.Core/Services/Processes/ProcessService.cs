@@ -66,5 +66,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return processData;
 
         }
+
+        public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
+        {
+            await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
+        }
     }
 }

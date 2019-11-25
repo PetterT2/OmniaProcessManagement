@@ -71,6 +71,33 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
+        {
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+
+            if (checkedOutProcessWithProcessDataIdHash != null && checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() == this.OmniaContext.Identity.LoginName)
+            {
+                throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+            }
+
+            var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
+
+            if (draftProcessWithProcessDataIdHash == null)
+            {
+                throw new ProcessDraftVersionNotFoundException(opmProcessId);
+            }
+
+            if (checkedOutProcessWithProcessDataIdHash != null)
+            {
+                EnsureRemovingExistingProcess(checkedOutProcessWithProcessDataIdHash);
+            }
+            if (draftProcessWithProcessDataIdHash != null)
+            {
+                EnsureRemovingExistingProcess(draftProcessWithProcessDataIdHash);
+            }
+            await DbContext.SaveChangesAsync();
+        }
+
         private void AddProcessDataRecursive(Guid processId, ProcessStep processStep, Dictionary<Guid, ProcessData> processDataDict)
         {
             if (processDataDict.TryGetValue(processStep.Id, out var processData) && processData != null)
@@ -119,7 +146,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
                 {
-                    throw new ProcessCheckedOutByAnotherUserException();
+                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
                 }
                 EnsureRemovingExistingProcess(draftProcessWithProcessDataIdHash);
                 processEf = checkedOutProcessWithProcessDataIdHash.Process;
@@ -146,7 +173,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
-                throw new ProcessCheckedOutByAnotherUserException();
+                throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -178,7 +205,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
-                throw new ProcessCheckedOutByAnotherUserException();
+                throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }
 
             var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.Draft, true);
@@ -377,7 +404,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
-                throw new ProcessCheckedOutByAnotherUserException();
+                throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }
             else if (draftProcess == null)
             {
@@ -403,7 +430,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             else if (process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
-                throw new ProcessCheckedOutByAnotherUserException();
+                throw new ProcessCheckedOutByAnotherUserException(process.CheckedOutBy);
             }
 
             var model = MapEfToModel(process);
@@ -547,6 +574,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.Id = processEf.Id;
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.VersionType = processEf.VersionType;
             return model;
         }
 

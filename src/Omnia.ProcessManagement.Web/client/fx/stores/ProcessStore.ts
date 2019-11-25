@@ -122,18 +122,27 @@ export class ProcessStore extends Store {
                     resolve(process);
                 }).catch(reject);
             })
+        }),
+        deleteDraftProcess: this.action((process: Process) => {
+            return new Promise<null>((resolve, reject) => {
+                this.processService.deleteDraftProcess(process.opmProcessId).then(() => {
+                    this.internalMutations.addOrUpdateProcess(process, true);
+                    //TODO - remove process data
+                    resolve(null);
+                }).catch(reject);
+            })
         })
     }
 
     private internalMutations = {
-        addOrUpdateProcess: (process: Process) => {
+        addOrUpdateProcess: (process: Process, isRemove?: boolean) => {
             let currentState = this.processDict.state;
             let key = this.getProcessCacheKey(process);
-            let newState = Object.assign({}, currentState, { [key]: process });
+            let newState = Object.assign({}, currentState, { [key]: isRemove ? null : process });
 
             this.processDict.mutate(newState);
         },
-        addOrUpdateProcessData: (processStep: ProcessStep, processData: ProcessDataWithAuditing) => {
+        addOrUpdateProcessData: (processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {
             let currentState = this.processDataDict.state;
             let key = this.getProcessDataCacheKey(processStep.id, processStep.processDataHash);
             let newState = Object.assign({}, currentState, { [key]: processData });

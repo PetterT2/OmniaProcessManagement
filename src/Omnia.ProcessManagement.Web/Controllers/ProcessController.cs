@@ -41,6 +41,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpDelete, Route("draft/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse> DeleteDraftProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                await ProcessService.DeleteDraftProcessAsync(opmProcessId);
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
         [HttpPost, Route("checkin")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> CheckInProcessAsync([FromBody] ProcessActionModel actionModel)
