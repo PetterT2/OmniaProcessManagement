@@ -2,9 +2,9 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing } from '../fx/models';
-import { ProcessReference, ProcessReferenceData } from '../models';
-import { OPMUtils } from '../core';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing } from '../models';
+import { ProcessReference, ProcessReferenceData } from '../../models';
+import { OPMUtils } from '../../core';
 
 
 @Injectable({

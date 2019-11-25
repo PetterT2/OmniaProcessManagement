@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType } from '../fx/models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })

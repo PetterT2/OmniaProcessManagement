@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, GuidValue, MultilingualScopes, MultilingualString } from '@omnia/fx/models';
-import { OPMService, ProcessTemplate } from '../fx/models';
+import { OPMService, ProcessTemplate } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { AxiosRequestConfig } from 'axios';
 

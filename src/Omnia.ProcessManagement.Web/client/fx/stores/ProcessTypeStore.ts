@@ -2,7 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, Guid } from '@omnia/fx-models';
 import { ProcessTemplateService, ProcessTypeService } from '../services';
-import { ProcessType } from '../fx/models';
+import { ProcessType } from '../models';
 import { TermStore } from '@omnia/fx-sp';
 
 @Injectable({

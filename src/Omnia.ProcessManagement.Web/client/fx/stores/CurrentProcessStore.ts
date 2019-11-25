@@ -2,9 +2,9 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessReference, ProcessReferenceData } from '../models';
+import { ProcessReference, ProcessReferenceData } from '../../models';
 import { ProcessService } from '../services';
-import { OPMUtils } from '../core';
+import { OPMUtils } from '../../core';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 

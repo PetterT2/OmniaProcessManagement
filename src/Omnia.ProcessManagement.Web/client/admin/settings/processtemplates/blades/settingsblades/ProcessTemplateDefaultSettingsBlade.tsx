@@ -8,9 +8,9 @@ import ProcessTemplatSettingsGeneralTab from './tabs/ProcessTemplatSettingsGener
 import ProcessTemplatSettingsDefaultContentTab from './tabs/ProcessTemplatSettingsDefaultContentTab';
 import ProcessTemplatSettingsShapesTab from './tabs/ProcessTemplatSettingsShapesTab';
 import { ProcessTemplate } from '../../../../../fx/models';
-import { ProcessTemplateStore } from '../../../../../stores';
-import { ProcessTemplateJourneyStore } from '../../store';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
+import { ProcessTemplateStore } from '../../../../../fx';
+import { ProcessTemplateJourneyStore } from '../../store';
 
 interface ProcessTemplateDefaultSettingsBladeProps {
     journey: () => JourneyInstance;

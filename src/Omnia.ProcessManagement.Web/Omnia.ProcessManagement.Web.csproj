@@ -100,6 +100,13 @@
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\routing\index.ts" />
+    <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\index.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\ProcessTemplateStore.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
     <TypeScriptCompile Remove="client\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\models\processes\ProcessReference.ts" />
@@ -116,15 +123,7 @@
     <TypeScriptCompile Remove="client\fx\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
-    <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />    
-    <TypeScriptCompile Remove="client\services\index.ts" />
-    <TypeScriptCompile Remove="client\services\ProcessService.ts" />
-    <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
-    <TypeScriptCompile Remove="client\services\ProcessTypeService.ts" />
-    <TypeScriptCompile Remove="client\stores\CurrentProcessStore.ts" />
-    <TypeScriptCompile Remove="client\stores\index.ts" />
-    <TypeScriptCompile Remove="client\stores\ProcessStore.ts" />
-    <TypeScriptCompile Remove="client\stores\ProcessTemplateStore.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricImageShape.ts" />
@@ -142,7 +141,6 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
-    <TypeScriptCompile Remove="client\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\test\FabricPlay.manifest.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
@@ -239,6 +237,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\routing\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\models\index.ts">
