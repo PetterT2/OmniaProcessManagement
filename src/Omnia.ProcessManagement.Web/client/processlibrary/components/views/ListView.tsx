@@ -5,11 +5,12 @@ import { ProcessLibraryViewSettings, Enums } from '../../../fx/models';
 import { SpacingSetting, LanguageTag } from '@omnia/fx-models';
 import { ProcessLibraryListViewStyles } from '../../../models';
 import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
-import { UrlParameters, OPMUtils } from '../../../core';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import './ListView.css';
 import { DraftsView } from './drafts/DraftsView';
 import { IListViewComponent } from './IListView';
+import { OPMUtils } from '../../../fx';
+import { UrlParameters } from '../../Constants';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {

@@ -6,8 +6,13 @@ Composer
     .registerManifest(OPMResourceManifests.FxCore, "opm.fx.core")
     .registerResources({
         resourcePaths: [
+            "./index.js",
             "./models/**/*.js",
+            "./routing/**/*.js",
+            "./services/**/*.js",
+            "./stores/**/*.js",
             "./constants.js",
+            "./utils.js",
             "./processshape/**/*.js"
         ]
     })

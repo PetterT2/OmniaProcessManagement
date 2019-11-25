@@ -4,10 +4,8 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, VueComponentBase, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../loc/localize';
-import { ProcessTemplateStore } from '../../../../stores';
 import { ProcessTypeJourneyStore } from '../store';
-import { ProcessTypesJourneyBladeIds } from '../ProcessTypesJourneyConstants';
-import { ProcessTemplate, ProcessTemplateFactory } from '../../../../fx/models';
+import { ProcessTemplateStore } from '../../../../fx';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;

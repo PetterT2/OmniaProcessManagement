@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Processes
 {
-    public class ProcessStep : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
+    public class ProcessStep
     {
         public Guid Id { get; set; }
         public string ProcessDataHash { get; set; }

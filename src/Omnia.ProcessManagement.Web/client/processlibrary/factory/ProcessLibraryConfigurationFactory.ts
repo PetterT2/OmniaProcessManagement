@@ -1,5 +1,5 @@
 ﻿import { Enums, ProcessLibraryBlockData } from '../../fx/models';
-import { LibrarySystemFieldsConstants } from '../../core';
+import { LibrarySystemFieldsConstants } from '../Constants';
 
 export const ProcessLibraryConfigurationFactory = {
     create(): ProcessLibraryBlockData {

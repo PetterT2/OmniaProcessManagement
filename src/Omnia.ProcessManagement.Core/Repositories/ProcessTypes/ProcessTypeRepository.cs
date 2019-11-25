@@ -15,6 +15,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
     {
         public ProcessTypeRepository(OmniaPMDbContext databaseContext) : base(databaseContext) { }
 
+        public async ValueTask<IList<ProcessType>> GetAllProcessTypes(Guid termSetId)
+        {
+            var entities = await _dbSet.Where(i => i.DeletedAt == null && i.RootId == termSetId).ToListAsync();
+            var models = ParseEntitiesToModels(entities);
+            return models;
+        }
+
         public async ValueTask<IList<ProcessType>> GetByIdAsync(List<Guid> ids)
         {
             var entities = await _dbSet.Where(i => i.DeletedAt == null && ids.Contains(i.Id)).ToListAsync();

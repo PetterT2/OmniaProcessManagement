@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessLibraryRequest, DraftProcessesResponse } from '../fx/models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessLibraryRequest, DraftProcessesResponse } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -113,6 +113,32 @@ export class ProcessService {
                     webUrl: webUrl
                 }
             }).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public deleteDraftProcess = (opmProcessId: GuidValue) => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.delete<IHttpApiOperationResult<void>>(`/api/processes/draft/${opmProcessId}`).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public getProcessByProcessStepId = (processStepId: GuidValue, versionType: ProcessVersionType) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processStepId}/${versionType}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

@@ -5,12 +5,11 @@ import { Component } from 'vue-property-decorator';
 import { fabric } from 'fabric';
 import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement, Inject } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
-import { ShapeTemplatesConstants, CircleShape } from '../fx';
-import { DrawingShapeDefinition, TextPosition } from '../fx/models';
+import { ShapeTemplatesConstants, CircleShape, DrawingCanvasEditor, DrawingCanvas } from '../fx';
 import { Guid } from '@omnia/fx-models';
 import { DrawingShapeTypes } from '../fx/models/data/drawingdefinitions';
 import { MultilingualStore } from '@omnia/fx/store';
-import { DrawingCanvasEditor, DrawingCanvas } from '../fx/processshape';
+import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 
 
 @Component

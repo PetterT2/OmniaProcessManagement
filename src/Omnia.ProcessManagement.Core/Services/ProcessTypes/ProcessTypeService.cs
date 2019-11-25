@@ -1,4 +1,5 @@
-﻿using Omnia.Fx.EnterpriseProperties;
+﻿using Omnia.Fx.Caching;
+using Omnia.Fx.EnterpriseProperties;
 using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
@@ -16,15 +17,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
         private IEnterprisePropertyService EnterprisePropertyService { get; }
         private ProcessTypeValidation ProcessTypeValidation { get; }
         private IProcessTypeTermSynchronizationTrackingService TrackingService { get; }
+        private IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
         public ProcessTypeService(IProcessTypeRepository documentTypeRepository,
             IEnterprisePropertyService enterprisePropertyService,
             ProcessTypeValidation processTypeValidation,
-            IProcessTypeTermSynchronizationTrackingService trackingService)
+            IProcessTypeTermSynchronizationTrackingService trackingService,
+            IOmniaMemoryDependencyCache omniaMemoryDependencyCache)
         {
             TrackingService = trackingService;
             ProcessTypeRepository = documentTypeRepository;
             EnterprisePropertyService = enterprisePropertyService;
             ProcessTypeValidation = processTypeValidation;
+            CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
         public async ValueTask SyncFromSharePointAsync(List<ProcessType> processTypes)
@@ -45,7 +49,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
                 {
                     termSetId = taxonomyPropertySettings.TermSetId;
 
-                    var processTypes = await GetByIdAsync(termSetId);
+                    var processTypes = await GetByIdsAsync(termSetId);
                     var rootProcessType = processTypes.FirstOrDefault();
                     if (rootProcessType == null)
                     {
@@ -59,19 +63,37 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             return termSetId;
         }
 
-        public async ValueTask<IList<ProcessType>> GetByIdAsync(params Guid[] ids)
+        public async ValueTask<IList<ProcessType>> GetAllProcessTypes(Guid termSetId)
         {
-            List<Guid> idsNeedToGetDirectly = new List<Guid>();
+            var key = GetProcessTypesCacheKey(termSetId);
+            var result = await CacheHelper.Instance.GetOrSetDependencyCacheAsync<IList<ProcessType>>(key, async (cacheEntry) =>
+            {
+                var children = await ProcessTypeRepository.GetAllProcessTypes(termSetId);
+                return children;
+            });
+
+            var processTypes = result.Value.ToArray();
+            return processTypes;
+        }
+
+        private string GetProcessTypesCacheKey(Guid termSetId)
+        {
+            return CacheHelper.CreateKey("ProcessTypes", termSetId.ToString());
+        }
+
+        public async ValueTask<IList<ProcessType>> GetByIdsAsync(params Guid[] ids)
+        {
+            List<Guid> idsNeedToGet = new List<Guid>();
             List<ProcessType> result = new List<ProcessType>();
 
             foreach (var id in ids)
             {
-                idsNeedToGetDirectly.Add(id);
+                idsNeedToGet.Add(id);
             }
 
-            if (idsNeedToGetDirectly.Count > 0)
+            if (idsNeedToGet.Count > 0)
             {
-                var processTypes = await this.ProcessTypeRepository.GetByIdAsync(idsNeedToGetDirectly);
+                var processTypes = await this.ProcessTypeRepository.GetByIdAsync(idsNeedToGet);
 
                 foreach (var processType in processTypes)
                 {
