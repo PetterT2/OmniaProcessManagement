@@ -54,10 +54,22 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, ProcessVersionType vertionType, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
         {
-            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, vertionType, hash);
+            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash);
             return processData;
+        }
+
+        public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        {
+            var processData = await ProcessRepository.GetProcessByProcessStepIdAsync(processStepId, versionType);
+            return processData;
+
+        }
+
+        public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
+        {
+            await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
     }
 }

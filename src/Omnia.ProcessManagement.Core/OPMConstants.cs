@@ -30,13 +30,17 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class OPMDefaultProperties
             {
+                public static IList<EnterprisePropertyDefinition> Properties => new List<EnterprisePropertyDefinition>()
+                    {
+                        ProcessType
+                    };
                 public static EnterprisePropertyDefinition ProcessType
                 {
                     get
                     {
                         return new EnterprisePropertyDefinition()
                         {
-                            Id = new Guid("72214c58-28c9-44a7-89ac-e869b4fc5fa4"),
+                            Id = new Guid("3c067d03-876b-4dd0-9355-ff3373712964"),
                             InternalName = SharePoint.OPMFields.Fields_ProcessType,
                             OmniaSearchable = false,
                             Title = new MultilingualString()

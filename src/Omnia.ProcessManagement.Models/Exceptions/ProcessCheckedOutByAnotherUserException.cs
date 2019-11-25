@@ -6,7 +6,7 @@ namespace Omnia.ProcessManagement.Models.Exceptions
 {
     public class ProcessCheckedOutByAnotherUserException : Exception
     {
-        public ProcessCheckedOutByAnotherUserException(Exception? innerException = null) : base($"Process has been checked out by another user", innerException)
+        public ProcessCheckedOutByAnotherUserException(string userName, Exception? innerException = null) : base($"Process has been checked out by another user: {userName}", innerException)
         {
         }
     }

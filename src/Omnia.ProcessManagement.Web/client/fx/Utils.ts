@@ -1,4 +1,4 @@
-﻿import { ProcessStep } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 
 export module OPMUtils {
@@ -16,5 +16,19 @@ export module OPMUtils {
             }
         }
         return desiredProcessStep;
+    }
+
+    export function generateProcessReference(process: Process, processStepId: GuidValue): ProcessReference {
+        let processReference: ProcessReference = null;
+        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
+        if (processStep) {
+            processReference = {
+                opmProcessId: process.opmProcessId,
+                processId: process.id,
+                processStepId: processStepId,
+                processDataHash: processStep.processDataHash
+            }
+        }
+        return processReference;
     }
 }

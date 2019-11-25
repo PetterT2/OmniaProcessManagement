@@ -2,7 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessTemplateService } from '../services';
-import { ProcessTemplate } from '../fx/models';
+import { ProcessTemplate } from '../models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }

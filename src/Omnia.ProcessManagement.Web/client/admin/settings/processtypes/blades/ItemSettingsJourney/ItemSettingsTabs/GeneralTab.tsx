@@ -3,10 +3,8 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { OmniaTheming, FormValidator, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../../loc/localize';
-//import { ProcessType, DocumentTypeItemSettings, DocumentTemplateSettingsTypes } from '../../../../../../fx/models';
 import { EnterprisePropertySetStore } from '@omnia/fx/store';
-import { ProcessTypeHelper } from '../../../core';
-import { ProcessTemplateStore } from '../../../../../../stores';
+import { ProcessTemplateStore } from '../../../../../../fx';
 
 interface GeneralTabProps {
     formValidator: FormValidator;

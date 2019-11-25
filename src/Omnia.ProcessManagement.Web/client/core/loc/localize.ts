@@ -6,6 +6,11 @@
                 Category: string,
                 Description: string,
                 Title: string
+            },
+            ProcessManagement: {
+                Category: string,
+                Description: string,
+                Title: string
             }
         }
     }

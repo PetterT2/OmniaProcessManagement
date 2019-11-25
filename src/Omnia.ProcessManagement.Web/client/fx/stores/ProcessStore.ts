@@ -2,9 +2,8 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing } from '../fx/models';
-import { ProcessReference, ProcessReferenceData } from '../models';
-import { OPMUtils } from '../core';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing, ProcessReference, ProcessReferenceData } from '../models';
+import { OPMUtils } from '../utils';
 
 
 @Injectable({
@@ -113,18 +112,37 @@ export class ProcessStore extends Store {
                 }).catch(reject);
 
             });
+        }),
+        loadProcessByProcessStepId: this.action((processStepId: GuidValue, versionType: ProcessVersionType) => {
+            return new Promise<Process>((resolve, reject) => {
+                //TODO - apply loading promise handle ? or not
+
+                this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                    this.internalMutations.addOrUpdateProcess(process);
+                    resolve(process);
+                }).catch(reject);
+            })
+        }),
+        deleteDraftProcess: this.action((process: Process) => {
+            return new Promise<null>((resolve, reject) => {
+                this.processService.deleteDraftProcess(process.opmProcessId).then(() => {
+                    this.internalMutations.addOrUpdateProcess(process, true);
+                    //TODO - remove process data
+                    resolve(null);
+                }).catch(reject);
+            })
         })
     }
 
     private internalMutations = {
-        addOrUpdateProcess: (process: Process) => {
+        addOrUpdateProcess: (process: Process, isRemove?: boolean) => {
             let currentState = this.processDict.state;
             let key = this.getProcessCacheKey(process);
-            let newState = Object.assign({}, currentState, { [key]: process });
+            let newState = Object.assign({}, currentState, { [key]: isRemove ? null : process });
 
             this.processDict.mutate(newState);
         },
-        addOrUpdateProcessData: (processStep: ProcessStep, processData: ProcessDataWithAuditing) => {
+        addOrUpdateProcessData: (processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {
             let currentState = this.processDataDict.state;
             let key = this.getProcessDataCacheKey(processStep.id, processStep.processDataHash);
             let newState = Object.assign({}, currentState, { [key]: processData });

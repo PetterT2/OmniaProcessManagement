@@ -45,6 +45,10 @@
     <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Omnia.ProcessManagement.Core\Omnia.ProcessManagement.Core.csproj" />
+  </ItemGroup>
+
   <!--***************************************************************************************-->
   <!--**** Omnia Build Tasks ****************************************************************-->
   <!--***************************************************************************************-->
