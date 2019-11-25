@@ -11,6 +11,7 @@
     "@omnia/fx-sp": "3.0.38-dev",
     "@omnia/fx-spfx": "3.0.38-dev",
     "@omnia/tooling-vue": "3.0.38-dev",
+    "@omnia/wcm": "3.0.2-dev",
     "fabric": "3.4.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.2.0"

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -12,6 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
     internal class ProcessService : IProcessService
     {
         IProcessRepository ProcessRepository { get; }
+
         public ProcessService(IProcessRepository processRepository)
         {
             ProcessRepository = processRepository;
@@ -58,6 +58,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             var processData = await ProcessRepository.GetProcessDataAsync(processStepId, vertionType, hash);
             return processData;
+        }
+
+        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId)
+        {
+            return await ProcessRepository.GetProcessesDataAsync(siteId, webId);
         }
     }
 }

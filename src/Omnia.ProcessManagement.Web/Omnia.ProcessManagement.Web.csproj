@@ -61,14 +61,26 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
+    <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\index.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
     <TypeScriptCompile Remove="client\core\Utils.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
+    <TypeScriptCompile Remove="client\fx\Enums.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\index.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\opmPublishTopic.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\HeaderTable.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryDisplaySettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibrarySettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
@@ -84,6 +96,9 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\DraftProcessesResponse.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\ProcessLibraryRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
@@ -98,6 +113,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
+    <TypeScriptCompile Remove="client\models\messaging\index.ts" />
+    <TypeScriptCompile Remove="client\models\messaging\ProcessLibraryViewRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\models\processes\ProcessReference.ts" />
     <TypeScriptCompile Remove="client\models\processes\ProcessReferenceData.ts" />
@@ -113,7 +130,25 @@
     <TypeScriptCompile Remove="client\fx\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
-    <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />    
+	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
+	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.css.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrarySettings.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\IListView.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.css.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\ProcessLibraryCore.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\services\index.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\services\ProcessLibraryService.ts" />    
     <TypeScriptCompile Remove="client\services\index.ts" />
     <TypeScriptCompile Remove="client\services\ProcessService.ts" />
     <TypeScriptCompile Remove="client\services\ProcessTemplateService.ts" />
@@ -145,6 +180,9 @@
 
   <ItemGroup>
     <Folder Include="client\admin\settings\globalsettings\" />
+    <Folder Include="client\processlibrary\components\settingtabs\" />
+    <Folder Include="client\processlibrary\components\views\published\" />
+    <Folder Include="client\processlibrary\components\views\tasks\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -175,6 +213,30 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processlibrary\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processlibrary\DraftProcessesResponse.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processlibrary\ProcessLibraryRequest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Enums.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\messaging\opmPublishTopic.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\messaging\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\processlibrary\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts">
@@ -238,6 +300,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\models\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\messaging\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\messaging\ProcessLibraryViewRegistration.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\models\processes\index.ts">
@@ -313,6 +381,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processlibrary\services\ProcessLibraryService.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processlibrary\services\index.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

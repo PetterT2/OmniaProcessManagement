@@ -15,6 +15,7 @@ using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
@@ -330,6 +331,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var model = MapEfToModel(processData);
             return model;
+        }
+
+        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId)
+        {
+            List<Process> processes = new List<Process>();          
+            var processesData = await DbContext.Processes
+               .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == ProcessVersionType.Draft)
+               .OrderByDescending(p => p.ClusteredId)
+               .ToListAsync();
+            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            return processes;
         }
 
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)

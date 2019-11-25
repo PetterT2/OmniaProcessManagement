@@ -84,7 +84,6 @@ namespace Omnia.ProcessManagement.Core
             public const string SitePages = "SitePages";
             public const string SitePagesFeatureId = "b6917cb1-93a0-4b97-a84d-7cf49975d4ec";
             public const string ModernHomePage = "0x0101009D1CB255DA76424F860D91F20E6C4118";
-            public const string ModernHomePageLayoutType = "Home";
             public const string SingleWebPartAppPageLayoutType = "SingleWebPartAppPage";
         }
 
@@ -98,6 +97,11 @@ namespace Omnia.ProcessManagement.Core
         public static class LocalizedTextKeys
         {
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
+        }
+
+        public static class ProcessColumns
+        {
+            public const string Title = "Title";
         }
     }
 }
