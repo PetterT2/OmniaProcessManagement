@@ -2,9 +2,8 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing } from '../models';
-import { ProcessReference, ProcessReferenceData } from '../../models';
-import { OPMUtils } from '../../core';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing, ProcessReference, ProcessReferenceData } from '../models';
+import { OPMUtils } from '../utils';
 
 
 @Injectable({
@@ -113,6 +112,16 @@ export class ProcessStore extends Store {
                 }).catch(reject);
 
             });
+        }),
+        loadProcessByProcessStepId: this.action((processStepId: GuidValue, versionType: ProcessVersionType) => {
+            return new Promise<Process>((resolve, reject) => {
+                //TODO - apply loading promise handle ? or not
+
+                this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                    this.internalMutations.addOrUpdateProcess(process);
+                    resolve(process);
+                }).catch(reject);
+            })
         })
     }
 

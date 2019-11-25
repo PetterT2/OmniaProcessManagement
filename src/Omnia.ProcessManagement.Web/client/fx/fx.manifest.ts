@@ -12,6 +12,7 @@ Composer
             "./services/**/*.js",
             "./stores/**/*.js",
             "./constants.js",
+            "./utils.js",
             "./processshape/**/*.js"
         ]
     })

@@ -1,2 +1,1 @@
-﻿export * from './processes';
-export * from './styles'
+﻿export * from './styles'

@@ -105,13 +105,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{processStepId:guid}/{versionType:int}/{hash}")]
+        [HttpGet, Route("processdata/{processStepId:guid}/{hash}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, ProcessVersionType versionType, string hash)
+        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, string hash)
         {
             try
             {
-                var processData = await ProcessService.GetProcessDataAsync(processStepId, versionType, hash);
+                var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {
@@ -125,6 +125,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<ProcessDataWithAuditing>(ex);
+            }
+        }
+
+        [HttpGet, Route("{processStepId:guid}/{versionType:int}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        {
+            try
+            {
+                var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
+                return processData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
     }

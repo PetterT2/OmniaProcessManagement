@@ -316,10 +316,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.ProcessData.Remove(processDataEf);
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, ProcessVersionType vertionType, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
         {
             var processData = await DbContext.ProcessData
-                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash && p.Process.VersionType == vertionType)
+                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash)
                 .OrderByDescending(p => p.ClusteredId)
                 .FirstOrDefaultAsync();
 
@@ -329,6 +329,37 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
             var model = MapEfToModel(processData);
+            return model;
+        }
+
+        public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        {
+            var process = await DbContext.Processes
+                    .Where(p => p.ProcessData.Any(p => p.ProcessStepId == processStepId) && p.VersionType == versionType)
+                    .OrderByDescending(p => p.ClusteredId)
+                    .FirstOrDefaultAsync();
+
+            if (process == null)
+            {
+                throw new ProcessDataNotFoundException(processStepId);
+            }
+
+            //Since it has multiple published versions, we need to check on the latest published version
+            if (versionType == ProcessVersionType.Published)
+            {
+                var latestPublishedProcessId = await DbContext.Processes
+                    .Where(p => p.OPMProcessId == process.OPMProcessId)
+                    .OrderByDescending(p => p.ClusteredId)
+                    .Select(p => p.Id)
+                    .FirstAsync();
+
+                if (latestPublishedProcessId != process.Id)
+                {
+                    throw new ProcessDataNotFoundException(processStepId);
+                }
+            }
+
+            var model = MapEfToModel(process);
             return model;
         }
 

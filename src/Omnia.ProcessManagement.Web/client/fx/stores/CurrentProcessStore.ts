@@ -2,31 +2,32 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessReference, ProcessReferenceData } from '../../models';
 import { ProcessService } from '../services';
-import { OPMUtils } from '../../core';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData } from '../models';
+import { OPMUtils } from '../utils';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
 class ProcessStateTransaction {
-    private currentOPMProcessId: GuidValue = '';
+    private currentProcessId: GuidValue = '';
     private pendingStateOperation: Promise<any> = null;
+
     private ensureActiveProcessInStore: EnsureActiveProcessInStoreFunc;
     constructor(ensureActiveProcessInStore: EnsureActiveProcessInStoreFunc) {
         this.ensureActiveProcessInStore = ensureActiveProcessInStore;
     }
 
-    public newState = <T extends any>(opmProcessId: GuidValue, createNewStateOperation: () => Promise<T>): Promise<T> => {
+    public newState = <T extends any>(processId: GuidValue, createNewStateOperation: (newState: boolean) => Promise<T>): Promise<T> => {
         let result: Promise<T> = null;
-        if (opmProcessId != this.currentOPMProcessId) {
-            this.currentOPMProcessId = opmProcessId;
+        if (processId != this.currentProcessId) {
+            this.currentProcessId = processId;
             //Start a new chain for process
 
             if (this.pendingStateOperation !== null) {
                 result = new Promise<T>((resolve, reject) => {
 
                     let hookUpNewProcess = () => {
-                        createNewStateOperation().then(resolve).catch(reject);
+                        createNewStateOperation(true).then(resolve).catch(reject);
                     }
 
                     //Wait for previous process pending operations
@@ -34,13 +35,17 @@ class ProcessStateTransaction {
 
                 });
             } else {
-                result = createNewStateOperation();
+                result = createNewStateOperation(true);
             }
 
             this.pendingStateOperation = result;
         } else {
+            let hookUpNewProcessOperation = () => {
+                return createNewStateOperation(false);
+            }
+
             //Still on same process, await peanding operations, before executing
-            result = this.newProcessOperation(createNewStateOperation);
+            result = this.newProcessOperation(hookUpNewProcessOperation);
         }
 
         return result;
@@ -52,7 +57,7 @@ class ProcessStateTransaction {
         if (!activeProcessExist)
             throw `Active Process not found in store to process operation`; //This could be something wrong in using process store. Should verify the way using the store if got this error message
 
-        let requestedForTransactionId = this.currentOPMProcessId;
+        let requestedForTransactionId = this.currentProcessId;
         let result: Promise<T> = null;
 
         if (this.pendingStateOperation !== null) {
@@ -60,7 +65,7 @@ class ProcessStateTransaction {
             result = new Promise<T>((resolve, reject) => {
 
                 let runIfSameState = () => {
-                    if (requestedForTransactionId === this.currentOPMProcessId) {
+                    if (requestedForTransactionId === this.currentProcessId) {
 
                         let activeProcessExist = this.ensureActiveProcessInStore();
                         if (activeProcessExist) {
@@ -103,12 +108,15 @@ class ProcessStateTransaction {
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 export class CurrentProcessStore extends Store {
-    @Inject(ProcessStore) processStore: ProcessStore;
-    @Inject(ProcessService) processService: ProcessService;
-    @Inject(OmniaContext) omniaContext: OmniaContext;
+    @Inject(ProcessStore) private processStore: ProcessStore;
+    @Inject(ProcessService) private processService: ProcessService;
+    @Inject(OmniaContext) private omniaContext: OmniaContext;
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
+
+    //All the process data of current process that has been loaded 
+    private loadedProcessData: { [processStepId: string]: ProcessData } = {};
 
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
@@ -126,7 +134,11 @@ export class CurrentProcessStore extends Store {
 
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
-            return this.transaction.newState(processReferenceToUse.opmProcessId, () => {
+            return this.transaction.newState(processReferenceToUse.processId, (newState) => {
+                if (newState) {
+                    this.loadedProcessData = {};
+                }
+
                 return new Promise<null>((resolve, reject) => {
                     this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
                         let processReferenceData = this.processStore.getters.getProcessReferenceData(processReferenceToUse);
@@ -166,14 +178,23 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        saveCheckedOutProcess: this.action((): Promise<null> => {
+        saveState: this.action((): Promise<null> => {
+            //Get the reference data first before jump into all the async flow that could change the expected data
+            let loadedProcessData = this.loadedProcessData;
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
-
-                    let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
-                    
+                    let actionModel: ProcessActionModel = {
+                        process: currentProcessReferenceData.process,
+                        processData: loadedProcessData
+                    }
+
+                    this.processService.saveCheckedOutProcess(actionModel).then(process => {
+
+
+                        resolve(null);
+                    }).catch(reject);
                 })
             })
         })

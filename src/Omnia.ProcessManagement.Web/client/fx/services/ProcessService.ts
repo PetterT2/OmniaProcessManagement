@@ -104,4 +104,17 @@ export class ProcessService {
             }).catch(reject);
         })
     }
+
+    public getProcessByProcessStepId = (processStepId: GuidValue, versionType: ProcessVersionType) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processStepId}/${versionType}`).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
 }

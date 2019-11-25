@@ -1,3 +1,4 @@
 ﻿export * from './ProcessTemplateStore';
 export * from './ProcessStore';
+export * from './CurrentProcessStore';
 export * from './ProcessTypeStore';

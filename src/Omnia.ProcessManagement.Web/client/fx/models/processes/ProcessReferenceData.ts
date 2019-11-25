@@ -1,5 +1,5 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
-import { Process, ProcessStep, ProcessData } from '../../fx/models';
+import { Process, ProcessStep, ProcessData } from '..';
 
 export interface ProcessReferenceData {
     process: Process;
