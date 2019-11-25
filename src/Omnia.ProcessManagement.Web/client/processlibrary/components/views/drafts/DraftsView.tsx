@@ -1,7 +1,7 @@
 ﻿import Component from 'vue-class-component';
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
-import { VueComponentBase, OmniaTheming, StyleFlow } from '@omnia/fx/ux';
+import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessLibraryDisplaySettings, Enums, ProcessLibraryRequest, Process, HeaderTable } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
@@ -43,13 +43,13 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     selectedFilterColumn: HeaderTable;
 
     isCurrentUserCanAddDoc: boolean = true;
-    isLoadingContextMenu: boolean = true;
-    disableButtonEdit: boolean = true;
-    disableButtonPreview: boolean = true;
-    disableButtonSendForComments: boolean = true;
-    disableButtonPublish: boolean = true;
-    disableButtonWorkflowHistory: boolean = true;
-    disableButtonDelete: boolean = true;
+    isLoadingContextMenu: boolean = false;
+    disableButtonEdit: boolean = false;
+    disableButtonPreview: boolean = false;
+    disableButtonSendForComments: boolean = false;
+    disableButtonPublish: boolean = false;
+    disableButtonWorkflowHistory: boolean = false;
+    disableButtonDelete: boolean = false;
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
     request: ProcessLibraryRequest;
@@ -145,6 +145,17 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     }
 
+    private deleteDraft(item: Process) {
+        this.$confirm.open({ message: this.loc.Message.DeleteDraftProcessConfirmation }).then((res) => {
+            if (res == ConfirmDialogResponse.Ok) {
+                this.isLoading = true;
+                this.processService.deleteDraftProcess(item.opmProcessId).then(p => {
+                    this.getProcesses();
+                });
+            }
+        })
+    }
+
     private isFilter(column: HeaderTable) {
         return this.request.filters && this.request.filters[column.value] != null;
     }
@@ -196,7 +207,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                                     <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
                                                 </v-list-item>
                                                 <v-divider></v-divider>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
+                                                <v-list-item onClick={() => { this.deleteDraft(item); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
                                                     <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
                                                 </v-list-item>
                                             </v-list>

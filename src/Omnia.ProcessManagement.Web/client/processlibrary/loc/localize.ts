@@ -35,6 +35,9 @@
             BooeleanFieldDescending: string,
             DateFieldAscending: string,
             DateFieldDescending: string
+        },
+        Message: {
+            DeleteDraftProcessConfirmation: string
         }
     }
 }
