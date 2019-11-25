@@ -1,5 +1,5 @@
 ﻿import { Store } from '@omnia/fx/store';
-import { Injectable, Inject } from '@omnia/fx';
+import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
 import { ProcessReference, ProcessReferenceData } from '../models';
@@ -105,6 +105,7 @@ class ProcessStateTransaction {
 export class CurrentProcessStore extends Store {
     @Inject(ProcessStore) processStore: ProcessStore;
     @Inject(ProcessService) processService: ProcessService;
+    @Inject(OmniaContext) omniaContext: OmniaContext;
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
@@ -162,6 +163,17 @@ export class CurrentProcessStore extends Store {
                         this.actions.setProcessToShow.dispatch(processReferenceToUse).then(resolve).catch(reject)
 
                     }).catch(reject);
+                })
+            })
+        }),
+        saveCheckedOutProcess: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<null>((resolve, reject) => {
+
+                    let currentProcessReference = this.currentProcessReference.state;
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+
+                    
                 })
             })
         })

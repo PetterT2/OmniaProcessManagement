@@ -1,7 +1,6 @@
 ﻿import { LimitedUsersPublishingApprovalSettings } from '.';
 import { PersonPropertyPublishingApprovalSettings } from './PersonPropertyPublishingApprovalSettings';
 import { TermDrivenPublishingApprovalSettings } from './TermDrivenPublishingApprovalSettings';
-import { GroupPublishingApprovalSettings } from './GroupPublishingApprovalSettings';
 
 export enum PublishingApprovalSettingsTypes {
     Anyone = 0,
