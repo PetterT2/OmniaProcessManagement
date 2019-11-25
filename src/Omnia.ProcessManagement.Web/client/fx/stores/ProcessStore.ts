@@ -6,6 +6,14 @@ import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessDa
 import { OPMUtils } from '../utils';
 
 
+interface ProcessDict {
+    [processId: string]: Process
+}
+
+interface ProcessDataDict {
+    [processDataIdAndHash: string]: ProcessDataWithAuditing
+}
+
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
@@ -13,8 +21,8 @@ export class ProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
 
     //states
-    private processDict = this.state<{ [processId: string]: Process }>({});
-    private processDataDict = this.state<{ [processDataIdAndHash: string]: ProcessDataWithAuditing }>({});
+    private processDict = this.state<ProcessDict>({});
+    private processDataDict = this.state<ProcessDataDict>({});
 
 
     //internal properties
@@ -32,7 +40,7 @@ export class ProcessStore extends Store {
     public getters = {
         getProcessReferenceData: (processReference: ProcessReference) => {
             let processCacheKey = this.getProcessCacheKey(processReference.processId);
-            let processDataCacheKey = this.getProcessDataCacheKey(processReference.processStepId, processReference.processDataHash);
+            let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId, processReference.processDataHash);
             let process = this.processDict[processCacheKey];
             let processData = this.processDataDict[processDataCacheKey];
 
@@ -126,8 +134,7 @@ export class ProcessStore extends Store {
         deleteDraftProcess: this.action((process: Process) => {
             return new Promise<null>((resolve, reject) => {
                 this.processService.deleteDraftProcess(process.opmProcessId).then(() => {
-                    this.internalMutations.addOrUpdateProcess(process, true);
-                    //TODO - remove process data
+                    this.internalMutations.removeProcess(process);
                     resolve(null);
                 }).catch(reject);
             })
@@ -135,19 +142,36 @@ export class ProcessStore extends Store {
     }
 
     private internalMutations = {
-        addOrUpdateProcess: (process: Process, isRemove?: boolean) => {
+        addOrUpdateProcess: (process: Process) => {
             let currentState = this.processDict.state;
             let key = this.getProcessCacheKey(process);
-            let newState = Object.assign({}, currentState, { [key]: isRemove ? null : process });
+            let newState = Object.assign({}, currentState, { [key]: process });
 
             this.processDict.mutate(newState);
         },
-        addOrUpdateProcessData: (processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {
+        addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {
             let currentState = this.processDataDict.state;
-            let key = this.getProcessDataCacheKey(processStep.id, processStep.processDataHash);
+            let key = this.getProcessDataCacheKey(processId, processStep.id, processStep.processDataHash);
             let newState = Object.assign({}, currentState, { [key]: processData });
 
             this.processDataDict.mutate(newState);
+        },
+        removeProcess: (process: Process) => {
+            let processCurrentState = this.processDict.state;
+            let key = this.getProcessCacheKey(process);
+            let newState = Object.assign({}, processCurrentState, { [key]: null });
+            this.processDict.mutate(newState);
+
+            let processId = process.id.toString().toLowerCase();
+            let processDataCurrentState = this.processDataDict.state;
+            let processDataNewState: ProcessDataDict = {};
+            Object.keys(processDataCurrentState).forEach(key => {
+                if (!key.startsWith(processId)) {
+                    processDataNewState[key] = processDataCurrentState[key]
+                }
+            })
+
+            this.processDataDict.mutate(processDataNewState);
         }
     }
 
@@ -178,7 +202,7 @@ export class ProcessStore extends Store {
                 resolvablePromise.resolving = true;
                 this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
 
-                    this.internalMutations.addOrUpdateProcessData(processStep, processData);
+                    this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
                     resolvablePromise.resolve(null);
                 });
             }
@@ -208,8 +232,6 @@ export class ProcessStore extends Store {
     }
 
     private getProcessDataLoadResolvablePromise = (processId: GuidValue, processStepId: GuidValue, hash: string): ResolvablePromise<null> => {
-        let promise: ResolvablePromise<null> = null;
-
         let key = `${processId.toString()}-${processStepId.toString()}-${hash}`.toLowerCase();
 
         let existingPromise = this.processLoadPromises[key];
@@ -228,8 +250,8 @@ export class ProcessStore extends Store {
         return `${processId.toString()}`.toLowerCase();
     }
 
-    private getProcessDataCacheKey = (processStepId: GuidValue, processDataHash: string) => {
-        return `${processStepId.toString()}-${processDataHash}`.toLowerCase();
+    private getProcessDataCacheKey = (processId: GuidValue, processStepId: GuidValue, processDataHash: string) => {
+        return `${processId.toString()}-${processStepId.toString()}-${processDataHash}`.toLowerCase();
     }
 
     protected onActivated() {
