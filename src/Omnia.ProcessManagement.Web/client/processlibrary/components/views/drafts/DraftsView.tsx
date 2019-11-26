@@ -1,7 +1,7 @@
 ﻿import Component from 'vue-class-component';
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
-import { VueComponentBase, OmniaTheming, StyleFlow } from '@omnia/fx/ux';
+import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessLibraryDisplaySettings, Enums, ProcessLibraryRequest, Process, HeaderTable } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
@@ -40,16 +40,17 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
+    openNewProcessDialog: boolean = false;
     selectedFilterColumn: HeaderTable;
 
     isCurrentUserCanAddDoc: boolean = true;
-    isLoadingContextMenu: boolean = true;
-    disableButtonEdit: boolean = true;
-    disableButtonPreview: boolean = true;
-    disableButtonSendForComments: boolean = true;
-    disableButtonPublish: boolean = true;
-    disableButtonWorkflowHistory: boolean = true;
-    disableButtonDelete: boolean = true;
+    isLoadingContextMenu: boolean = false;
+    disableButtonEdit: boolean = false;
+    disableButtonPreview: boolean = false;
+    disableButtonSendForComments: boolean = false;
+    disableButtonPublish: boolean = false;
+    disableButtonWorkflowHistory: boolean = false;
+    disableButtonDelete: boolean = false;
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
     request: ProcessLibraryRequest;
@@ -145,6 +146,17 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     }
 
+    private deleteDraft(item: Process) {
+        this.$confirm.open({ message: this.loc.Message.DeleteDraftProcessConfirmation }).then((res) => {
+            if (res == ConfirmDialogResponse.Ok) {
+                this.isLoading = true;
+                this.processService.deleteDraftProcess(item.opmProcessId).then(p => {
+                    this.getProcesses();
+                });
+            }
+        })
+    }
+
     private isFilter(column: HeaderTable) {
         return this.request.filters && this.request.filters[column.value] != null;
     }
@@ -196,7 +208,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                                     <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
                                                 </v-list-item>
                                                 <v-divider></v-divider>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
+                                                <v-list-item onClick={() => { this.deleteDraft(item); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
                                                     <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
                                                 </v-list-item>
                                             </v-list>
@@ -350,6 +362,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         )
     }
 
+    renderNewProcessDialog(h) {
+        return (
+            <opm-new-process-dialog
+                closeCallback={(isUpdate: boolean) => {
+                    this.openNewProcessDialog = false;
+                    if (isUpdate) {
+                        this.request.pageNum = 1;
+                        this.request.filters = {};
+                        this.getProcesses();
+                    }
+                }}
+            ></opm-new-process-dialog>
+        )
+    }
+
     render(h) {
         return (
             <div>
@@ -358,7 +385,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         {
                             this.isCurrentUserCanAddDoc ?
                                 <v-btn text class="ml-2"
-                                    color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { }}>
+                                    color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { this.openNewProcessDialog = true; }}>
                                     {this.loc.Buttons.NewProcess}
                                 </v-btn> :
                                 null
@@ -371,6 +398,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         this.renderProcesses(h)
                 }
                 {this.openFilterDialog && this.renderFilterDialog(h)}
+                {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
             </div>
         )
     }

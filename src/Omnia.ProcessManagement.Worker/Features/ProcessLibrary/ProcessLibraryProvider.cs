@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 namespace Omnia.ProcessManagement.Worker.Features.ProcessLibrary
 {
     [OmniaFeature(id: OPMConstants.Features.ProcessLibrary.IdAsString)]
-    internal class ProcessLibraryHandler : BaseAppFeatureProvider
+    internal class ProcessLibraryProvider : BaseAppFeatureProvider
     {
-        ILogger<ProcessLibraryHandler> Logger { get; }
+        ILogger<ProcessLibraryProvider> Logger { get; }
         IProcessLibraryFeatureService ProcessLibraryFeatureService { get; }
 
-        public ProcessLibraryHandler(ILogger<ProcessLibraryHandler> logger,
+        public ProcessLibraryProvider(ILogger<ProcessLibraryProvider> logger,
             IAppService appService,
             IProcessLibraryFeatureService processLibraryFeatureService
             ) : base(appService)

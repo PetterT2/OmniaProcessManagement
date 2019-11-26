@@ -1,14 +1,13 @@
 ﻿import Component from 'vue-class-component';
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
-import { Localize, Inject, Utils } from '@omnia/fx';
-import { OmniaTheming, StyleFlow, DialogPositions, NestedCSSPropertiesExtends } from '@omnia/fx/ux';
+import { Localize, Inject } from '@omnia/fx';
+import { OmniaTheming, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { classes } from "typestyle";
-import { ProcessLibraryListViewStyles } from '../../../../models';
+import { ProcessLibraryStyles } from '../../../../models';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { HeaderTable } from '../../../../fx/models';
-import { LanguageTag, MultilingualScopes } from '@omnia/fx-models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessService } from '../../../../fx';
 import { DefaultDateFormat } from '../../../Constants';
@@ -29,7 +28,7 @@ interface FilterOption {
 @Component
 export class FilterDialog extends tsx.Component<FilterDialogProps>
 {
-    @Prop() styles: typeof ProcessLibraryListViewStyles | any;
+    @Prop() styles: typeof ProcessLibraryStyles | any;
     @Prop() selectedColumn: HeaderTable;
     @Prop() changeFilterValues: (column: string, selectedValues: Array<any>) => void;
     @Prop() clearFilter: (column: string) => void;
@@ -43,7 +42,7 @@ export class FilterDialog extends tsx.Component<FilterDialogProps>
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
 
-    private listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
+    private classes = StyleFlow.use(ProcessLibraryStyles, this.styles);
     private dateFormat: string = DefaultDateFormat;
     private filterOptions: Array<FilterOption>;
     private opened: boolean = true;
@@ -153,14 +152,14 @@ export class FilterDialog extends tsx.Component<FilterDialogProps>
                 <v-divider></v-divider>
 
                 <div>
-                    <v-container class={this.listViewClasses.dialogContent}>
+                    <v-container class={this.classes.dialogContent}>
                         {
                             this.isLoadingFilterOptions ? (<div class="text-center"><v-progress-circular indeterminate color="primary"></v-progress-circular></div>) :
                                 this.renderFilterOptions(h)
                         }
                     </v-container>
 
-                    <div class={[this.listViewClasses.dialogFooter, "text-right"]}>
+                    <div class={[this.classes.dialogFooter, "text-right"]}>
                         <v-btn
                             text
                             class="pull-right"

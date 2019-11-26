@@ -62,6 +62,23 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             return processes.Select(p => column).ToList();
         }
 
+
+        public async ValueTask<(Guid, Guid, LanguageTag)> GetProcessSiteInfo(string webUrl)
+        {
+            PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(webUrl);
+            ctx.Load(ctx.Site, s => s.Id);
+            ctx.Load(ctx.Web, s => s.Id);
+            ctx.Load(ctx.Web.CurrentUser, us => us.LoginName);
+            await ctx.ExecuteQueryAsync();
+            List<Fx.Models.Users.User> users = await UserService.GetByPrincipalNamesAsync(new List<string> { ctx.Web.CurrentUser.LoginName });
+            LanguageTag language = LanguageTag.EnUs;
+            if (users.Count > 0 && users.FirstOrDefault().PreferredLanguage.HasValue)
+                language = users.FirstOrDefault().PreferredLanguage.Value;
+            return (ctx.Site.Id, ctx.Web.Id, language);
+        }
+
+        #region Utils
+
         private string GetMultilingualStringValue(MultilingualString value, LanguageTag language)
         {
             return value.Keys.Contains(language) ? value[language] : value.FirstOrDefault().Value;
@@ -106,19 +123,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             return processes;
         }
 
-        private async ValueTask<(Guid, Guid, LanguageTag)> GetProcessSiteInfo(string webUrl)
-        {
-            PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(webUrl);
-            ctx.Load(ctx.Site, s => s.Id);
-            ctx.Load(ctx.Web, s => s.Id);
-            ctx.Load(ctx.Web.CurrentUser, us => us.LoginName);
-            await ctx.ExecuteQueryAsync();
-            List<Fx.Models.Users.User> users = await UserService.GetByPrincipalNamesAsync(new List<string> { ctx.Web.CurrentUser.LoginName });
-            LanguageTag language = LanguageTag.EnUs;
-            if (users.Count > 0 && users.FirstOrDefault().PreferredLanguage.HasValue)
-                language = users.FirstOrDefault().PreferredLanguage.Value;
-            return (ctx.Site.Id, ctx.Web.Id, language);
-        }
-
+        #endregion
     }
 }

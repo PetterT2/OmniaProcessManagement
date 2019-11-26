@@ -32,6 +32,9 @@ export class ProcessTypeStore extends Store {
     }
 
     getters = {
+        allProcessTypes: () => {
+            return this.processTypes.state[this.getParentId()]
+        },
         children: (rootId: GuidValue, includeInvalid?: boolean): Array<ProcessType> => {
             let rootIdKey = this.getParentId(rootId);
             let children = this.processTypes.state[rootIdKey] || [];

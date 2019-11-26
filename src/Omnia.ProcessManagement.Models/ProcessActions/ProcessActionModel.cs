@@ -7,8 +7,7 @@ namespace Omnia.ProcessManagement.Models.ProcessActions
 {
     public class ProcessActionModel
     {
-        public Guid SiteId { get; set; }
-        public Guid WebId { get; set; }
+        public string WebUrl { get; set; }
         public Process Process { get; set; }
         public Dictionary<Guid, ProcessData> ProcessData { get; set; }
     }

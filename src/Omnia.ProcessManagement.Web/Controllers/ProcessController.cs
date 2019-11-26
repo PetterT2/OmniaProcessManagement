@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
@@ -39,6 +40,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
+                LanguageTag language;
+                (actionModel.Process.SiteId, actionModel.Process.WebId, language) = await ProcessLibraryService.GetProcessSiteInfo(actionModel.WebUrl);
                 var process = await ProcessService.CreateDraftProcessAsync(actionModel);
                 return process.AsApiResponse();
             }
