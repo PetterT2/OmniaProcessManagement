@@ -23,6 +23,9 @@ StyleFlow.define(ProcessLibraryStyles,
                     flexGrow: "1 !important" as any
                 }
             }
+        },
+        error: {
+            color: 'red'
         }
     }
 )

@@ -8,7 +8,7 @@ import { ProcessLibraryStyles } from '../../../models';
 import { ProcessService, ProcessTemplateStore, ProcessTypeStore } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
-import { ProcessType, ProcessTemplate, Process, RootProcessStep } from '../../../fx/models';
+import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData } from '../../../fx/models';
 import { Guid, GuidValue } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 
@@ -30,7 +30,9 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
     private classes = StyleFlow.use(ProcessLibraryStyles, this.styles);
     private validator: FormValidator = null;
     private isLoading: boolean = false;
-    private processTypes: Array<ProcessType> = [];
+    private isSaving: boolean = false;
+    private errMessage: string;
+    private processTypes: Array<ProcessType> = [{ id: Guid.empty, multilingualTitle: "test 1" } as ProcessType];
     private processTemplates: Array<ProcessTemplate> = [];
     private process: Process;
 
@@ -43,8 +45,11 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                 id: id,
                 processTypeId: null,
                 title: null,
-                processTemplateId: null
-            } as RootProcessStep
+                processTemplateId: null,
+                enterpriseProperties: {}
+            } as RootProcessStep,
+            versionType: ProcessVersionType.Draft,
+            checkedOutBy: null
         } as Process;
     }
 
@@ -55,27 +60,54 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
     }
 
     private init() {
-        //this.isLoading = true;
-        //let promises: Array<Promise<any>> = [
-        //    this.processTypeStore.actions.ensureProcessTypes.dispatch(),
-        //    this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch()
-        //]
+        this.isLoading = true;
+        let promises: Array<Promise<any>> = [
+            //TODO: wait this.processTypeStore.actions.ensureRootProcessType.dispatch()
+        ]
 
-        //Promise.all(promises).then(() => {
-        //    this.processTypes = this.processTypeStore.getters.processTypes();
-        //    this.processTemplates = this.processTemplateStore.getters.processTemplates();
+        Promise.all(promises).then(() => {
+            this.processTypes = this.processTypeStore.getters.allProcessTypes();
+           
+            if (this.processTypes.length > 0) {
+                this.process.rootProcessStep.processTypeId = this.processTypes[0].id;
+                this.loadProcessTemplatesOfProcessType(this.process.rootProcessStep.processTypeId);
+            } else 
+                this.isLoading = false;
+        }).catch((err) => {
+            this.errMessage = err;
+            this.isLoading = false;
+        })
+    }
 
-        //    if (this.processTypes.length > 0)
-        //        this.process.rootProcessStep.processTypeId = this.processTypes[0].id;
-        //    if (this.processTemplates.length > 0)
-        //        this.process.rootProcessStep.processTemplateId = this.processTemplates[0].id;
-        //    this.isLoading = false;
-        //})
+    private loadProcessTemplatesOfProcessType(processTypeId: GuidValue) {
+        //TODO: wait for implement Process type
+        this.isLoading = true;
+        this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch().then(() => {
+            this.processTemplates = this.processTemplateStore.getters.processTemplates();
+            if (this.processTemplates.length > 0)
+                this.process.rootProcessStep.processTemplateId = this.processTemplates[0].id;
+            this.isLoading = false;
+        })
+
     }
 
     private addNewProcess() {
         if (this.validator.validateAll()) {
-
+            this.isSaving = true;
+            let processData: { [processStepId: string]: ProcessData } = {};
+            processData[this.process.id.toString()] = {} as ProcessData;
+            let model: ProcessActionModel = {
+                webUrl: this.spContext.pageContext.web.absoluteUrl,
+                process: this.process,
+                processData: processData
+            };
+            this.processService.createDraftProcess(model).then(() => {
+                this.isSaving = false;
+                this.closeCallback(true);
+            }).catch((err) => {
+                this.errMessage = err;
+                this.isSaving = false;
+            });
         }
     }
 
@@ -86,29 +118,34 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                     <v-select
                         label={this.loc.ProcessType}
                         v-model={this.process.rootProcessStep.processTypeId}
-                        items={this.processTypes} item-text="id" item-value="multilingualTitle"></v-select>
+                        items={this.processTypes} item-text="multilingualTitle" item-value="id"></v-select>
                     <omfx-field-validation
                         useValidator={this.validator}
                         checkValue={this.process.rootProcessStep.processTypeId}
                         rules={
-                            new FieldValueValidation().IsRequired().getRules()
+                            new FieldValueValidation().IsRequired(true).getRules()
                         }>
                     </omfx-field-validation>
                 </div>
 
-                <div>
-                    <v-select
-                        label={this.loc.ProcessTemplate}
-                        v-model={this.process.rootProcessStep.processTemplateId}
-                        items={this.processTemplates} item-text="id" item-value="multilingualTitle"></v-select>
-                    <omfx-field-validation
-                        useValidator={this.validator}
-                        checkValue={this.process.rootProcessStep.processTemplateId}
-                        rules={
-                            new FieldValueValidation().IsRequired().getRules()
-                        }>
-                    </omfx-field-validation>
-                </div>
+                {
+                    this.processTemplates.length > 1 ?
+                        <div>
+                            <v-select
+                                label={this.loc.ProcessTemplate}
+                                v-model={this.process.rootProcessStep.processTemplateId}
+                                items={this.processTemplates} item-text="multilingualTitle" item-value="id"></v-select>
+                            <omfx-field-validation
+                                useValidator={this.validator}
+                                checkValue={this.process.rootProcessStep.processTemplateId}
+                                rules={
+                                    new FieldValueValidation().IsRequired(true).getRules()
+                                }>
+                            </omfx-field-validation>
+
+                        </div> :
+                        null
+                }
 
                 <div>
                     <omfx-multilingual-input
@@ -117,7 +154,8 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                         onModelChange={(title) => {
                             this.process.rootProcessStep.title = title;
                         }}
-                        forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
+                        forceTenantLanguages
+                        label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
                 </div>
             </v-container>
         )
@@ -136,12 +174,12 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                     <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
                         <v-toolbar-title>{this.loc.Buttons.NewProcess}</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn icon onClick={() => { this.closeCallback(false);}}>
+                        <v-btn icon onClick={() => { this.closeCallback(false); }}>
                             <v-icon>close</v-icon>
                         </v-btn>
                     </v-toolbar>
                     <v-divider></v-divider>
-                    <div>
+                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
                         <div data-omfx>
                             {
                                 this.isLoading ?
@@ -150,7 +188,9 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                         </div>
                         <v-card-actions class={this.classes.dialogFooter}>
                             <v-spacer></v-spacer>
+                            <span class={[this.classes.error, 'mr-2']}>{this.errMessage}</span>
                             <v-btn
+                                loading={this.isSaving}
                                 text
                                 class="pull-right"
                                 dark={this.omniaTheming.promoted.body.dark}
@@ -160,13 +200,14 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
                             </v-btn>
                             <v-btn
                                 text
+                                disabled={this.isSaving}
                                 class="pull-right"
                                 light={!this.omniaTheming.promoted.body.dark}
                                 onClick={() => { this.closeCallback(false); }}>
                                 {this.omniaUxLoc.Common.Buttons.Cancel}
                             </v-btn>
                         </v-card-actions>
-                    </div>
+                    </v-card>
                 </div>
             </omfx-dialog>
         )

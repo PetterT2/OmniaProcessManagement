@@ -14,5 +14,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     {
         ValueTask<DraftProcessesResponse> GetDraftProcessesDataAsync(ProcessLibraryRequest processLibraryRequest);
         ValueTask<List<string>> GetFilterOptions(string webUrl, string column);
+        ValueTask<(Guid, Guid, LanguageTag)> GetProcessSiteInfo(string webUrl);
     }
 }

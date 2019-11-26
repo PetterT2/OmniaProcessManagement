@@ -58,13 +58,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var processDataDict = actionModel.ProcessData;
             AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
-            process.OPMProcessId = new Guid();
+            process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
+            process.SiteId = actionModel.Process.SiteId;
+            process.WebId = actionModel.Process.WebId;
 
             await DatabaseContext.SaveChangesAsync();
 
@@ -117,6 +119,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
 
                 processStep.ProcessDataHash = processDataEf.Hash;
+                DbContext.ProcessData.Add(processDataEf);
             }
             else
             {
