@@ -6,6 +6,7 @@ export interface ProcessStep {
     processDataHash: string;
 
     processSteps: Array<ProcessStep>;
+    processTemplateId: GuidValue;
 
     //client-side
     multilingualTitle: string

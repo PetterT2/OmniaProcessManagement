@@ -40,6 +40,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
+    openNewProcessDialog: boolean = false;
     selectedFilterColumn: HeaderTable;
 
     isCurrentUserCanAddDoc: boolean = true;
@@ -361,6 +362,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         )
     }
 
+    renderNewProcessDialog(h) {
+        return (
+            <opm-new-process-dialog
+                closeCallback={(isUpdate: boolean) => {
+                    this.openNewProcessDialog = false;
+                    if (isUpdate) {
+                        this.request.pageNum = 1;
+                        this.request.filters = {};
+                        this.getProcesses();
+                    }
+                }}
+            ></opm-new-process-dialog>
+        )
+    }
+
     render(h) {
         return (
             <div>
@@ -369,7 +385,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         {
                             this.isCurrentUserCanAddDoc ?
                                 <v-btn text class="ml-2"
-                                    color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { }}>
+                                    color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { this.openNewProcessDialog = true; }}>
                                     {this.loc.Buttons.NewProcess}
                                 </v-btn> :
                                 null
@@ -382,6 +398,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         this.renderProcesses(h)
                 }
                 {this.openFilterDialog && this.renderFilterDialog(h)}
+                {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
             </div>
         )
     }

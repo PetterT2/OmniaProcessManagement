@@ -42,5 +42,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
         },
         Message: {
             DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?"
-        }
+        },
+        ProcessType: "Process Type",
+        ProcessTemplate: "Process Template"
     });

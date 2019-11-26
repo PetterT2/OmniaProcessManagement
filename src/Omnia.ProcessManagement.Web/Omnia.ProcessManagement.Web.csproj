@@ -143,6 +143,9 @@
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\newprocess\INewProcessDialog.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\newprocess\NewProcessDialog.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\newprocess\NewProcessDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />

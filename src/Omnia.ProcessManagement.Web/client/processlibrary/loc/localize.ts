@@ -38,6 +38,8 @@
         },
         Message: {
             DeleteDraftProcessConfirmation: string
-        }
+        },
+        ProcessType: string,
+        ProcessTemplate: string
     }
 }
