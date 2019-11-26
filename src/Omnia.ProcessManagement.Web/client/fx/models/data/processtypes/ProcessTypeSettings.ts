@@ -23,6 +23,7 @@ export const ProcessTypeFactory = {
             title: {
                 isMultilingualString: true
             },
+            rootId: null,
             multilingualTitle: '',
             secondaryOrderNumber: 0,
             settings: <ProcessTypeItemSettings>{
