@@ -59,15 +59,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
             process.OPMProcessId = Guid.NewGuid();
-            //TODO
-            //process.WebId = actionModel.WebId;
-            //process.SiteId = actionModel.SiteId;
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
+            process.WebId = actionModel.Process.WebId;
+            process.SiteId = actionModel.Process.SiteId;
 
             await DatabaseContext.SaveChangesAsync();
 
