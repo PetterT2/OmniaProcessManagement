@@ -15,9 +15,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
     {
         public ProcessTypeRepository(OmniaPMDbContext databaseContext) : base(databaseContext) { }
 
-        public async ValueTask<IList<ProcessType>> GetAllProcessTypes(Guid termSetId)
+        public async ValueTask<IList<ProcessType>> GetChildrenAsync(Guid rootId)
         {
-            var entities = await _dbSet.Where(i => i.DeletedAt == null && i.RootId == termSetId).ToListAsync();
+            var entities = await _dbSet.Where(i => i.DeletedAt == null && i.RootId == rootId).ToListAsync();
             var models = ParseEntitiesToModels(entities);
             return models;
         }
@@ -38,10 +38,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
                 var processTypesExist = await _dbSet.Where(d => d.RootId == rootId && d.DeletedAt == null).AnyAsync();
 
                 if (!rootProcessTypeExist)
-                    throw new Exception($"Root document type for termset {rootId} is not created.");
+                    throw new Exception($"Root process type for termset {rootId} is not created.");
 
                 if (processTypesExist)
-                    throw new Exception($"There are existing document types mapping to termset {rootId} in database.");
+                    throw new Exception($"There are existing process types mapping to termset {rootId} in database.");
 
                 using (var transaction = _dataContext.Database.BeginTransaction())
                 {
@@ -74,14 +74,19 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
 
             if (dbEntity == null)
             {
-                throw new Exception("Document type not found");
+                throw new Exception("Process Type not found");
             }
             else if (dbEntity.DeletedAt != null)
             {
-                throw new Exception("Unable to update deleted document type");
+                throw new Exception("Unable to update deleted process type");
+            }
+            else if (dbEntity.Type != processType.Settings.Type)
+            {
+                throw new Exception("Unable to update process type's type");
             }
 
             var dbModel = ParseEntityToModel(dbEntity);
+
             if (dbModel.Settings.TermSetId != processType.Settings.TermSetId)
             {
                 throw new Exception("Unable to update term set id");
@@ -90,6 +95,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             var entity = ParseModelToEntity(processType);
             dbEntity.Title = entity.Title;
             dbEntity.JsonValue = entity.JsonValue;
+            dbEntity.Type = entity.Type;
 
             await _dataContext.SaveChangesAsync();
             return processType;
@@ -123,8 +129,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             {
                 model = new ProcessType();
                 model.Id = entity.Id;
+                model.RootId = entity.RootId;
                 model.SecondaryOrderNumber = entity.ClusteredId;
-                model.Settings = string.IsNullOrWhiteSpace(entity.JsonValue) ? null : (ProcessTypeSettings)JsonConvert.DeserializeObject<ProcessTypeItemSettings>(entity.JsonValue);
+                model.Settings = string.IsNullOrWhiteSpace(entity.JsonValue) ? null :
+                    entity.Type == ProcessTypeSettingsTypes.Item ? (ProcessTypeSettings)JsonConvert.DeserializeObject<ProcessTypeItemSettings>(entity.JsonValue) :
+                    entity.Type == ProcessTypeSettingsTypes.Group ? (ProcessTypeSettings)JsonConvert.DeserializeObject<ProcessTypeGroupSettings>(entity.JsonValue) : null;
                 model.Title = string.IsNullOrWhiteSpace(entity.Title) ? new MultilingualString() : JsonConvert.DeserializeObject<MultilingualString>(entity.Title);
             }
 
@@ -138,6 +147,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             entity.Title = model.Title != null ? JsonConvert.SerializeObject(model.Title) : "";
             entity.JsonValue = JsonConvert.SerializeObject(model.Settings);
             entity.RootId = model.Settings.TermSetId;
+            entity.Type = model.Settings.Type;
 
             return entity;
         }

@@ -2,7 +2,13 @@
 import { ProcessType } from './ProcessType';
 import { ProcessTypeItemSettings } from './ProcessTypeItemSettings';
 
+export enum ProcessTypeSettingsTypes {
+    Group = 0,
+    Item = 1
+}
+
 export interface ProcessTypeSettings {
+    type: ProcessTypeSettingsTypes;
     termSetId: GuidValue;
 }
 

@@ -8,3 +8,4 @@ export * from './publishingapprovalsettings';
 export * from './propertysetItemsettings';
 export * from './reviewreminderschedule';
 export * from './ProcessTypeTermSynchronizationStatus';
+export * from './ProcessTypeGroupSettings';

@@ -28,6 +28,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             Logger = logger;
         }
 
+        [HttpPost, Route("refreshcache")]
+        [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
+        public ApiResponse RefreshCache()
+        {
+            try
+            {
+                ProcessTypeService.RefreshCache();
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
         [HttpGet, Route("getprocesstypetermsetid")]
         [Authorize]
         public async ValueTask<ApiResponse<Guid>> GetProcessTypeTermSetIdAsync()
@@ -44,13 +60,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("getallprocesstypes")]
+        [HttpPost, Route("getbyids")]
         [Authorize]
-        public async ValueTask<ApiResponse<IList<ProcessType>>> GetAllProcessTypes(Guid termSetId)
+        public async ValueTask<ApiResponse<IList<ProcessType>>> GetByIdsAsync([FromBody] List<Guid> ids)
         {
             try
             {
-                var result = await ProcessTypeService.GetAllProcessTypes(termSetId);
+                var result = await ProcessTypeService.GetByIdsAsync(ids.ToArray());
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)
@@ -60,13 +76,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("getbyids")]
+        [HttpGet, Route("children")]
         [Authorize]
-        public async ValueTask<ApiResponse<IList<ProcessType>>> GetByIdsAsync([FromBody] List<Guid> ids)
+        public async ValueTask<ApiResponse<IList<ProcessType>>> GetChildrenAsync(Guid rootId)
         {
             try
             {
-                var result = await ProcessTypeService.GetByIdsAsync(ids.ToArray());
+                var result = await ProcessTypeService.GetChildrenAsync(rootId);
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)

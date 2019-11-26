@@ -12,7 +12,13 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         }
 
         public readonly static Guid ApproverGroupId = new Guid("4c32092d-21ec-4137-a3ed-50bcbf6b0f78");
-
+        public override ProcessTypeSettingsTypes Type
+        {
+            get
+            {
+                return ProcessTypeSettingsTypes.Item;
+            }
+        }
         public Guid EnterprisePropertySetId { get; set; }
         public bool AllowAppendices { get; set; }
         public bool AllowConnectToTemplate { get; set; }
