@@ -6,11 +6,13 @@ using Omnia.ProcessManagement.Core.Repositories;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
+using Omnia.ProcessManagement.Core.Repositories.Settings;
 using Omnia.ProcessManagement.Core.Services.Features;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.Settings;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,12 +38,14 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessLibraryService, ProcessLibraryService>();
             services.AddScopedWithSingeltonRef<IProcessTypeService, ProcessTypeService>();
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingService, ProcessTypeTermSynchronizationTrackingService>();
+            services.AddScopedWithSingeltonRef<ISettingsService, SettingsService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
             services.AddScopedWithSingeltonRef<IProcessRepository, ProcessRepository>();
             services.AddScopedWithSingeltonRef<IProcessTypeRepository, ProcessTypeRepository>();
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingRepository, ProcessTypeTermSynchronizationTrackingRepository>();
+            services.AddScopedWithSingeltonRef<ISettingsRepository, SettingsRepository>();
 
             services.AddAutoMapper();
             return services;

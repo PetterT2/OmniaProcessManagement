@@ -3,6 +3,7 @@
     export interface locInterface {
         ProcessManagement: string,
         Settings: string,
+        ArchiveSiteUrl: string,
         ProcessTypes: {
             Title: string
         },

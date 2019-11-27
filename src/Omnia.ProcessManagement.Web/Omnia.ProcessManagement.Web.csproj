@@ -33,6 +33,12 @@
     <TypeScriptCompile Remove="client\admin\models\SubMenuItem.ts" />
     <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\blades\DefaultBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettings.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourney.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourney.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\IGlobalSettingsJourney.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
@@ -108,6 +114,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
@@ -124,6 +132,7 @@
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
     <TypeScriptCompile Remove="client\fx\routing\index.ts" />
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
+    <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
@@ -133,6 +142,7 @@
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationData.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NodeState.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessReference.ts" />
@@ -256,7 +266,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\admin\settings\globalsettings\" />
     <Folder Include="client\processlibrary\components\settingtabs\" />
     <Folder Include="client\processlibrary\components\views\published\" />
     <Folder Include="client\processlibrary\components\views\tasks\" />

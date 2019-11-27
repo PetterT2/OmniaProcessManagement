@@ -7,6 +7,7 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
     .add<OPMAdminLocalization.locInterface>({
         ProcessManagement: "Process Management",
         Settings: "Settings",
+        ArchiveSiteUrl: "Archive Site Url",
         ProcessTypes: {
             Title: "Process Types"
         },
