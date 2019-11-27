@@ -7,7 +7,7 @@ export module OPMUtils {
         if (processStep.id == processStepId) {
             desiredProcessStep = processStep;
         }
-        else {
+        else if (processStep.processSteps) {
             for (let childProcessStep of processStep.processSteps) {
                 desiredProcessStep = getProcessStepInProcess(childProcessStep, processStepId);
                 if (desiredProcessStep) {

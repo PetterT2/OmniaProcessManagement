@@ -67,11 +67,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         }
 
-        public async ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType)
+        public async ValueTask<Process> GetProcessByIdAsync(Guid processId)
         {
-            var process = await ProcessRepository.GetProcessById(processId, versionType);
+            var process = await ProcessRepository.GetProcessByIdAsync(processId);
             return process;
-
         }
 
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
@@ -79,9 +78,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId)
+        public async ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId)
         {
-            return await ProcessRepository.GetProcessesDataAsync(siteId, webId);
+            return await ProcessRepository.GetDraftProcessesAsync(siteId, webId);
         }
     }
 }

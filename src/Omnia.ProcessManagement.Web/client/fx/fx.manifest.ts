@@ -16,3 +16,6 @@ Composer
             "./processshape/**/*.js"
         ]
     })
+    .withLoadRules().loadByUrlMatching({
+        regEx: '\/@pm\/'
+    })

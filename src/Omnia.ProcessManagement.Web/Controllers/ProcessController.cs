@@ -155,7 +155,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("{processStepId:guid}/{versionType:int}")]
+        [HttpGet, Route("byprocessstep/{processStepId:guid}/{versionType:int}")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
         {
@@ -171,13 +171,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("process/{processId:guid}")]
+        [HttpGet, Route("{processId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> GetProcessById(Guid processId/*, ProcessVersionType versionType*/)
+        public async ValueTask<ApiResponse<Process>> GetProcessByIdAsync(Guid processId)
         {
             try
             {
-                var process = await ProcessService.GetProcessById(processId, ProcessVersionType.Published);
+                var process = await ProcessService.GetProcessByIdAsync(processId);
                 return process.AsApiResponse();
             }
             catch (Exception ex)

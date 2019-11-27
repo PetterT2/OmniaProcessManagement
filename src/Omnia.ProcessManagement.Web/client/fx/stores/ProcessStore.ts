@@ -178,56 +178,43 @@ export class ProcessStore extends Store {
     }
 
     private ensureProcess = (processId: GuidValue): Promise<any> => {
-        //let resolvablePromise = this.getProcessLoadResolvablePromise(processId);
+        let resolvablePromise = this.getProcessLoadResolvablePromise(processId);
 
-        //if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
-        //    resolvablePromise.resolving = true;
+        if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
+            resolvablePromise.resolving = true;
 
-        //    this.processService.getProcess(processId).then((process) => {
-        //        this.internalMutations.addOrUpdateProcess(process);
-        //        resolvablePromise.resolve(process);
-        //    });
-        //}
-
-        //return resolvablePromise.promise;
-        return new Promise<any>((resolve, reject) => {
             this.processService.getProcess(processId).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
-                resolve(process);
+                resolvablePromise.resolve(process);
             });
-        });
+        }
+
+        return resolvablePromise.promise;
     }
 
     private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessDataWithAuditing> => {
-        //let promise: Promise<ProcessDataWithAuditing> = null;
+        let promise: Promise<ProcessDataWithAuditing> = null;
 
         let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
 
-        //if (processStep) {
-        //    let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStep.id, processStep.processDataHash);
+        if (processStep) {
+            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStep.id, processStep.processDataHash);
 
-        //    if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
-        //        resolvablePromise.resolving = true;
-        //        this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
+            if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
+                resolvablePromise.resolving = true;
+                this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
 
-        //            this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
-        //            resolvablePromise.resolve(null);
-        //        });
-        //    }
+                    this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
+                    resolvablePromise.resolve(null);
+                });
+            }
 
-        //    return resolvablePromise.promise;
-        //} else {
-        //    promise = Promise.reject('Process step not found');
-        //}
+            return resolvablePromise.promise;
+        } else {
+            promise = Promise.reject('Process step not found');
+        }
 
-        //return promise;
-        return new Promise<any>((resolve, reject) => {
-            this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
-
-                this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
-                resolve();
-            });
-        });
+        return promise;
     }
 
     private getProcessLoadResolvablePromise = (processId: GuidValue): ResolvablePromise<any> => {

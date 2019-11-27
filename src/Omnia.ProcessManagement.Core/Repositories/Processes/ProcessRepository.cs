@@ -395,27 +395,25 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId)
+        public async ValueTask<List<Process>> GetDraftProcessesAsync(Guid siteId, Guid webId)
         {
             List<Process> processes = new List<Process>();
             var processesData = await DbContext.Processes
                .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == ProcessVersionType.Draft)
-               .OrderByDescending(p => p.ClusteredId)
                .ToListAsync();
             processesData.ForEach(p => processes.Add(MapEfToModel(p)));
             return processes;
         }
 
-        public async ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType)
+        public async ValueTask<Process> GetProcessByIdAsync(Guid processId)
         {
             var process = await DbContext.Processes
-                    .Where(p => p.Id == processId && p.VersionType == versionType)
-                    .OrderByDescending(p => p.ClusteredId)
+                    .Where(p => p.Id == processId)
                     .FirstOrDefaultAsync();
 
             if (process == null)
             {
-                throw new ProcessDataNotFoundException(processId);
+                throw new ProcessNotFoundException(processId);
             }
 
             var model = MapEfToModel(process);

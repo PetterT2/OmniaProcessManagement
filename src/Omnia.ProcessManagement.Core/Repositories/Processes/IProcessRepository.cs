@@ -19,8 +19,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId);
         ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
-        ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType);
+        ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
-        ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId);
+        ValueTask<List<Process>> GetDraftProcessesAsync(Guid siteId, Guid webId);
     }
 }
