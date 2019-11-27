@@ -6,12 +6,15 @@ import 'vue-tsx-support/enable-check';
 import { Utils } from "@omnia/fx";
 import './NavigationNode.css';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { NavigationNode, NavigationData, NavigationNodeType, NodeState } from '../../../fx/models';
+import {  NodeState, ProcessStepNavigationNode } from '../../../fx/models';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
+import { MultilingualStore } from '@omnia/fx/store';
+import { NavigationNodeStyles } from '../../../fx/models/navigation/NavigationNodeStyles';
+import './NavigationNode.css';
 
 export interface NavigationNodeComponentProps {
     level: number;
-    navigationNode: NavigationNode<NavigationData>;
+    navigationNode: ProcessStepNavigationNode;
 }
 
 export interface NavigationNodeComponentEvents {
@@ -23,54 +26,22 @@ export interface NavigationNodeComponentEvents {
 export class NavigationNodeComponent extends tsx.Component<NavigationNodeComponentProps, NavigationNodeComponentEvents>
 {
     @Prop() private level: number;
-    @Prop() private navigationNode: NavigationNode<NavigationData>;
-    @Prop() private currentRootProcess?: NavigationNode<NavigationData>;//todo
+    @Prop() private navigationNode: ProcessStepNavigationNode;
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    //private navigationNodeStyles = StyleFlow.use(NavigationNodeStyles);
-    private navigationNodeStyles: any = {};
+    private navigationNodeStyles = StyleFlow.use(NavigationNodeStyles);
 
-    private internalNavigationNode: {
-        children: Array<NavigationNode<NavigationData>>,
-        showEditNavigation: boolean,
-        nodeState: NodeState
-    } = {
-            children: [],
-            showEditNavigation: false,
-            nodeState: null
-        }
-
-    private currentPageId: number = null;
-    private contentElementId: string = Utils.generateGuid();
-
-    private contentElement: HTMLElement = null;
+    private isExpanded: boolean = false;
 
     public created() {
-        //let node = this.navigationNode as PageCollectionNavigationNode<PageNavigationData>;
-        //if (node && node.navigationNodeType != NavigationNodeType.Generic)
-        //    this.currentPageId = node.page.id;
-
-        //this.model.children = this.currentNavigationStore.getters.getChildren(this.navigationNode);
-        //this.model.nodeState = this.currentNavigationStore.getters.getNodeState(this.navigationNode);
-        //if (this.navigationNode.navigationNodeType == NavigationNodeType.PageCollection ||
-        //    this.currentNavigationStore.getters.isSelected(this.navigationNode)) {
-        //    this.checkPermissions();
-        //}
-
-        //if (this.currentNavigationStore.getters.isActive(this.navigationNode) && this.currentNavigationStore.getters.selectedNode()) {
-        //    if (this.navigationNode.id != this.currentNavigationStore.getters.selectedNode().id) {
-        //        this.currentNavigationStore.actions.expand.dispatch(this.navigationNode);
-        //    }
-        //}
-
-        //this.subscriptionHandler = this.navigationStore.mutations.addOrUpdateNodes.onCommited((nodes) => {
-        //    this.model.children = this.currentNavigationStore.getters.getChildren(this.navigationNode);
-        //    this.model.nodeState = this.currentNavigationStore.getters.getNodeState(this.navigationNode);
-        //});
+        if (this.navigationNode) {
+            this.isExpanded = this.navigationNode.nodeState.isExpanded;
+        }
     }
 
     public mounted() {
@@ -78,7 +49,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
    
     public beforeDestroy() {
-        this.subscriptionHandler.unsubscribe();
+        if (this.subscriptionHandler)
+            this.subscriptionHandler.unsubscribe();
         //window.removeEventListener('keydown', this.onDialogEscape);
         //window.removeEventListener('keydown', this.onCloseMoveNode);
     }
@@ -90,44 +62,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
      */
     public onHeaderClick(e: Event, navigateToNode: boolean, handleExpandNode: boolean) {
         e.stopPropagation();
-        //if (handleExpandNode) {
-        //    if (this.model.nodeState.isExpanded) {
-        //        this.currentNavigationStore.mutations.expanded.commit(this.navigationNode, false);
-        //    }
-        //    else {
-        //        this.currentNavigationStore.actions.expand.dispatch(this.navigationNode).then(() => {
-        //            this.model.children = this.currentNavigationStore.getters.getChildren(this.navigationNode);
-        //        });
-        //    }
-        //}
-        //if (navigateToNode) {
-        //    this.checkPermissions();
-        //    if (this.navigationNode.navigationData.type === WCMNavigationDataTypes.link) {
-        //        this.editorStore.mutations.setActiveItemInEditor.commit(new LinkEditorItem(this.navigationNode));
-        //    }
-        //    else {
-        //        this.wcmRouter.navigate(this.navigationNode).then(() => {
-        //            //reset variation picker
-        //            this.variationSelectorStore.mutations.setSelectedVariation.commit(null);
-        //            let currentVariation = this.variationStore.getters.getCurrentVariation();
-        //            if (currentVariation) {
-        //                //if dont have page variation
-        //                let currentNavigationId = this.currentVariationIdOfMapPageNode();
-        //                if (currentNavigationId !== this.wcmContext.variationId) {
-        //                    this.editorStore.actions.showEditor.dispatch(true).then(() => {
-        //                        this.editorStore.mutations.setActiveItemInEditor.commit(new VariationCreationEditorItem(currentVariation));
-        //                    });
-        //                }
-        //                // else show page editor
-        //                else {
-        //                    this.editorStore.actions.editCurrentPage.dispatch(new EditorItemFactory());
-        //                }
-        //            }
-        //            else
-        //                this.editorStore.actions.editCurrentPage.dispatch(new EditorItemFactory());
-        //        });
-        //    }
-        //}
+        this.navigationNode.nodeState.isExpanded = !this.navigationNode.nodeState.isExpanded;
+        this.isExpanded = this.navigationNode.nodeState.isExpanded;
     }
    
 
@@ -161,61 +97,21 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
      */
     private renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.internalNavigationNode.children.forEach(node => {
+        this.navigationNode.processSteps.forEach(childProcessStep => {
+            let childNavigationNode: ProcessStepNavigationNode = childProcessStep;
+            childNavigationNode.nodeState = {
+                isExpanded: false
+            }
             result.push(
                 <NavigationNodeComponent
                     level={this.level + 1}
-                    navigationNode={node}
+                    navigationNode={childNavigationNode}
                 >
                 </NavigationNodeComponent>
             )
         });
         return result;
     }
-
-    //public renderEditNavigationDialog(h) {
-    //    if (!this.model.showEditNavigation) {
-    //        return null
-    //    }
-
-    //    let disableSaveButton = this.shouldSaveButtonBeDisabled();
-
-    //    return (
-    //        <v-dialog
-    //            v-model={this.model.showEditNavigation}
-    //            max-width="800px"
-    //            scrollable
-    //            persistent
-    //            onKeydown={this.onDialogEscape}
-    //            dark={this.omniaTheming.promoted.body.dark}>
-    //            <v-card class={this.omniaTheming.promoted.body.class}>
-    //                <v-card-title
-    //                    class={[this.navigationNodeStyles.dialogHeaderWrap(this.omniaTheming.promoted.header.background, this.omniaTheming.promoted.header.text), this.omniaTheming.promoted.header.class]}
-    //                    dark={this.omniaTheming.promoted.header.dark}>
-    //                    <div class={["headline mb-0 ml-1"]}>{this.editorLoc.Editor.Dialogs.EditNavigation.Title}</div>
-    //                </v-card-title>
-    //                {
-    //                    this.renderEditNavigationDialogBody(h)
-    //                }
-    //                <v-card-actions class="mb-3 mr-3 ml-3">
-    //                    <v-spacer></v-spacer>
-    //                    <v-btn
-    //                        light={!this.omniaTheming.promoted.body.dark}
-    //                        dark={!disableSaveButton}
-    //                        disabled={disableSaveButton}
-    //                        color={this.omniaTheming.promoted.body.primary.base}
-    //                        onClick={() => { this.onSaveNavigation() }}>{this.editorLoc.Editor.Dialogs.EditNavigation.Save}
-    //                    </v-btn>
-    //                    <v-btn
-    //                        light={!this.omniaTheming.promoted.body.dark}
-    //                        text
-    //                        onClick={() => this.onCloseEditNavigationDialog()}>{this.editorLoc.Editor.Dialogs.EditNavigation.Cancel}
-    //                    </v-btn>
-    //                </v-card-actions>
-    //            </v-card>
-    //        </v-dialog>
-    //    );
-    //}
 
     private transformVSlot(slot) {
         let vSlot = [];
@@ -250,12 +146,12 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         if (!this.navigationNode) {
             return <div />
         }
-        //if (this.model.nodeState.isExpanded) {
-        //    expandedIconStyle = this.navigationNodeStyles.leftIconExpanded;
-        //}
-        //else {
-        //    collapsedStyle = this.navigationNodeStyles.contentHide;
-        //}
+        if (this.isExpanded) {
+            expandedIconStyle = this.navigationNodeStyles.leftIconExpanded;
+        }
+        else {
+            collapsedStyle = this.navigationNodeStyles.contentHide;
+        }
 
         //let selectedNode = this.currentNavigationStore.getters.selectedNode();
 
@@ -264,8 +160,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         //    isSelectedNode = (this.editorStore.item.state as LinkEditorItem).navigationNode.id === this.navigationNode.id;
         //}
 
-        let hasChildren: boolean = true; //todo
-        let isRootProcessStep: boolean = true; //todo
+        let hasChildren: boolean = this.navigationNode.processSteps && this.navigationNode.processSteps.length > 0;
+        let isSelectedNode: boolean = false; //todo
 
         return (
             <div class={this.navigationNodeStyles.wrapper}>
@@ -283,22 +179,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-btn>
                     </div>
-                    <div class={this.navigationNodeStyles.leftIconWithoutButton}>
-                        <v-tooltip top
-                            {
-                            ...this.transformVSlot({
-                                activator: (ref) => {
-                                    const toSpread = {
-                                        on: ref.on
-                                    }
-                                    return [
-                                        <v-icon {...toSpread} class={"ml-0 mr-0 mt-1"} dark={isSelectedNode || this.omniaTheming.promoted.body.dark}>{IconRules.getPageIcon(this.navigationNode).icon}</v-icon>
-                                    ]
-                                }
-                            })}>
-                            <span>{IconRules.getPageIcon(this.navigationNode).tooltip}</span>
-                        </v-tooltip>
-                    </div>
+                    <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.multilingualStore.getters.stringValue(this.navigationNode.title)}</div>
                     <div class={[this.navigationNodeStyles.actionBar]} v-show={isSelectedNode}>
                         {
                             //<ActionsMenuComponent
@@ -312,8 +193,10 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                         }
                     </div>
                 </div>
-                <div id={this.contentElementId} class={[this.navigationNodeStyles.content, collapsedStyle]}>
-                    {this.model.nodeState.isExpanded && this.renderChildren(h)}
+                <div class={[this.navigationNodeStyles.content, collapsedStyle]}>
+                    {
+                        this.isExpanded && this.renderChildren(h)
+                    }
                 </div>
                 {
                     //this.renderEditNavigationDialog(h)

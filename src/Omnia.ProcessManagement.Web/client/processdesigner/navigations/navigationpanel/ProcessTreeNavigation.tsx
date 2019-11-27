@@ -4,17 +4,17 @@ import Component from 'vue-class-component';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx/models';
 import { NavigationNodeComponent } from '../navigationtree/NavigationNode';
 import { Prop } from 'vue-property-decorator';
-import { ProcessNavigationNode, ProcessNavigationData } from '../../../fx/models';
+import { ProcessStepNavigationNode } from '../../../fx/models';
 
 
 export interface ProcessTreeNavigationProps {
-    navigationNodes: Array<ProcessNavigationNode<ProcessNavigationData>>;
+    rootNavigationNode: ProcessStepNavigationNode;
 }
 
 @Component
 export class ProcessTreeNavigationComponent extends tsx.Component<ProcessTreeNavigationProps>
 {
-    @Prop() navigationNodes: Array<ProcessNavigationNode<ProcessNavigationData>>;
+    @Prop() rootNavigationNode: ProcessStepNavigationNode;
 
     private isLoading: boolean = false;
     messageBusSubscriptionHandler: IMessageBusSubscriptionHandler;
@@ -26,13 +26,6 @@ export class ProcessTreeNavigationComponent extends tsx.Component<ProcessTreeNav
     created() {
     }
 
-    renderProcessTreeNodes(h) {
-        let result: Array<JSX.Element> = [];
-        this.navigationNodes.forEach((node) => {
-            result.push(<NavigationNodeComponent level={0} navigationNode={node}></NavigationNodeComponent>);
-        });
-        return result;
-    }
     /**
      * Render 
      * @param h
@@ -48,10 +41,10 @@ export class ProcessTreeNavigationComponent extends tsx.Component<ProcessTreeNav
                         type="list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar"
                     >
                     </v-skeleton-loader>
-                    :                    
-                    this.renderProcessTreeNodes(h)
+                    :
+                    <NavigationNodeComponent level={0} navigationNode={this.rootNavigationNode}></NavigationNodeComponent>
                 }
-                    
+
             </v-list>
         )
     }

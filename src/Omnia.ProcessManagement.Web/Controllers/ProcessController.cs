@@ -129,11 +129,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
-                Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
-                {
-                    Public = true,
-                    MaxAge = TimeSpan.FromDays(31536000)
-                };
+                //Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                //{
+                //    Public = true,
+                //    MaxAge = TimeSpan.FromDays(31536000)
+                //};
 
                 return processData.AsApiResponse();
             }
@@ -152,6 +152,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
                 return processData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
+        [HttpGet, Route("process/{processId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> GetProcessById(Guid processId/*, ProcessVersionType versionType*/)
+        {
+            try
+            {
+                var process = await ProcessService.GetProcessById(processId, ProcessVersionType.Published);
+                return process.AsApiResponse();
             }
             catch (Exception ex)
             {

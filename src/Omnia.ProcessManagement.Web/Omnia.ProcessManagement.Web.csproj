@@ -67,6 +67,7 @@
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
@@ -74,6 +75,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\enums\Enums.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\enums\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\MultilingualData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processactions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processactions\ProcessActionModel.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
@@ -98,6 +100,9 @@
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\navigation\NavigationNodeStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRoute.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
@@ -112,8 +117,6 @@
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationData.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationNode.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NodeState.ts" />
-    <TypeScriptCompile Remove="client\fx\models\navigation\ProcessNavigationData.ts" />
-    <TypeScriptCompile Remove="client\fx\models\navigation\ProcessNavigationNode.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessReference.ts" />
@@ -129,18 +132,46 @@
     <TypeScriptCompile Remove="client\fx\processshape\shapes\MediaShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\PentagonShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\ActionButton.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\DisplayActionButton.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\index.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\IProcessDesignerItem.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\ProcessDesignerSettings.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\DesignerItemFactory.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepDesignerItem.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepDesignerItemBase.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\RootProcessStepDesignerItem.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\factory\ActionButtonFactory.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\factory\ActionButtonIds.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\navigations\ContentNavigation.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\ContentNavigation.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationpanel\ProcessTreeNavigation.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\NavigationNode.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\NavigationNode.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\index - Copy.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\processdrawing\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\processdrawing\ProcessStepDrawing.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\properties\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\properties\ProcessProperties.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\TabManager.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panels\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panels\TabsPanel.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\panels\TabsPanel.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\ProcessDesigner.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\ProcessDesigner.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\ProcessDesigner.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\RawStyles.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\statemanager\SaveProcessStateManager.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\TempTestComponent.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\Utils.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
-    <TypeScriptCompile Remove="client\stores\NavigationStore.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -342,6 +373,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\processdrawing\index.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

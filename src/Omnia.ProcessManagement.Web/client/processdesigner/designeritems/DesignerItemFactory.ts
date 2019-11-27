@@ -1,51 +1,32 @@
-﻿import { IEditorItem } from '../../../../models';
+﻿import { IProcessDesignerItem } from '../../models/processdesigner';
 import { Inject } from '@omnia/fx';
-import { CurrentPageStore } from '../../../../fx'
-import { WCMPageTypes } from '../../../../fx/models';
-import { PageEditorItem } from './PageEditorItem';
-import { PageTypeEditorItem } from './PageTypeEditorItem';
-import { PageCollectionEditorItem } from './PageCollectionEditorItem';
-import { PageEditorItemWizard } from './PageEditorItemWizard';
-import { AppEditorItem } from './AppEditorItem';
+import { CurrentProcessStore } from '../../fx';
+import { RootProcessStepDesignerItem } from './RootProcessStepDesignerItem';
+import { ProcessStepDesignerItem } from './ProcessStepDesignerItem';
 
-export interface IEditorItemFactory {
-    createEditorItem(): IEditorItem
+export interface IProcessDesignerItemFactory {
+    createDesignerItem(): IProcessDesignerItem
 }
 
 
 /**
  * Factory for Layout items
  * */
-export class DesignerItemFactory implements IEditorItemFactory {
-    @Inject(CurrentPageStore) currentPageStore: CurrentPageStore;
-    public createEditorItem(): IEditorItem {
-        let editorItem: IEditorItem = null;
+export class ProcessDesignerItemFactory implements IProcessDesignerItemFactory {
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
-        if (this.currentPageStore.getters.state) {
-            switch (this.currentPageStore.getters.state.currentVersion.versionData.pageData.type) {
-                case WCMPageTypes.pageCollection: {
-                    editorItem = new PageCollectionEditorItem();
-                    break;
-                }
-                case WCMPageTypes.pageType: {
-                    editorItem = new PageTypeEditorItem();
-                    break;
-                }
-                case WCMPageTypes.plainPage: {
-                    if (this.currentPageStore.getters.state.currentVersion.versionData.majorVersion === 0) {
-                        editorItem = new PageEditorItemWizard();
-                    }
-                    else {
-                        editorItem = new PageEditorItem();
-                    }
-                    break;
-                }
+    public createDesignerItem(): IProcessDesignerItem {
+        let designerItem: IProcessDesignerItem = null;
+        let currentProcessData = this.currentProcessStore.getters.referenceData();
+        if (currentProcessData) {
+            if (currentProcessData.isRootProcessStep) {
+                designerItem = new RootProcessStepDesignerItem();
             }
-        } else {
-            editorItem = new AppEditorItem();
+            else {
+                designerItem = new ProcessStepDesignerItem();
+            }
         }
-
-        return editorItem;
+        return designerItem;
     }
 }
 
