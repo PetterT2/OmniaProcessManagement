@@ -3,4 +3,5 @@ import { ProcessStep } from './ProcessStep';
 
 export interface RootProcessStep extends ProcessStep {
     enterpriseProperties: { [internalName: string]: any };
+    processTypeId: GuidValue;
 }

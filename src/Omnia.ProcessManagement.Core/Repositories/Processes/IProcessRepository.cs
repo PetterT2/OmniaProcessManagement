@@ -1,6 +1,7 @@
 ﻿using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,5 +21,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
+        ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId);
     }
 }

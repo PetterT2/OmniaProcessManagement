@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -18,10 +23,14 @@ namespace Omnia.ProcessManagement.Web.Controllers
     public class ProcessController : ControllerBase
     {
         ILogger<ProcessController> Logger { get; }
+        IProcessLibraryService ProcessLibraryService { get; }
         IProcessService ProcessService { get; }
-        public ProcessController(IProcessService processService, ILogger<ProcessController> logger)
+
+        public ProcessController(IProcessService processService, ILogger<ProcessController> logger,
+            IProcessLibraryService processLibraryService)
         {
             ProcessService = processService;
+            ProcessLibraryService = processLibraryService;
             Logger = logger;
         }
 
@@ -31,6 +40,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
+                LanguageTag language;
+                (actionModel.Process.SiteId, actionModel.Process.WebId, language) = await ProcessLibraryService.GetProcessSiteInfo(actionModel.WebUrl);
                 var process = await ProcessService.CreateDraftProcessAsync(actionModel);
                 return process.AsApiResponse();
             }
@@ -173,6 +184,38 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
+        [HttpGet, Route("filteringoptions")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<string>>> GetFilteringOptions(string webUrl, string column)
+        {
+            try
+            {
+                var values = await ProcessLibraryService.GetFilterOptions(webUrl, column);
+                return values.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<List<string>>(ex);
+            }
+        }
+
+        [HttpPost, Route("drafts")]
+        [Authorize]
+        public async ValueTask<ApiResponse<DraftProcessesResponse>> GetDraftProcessesDataAsync([FromBody]ProcessLibraryRequest processLibraryRequest)
+        {
+            try
+            {
+                var processesData = await ProcessLibraryService.GetDraftProcessesDataAsync(processLibraryRequest);
+                return processesData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<DraftProcessesResponse>(ex);
             }
         }
     }

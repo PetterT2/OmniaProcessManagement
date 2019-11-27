@@ -13,10 +13,21 @@ export class ProcessTypeService {
 
     }
 
-    public getProcessTypeTermSetId = (): Promise<GuidValue> => {
+    public refreshServerCache = (): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/processtypes/refreshcache').then(response => {
+                if (response.data.success) {
+                    resolve();
+                }
+                else
+                    reject(response.data.errorMessage);
+            });
+        });
+    }
 
-        return new Promise<GuidValue>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<GuidValue>>('/api/processtypes/getprocesstypetermsetid').then(response => {
+    public getByIds = (ids: Array<GuidValue>): Promise<Array<ProcessType>> => {
+        return new Promise<Array<ProcessType>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<ProcessType>>>('/api/processtypes/getbyids', ids).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -26,12 +37,25 @@ export class ProcessTypeService {
         });
     }
 
-    public getAllProcessTypes = (termSetId: GuidValue): Promise<Array<ProcessType>> => {
+    public getChildren = (rootId: GuidValue): Promise<Array<ProcessType>> => {
         return new Promise<Array<ProcessType>>((resolve, reject) => {
             var params = {
-                termSetId: termSetId
+                rootId: rootId
             }
-            this.httpClient.post<IHttpApiOperationResult<Array<ProcessType>>>('/api/processtypes/getallprocesstypes', { params: params }).then(response => {
+            this.httpClient.get<IHttpApiOperationResult<Array<ProcessType>>>('/api/processtypes/children', { params: params }).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else
+                    reject(response.data.errorMessage);
+            });
+        });
+    }
+
+    public getProcessTypeTermSetId = (): Promise<GuidValue> => {
+
+        return new Promise<GuidValue>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<GuidValue>>('/api/processtypes/getprocesstypetermsetid').then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

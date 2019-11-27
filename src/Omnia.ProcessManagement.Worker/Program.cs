@@ -26,7 +26,7 @@ namespace Omnia.ProcessManagement.Worker
                         {
                             options.AddFeatureHandlers((featureProviderOptions) =>
                             {
-                                featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryHandler>();
+                                featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryProvider>();
                             });
                         })
                         .AddOmniaFxNetCoreSharePoint()

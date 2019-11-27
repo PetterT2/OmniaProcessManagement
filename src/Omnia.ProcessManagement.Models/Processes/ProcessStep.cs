@@ -11,5 +11,6 @@ namespace Omnia.ProcessManagement.Models.Processes
         public string ProcessDataHash { get; set; }
         public MultilingualString Title { get; set; }
         public List<ProcessStep> ProcessSteps { get; set; }
+        public Guid ProcessTemplateId { get; set; }
     }
 }

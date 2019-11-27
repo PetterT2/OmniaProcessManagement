@@ -2,7 +2,13 @@
 import { ProcessType } from './ProcessType';
 import { ProcessTypeItemSettings } from './ProcessTypeItemSettings';
 
+export enum ProcessTypeSettingsTypes {
+    Group = 0,
+    Item = 1
+}
+
 export interface ProcessTypeSettings {
+    type: ProcessTypeSettingsTypes;
     termSetId: GuidValue;
 }
 
@@ -17,6 +23,7 @@ export const ProcessTypeFactory = {
             title: {
                 isMultilingualString: true
             },
+            rootId: null,
             multilingualTitle: '',
             secondaryOrderNumber: 0,
             settings: <ProcessTypeItemSettings>{

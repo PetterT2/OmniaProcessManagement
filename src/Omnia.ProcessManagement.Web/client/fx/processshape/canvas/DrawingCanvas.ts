@@ -22,6 +22,10 @@ export class DrawingCanvas implements CanvasDefinition {
         this.renderBackgroundImage(definition);
     }
 
+    destroy() {
+        this.canvasObject.dispose();
+    }
+
     getCanvasDefinitionJson(): CanvasDefinition {
         let shapes: DrawingShape[] = [];
         this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));

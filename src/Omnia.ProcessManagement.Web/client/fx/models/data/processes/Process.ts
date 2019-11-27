@@ -8,4 +8,6 @@ export interface Process {
     rootProcessStep: RootProcessStep;
     checkedOutBy: string;
     versionType: ProcessVersionType;
+    siteId: GuidValue;
+    webId: GuidValue;
 }

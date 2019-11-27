@@ -20,5 +20,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
+        ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId);
     }
 }

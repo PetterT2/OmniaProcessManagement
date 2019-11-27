@@ -12,6 +12,15 @@
                 Description: string,
                 Title: string
             }
+        },
+        Blocks: {
+            ProcessLibrary: {
+                Title: string,
+                Description: string
+            }
+        },
+        Columns: {
+            Title: string
         }
     }
 }

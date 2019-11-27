@@ -31,4 +31,13 @@ export module OPMUtils {
         }
         return processReference;
     }
+
+    export function navigateToNewState(path) {
+        path = path ? path : '';
+        var hash = window.location.hash.split("|")[0];
+        if (hash.indexOf("?") > -1)
+            hash = hash.split("?")[0];
+        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + hash + path;
+        window.history.pushState({ path: newurl }, '', newurl);
+    }
 }

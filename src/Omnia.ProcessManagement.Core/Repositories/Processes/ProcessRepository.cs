@@ -15,6 +15,7 @@ using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
@@ -57,13 +58,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var processDataDict = actionModel.ProcessData;
             AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
-            process.OPMProcessId = new Guid();
+            process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
+            process.WebId = actionModel.Process.WebId;
+            process.SiteId = actionModel.Process.SiteId;
 
             await DatabaseContext.SaveChangesAsync();
 
@@ -116,6 +119,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
 
                 processStep.ProcessDataHash = processDataEf.Hash;
+
+                DbContext.ProcessData.Add(processDataEf);
             }
             else
             {
@@ -390,6 +395,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId)
+        {
+            List<Process> processes = new List<Process>();
+            var processesData = await DbContext.Processes
+               .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == ProcessVersionType.Draft)
+               .OrderByDescending(p => p.ClusteredId)
+               .ToListAsync();
+            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            return processes;
+        }
+
         public async ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType)
         {
             var process = await DbContext.Processes
@@ -482,9 +498,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         private async ValueTask<Entities.Processes.Process> CloneProcessAsync(ProcessWithProcessDataIdHash processWithProcessDataIdHash, ProcessVersionType versionType)
         {
             var checkedOutProcess = new Entities.Processes.Process();
-            checkedOutProcess.Id = new Guid();
+            checkedOutProcess.Id = Guid.NewGuid();
             checkedOutProcess.OPMProcessId = processWithProcessDataIdHash.Process.OPMProcessId;
             checkedOutProcess.EnterpriseProperties = processWithProcessDataIdHash.Process.EnterpriseProperties;
+            checkedOutProcess.WebId = processWithProcessDataIdHash.Process.WebId;
+            checkedOutProcess.SiteId = processWithProcessDataIdHash.Process.SiteId;
             checkedOutProcess.VersionType = versionType;
             checkedOutProcess.CreatedAt = processWithProcessDataIdHash.Process.CreatedAt;
             checkedOutProcess.CreatedBy = processWithProcessDataIdHash.Process.CreatedBy;
@@ -505,10 +523,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             checkedOutProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
 
             DbContext.Processes.Add(checkedOutProcess);
-            await DbContext.ExecuteSqlCommandAsync(sqlStrBuilder.ToString());
-
-            //TODO double check number of row effected ?!
             await DbContext.SaveChangesAsync();
+
+            await DbContext.ExecuteSqlCommandAsync(sqlStrBuilder.ToString());
 
             return checkedOutProcess;
         }
@@ -523,9 +540,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessDataNotFoundException(processStep.Id);
             }
 
-            var newProcessStepId = Guid.NewGuid();
-            sqlStrBuilder.Append(GenerateCloneProcessDataRowSql(newProcessStepId, processStep.Id, processId, oldProcessId));
-            processStep.Id = newProcessStepId;
+
+            sqlStrBuilder.Append(GenerateCloneProcessDataRowSql(processStep.Id, processId, oldProcessId));
 
             if (processStep.ProcessSteps != null)
             {
@@ -553,7 +569,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return processWithProcessDataIdHash;
         }
 
-        private string GenerateCloneProcessDataRowSql(Guid newId, Guid oldId, Guid newProcessId, Guid oldProcessId)
+        private string GenerateCloneProcessDataRowSql(Guid processStepId, Guid newProcessId, Guid oldProcessId)
         {
             #region Names
             var tableName = nameof(DbContext.ProcessData);
@@ -568,7 +584,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
 
             #region SQL
-            return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{newId}', '{newProcessId}',{hashColumnName}, {jsonValueColumnName},{createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName} FROM {tableName} WHERE {processStepIdColumnName} = '{oldId}' AND {processIdColumnName} = '{oldProcessId}'";
+            return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{processStepId}', '{newProcessId}', pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processStepIdColumnName} = '{processStepId}' AND {processIdColumnName} = '{oldProcessId}'";
             #endregion
         }
 
