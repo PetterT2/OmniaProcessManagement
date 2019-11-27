@@ -81,7 +81,7 @@ export class ProcessService {
 
     public getProcess = (processId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/process/${processId}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/process/${processId}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

@@ -41,8 +41,8 @@ export class ProcessStore extends Store {
         getProcessReferenceData: (processReference: ProcessReference) => {
             let processCacheKey = this.getProcessCacheKey(processReference.processId);
             let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId, processReference.processDataHash);
-            let process = this.processDict[processCacheKey];
-            let processData = this.processDataDict[processDataCacheKey];
+            let process = this.processDict.state[processCacheKey];
+            let processData = this.processDataDict.state[processDataCacheKey];
 
             if (process == null)
                 throw `Process with id: ${processReference.processId} not found in store`;
@@ -107,7 +107,8 @@ export class ProcessStore extends Store {
                     let loadPromise = new Promise<null>((resolve, reject) => {
                         this.ensureProcess(processReference.processId).then((proces) => {
                             this.ensureProcessData(proces, processReference.processStepId).then((procesData) => {
-
+                                console.log('resolved ensureProcessData');
+                                resolve();
                             })
                         })
                     });
@@ -116,6 +117,7 @@ export class ProcessStore extends Store {
                 }
 
                 Promise.all(ensurePromises).then(() => {
+                    console.log('resolved ensureProcessData all');
                     resolve();
                 }).catch(reject);
 
@@ -144,9 +146,9 @@ export class ProcessStore extends Store {
     private internalMutations = {
         addOrUpdateProcess: (process: Process) => {
             let currentState = this.processDict.state;
-            let key = this.getProcessCacheKey(process);
+            let key = this.getProcessCacheKey(process.id);
             let newState = Object.assign({}, currentState, { [key]: process });
-
+            console.log('updateprocess state'); console.log(key); console.log(newState);
             this.processDict.mutate(newState);
         },
         addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {
@@ -158,7 +160,7 @@ export class ProcessStore extends Store {
         },
         removeProcess: (process: Process) => {
             let processCurrentState = this.processDict.state;
-            let key = this.getProcessCacheKey(process);
+            let key = this.getProcessCacheKey(process.id);
             let newState = Object.assign({}, processCurrentState, { [key]: null });
             this.processDict.mutate(newState);
 
@@ -175,57 +177,70 @@ export class ProcessStore extends Store {
         }
     }
 
-    private ensureProcess = (processId: GuidValue): Promise<null> => {
-        let resolvablePromise = this.getProcessLoadResolvablePromise(processId);
+    private ensureProcess = (processId: GuidValue): Promise<any> => {
+        //let resolvablePromise = this.getProcessLoadResolvablePromise(processId);
 
-        if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
-            resolvablePromise.resolving = true;
+        //if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
+        //    resolvablePromise.resolving = true;
 
+        //    this.processService.getProcess(processId).then((process) => {
+        //        this.internalMutations.addOrUpdateProcess(process);
+        //        resolvablePromise.resolve(process);
+        //    });
+        //}
+
+        //return resolvablePromise.promise;
+        return new Promise<any>((resolve, reject) => {
             this.processService.getProcess(processId).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
-                resolvablePromise.resolve(null);
+                resolve(process);
             });
-        }
-
-        return resolvablePromise.promise;
+        });
     }
 
     private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessDataWithAuditing> => {
-        let promise: Promise<ProcessDataWithAuditing> = null;
+        //let promise: Promise<ProcessDataWithAuditing> = null;
 
         let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
 
-        if (processStep) {
-            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStep.id, processStep.processDataHash);
+        //if (processStep) {
+        //    let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStep.id, processStep.processDataHash);
 
-            if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
-                resolvablePromise.resolving = true;
-                this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
+        //    if (!resolvablePromise.resolved && !resolvablePromise.rejected && !resolvablePromise.resolving) {
+        //        resolvablePromise.resolving = true;
+        //        this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
 
-                    this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
-                    resolvablePromise.resolve(null);
-                });
-            }
+        //            this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
+        //            resolvablePromise.resolve(null);
+        //        });
+        //    }
 
-            return resolvablePromise.promise;
-        } else {
-            promise = Promise.reject('Process step not found');
-        }
+        //    return resolvablePromise.promise;
+        //} else {
+        //    promise = Promise.reject('Process step not found');
+        //}
 
-        return promise;
+        //return promise;
+        return new Promise<any>((resolve, reject) => {
+            this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
+
+                this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
+                resolve();
+            });
+        });
     }
 
-    private getProcessLoadResolvablePromise = (processId: GuidValue): ResolvablePromise<null> => {
+    private getProcessLoadResolvablePromise = (processId: GuidValue): ResolvablePromise<any> => {
 
         let key = `${processId.toString()}`.toLowerCase();
 
         let existingPromise = this.processLoadPromises[key];
 
         if (!existingPromise) {
-            this.processLoadPromises[key] = new ResolvablePromise<null>();
+            this.processLoadPromises[key] = new ResolvablePromise<any>();
         } else if (existingPromise && existingPromise.rejected) {
             //We have an server failed-result already for this ref, we create a new promise to refresh from server
-            this.processLoadPromises[key] = new ResolvablePromise<null>();
+            this.processLoadPromises[key] = new ResolvablePromise<any>();
         }
 
         return this.processLoadPromises[key];

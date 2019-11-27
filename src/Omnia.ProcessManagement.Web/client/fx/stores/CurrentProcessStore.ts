@@ -134,24 +134,36 @@ export class CurrentProcessStore extends Store {
 
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
-            return this.transaction.newState(processReferenceToUse.processId, (newState) => {
-                if (newState) {
-                    this.loadedProcessData = {};
-                }
+            //return this.transaction.newState(processReferenceToUse.processId, (newState) => {
+            //    if (newState) {
+            //        this.loadedProcessData = {};
+            //    }
 
-                return new Promise<null>((resolve, reject) => {
-                    this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
-                        let processReferenceData = this.processStore.getters.getProcessReferenceData(processReferenceToUse);
+            //    return new Promise<null>((resolve, reject) => {
+            //        this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
+            //            let processReferenceData = this.processStore.getters.getProcessReferenceData(processReferenceToUse);
 
-                        this.currentProcessReference.mutate(processReferenceToUse);
-                        this.currentProcessReferenceData.mutate(processReferenceData);
+            //            this.currentProcessReference.mutate(processReferenceToUse);
+            //            this.currentProcessReferenceData.mutate(processReferenceData);
 
-                        resolve();
-                    }).catch((reason) => {
-                        reject(reason);
-                    });
-                })
-            });
+            //            resolve();
+            //        }).catch((reason) => {
+            //            reject(reason);
+            //        });
+            //    })
+            //});
+            return new Promise<any>((resolve, reject) => {
+                this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
+                    let processReferenceData = this.processStore.getters.getProcessReferenceData(processReferenceToUse);
+
+                    this.currentProcessReference.mutate(processReferenceToUse);
+                    this.currentProcessReferenceData.mutate(processReferenceData);
+                    console.log('resolved1');
+                    resolve();
+                }).catch((reason) => {
+                    reject(reason);
+                });
+            })
         }),
         checkOutProcess: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {

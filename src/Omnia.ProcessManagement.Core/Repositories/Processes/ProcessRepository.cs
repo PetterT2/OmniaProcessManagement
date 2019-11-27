@@ -390,6 +390,22 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType)
+        {
+            var process = await DbContext.Processes
+                    .Where(p => p.Id == processId && p.VersionType == versionType)
+                    .OrderByDescending(p => p.ClusteredId)
+                    .FirstOrDefaultAsync();
+
+            if (process == null)
+            {
+                throw new ProcessDataNotFoundException(processId);
+            }
+
+            var model = MapEfToModel(process);
+            return model;
+        }
+
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
             var draftProcess = await DbContext.Processes
