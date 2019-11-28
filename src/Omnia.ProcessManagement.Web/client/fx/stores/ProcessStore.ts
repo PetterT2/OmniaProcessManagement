@@ -85,16 +85,22 @@ export class ProcessStore extends Store {
         }),
         checkInProcess: this.action((opmProcessId: GuidValue) => {
             return this.processService.checkinProcess(opmProcessId).then((process) => {
+                this.internalMutations.addOrUpdateProcess(process);
+
                 return null;
             })
         }),
         discardChangeProcess: this.action((opmProcessId: GuidValue) => {
             return this.processService.discardChangeProcess(opmProcessId).then((process) => {
+                this.internalMutations.addOrUpdateProcess(process);
+
                 return null;
             })
         }),
         saveCheckedOutProcess: this.action((actionModel: ProcessActionModel) => {
             return this.processService.saveCheckedOutProcess(actionModel).then((process) => {
+                this.internalMutations.addOrUpdateProcess(process);
+
                 return null;
             })
         }),

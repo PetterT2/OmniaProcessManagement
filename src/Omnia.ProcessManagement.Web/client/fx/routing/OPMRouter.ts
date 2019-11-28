@@ -3,7 +3,7 @@ import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@o
 import { TokenBasedRouter } from '@omnia/fx/ux';
 import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, ViewOptions } from '../models';
 import { ProcessStore, CurrentProcessStore } from '../stores';
-import { OPMUtils } from '..';
+import { OPMUtils } from '../Utils';
 import { MultilingualStore } from '@omnia/fx/store';
 
 
