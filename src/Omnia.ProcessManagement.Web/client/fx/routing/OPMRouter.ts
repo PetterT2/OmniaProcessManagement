@@ -12,8 +12,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
     @Inject(ProcessStore) private processStore: ProcessStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
-    private currentProcessStepId: GuidValue = '';
-
+    private currentProcessStepId: string = '';
+    private currentProcessVersionType: ProcessVersionType = null;
     constructor() {
         super('pm')
     }
@@ -69,25 +69,36 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     * Override protected function logic
     */
     protected protectedClearRoute() {
+        this.currentProcessStepId = '';
+        this.currentProcessVersionType = null;
         super.protectedClearRoute();
     }
 
     public navigate(process: Process, processStep: ProcessStep): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let title = this.multilingualStore.getters.stringValue(processStep.title);
-            let viewOption = this.routeContext.route && this.routeContext.route.viewOption || ViewOptions.viewLatestPublishedInBlock;
+            if (processStep.id.toString().toLowerCase() != this.currentProcessStepId ||
+                process.versionType != this.currentProcessVersionType) {
+                this.currentProcessVersionType = process.versionType;
+                this.currentProcessStepId = processStep.id.toString().toLowerCase();
 
-            this.protectedNavigate(title, { viewOption: viewOption, processStepId: processStep.id }, { versionType: process.versionType });
+                let title = this.multilingualStore.getters.stringValue(processStep.title);
+                let viewOption = this.routeContext.route && this.routeContext.route.viewOption || ViewOptions.viewLatestPublishedInBlock;
 
-            let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
-            if (processRefrerence) {
-                this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
-                    console.log('set process to show');
-                    resolve();
-                }).catch(reject);
+                this.protectedNavigate(title, { viewOption: viewOption, processStepId: processStep.id }, { versionType: process.versionType });
+
+                let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
+                if (processRefrerence) {
+                    this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+                        console.log('set process to show');
+                        resolve();
+                    }).catch(reject);
+                }
+                else {
+                    reject(`Cannot find valid ${process.versionType}-version process for the process step with id: ${processStep.id}`)
+                }
             }
             else {
-                reject(`Cannot find valid ${process.versionType}-version process for the process step with id: ${processStep.id}`)
+                resolve();
             }
         })
     }
@@ -101,26 +112,23 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     public navigateWithCurrentRoute(processVersionType: ProcessVersionType): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
-            if (newProcessStepId != this.currentProcessStepId) {
-                this.currentProcessStepId = newProcessStepId;
 
-                if (newProcessStepId) {
-                    this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, processVersionType).then((process) => {
+            if (newProcessStepId) {
+                this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, processVersionType).then((process) => {
 
-                        //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
-                        //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
-                        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
+                    //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
+                    //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
+                    let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
 
-                        this.navigate(process, processStep).then(resolve).catch(reject);
-                    }).catch((errMsg) => {
+                    this.navigate(process, processStep).then(resolve).catch(reject);
+                }).catch((errMsg) => {
 
-                        console.warn(`Cannot find valid ${processVersionType}-version process for the process step with id: ${newProcessStepId}`, errMsg);
-                        reject();
-                    })
-                }
-                else {
-                    resolve();
-                }
+                    console.warn(`Cannot find valid ${processVersionType}-version process for the process step with id: ${newProcessStepId}`, errMsg);
+                    reject();
+                })
+            }
+            else {
+                reject(`Cannot find valid process match to current route`);
             }
         })
     }
