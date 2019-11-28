@@ -1,9 +1,9 @@
 ﻿import { Inject, Injectable, ServiceContainer } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
-import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData } from '../models';
+import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, ViewOptions } from '../models';
 import { ProcessStore, CurrentProcessStore } from '../stores';
-import { OPMUtils } from '..';
+import { OPMUtils } from '../utils';
 import { MultilingualStore } from '@omnia/fx/store';
 
 
@@ -12,8 +12,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
     @Inject(ProcessStore) private processStore: ProcessStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
-    private currentProcessStepId: GuidValue = '';
-
+    private currentProcessStepId: string = '';
+    private currentProcessVersionType: ProcessVersionType = null;
+    private currentViewOption: ViewOptions = null;
     constructor() {
         super('pm')
     }
@@ -26,8 +27,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
         if (routeContext && routeContext.processStepId) {
             contextPath = routeContext.processStepId.toString().toLowerCase();
-        }
 
+            contextPath = routeContext.viewOption.toString() + '/' + contextPath;
+        }
         return contextPath;
     }
 
@@ -36,10 +38,21 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     */
     protected resolveRouteFromPath(path: string): OPMRoute {
         let context: OPMRoute = null;
+        let viewOption: ViewOptions = ViewOptions.viewLatestPublishedInBlock;
+        path = path.toLowerCase();
 
+        if (path.startsWith(ViewOptions.previewDraft)) {
+            path = path.substr(`${ViewOptions.previewDraft}/`.length);
+            viewOption = ViewOptions.previewDraft;
+        }
+        if (path.startsWith(ViewOptions.viewLatestPublishedInGlobal)) {
+            path = path.substr(`${ViewOptions.viewLatestPublishedInGlobal}/`.length);
+            viewOption = ViewOptions.viewLatestPublishedInGlobal;
+        }
         if (path) {
             context = {
-                processStepId: new Guid(path)
+                processStepId: new Guid(path),
+                viewOption: viewOption
             }
         }
 
@@ -57,26 +70,56 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     * Override protected function logic
     */
     protected protectedClearRoute() {
+        this.currentProcessStepId = '';
+        this.currentProcessVersionType = null;
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep, viewOption?: ViewOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let title = this.multilingualStore.getters.stringValue(processStep.title);
-            this.protectedNavigate(title, { processStepId: processStep.id }, { versionType: process.versionType });
 
-            let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
-            this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+            if (viewOption === undefined || viewOption === null) {
+                viewOption = this.routeContext.route && this.routeContext.route.viewOption || ViewOptions.viewLatestPublishedInBlock;
+            }
 
+            if (processStep.id.toString().toLowerCase() !== this.currentProcessStepId ||
+                process.versionType !== this.currentProcessVersionType ||
+                viewOption !== this.currentViewOption) {
+                this.currentProcessVersionType = process.versionType;
+                this.currentProcessStepId = processStep.id.toString().toLowerCase();
+                this.currentViewOption = viewOption;
+
+                let title = this.multilingualStore.getters.stringValue(processStep.title);
+
+
+                this.protectedNavigate(title, { viewOption: viewOption, processStepId: processStep.id }, { versionType: process.versionType });
+
+                let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
+                if (processRefrerence) {
+                    this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+                        console.log('set process to show');
+                        resolve();
+                    }).catch(reject);
+                }
+                else {
+                    reject(`Cannot find valid ${process.versionType}-version process for the process step with id: ${processStep.id}`)
+                }
+            }
+            else {
                 resolve();
-            }).catch(reject);
+            }
         })
     }
 
-    public navigateWithCurrentRoute(processVersionType: ProcessVersionType) {
-        let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
-        if (newProcessStepId != this.currentProcessStepId) {
-            this.currentProcessStepId = newProcessStepId;
+    public clearRoute() {
+        this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
+            this.protectedClearRoute();
+        })
+    }
+
+    public navigateWithCurrentRoute(processVersionType: ProcessVersionType): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
 
             if (newProcessStepId) {
                 this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, processVersionType).then((process) => {
@@ -85,15 +128,17 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                     //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
                     let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
 
-                    this.navigate(process, processStep);
+                    this.navigate(process, processStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
+
                     console.warn(`Cannot find valid ${processVersionType}-version process for the process step with id: ${newProcessStepId}`, errMsg);
+                    reject();
                 })
             }
             else {
-
+                reject(`Cannot find valid process match to current route`);
             }
-        }
+        })
     }
 }
 
@@ -106,5 +151,6 @@ OPMRouter.onNavigate.subscribe(ctx => {
 })
 
 if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-    OPMRouter.navigateWithCurrentRoute(ProcessVersionType.Published);
+    let versionType = OPMRouter.routeContext.route.viewOption == ViewOptions.previewDraft ? ProcessVersionType.Draft : ProcessVersionType.Published;
+    OPMRouter.navigateWithCurrentRoute(versionType);
 }

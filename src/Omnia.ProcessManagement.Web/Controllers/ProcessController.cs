@@ -68,13 +68,29 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("checkin")]
+        [HttpPost, Route("checkin/{opmProcessId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> CheckInProcessAsync([FromBody] ProcessActionModel actionModel)
+        public async ValueTask<ApiResponse<Process>> CheckInProcessAsync(Guid opmProcessId)
         {
             try
             {
-                var process = await ProcessService.CheckInProcessAsync(actionModel);
+                var process = await ProcessService.CheckInProcessAsync(opmProcessId);
+                return process.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
+        [HttpPost, Route("publish/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> PublishProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var process = await ProcessService.PublishProcessAsync(opmProcessId);
                 return process.AsApiResponse();
             }
             catch (Exception ex)
@@ -155,7 +171,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("{processStepId:guid}/{versionType:int}")]
+        [HttpGet, Route("byprocessstep/{processStepId:guid}/{versionType:int}")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
         {
@@ -171,13 +187,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("process/{processId:guid}")]
+        [HttpGet, Route("{processId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> GetProcessById(Guid processId/*, ProcessVersionType versionType*/)
+        public async ValueTask<ApiResponse<Process>> GetProcessByIdAsync(Guid processId)
         {
             try
             {
-                var process = await ProcessService.GetProcessById(processId, ProcessVersionType.Published);
+                var process = await ProcessService.GetProcessByIdAsync(processId);
                 return process.AsApiResponse();
             }
             catch (Exception ex)

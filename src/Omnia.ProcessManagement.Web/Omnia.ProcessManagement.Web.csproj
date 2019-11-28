@@ -156,6 +156,7 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ProcessDesignerSettings.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
@@ -224,6 +225,13 @@
     <TypeScriptCompile Remove="client\processdesigner\statemanager\SaveProcessStateManager.ts" />
     <TypeScriptCompile Remove="client\processdesigner\TempTestComponent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\Utils.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.manifest.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.tsx" />
+    <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
+    <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />

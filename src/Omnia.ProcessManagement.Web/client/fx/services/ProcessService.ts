@@ -27,9 +27,22 @@ export class ProcessService {
         })
     }
 
-    public checkinProcess = (processActionModel: ProcessActionModel) => {
+    public checkinProcess = (opmProcessId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin', processActionModel).then((response) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public publishProcess = (opmProcessId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/publish/' + opmProcessId).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -81,7 +94,7 @@ export class ProcessService {
 
     public getProcess = (processId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/process/${processId}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processId}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -138,7 +151,7 @@ export class ProcessService {
 
     public getProcessByProcessStepId = (processStepId: GuidValue, versionType: ProcessVersionType) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processStepId}/${versionType}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/${versionType}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

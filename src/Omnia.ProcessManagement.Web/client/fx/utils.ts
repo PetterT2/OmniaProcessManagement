@@ -4,10 +4,10 @@ import { GuidValue } from '@omnia/fx-models';
 export module OPMUtils {
     export function getProcessStepInProcess(processStep: ProcessStep, processStepId: GuidValue): ProcessStep {
         let desiredProcessStep: ProcessStep = null;
-        if (processStep.id == processStepId) {
+        if (processStep.id.toString().toLowerCase() == processStepId.toString().toLowerCase()) {
             desiredProcessStep = processStep;
         }
-        else {
+        else if (processStep.processSteps) {
             for (let childProcessStep of processStep.processSteps) {
                 desiredProcessStep = getProcessStepInProcess(childProcessStep, processStepId);
                 if (desiredProcessStep) {

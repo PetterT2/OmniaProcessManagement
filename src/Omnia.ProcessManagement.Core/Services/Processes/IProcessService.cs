@@ -11,15 +11,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
     public interface IProcessService
     {
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
-        ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId);
         ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
-        ValueTask<Process> GetProcessById(Guid processId, ProcessVersionType versionType);
+        ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
-        ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId);
+        ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId);
     }
 }

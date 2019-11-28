@@ -36,7 +36,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         public async ValueTask<DraftProcessesResponse> GetDraftProcessesDataAsync(ProcessLibraryRequest processLibraryRequest)
         {
             var (siteId, webId, language) = await GetProcessSiteInfo(processLibraryRequest.WebUrl);
-            var processes = await ProcessService.GetProcessesDataAsync(siteId, webId);
+            var processes = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
             int total = processes.Count;
 
             processes = ApplyFilters(processLibraryRequest, processes, language);
@@ -56,7 +56,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         public async ValueTask<List<string>> GetFilterOptions(string webUrl, string column)
         {
             var (siteId, webId, language) = await GetProcessSiteInfo(webUrl);
-            var processes = await ProcessService.GetProcessesDataAsync(siteId, webId);
+            var processes = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
             if (column == OPMConstants.ProcessColumns.Title)
                 return processes.Select(p => GetMultilingualStringValue(p.RootProcessStep.Title, language)).ToList();
             return processes.Select(p => column).ToList();
