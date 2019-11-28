@@ -1,5 +1,5 @@
 ﻿import { MultilingualStore, EnterprisePropertyStore } from '@omnia/fx/store';
-import { Inject } from '@omnia/fx';
+import { Inject, ServiceContainer } from '@omnia/fx';
 import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
 import { FabricShapeTypes } from './IFabricShape';
@@ -8,10 +8,11 @@ import { MultilingualString, MultilingualScopes } from '@omnia/fx-models';
 import { DrawingShapeDefinition } from '../../models';
 
 export class FabricTextShape extends FabricShapeExtension implements FabricShape {
-    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+    private multilingualStore: MultilingualStore;
 
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, title?: MultilingualString) {
         super(definition, isActive, properties);
+        this.multilingualStore = ServiceContainer.createInstance(MultilingualStore);
         this.initTextProperties(definition, isActive, title);
     }
 

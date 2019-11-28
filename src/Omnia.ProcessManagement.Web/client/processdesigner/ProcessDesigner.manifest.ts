@@ -8,7 +8,8 @@ Composer
         resourcePaths: [
             //"./loc/**/*.js",
             "./stores/**/*.js",
-            "./RawStyles.css.js",
+            "./RawStyles.css.js", ,
+            "./ProcessDesigner.css.js",
             "./Utils.js"
         ]
     })
@@ -18,8 +19,7 @@ Composer
     .registerResources({
         resourcePaths: [
             //"./loc/**/*.js",
-            "./designeritems/**/*.js",
-            "./ProcessDesigner.css.js"
+            "./designeritems/**/*.js"
         ]
     })
 

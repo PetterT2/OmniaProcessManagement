@@ -1,0 +1,98 @@
+﻿import * as tsx from 'vue-tsx-support';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, Emit, Inject } from 'vue-property-decorator';
+import 'vue-tsx-support/enable-check';
+import { Guid } from '@omnia/fx-models';
+import { DisplayBreakPointFactory } from '../factory/BreakPointFactory';
+import { DisplayBreakPoint } from '../../models/processdesigner';
+import { DevicePreviewerStyles } from './DevicePreviewer.css';
+import { OmniaTheming } from '@omnia/fx/ux';
+
+export interface DevicePreviewerProps {
+}
+
+@Component
+export default class DevicePreviewerComponent extends tsx.Component<DevicePreviewerProps>
+{
+    private iFrameId = Guid.newGuid().toString();
+    private model = {
+        currentDisplayBreakPoint: DisplayBreakPointFactory.breakPoints()[DisplayBreakPointFactory.breakPoints().length - 1],
+        iFrame: {
+            element: null,
+            height: window.innerHeight + "px"
+        }
+    }
+
+    public mounted() {
+        document.body.className += "  opm-processdesigner-preview-mode";
+    }
+
+    beforeDestroy() {
+        document.body.className = document.body.className.replace(/opm-processdesigner-preview-mode/g, "");
+    }
+
+  
+    private onSetDevice(displayBreakPoint: DisplayBreakPoint) {
+        this.model.currentDisplayBreakPoint = displayBreakPoint;
+    }
+
+    private resizeIframeToContent() {
+        if (!this.model.iFrame.element) {
+            this.model.iFrame.element = document.getElementById(this.iFrameId) as HTMLIFrameElement;
+        }
+        let window = (this.model.iFrame.element as HTMLIFrameElement).contentWindow;
+        let height = Math.max(window.document.body.scrollHeight, window.document.body.offsetHeight, window.document.documentElement.clientHeight, window.document.documentElement.scrollHeight, window.document.documentElement.offsetHeight);
+        this.model.iFrame.height = height + "px";
+    }
+
+    /**
+     * Gets the initial active class for the items. It is not working setting v-bottom-nav component directly somehow. 
+     * @param editorMode
+     */
+    public getActiveClass(displayBreakPoint: DisplayBreakPoint) {
+        if (displayBreakPoint.id === this.model.currentDisplayBreakPoint.id) {
+            return "v-btn--active"
+        }
+        return "";
+    }
+
+    public renderDisplayBreakPoints(h) {
+        let result: Array<JSX.Element> = []
+        let breakPointsArray = DisplayBreakPointFactory.breakPoints();
+        /* To get the corret display ordering*/
+        for (let i = breakPointsArray.length - 1; i >= 0; i--) {
+            result.push(
+                <v-btn icon onClick={() => this.onSetDevice(breakPointsArray[i])} class={this.getActiveClass(breakPointsArray[i])}>
+                    <v-icon small >{breakPointsArray[i].icon}</v-icon>
+                </v-btn>
+            )
+        }
+        return result;
+    }
+
+
+    /**
+     * Render 
+     * @param h
+     */
+    public render(h) {
+        //window.setTimeout(this.resizeIframeToContent, 700);
+        return <v-content column>
+            <v-layout align-center column class={DevicePreviewerStyles.fullScreen}>
+                <div class={DevicePreviewerStyles.deviceToolbarWrapper}>
+                    <v-toolbar
+                        flat
+                        dense
+                        class={DevicePreviewerStyles.deviceToolbar}>
+                        {this.renderDisplayBreakPoints(h)}
+                    </v-toolbar>
+                </div>
+                <div class={DevicePreviewerStyles.deviceWrapper(this.model.currentDisplayBreakPoint, this.model.iFrame.height)}>
+                    
+                </div>
+            </v-layout>
+        </v-content>
+    }
+}
+

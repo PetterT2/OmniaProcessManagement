@@ -1,17 +1,18 @@
 ﻿import { Inject, OmniaContext, Localize } from '@omnia/fx';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { ProcessStepDesignerItemBase } from '../designeritems/ProcessStepDesignerItemBase';
-import { ActionItem, ActionItemType, ActionButton } from '../../models/processdesigner';
+import { ActionItem, ActionItemType, ActionButton, DisplayActionButton, DisplayModes } from '../../models/processdesigner';
 import { ActionButtonIds } from './ActionButtonIds';
 import { ProcessDesignerStore } from '../stores';
+import { RootProcessStepDesignerItem } from '../designeritems/RootProcessStepDesignerItem';
+import { OPMCoreLocalization } from '../../core/loc/localize';
 
 export class ActionButtonFactory {
     @Inject(ProcessDesignerStore) static processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) static omniaTheming: OmniaTheming;
     @Inject(OmniaContext) static omniaCtx: OmniaContext;
 
-    //@Localize(PublishingAppLocalization.namespace) static loc: PublishingAppLocalization.locInterface;
-    //@Localize(EditorLocalization.namespace) static editorLoc: EditorLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) static opmCoreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) static omniaLoc: OmniaUxLocalization;
 
     static discardChangesButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
@@ -23,8 +24,8 @@ export class ActionButtonFactory {
             actionCallback: editorItem.onDiscardChanges.bind(editorItem),
             highLighted: highLighted,
             icon: "",
-            title: "Discard",//this.loc.ActionButtons.CancelApproval,//todo
-            visibilityCallBack: () => { return true; } //() => { return PageRules.canCancelApproval() && PageRules.haveApprovalProcess() },//todo
+            title: ActionButtonFactory.opmCoreLoc.Buttons.DiscardChanges,
+            visibilityCallBack: () => { return true; }
         } as ActionButton
     }
 
@@ -38,11 +39,11 @@ export class ActionButtonFactory {
             highLighted: highLighted,
             icon: "",
             title: this.omniaLoc.Common.Buttons.Save,
-            visibilityCallBack: () => { return true; } //() => { return PageRules.canCancelApproval() && PageRules.haveApprovalProcess() },//todo
+            visibilityCallBack: () => { return true; }
         } as ActionButton
     }
 
-    static editButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
+    static editRootProcessButton(editorItem: RootProcessStepDesignerItem, highLighted: boolean): ActionItem {
         return {
             type: ActionItemType.Button,
             loading: false,
@@ -52,7 +53,7 @@ export class ActionButtonFactory {
             highLighted: highLighted,
             icon: "",
             title: this.omniaLoc.Common.Buttons.Edit,
-            visibilityCallBack: () => { return true; } //() => { return PageRules.canCancelApproval() && PageRules.haveApprovalProcess() },//todo
+            visibilityCallBack: () => { return true; }
         } as ActionButton
     }
 
@@ -71,10 +72,17 @@ export class ActionButtonFactory {
 
     static createDefaultNotCheckoutedButtons(editorItem: ProcessStepDesignerItemBase): Array<ActionItem> {
         return [
-            this.editButton(editorItem, true),
+            //this.editButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]
-    }    
+    }   
+
+    static createDefaultRootProcessNotCheckoutedButtons(editorItem: RootProcessStepDesignerItem): Array<ActionItem> {
+        return [
+            this.editRootProcessButton(editorItem, true),
+            this.closeButton(editorItem, false),
+        ]
+    } 
 
     static createDefaultCheckoutedButtons(editorItem: ProcessStepDesignerItemBase): Array<ActionItem> {
         return [
@@ -84,5 +92,25 @@ export class ActionButtonFactory {
         ]
     }
 
+    static createDisplaySettingsButtons(): Array<DisplayActionButton> {
+        return [
+            {
+                type: ActionItemType.Button,
+                actionCallback: null,
+                highLighted: false,
+                icon: "view_quilt",
+                title: ActionButtonFactory.opmCoreLoc.Buttons.Design,
+                displayMode: DisplayModes.contentEditing
+            } as DisplayActionButton,
+            {
+                type: ActionItemType.Button,
+                actionCallback: null,
+                highLighted: false,
+                icon: "phonelink",
+                title: ActionButtonFactory.opmCoreLoc.Buttons.Preview,
+                displayMode: DisplayModes.contentPreview
+            } as DisplayActionButton
+        ]
+    }
 }
 

@@ -65,7 +65,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             let title = this.multilingualStore.getters.stringValue(processStep.title);
             this.protectedNavigate(title, { processStepId: processStep.id }, { versionType: process.versionType });
 
-            let processRefrerence = OPMUtils.generateProcessReference(process, processStep);
+            let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
             this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
 
                 resolve();

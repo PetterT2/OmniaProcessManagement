@@ -4,3 +4,4 @@ export * from './ProcessDesignerSettings';
 export * from './TabRegistration';
 export * from './TabRenderer';
 export * from './IProcessDesignerItem';
+export * from './DisplayBreakPoint';

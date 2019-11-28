@@ -150,15 +150,31 @@
     <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeExtension.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\ActionButton.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\DisplayActionButton.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\DisplayBreakPoint.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\index.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\IProcessDesignerItem.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\ProcessDesignerSettings.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\factory\BreakPointFactory.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\content\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\content\ProcessContent.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\documents\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\documents\ProcessDocuments.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\links\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\links\ProcessLinks.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\tasks\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\panelrenderers\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\INewProcessDialog.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.tsx" />
@@ -437,6 +453,30 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\content\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\content\ProcessContent.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\documents\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\documents\ProcessDocuments.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\links\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\links\ProcessLinks.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\tasks\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\panelrenderers\tasks\ProcessTasks.tsx">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\services\ProcessLibraryService.ts">

@@ -1,5 +1,5 @@
 ﻿import { IProcessDesignerItem } from '../../models/processdesigner';
-import { Inject } from '@omnia/fx';
+import { Inject, ServiceContainer } from '@omnia/fx';
 import { CurrentProcessStore } from '../../fx';
 import { RootProcessStepDesignerItem } from './RootProcessStepDesignerItem';
 import { ProcessStepDesignerItem } from './ProcessStepDesignerItem';
@@ -13,7 +13,11 @@ export interface IProcessDesignerItemFactory {
  * Factory for Layout items
  * */
 export class ProcessDesignerItemFactory implements IProcessDesignerItemFactory {
-    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    currentProcessStore: CurrentProcessStore;
+
+    constructor() {
+        this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
+    }
 
     public createDesignerItem(): IProcessDesignerItem {
         let designerItem: IProcessDesignerItem = null;
