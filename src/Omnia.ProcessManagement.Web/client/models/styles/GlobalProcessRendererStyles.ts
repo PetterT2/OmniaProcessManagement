@@ -2,5 +2,6 @@
 
 export const GlobalProcessRendererStyles = {} as
     {
-        container: types.NestedCSSProperties;
+        containerInOmnia: types.NestedCSSProperties;
+        containerInSpfx: types.NestedCSSProperties;
     }

@@ -14,6 +14,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     private currentProcessStepId: string = '';
     private currentProcessVersionType: ProcessVersionType = null;
+    private currentViewOption: ViewOptions = null;
     constructor() {
         super('pm')
     }
@@ -74,15 +75,22 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep, viewOption?: ViewOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            if (processStep.id.toString().toLowerCase() != this.currentProcessStepId ||
-                process.versionType != this.currentProcessVersionType) {
+
+            if (viewOption === undefined || viewOption === null) {
+                viewOption = this.routeContext.route && this.routeContext.route.viewOption || ViewOptions.viewLatestPublishedInBlock;
+            }
+
+            if (processStep.id.toString().toLowerCase() !== this.currentProcessStepId ||
+                process.versionType !== this.currentProcessVersionType ||
+                viewOption !== this.currentViewOption) {
                 this.currentProcessVersionType = process.versionType;
                 this.currentProcessStepId = processStep.id.toString().toLowerCase();
+                this.currentViewOption = viewOption;
 
                 let title = this.multilingualStore.getters.stringValue(processStep.title);
-                let viewOption = this.routeContext.route && this.routeContext.route.viewOption || ViewOptions.viewLatestPublishedInBlock;
+
 
                 this.protectedNavigate(title, { viewOption: viewOption, processStepId: processStep.id }, { versionType: process.versionType });
 

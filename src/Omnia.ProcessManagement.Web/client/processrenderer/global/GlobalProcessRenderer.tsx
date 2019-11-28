@@ -11,7 +11,7 @@ import { StyleFlow } from '@omnia/fx/ux';
 @Component
 export class GlobalProcessRendererComponent extends Vue implements IWebComponentInstance {
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
-
+    @Inject(OmniaContext) private omniaContext: IOmniaContext;
     private styles = StyleFlow.use(GlobalProcessRendererStyles);
 
     created() {
@@ -23,9 +23,9 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
     }
 
     get hidden(): boolean {
-        return !OPMRouter.routeContext.route ||
-            OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInGlobal ||
-            !this.currentProcessStore.getters.referenceData() ? true : false
+        return !this.currentProcessStore.getters.referenceData() ||
+            !OPMRouter.routeContext.route ||
+            OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInGlobal ? true : false
     }
 
     //TODO: Complete the render process function
@@ -34,7 +34,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
         return (
             <div>
                 <v-btn style={{ float: 'right' }} icon onClick={() => { OPMRouter.clearRoute() }}><v-icon>close</v-icon></v-btn>
-                <p>Process Step Id: {currentReferenceData.currentProcessStep.id}</p>
+                <p>Process Step: {currentReferenceData.currentProcessStep.title['en-us']}</p>
             </div>
         )
     }
@@ -45,7 +45,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
         }
 
         return (
-            <div class={this.styles.container}>
+            <div class={this.omniaContext.environment.omniaApp ? this.styles.containerInOmnia : this.styles.containerInSpfx}>
                 {this.renderProcess(h)}
             </div>
         )

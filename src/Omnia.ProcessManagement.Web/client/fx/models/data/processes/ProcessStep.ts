@@ -9,5 +9,5 @@ export interface ProcessStep extends MultilingualData {
     processTemplateId: GuidValue;
 
     //client-side
-    multilingualTitle: string
+    multilingualTitle?: string
 }

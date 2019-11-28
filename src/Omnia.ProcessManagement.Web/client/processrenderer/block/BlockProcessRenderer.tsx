@@ -18,15 +18,15 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
     }
 
     get hidden(): boolean {
-        return !OPMRouter.routeContext.route ||
-            OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInBlock ||
-            !this.currentProcessStore.getters.referenceData() ? true : false
+        return !this.currentProcessStore.getters.referenceData() ||
+            !OPMRouter.routeContext.route ||
+            OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInBlock ? true : false
     }
 
     renderProcess(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
         return (
-            <p>Process Step Id: {currentReferenceData.currentProcessStep.id}</p>
+            <p>Process Step: {currentReferenceData.currentProcessStep.title['en-us']}</p>
         )
     }
 
