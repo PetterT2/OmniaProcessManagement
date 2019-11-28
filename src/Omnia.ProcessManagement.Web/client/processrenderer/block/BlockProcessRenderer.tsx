@@ -23,6 +23,7 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
             OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInBlock ? true : false
     }
 
+    //TODO: Complete the render process function
     renderProcess(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
         return (

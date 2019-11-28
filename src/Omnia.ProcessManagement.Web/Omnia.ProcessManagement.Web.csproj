@@ -214,6 +214,8 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
+    <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
+    <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
