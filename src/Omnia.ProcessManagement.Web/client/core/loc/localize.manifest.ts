@@ -21,7 +21,14 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             ProcessLibrary: {
                 Title: "Processes",
                 Description: "Add this to a site where you want to work with processes."
+            },
+            BlockProcessRenderer: {
+                Title: "Process Renderer Block",
+                Description: ""
             }
+        },
+        BlockCategories: {
+            Process: "Process"
         },
         Columns: {
             Title: "Title"

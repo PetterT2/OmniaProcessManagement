@@ -84,6 +84,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpPost, Route("publish/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> PublishProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var process = await ProcessService.PublishProcessAsync(opmProcessId);
+                return process.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
         [HttpPost, Route("savecheckedout")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> SaveCheckedOutProcessAsync([FromBody] ProcessActionModel actionModel)

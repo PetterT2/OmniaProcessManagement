@@ -11,6 +11,7 @@ StyleFlow.define(GlobalProcessRendererStyles,
             bottom: 0,
             left: 0,
             right: 0,
-            background: 'white'
+            background: 'white',
+            zIndex: 5 //hide the wcm floading action button
         }
     })

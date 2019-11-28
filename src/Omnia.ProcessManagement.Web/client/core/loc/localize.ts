@@ -17,7 +17,14 @@
             ProcessLibrary: {
                 Title: string,
                 Description: string
+            },
+            BlockProcessRenderer: {
+                Title: string,
+                Description: string
             }
+        },
+        BlockCategories: {
+            Process: string
         },
         Columns: {
             Title: string

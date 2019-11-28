@@ -28,10 +28,14 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
             !this.currentProcessStore.getters.referenceData() ? true : false
     }
 
+    //TODO: Complete the render process function
     renderProcess(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
         return (
-            <p>Process Step Id: {currentReferenceData.currentProcessStep.id}</p>
+            <div>
+                <v-btn style={{ float: 'right' }} icon onClick={() => { OPMRouter.clearRoute() }}><v-icon>close</v-icon></v-btn>
+                <p>Process Step Id: {currentReferenceData.currentProcessStep.id}</p>
+            </div>
         )
     }
 

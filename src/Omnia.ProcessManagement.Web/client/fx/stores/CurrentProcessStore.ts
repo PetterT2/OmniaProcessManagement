@@ -17,6 +17,10 @@ class ProcessStateTransaction {
         this.ensureActiveProcessInStore = ensureActiveProcessInStore;
     }
 
+    public clearState = () => {
+        this.currentProcessId = '';
+    }
+
     public newState = <T extends any>(processId: GuidValue, createNewStateOperation: (newState: boolean) => Promise<T>): Promise<T> => {
         let result: Promise<T> = null;
         if (processId != this.currentProcessId) {
@@ -134,6 +138,13 @@ export class CurrentProcessStore extends Store {
 
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
+            if (processReferenceToUse == null) {
+                this.currentProcessReference.mutate(null);
+                this.currentProcessReferenceData.mutate(null);
+                this.transaction.clearState();
+                return Promise.resolve(null);
+            }
+
             return this.transaction.newState(processReferenceToUse.processId, (newState) => {
                 if (newState) {
                     this.loadedProcessData = {};

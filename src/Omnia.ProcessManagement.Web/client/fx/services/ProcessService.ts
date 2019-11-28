@@ -40,6 +40,19 @@ export class ProcessService {
         })
     }
 
+    public publishProcess = (opmProcessId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/publish/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     public saveCheckedOutProcess = (processActionModel: ProcessActionModel) => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/savecheckedout', processActionModel).then((response) => {

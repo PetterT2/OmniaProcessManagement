@@ -3,7 +3,7 @@ import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@o
 import { TokenBasedRouter } from '@omnia/fx/ux';
 import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, ViewOptions } from '../models';
 import { ProcessStore, CurrentProcessStore } from '../stores';
-import { OPMUtils } from '../Utils';
+import { OPMUtils } from '../utils';
 import { MultilingualStore } from '@omnia/fx/store';
 
 
@@ -38,13 +38,14 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     protected resolveRouteFromPath(path: string): OPMRoute {
         let context: OPMRoute = null;
         let viewOption: ViewOptions = ViewOptions.viewLatestPublishedInBlock;
+        path = path.toLowerCase();
 
-        if (path.startsWith('preview')) {
-            path = path.substr('preview/'.length);
+        if (path.startsWith(ViewOptions.previewDraft)) {
+            path = path.substr(`${ViewOptions.previewDraft}/`.length);
             viewOption = ViewOptions.previewDraft;
         }
-        else if (path.startsWith('view/')) {
-            path = path.substr('view'.length);
+        if (path.startsWith(ViewOptions.viewLatestPublishedInGlobal)) {
+            path = path.substr(`${ViewOptions.viewLatestPublishedInGlobal}/`.length);
             viewOption = ViewOptions.viewLatestPublishedInGlobal;
         }
         if (path) {
@@ -88,6 +89,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             else {
                 reject(`Cannot find valid ${process.versionType}-version process for the process step with id: ${processStep.id}`)
             }
+        })
+    }
+
+    public clearRoute() {
+        this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
+            this.protectedClearRoute();
         })
     }
 
