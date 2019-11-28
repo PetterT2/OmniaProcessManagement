@@ -200,37 +200,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return process;
         }
 
-        public async ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel)
+        public async ValueTask<Process> CheckInProcessAsync(Guid opmProcessId)
         {
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.CheckedOut, true);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
             if (checkedOutProcessWithProcessDataIdHash == null)
             {
-                throw new ProcessCheckedOutVersionNotFoundException(actionModel.Process.OPMProcessId);
+                throw new ProcessCheckedOutVersionNotFoundException(opmProcessId);
             }
             else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
                 throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }
 
-            var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.Draft, true);
+            var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
             EnsureRemovingExistingProcess(existingDraftProcessWithProcessDataIdHash);
 
-
-            checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
-            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             checkedOutProcessWithProcessDataIdHash.Process.VersionType = ProcessVersionType.Draft;
             checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy = "";
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
-
-            var existingProcessWithProcessDataIdHashDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
-            var newProcessDataDict = actionModel.ProcessData;
-
-            var usingProcessDataIdHashSet = new HashSet<Guid>();
-
-            UpdateProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, existingProcessWithProcessDataIdHashDict, newProcessDataDict, usingProcessDataIdHashSet);
-            RemoveOldProcessData(actionModel.Process.Id, existingProcessWithProcessDataIdHashDict, usingProcessDataIdHashSet);
 
             await DbContext.SaveChangesAsync();
 

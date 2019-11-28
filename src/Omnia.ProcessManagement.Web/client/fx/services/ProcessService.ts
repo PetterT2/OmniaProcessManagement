@@ -27,9 +27,9 @@ export class ProcessService {
         })
     }
 
-    public checkinProcess = (processActionModel: ProcessActionModel) => {
+    public checkinProcess = (opmProcessId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin', processActionModel).then((response) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin/' + opmProcessId).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

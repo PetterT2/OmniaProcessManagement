@@ -12,8 +12,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
     public interface IProcessRepository
     {
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
-        ValueTask<Process> CheckInProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId);

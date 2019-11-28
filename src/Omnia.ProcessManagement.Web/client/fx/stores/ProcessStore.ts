@@ -83,8 +83,8 @@ export class ProcessStore extends Store {
                 return process;
             })
         }),
-        checkInProcess: this.action((actionModel: ProcessActionModel) => {
-            return this.processService.checkinProcess(actionModel).then((process) => {
+        checkInProcess: this.action((opmProcessId: GuidValue) => {
+            return this.processService.checkinProcess(opmProcessId).then((process) => {
                 return null;
             })
         }),

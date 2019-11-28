@@ -191,7 +191,7 @@ export class CurrentProcessStore extends Store {
                     }
 
                     this.processService.saveCheckedOutProcess(actionModel).then(process => {
-
+                        //TO DO
 
                         resolve(null);
                     }).catch(reject);

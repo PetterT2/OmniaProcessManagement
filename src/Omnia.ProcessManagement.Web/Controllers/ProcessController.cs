@@ -68,13 +68,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("checkin")]
+        [HttpPost, Route("checkin/{opmProcessId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> CheckInProcessAsync([FromBody] ProcessActionModel actionModel)
+        public async ValueTask<ApiResponse<Process>> CheckInProcessAsync(Guid opmProcessId)
         {
             try
             {
-                var process = await ProcessService.CheckInProcessAsync(actionModel);
+                var process = await ProcessService.CheckInProcessAsync(opmProcessId);
                 return process.AsApiResponse();
             }
             catch (Exception ex)
