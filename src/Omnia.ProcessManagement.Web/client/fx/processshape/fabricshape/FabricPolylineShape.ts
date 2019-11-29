@@ -4,10 +4,10 @@ import { FabricShapeTypes, IFabricShape } from './IFabricShape';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
-export class FabricPolygonShape extends FabricShapeExtension implements FabricShape {
+export class FabricPolylineShape extends FabricShapeExtension implements FabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
         super(definition, isActive, properties);
-        this.fabricObject = new fabric.Polygon(this.properties['points'] || [], this.properties);
+        this.fabricObject = new fabric.Polyline(this.properties['points'] || [], this.properties);
     }
 
     protected getSpecificProperties(): { [k: string]: any } {
@@ -20,6 +20,6 @@ export class FabricPolygonShape extends FabricShapeExtension implements FabricSh
     }
 
     get shapeNodeType() {
-        return FabricShapeTypes.polygon;
+        return FabricShapeTypes.polyline;
     }
 }

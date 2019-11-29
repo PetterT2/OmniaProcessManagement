@@ -4,7 +4,7 @@ import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
 
 
-export class FabricShapeExtension implements FabricShape {   
+export class FabricShapeExtension implements FabricShape {
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
 
@@ -34,18 +34,29 @@ export class FabricShapeExtension implements FabricShape {
         return null;
     }
 
-    getShapeNodeJson(): IFabricShape {
+    private getRequiredProperties(): { [k: string]: any } {
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
-            this.properties = [];
-            Object.keys(options).forEach(key => {
-                if (options[key])
-                    this.properties[key] = options[key];
-            });
+            this.properties['left'] = options['left'];
+            this.properties['top'] = options['top'];
+            this.properties['fill'] = options['fill'];
+            this.properties['stroke'] = options['stroke'];
+            this.properties['width'] = options['width'] * options['scaleX'];
+            this.properties['height'] = options['height'] * options['scaleY'];
+            this.properties['angle'] = options['angle'];
         }
+        return this.properties;
+    }
+
+    protected getSpecificProperties(): { [k: string]: any } {
+        let prop = {};
+        return prop;
+    }
+
+    getShapeNodeJson(): IFabricShape {
         return {
             shapeNodeType: this.shapeNodeType,
-            properties: this.properties
+            properties: Object.assign(this.getRequiredProperties(), this.getSpecificProperties())
         };
     }
 }

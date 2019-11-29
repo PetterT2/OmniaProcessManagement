@@ -19,6 +19,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
     canvas: fabric.Canvas;
     testShape: CircleShape;
     drawingCanvas1: DrawingCanvas;
+    openFreeForm: boolean = false;
     // -------------------------------------------------------------------------
     // Services
     // -------------------------------------------------------------------------
@@ -97,8 +98,20 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
 
 
     render(h) {
+        var changedDefinition: DrawingShapeDefinition = {
+            activeBackgroundColor: 'red',
+            backgroundColor: 'green',
+            borderColor: 'red',
+            fontSize: 20,
+            textColor: '#d36249',
+            width: 200,
+            height: 300,
+            textPosition: TextPosition.Center,
+            shapeTemplate: ShapeTemplatesConstants.Pentagon
+        } as DrawingShapeDefinition;
         return (
             <div>
+                <v-btn onClick={() => { this.openFreeForm = true; }}>Open Freeform</v-btn>
                 <div class="container">
                     <canvas id="mycanvas" width="400" height="3000"></canvas>
                 </div>
@@ -114,6 +127,8 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
                     var drawingCanvas2 = new DrawingCanvasEditor('test2', {}, this.drawingCanvas1.getCanvasDefinitionJson());
                     //this.updateShape();
                 }} >change ui</v-btn>
+                {this.openFreeForm && <opm-free-form shapeDefinition={changedDefinition} onClosed={() => { this.openFreeForm = false; }}
+                    onSaved={() => { }}></opm-free-form>}
             </div>
         );
     }
