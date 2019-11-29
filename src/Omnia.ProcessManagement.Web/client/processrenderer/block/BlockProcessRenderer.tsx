@@ -26,9 +26,10 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
     //TODO: Complete the render process function
     renderProcess(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        return (
-            <p>Process Step: {currentReferenceData.currentProcessStep.title['en-us']}</p>
-        )
+        return [
+            <p>Process Step: {currentReferenceData.currentProcessStep.title['en-us']}</p>,
+            <div>{JSON.stringify(currentReferenceData)}</div>
+        ]
     }
 
 
