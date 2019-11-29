@@ -1,10 +1,15 @@
-﻿import { Inject, Localize,Utils as omfUtils} from '@omnia/fx';
+﻿import { Inject, Localize,Utils as omfUtils, ServiceContainer} from '@omnia/fx';
 import { CurrentProcessStore } from '../../fx';
 import { TabManager } from '../panelrenderers';
+import { ProcessDesignerStore } from '../stores';
 
 export class ProcessStepDesignerItemBase {
-
-    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    currentProcessStore: CurrentProcessStore;
+    processDesignerStore: ProcessDesignerStore;
+    constructor() {
+        this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
+        this.processDesignerStore = ServiceContainer.createInstance(ProcessDesignerStore);
+    }
 
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
@@ -20,11 +25,6 @@ export class ProcessStepDesignerItemBase {
         //    });
         //    return operationPromise;
         //}
-        return new Promise<any>(() => {
-        });
-    }
-    public onCheckOut() {
-        //todo
         return new Promise<any>(() => {
         });
     }

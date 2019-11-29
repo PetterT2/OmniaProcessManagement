@@ -28,6 +28,19 @@
         },
         Columns: {
             Title: string
+        },
+        Process: {
+            Drawing: string,
+            Content: string,
+            Documents: string,
+            Links: string,
+            Tasks: string,
+            Properties: string
+        },
+        Buttons: {
+            DiscardChanges: string,
+            Design: string,
+            Preview: string
         }
     }
 }

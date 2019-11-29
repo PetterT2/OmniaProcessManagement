@@ -70,11 +70,11 @@ export class ProcessDesignerStore extends Store {
         }),
         changeDisplayMode: this.mutation((displayMode: DisplayModes) => {
             this.settings.displayMode.mutate(displayMode);
-            //this.canvas.mutations.setSettingPanelVisibilityForDisplayMode.commit(displayMode);
-            Topics.onPageEditModeChanged.publish({
-                editMode: true,
-                contentEditing: displayMode === DisplayModes.contentEditing
-            });
+            //this.canvas.mutations.setSettingPanelVisibilityForDisplayMode.commit(displayMode);//todo
+            //Topics.onPageEditModeChanged.publish({//todo
+            //    editMode: true,
+            //    contentEditing: displayMode === DisplayModes.contentEditing
+            //});
 
         }),
         registerTemporaryActionButtons: this.mutation((buttons: Array<ActionItem>) => {
@@ -106,10 +106,10 @@ export class ProcessDesignerStore extends Store {
             //this.canvas.mutations.setSettingPanelVisibilityForDisplayMode.commit(this.settings.editorDisplayMode.state);
             this.errorTabIndex.mutate(-1);
 
-            Topics.onPageEditModeChanged.publish({
-                editMode: false,
-                contentEditing: false
-            });
+            //Topics.onPageEditModeChanged.publish({
+            //    editMode: false,
+            //    contentEditing: false
+            //});
             //if ((item as IPageEditorItem).pageVersion && this.idForAutoCheckout.state === (item as IPageEditorItem).pageVersion.id) {
             //    (item as IPageEditorItem).onCheckOut();
             //}
@@ -130,33 +130,22 @@ export class ProcessDesignerStore extends Store {
     }
 
     actions = {
-        //setEditorToCheckedOutMode: this.action((settingsRequest?: CheckoutSettings) => {
-        //    return new Promise<null>((resolve, reject) => {
-        //        this.settings.itemIsCheckOut.mutate(true);
-        //        if (settingsRequest) {
-        //            if (settingsRequest.layoutDesigner) {
-        //                this.settings.editorDisplayMode.mutate(EditorDisplayModes.layoutDesign);
-        //            }
-        //            else {
-        //                this.settings.editorDisplayMode.mutate(EditorDisplayModes.contentEditing);
-        //            }
-        //            this.settings.showContentNavigation.mutate(settingsRequest.showContentNavigation);
-        //        }
-        //        /* Use the default display mode of the item if no settings are provided */
-        //        else {
-        //            this.settings.editorDisplayMode.mutate(this.item.state.settings.defaultDisplayMode);
-        //        }
-        //        Topics.onPageEditModeChanged.publish({
-        //            editMode: true,
-        //            contentEditing: this.settings.editorDisplayMode.state === EditorDisplayModes.contentEditing
-        //        });
-        //        this.item.mutate(this.item.state);
-        //        this.canvas.mutations.hideAllPanels.commit();
-        //        this.savePageStateManager.start();
-        //        this.mutations.setEditorLoadingState.commit(false);
-        //        resolve();
-        //    })
-        //}),
+        setEditorToCheckedOutMode: this.action(() => {
+            return new Promise<null>((resolve, reject) => {
+                this.settings.itemIsCheckOut.mutate(true);
+                this.settings.displayMode.mutate(DisplayModes.contentEditing);
+               
+                //Topics.onPageEditModeChanged.publish({
+                //    editMode: true,
+                //    contentEditing: this.settings.editorDisplayMode.state === EditorDisplayModes.contentEditing
+                //});
+                this.item.mutate(this.item.state);
+                //this.canvas.mutations.hideAllPanels.commit();//todo
+                //this.savePageStateManager.start();
+                this.mutations.setEditorLoadingState.commit(false);
+                resolve();
+            })
+        }),
         //setEditorToReadMode: this.action((leaveEditorOpen?: boolean) => {
         //    let showEditor = false;
         //    if (leaveEditorOpen) {

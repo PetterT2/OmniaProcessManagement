@@ -1,19 +1,7 @@
 ﻿import { style } from 'typestyle';
 import { important } from 'csx';
 import colors from 'vuetify/es5/util/colors';
-
-export interface IColor {
-    base: string
-    lighten5: string
-    lighten4: string
-    lighten3: string
-    lighten2: string
-    lighten1: string
-    darken1: string
-    darken2: string
-    darken3: string
-    darken4: string
-}
+import { IColor } from '../models/styles';
 
 export interface ITheme {
     system: {
@@ -53,6 +41,14 @@ export const ProcessDesignerStyleSettings = {
  * Styles for the Editor component
  */
 export const ProcessDesignerStyles = {
+    rootWrapper: style({
+        position: 'fixed',
+        top: '0',
+        right: '0',
+        left: '0',
+        bottom: '0',
+        zIndex: 300
+    }),
     canvasContainer: style({
         height: "calc(100vh - 97px)",
         overflowY: "auto",

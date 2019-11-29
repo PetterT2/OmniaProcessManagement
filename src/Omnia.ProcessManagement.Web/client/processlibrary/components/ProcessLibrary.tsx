@@ -64,29 +64,29 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     // -------------------------------------------------------------------------
 
     init() {
-        let promises: Array<Promise<any>> = [
-            this.omniaContext.user.then(user => {
-                this.userContext = user;
-            })
-        ]
+        //let promises: Array<Promise<any>> = [
+        //    this.omniaContext.user.then(user => {
+        //        this.userContext = user;
+        //    })
+        //]
 
-        Promise.all(promises).then(() => {
-            this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-process-library-settings");
-            this.settingsService.getValue(this.settingsKey).then((blockData) => {
-                this.subscriptionHandler = this.settingsService
-                    .onKeyValueUpdated(this.settingsKey)
-                    .subscribe(this.setBlockData);
-                if (blockData && blockData.settings && blockData.settings.viewSettings && blockData.settings.viewSettings.draftTabDisplaySettings &&
-                    blockData.settings.viewSettings.publishedTabDisplaySettings) {
-                    this.setBlockData(blockData)
-                }
-                else {
-                    var defaultSettings = ProcessLibraryConfigurationFactory.create();
-                    defaultSettings.settings.title = { "en-us": this.corLoc.Blocks.ProcessLibrary.Title, isMultilingualString: true };
-                    this.settingsService.setValue(this.settingsKey, defaultSettings);
-                }
-            });
-        })
+        //Promise.all(promises).then(() => {
+        //    this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-process-library-settings");
+        //    this.settingsService.getValue(this.settingsKey).then((blockData) => {
+        //        this.subscriptionHandler = this.settingsService
+        //            .onKeyValueUpdated(this.settingsKey)
+        //            .subscribe(this.setBlockData);
+        //        if (blockData && blockData.settings && blockData.settings.viewSettings && blockData.settings.viewSettings.draftTabDisplaySettings &&
+        //            blockData.settings.viewSettings.publishedTabDisplaySettings) {
+        //            this.setBlockData(blockData)
+        //        }
+        //        else {
+        //            var defaultSettings = ProcessLibraryConfigurationFactory.create();
+        //            defaultSettings.settings.title = { "en-us": this.corLoc.Blocks.ProcessLibrary.Title, isMultilingualString: true };
+        //            this.settingsService.setValue(this.settingsKey, defaultSettings);
+        //        }
+        //    });
+        //})
     }
 
     setBlockData(blockData: ProcessLibraryBlockData) {
@@ -96,12 +96,12 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
 
     isComponentEmtpy() {
         let title = '';
-        if (this.blockData && this.blockData.settings) {
-            if (this.blockData.settings.title) {
-                title = this.multilingualStore.getters.stringValue(this.blockData.settings.title);
-                title = title.trim();
-            }
-        }
+        //if (this.blockData && this.blockData.settings) {
+        //    if (this.blockData.settings.title) {
+        //        title = this.multilingualStore.getters.stringValue(this.blockData.settings.title);
+        //        title = title.trim();
+        //    }
+        //}
         return !title;
     }
 
@@ -109,32 +109,33 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     // Render
     // -------------------------------------------------------------------------
 
-    renderProcessLibrary(h) {
-        return (
-            <opm-process-library-list-view
-                desiredLanguage={this.desiredLanguage}
-                viewSettings={this.blockData.settings.viewSettings}
-                spacingSetting={this.blockData.settings.spacing}
-            ></opm-process-library-list-view>
-        )
-    }
+    //renderProcessLibrary(h) {
+    //    return (
+    //        <opm-process-library-list-view
+    //            desiredLanguage={this.desiredLanguage}
+    //            viewSettings={this.blockData.settings.viewSettings}
+    //            spacingSetting={this.blockData.settings.spacing}
+    //        ></opm-process-library-list-view>
+    //    )
+    //}
 
     render(h) {
         let isEmpty = this.isComponentEmtpy();
-        return (
-            <div>
-                {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        isEmpty ?
-                            <wcm-empty-block-view dark={false} icon={"fa fa-file-alt"} text={this.corLoc.Blocks.ProcessLibrary.Title}></wcm-empty-block-view>
-                            :
-                            <div>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderProcessLibrary(h)}</div>
-                            </div>
-                }
-            </div>
-        );
+        return null;
+        //return (
+        //    <div>
+        //        {
+        //            !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
+        //                isEmpty ?
+        //                    <wcm-empty-block-view dark={false} icon={"fa fa-file-alt"} text={this.corLoc.Blocks.ProcessLibrary.Title}></wcm-empty-block-view>
+        //                    :
+        //                    <div>
+        //                        <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+        //                        <div key={this.componentUniqueKey}>{this.renderProcessLibrary(h)}</div>
+        //                    </div>
+        //        }
+        //    </div>
+        //);
     }
 }
 

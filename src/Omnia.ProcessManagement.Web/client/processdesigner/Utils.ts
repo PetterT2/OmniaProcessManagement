@@ -1,11 +1,13 @@
-﻿import { ProcessStep, Process, ProcessReference } from '../fx/models';
-import { GuidValue } from '@omnia/fx-models';
+﻿import { ProcessDesignerStyles } from './ProcessDesigner.css';
 
 export module ProcessDesignerUtils {
     export function openProcessDesigner() {
-        var designerElement = document.getElementsByTagName('opm-processdesigner');
-        if (designerElement.length == 0) {
-            document.querySelectorAll('.v-application--wrap')[0].appendChild(document.createElement("opm-processdesigner"));
+        var designerElements = document.getElementsByTagName('opm-processdesigner');
+        if (designerElements.length == 0) {
+            
+            var designerElement = document.createElement("opm-processdesigner");
+            designerElement.className = ProcessDesignerStyles.rootWrapper;
+            document.body.appendChild(designerElement);
         }
         handleEditMode();
     }

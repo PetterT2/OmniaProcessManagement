@@ -3,9 +3,10 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore } from '../../../fx';
+import { CurrentProcessStore, DrawingCanvasEditor, ShapeTemplatesConstants, DrawingCanvas } from '../../../fx';
 import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { TabRenderer } from '..';
+import { DrawingShapeTypes, DrawingShapeDefinition, TextPosition } from '../../../fx/models';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -25,9 +26,13 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private isEditMode: boolean = false;
+    drawingCanvas: DrawingCanvas;
 
     created() {
         this.init();
+        setTimeout(() => {
+            this.testDrawing();
+        }, 1000);
     }
 
     init() {
@@ -53,6 +58,29 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             this.subscriptionHandler.unsubscribe();
     }
 
+    testDrawing() {
+        var settings: DrawingShapeDefinition = {
+            activeBackgroundColor: 'red',
+            backgroundColor: 'blue',
+            borderColor: '',
+            fontSize: 15,
+            textColor: 'white',
+            width: 100,
+            height: 100,
+            textPosition: TextPosition.Center,
+        } as DrawingShapeDefinition;
+        
+        this.drawingCanvas = new DrawingCanvasEditor('mycanvas', {}, {
+            width: 600,
+            height: 500,
+            drawingShapes: [],
+            gridX: 100,
+            gridY: 100
+        });
+        settings.shapeTemplate = ShapeTemplatesConstants.Circle;
+        this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, settings, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
+    }
+
     /**
         * Render 
         * @param h
@@ -60,7 +88,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                Drawing tab content
+                <div>Drawing tab content</div>
+                <div class="container">
+                    <canvas id="mycanvas" width="600" height="500"></canvas>
+                </div>
             </v-card-text>
         </v-card>)
     }

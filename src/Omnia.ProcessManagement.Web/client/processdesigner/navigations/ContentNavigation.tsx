@@ -1,10 +1,10 @@
-﻿import { Inject, Localize, Utils, SubscriptionHandler } from '@omnia/fx';
+﻿import { Inject, Localize, Utils, SubscriptionHandler, OmniaContext } from '@omnia/fx';
 import * as tsx from 'vue-tsx-support';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { JourneyInstance, OmniaTheming } from '@omnia/fx/ux';
-import { NodeState } from '../../fx/models';
+import { NodeState, ProcessReferenceData } from '../../fx/models';
 import { style } from 'typestyle';
 import { CurrentProcessStore } from '../../fx';
 import { ProcessStepNavigationNode } from '../../fx/models/navigation/ProcessStepNavigationNode';
@@ -14,6 +14,7 @@ import { navajowhite } from 'csx';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerItemFactory } from '../designeritems';
 import { DisplayModes } from '../../models/processdesigner';
+import { SharePointContext } from '@omnia/fx-sp';
 
 
 export interface ContentNavigationProps {
@@ -33,23 +34,21 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     @Inject(SubscriptionHandler) subscriptionHandler: SubscriptionHandler;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(SharePointContext) spContext: SharePointContext;
 
     private  teamSiteName: string = "";
     private ensuringNavigationData: boolean = false;//true;
+    private currentProcessReference: ProcessReferenceData = null;
+    private rootNavigationNode: ProcessStepNavigationNode = null;
 
     created() {
-        //todo: appStore and teamcollaboration?
-        //this.appStore.actions.loadAppInstances.dispatch(PublishingAppDefinitionInfo.GuidId).then(() => {
-        //    let appInstance = this.appStore.getters.getAppInstance(PublishingAppDefinitionInfo.GuidId.toString(), this.wcmContext.publishingAppId);
-        //    if (appInstance) {
-        //        this.appName = appInstance.title;
-        //    }
-        //});
-
-
+        if (this.spContext) {
+            this.teamSiteName = this.spContext.pageContext.web.title;
+        }
         //this.subscriptionHandler.add(this.navigationStore.mutations.addOrUpdateNodes.onCommited((nodes) => {
         //    this.navigationNodes = this.currentNavigationStore.getters.getChildren(null);
         //}));
+        this.initRootProcessStepNavigationNode();
     }
 
     mounted() {
@@ -88,30 +87,16 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     private onClose() {
     }
 
-    get rootProcessStepNavigationNode() {
-        let currentProcessReference = this.currentProcessStore.getters.referenceData();
-        let navigationNode: ProcessStepNavigationNode = null;
-        if (currentProcessReference) {
-            navigationNode = currentProcessReference.currentProcessStep;
-            navigationNode.nodeState = {
+    private initRootProcessStepNavigationNode() {
+        this.currentProcessReference = Utils.clone(this.currentProcessStore.getters.referenceData());
+        if (this.currentProcessReference) {
+            this.rootNavigationNode = this.currentProcessReference.currentProcessStep;
+            this.rootNavigationNode.nodeState = {
                 isExpanded: false
             };
         }
-        return navigationNode;
     }
-    testkk() {
-        //this.currentProcessStore.actions.setProcessToShow.dispatch({
-        //    processId: 'decd998e-1483-4241-83db-22e01fb9ffce',
-        //    processStepId: '4e7ff975-6638-432b-9299-8c5333ad38c2',
-        //    opmProcessId: '163a63bd-7be8-4347-a382-42fd2550aac0',
-        //    processDataHash: 'hihi'
-        //}).then(() => {
-        //    console.log('test2');
-        //    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-        //    this.$forceUpdate();
-        //});
 
-    }
     private renderContent(h) {
         return (
             <div class={style({ backgroundColor: this.omniaTheming.chrome.background.base })}>
@@ -126,7 +111,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                     </div>
                 </v-list-item>
                 <div class={ContentNavigationStyles.scrollContainer}>
-                    <ProcessTreeNavigationComponent rootNavigationNode={this.rootProcessStepNavigationNode}></ProcessTreeNavigationComponent>
+                    <ProcessTreeNavigationComponent rootNavigationNode={this.rootNavigationNode}></ProcessTreeNavigationComponent>
                 </div>
             </div>)
     }

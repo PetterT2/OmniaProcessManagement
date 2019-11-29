@@ -11,6 +11,11 @@ import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { NavigationNodeStyles } from '../../../fx/models/navigation/NavigationNodeStyles';
 import './NavigationNode.css';
+import { OPMRouter } from '../../../fx/routing';
+import { CurrentProcessStore } from '../../../fx';
+import { ProcessDesignerStore } from '../../stores';
+import { ProcessDesignerItemFactory } from '../../designeritems';
+import { DisplayModes } from '../../../models/processdesigner';
 
 export interface NavigationNodeComponentProps {
     level: number;
@@ -31,6 +36,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
@@ -62,8 +69,16 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
      */
     public onHeaderClick(e: Event, navigateToNode: boolean, handleExpandNode: boolean) {
         e.stopPropagation();
-        this.navigationNode.nodeState.isExpanded = !this.navigationNode.nodeState.isExpanded;
-        this.isExpanded = this.navigationNode.nodeState.isExpanded;
+        if (handleExpandNode) {
+            this.navigationNode.nodeState.isExpanded = !this.navigationNode.nodeState.isExpanded;
+            this.isExpanded = this.navigationNode.nodeState.isExpanded;
+        }
+
+        if (navigateToNode) {
+            OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.navigationNode).then(() => {                
+                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+            });
+        }
     }
    
 

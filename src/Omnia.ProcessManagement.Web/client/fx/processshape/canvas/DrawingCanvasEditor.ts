@@ -15,7 +15,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
         this.selectable = true;
         this.renderGridView(elementId, options, definition);
-        this.addEventListener();
+        this.addEventListener(); 
     }
 
     private addEditIcon(object: fabric.Object) {
@@ -33,7 +33,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         }
     }
 
-    private addEventListener() {
+    protected addEventListener() {
         if (this.canvasObject == null)
             return;
         let ctx = this.canvasObject.getContext();

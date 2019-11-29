@@ -9,6 +9,9 @@ import { ContentNavigationComponent } from './navigations/ContentNavigation';
 import { CurrentProcessStore } from '../fx';
 import { TabsPanelComponent } from './panels';
 import { ProcessDesignerStore } from './stores';
+import { ActionToolbarComponent } from './actionstoolbar/ActionToolbar';
+import { DisplayModes } from '../models/processdesigner';
+import DevicePreviewerComponent from './devicepreviewer/DevicePreviewer';
 
 
 export interface ContentNavigationProps {
@@ -127,14 +130,25 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
                     : <div />
                 }
             </v-content>);
-        ///* Action Toolbar */
-        //result.push(<ActionToolbar key={1}></ActionToolbar>);
+
+        /* Action Toolbar */
+        result.push(<ActionToolbarComponent key={1}></ActionToolbarComponent>);
 
         ///*Dialog*/
         //result.push(<DeletedPageDialog></DeletedPageDialog>);
         return result;
     }
 
+    /**
+    * Renders the preview frame
+    * @param h
+    */
+    public renderPreviewMode(h) {
+        let result = new Array<JSX.Element>();
+        result.push(<DevicePreviewerComponent></DevicePreviewerComponent>);
+        result.push(<ActionToolbarComponent></ActionToolbarComponent>);
+        return result;
+    }
 
     /**
      * Render 
@@ -144,9 +158,11 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
         return (
             <v-app id="omnia-pm"
                 v-show={this.editorModel.visible}>
-                {
-                    this.renderEditorMode(h)
-                }
+                {(this.processDesignerStore.settings.displayMode.state === DisplayModes.contentPreview && this.processDesignerStore.settings.itemIsCheckOut.state)
+                    ?
+                    this.renderPreviewMode(h)
+                    :
+                    this.renderEditorMode(h)}
             </v-app>)
     }
 }

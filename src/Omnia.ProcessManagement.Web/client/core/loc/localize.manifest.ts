@@ -32,5 +32,18 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         },
         Columns: {
             Title: "Title"
+        },
+        Process: {
+            Content: "Content",
+            Documents: "Documents",
+            Drawing: "Drawing",
+            Links: "Links",
+            Properties: "Properties",
+            Tasks: "Tasks"
+        },
+        Buttons: {
+            DiscardChanges: "Discard changes",
+            Design: "Design",
+            Preview: "Preview"
         }
     });
