@@ -78,13 +78,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
 
     private addLine(options, stroke) {
         this.canvasObject.selection = false;
-        if (this.isDrawingFree) {
-            let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
-                return object.path.length > 2;
-            });
-           
-        } else
-            this.setStartingPoint(options);
+        this.setStartingPoint(options);
         this.points.push(new fabric.Point(this.x, this.y));
         var points = [this.x, this.y, this.x, this.y];
         var line = new fabric.Line(points, {
@@ -142,9 +136,6 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         let object = this.polylineShape.toObject();
         object.points = this.correctPolylinePoints(this.polylineShape.toObject().points, pathsJson);
         nodes.push(new FabricPolylineShape(this.shapeDefinition, false, object));
-        console.log(this.polylineShape.toJSON().points)
-        console.log(object.points)
-        console.log(pathsJson[0].path)
 
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),

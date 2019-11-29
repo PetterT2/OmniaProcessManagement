@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import { FabricShapeTypes, IFabricShape } from './IFabricShape';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
-import { SimplifyPath } from '..';
+import { SimplifyPath } from '../shapes/SimplifyPath';
 
 export class FabricPathShape extends FabricShapeExtension implements FabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
