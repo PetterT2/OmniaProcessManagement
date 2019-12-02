@@ -21,7 +21,7 @@ export class ProcessTypeStore extends Store {
 
     private processTypeTermSetId: GuidValue = null;
 
-    private processTypes = this.state<{ [rootId: string]: Array<ProcessType> }>({});
+    private processTypes = this.state<{ [parentId: string]: Array<ProcessType> }>({});
     private processTypesDict = this.state<{ [processTypeId: string]: ProcessType }>({});
 
 
@@ -32,12 +32,9 @@ export class ProcessTypeStore extends Store {
     }
 
     getters = {
-        allProcessTypes: () => {
-            return this.processTypes.state[this.getParentId()]
-        },
-        children: (rootId: GuidValue, includeInvalid?: boolean): Array<ProcessType> => {
-            let rootIdKey = this.getParentId(rootId);
-            let children = this.processTypes.state[rootIdKey] || [];
+        children: (parentId?: GuidValue, includeInvalid?: boolean): Array<ProcessType> => {
+            let parentIdKey = this.getParentId(parentId);
+            let children = this.processTypes.state[parentIdKey] || [];
 
             if (!includeInvalid) {
                 children = children.filter(this.isValidProcessType);
@@ -73,12 +70,12 @@ export class ProcessTypeStore extends Store {
 
     private privateMutations = {
         addOrUpdateProcessTypes: this.mutation((processTypes: Array<ProcessType>, remove?: boolean) => {
-            let groupByParent: { [rootId: string]: Array<ProcessType> } = {};
-            let idsDictGroupByParent: { [rootId: string]: { [id: string]: boolean } } = {};
+            let groupByParent: { [parentId: string]: Array<ProcessType> } = {};
+            let idsDictGroupByParent: { [parentId: string]: { [id: string]: boolean } } = {};
 
             this.processTypesDict.mutate(dictState => {
                 processTypes.forEach(processType => {
-                    if (processType.rootId) {
+                    if (processType.parentId) {
                         processType.multilingualTitle = this.multilingualTextsStore.getters.stringValue(processType.title);
                     }
                     else {
@@ -88,15 +85,15 @@ export class ProcessTypeStore extends Store {
                     }
 
                     let processTypeId = processType.id.toString().toLowerCase();
-                    let rootId = this.getParentId(processType.rootId);
-                    if (!groupByParent[rootId]) {
-                        groupByParent[rootId] = [];
-                        idsDictGroupByParent[rootId] = {};
+                    let parentId = this.getParentId(processType.parentId);
+                    if (!groupByParent[parentId]) {
+                        groupByParent[parentId] = [];
+                        idsDictGroupByParent[parentId] = {};
                     }
 
-                    if (!idsDictGroupByParent[rootId][processTypeId]) {
-                        idsDictGroupByParent[rootId][processTypeId] = true;
-                        groupByParent[rootId].push(processType);
+                    if (!idsDictGroupByParent[parentId][processTypeId]) {
+                        idsDictGroupByParent[parentId][processTypeId] = true;
+                        groupByParent[parentId].push(processType);
 
 
 
@@ -109,17 +106,17 @@ export class ProcessTypeStore extends Store {
 
             let addedGroups: Array<ProcessType> = [];
             this.processTypes.mutate(state => {
-                Object.keys(groupByParent).forEach(rootId => {
-                    if (!state.state[rootId]) {
-                        state.state[rootId] = [];
+                Object.keys(groupByParent).forEach(parentId => {
+                    if (!state.state[parentId]) {
+                        state.state[parentId] = [];
                     } else {
-                        let idsDict = idsDictGroupByParent[rootId];
-                        state.state[rootId] = state.state[rootId].filter(p => !idsDict[p.id.toString().toLowerCase()]);
+                        let idsDict = idsDictGroupByParent[parentId];
+                        state.state[parentId] = state.state[parentId].filter(p => !idsDict[p.id.toString().toLowerCase()]);
                     }
 
                     if (!remove) {
-                        let processTypes = groupByParent[rootId];
-                        state.state[rootId] = state.state[rootId].concat(processTypes);
+                        let processTypes = groupByParent[parentId];
+                        state.state[parentId] = state.state[parentId].concat(processTypes);
 
                         addedGroups = addedGroups.concat(processTypes.filter(t => t.settings.type == ProcessTypeSettingsTypes.Group));
                     }
@@ -130,13 +127,13 @@ export class ProcessTypeStore extends Store {
             //Do not merge the sorting into the mutate actions above
             //do the sorting here to ensure all the parent process types is added into state first
             this.processTypes.mutate(state => {
-                Object.keys(groupByParent).forEach(rootId => {
-                    if (!this.isRootParentId(rootId)) {
-                        let parent = this.processTypesDict.state[rootId];
+                Object.keys(groupByParent).forEach(parentId => {
+                    if (!this.isRootParentId(parentId)) {
+                        let parent = this.processTypesDict.state[parentId];
                         if (parent && parent.settings && parent.settings.type == ProcessTypeSettingsTypes.Group) {
                             let groupSettings = (parent.settings as ProcessTypeGroupSettings);
 
-                            let children = state.state[rootId];
+                            let children = state.state[parentId];
                             children.sort((a, b) => this.sortByChildrenOrders(a, b, groupSettings.childrenOrders));
                         }
                     }
@@ -171,17 +168,17 @@ export class ProcessTypeStore extends Store {
         return compare;
     }
 
-    private ensureChildren(rootId?: GuidValue) {
-        var promiseKey = this.getParentId(rootId);
+    private ensureChildren(parentId?: GuidValue) {
+        var promiseKey = this.getParentId(parentId);
         if (!this.ensuredChildrenPromises[promiseKey]) {
-            if (rootId) {
-                this.ensuredChildrenPromises[promiseKey] = this.processTypeService.getChildren(rootId).then(processTypes => {
+            if (parentId) {
+                this.ensuredChildrenPromises[promiseKey] = this.processTypeService.getChildren(parentId).then(processTypes => {
                     this.privateMutations.addOrUpdateProcessTypes.commit(processTypes);
                     return null;
                 })
             } else {
                 this.ensuredChildrenPromises[promiseKey] = Promise.all([
-                    this.processTypeService.getChildren(rootId),
+                    this.processTypeService.getChildren(parentId),
                     this.termStore.actions.ensureAllTermGroups.dispatch()
                 ]).then((result) => {
                     this.privateMutations.addOrUpdateProcessTypes.commit(result[0]);
@@ -214,12 +211,12 @@ export class ProcessTypeStore extends Store {
 
             return this.ensureRootProcessTypePromise;
         }),
-        ensureChildren: this.action((rootId: GuidValue) => {
-            return this.ensureChildren(rootId);
+        ensureChildren: this.action((parentId?: GuidValue) => {
+            return this.ensureChildren(parentId);
         }),
         createProcessType: this.action((processType: ProcessType) => {
             return this.processTypeService.create(processType).then(createdProcessType => {
-                return this.processTypeService.getByIds([createdProcessType.rootId]).then(([parentProcessType]) => {
+                return this.processTypeService.getByIds([createdProcessType.parentId]).then(([parentProcessType]) => {
                     this.privateMutations.addOrUpdateProcessTypes.commit([createdProcessType, parentProcessType]);
                     return createdProcessType;
                 })
@@ -234,7 +231,7 @@ export class ProcessTypeStore extends Store {
         }),
         removeProcessType: this.action((processType: ProcessType) => {
             return this.processTypeService.remove(processType.id).then(() => {
-                return this.processTypeService.getByIds([processType.rootId]).then(([parentProcessType]) => {
+                return this.processTypeService.getByIds([processType.parentId]).then(([parentProcessType]) => {
                     this.privateMutations.addOrUpdateProcessTypes.commit([processType], true);
                     this.privateMutations.addOrUpdateProcessTypes.commit([parentProcessType]);
                     return null;
@@ -283,8 +280,8 @@ export class ProcessTypeStore extends Store {
         })
     }
 
-    private isRootParentId = (rootId: string) => rootId == '00000000-0000-0000-0000-000000000000';
-    private getParentId = (rootId?: GuidValue) => rootId ? rootId.toString().toLowerCase() : '00000000-0000-0000-0000-000000000000';
+    private isRootParentId = (parentId: string) => parentId == '00000000-0000-0000-0000-000000000000';
+    private getParentId = (parentId?: GuidValue) => parentId ? parentId.toString().toLowerCase() : '00000000-0000-0000-0000-000000000000';
 
     protected onActivated() {
 

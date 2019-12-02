@@ -19,26 +19,26 @@ export class ProcessTypeJourneyStore extends Store {
     }
 
     private expands = this.state<{ [id: string]: boolean }>({});
-    private selectingDocumentType = this.state<ProcessType>(null);
-    private editingDocumentType = this.state<ProcessType>(null);
-    private editingOriginalDocumentTypeTitle = this.state<string>('');
+    private selectingProcessType = this.state<ProcessType>(null);
+    private editingProcessType = this.state<ProcessType>(null);
+    private editingOriginalProcessTypeTitle = this.state<string>('');
     private latestSyncStatus = this.state<ProcessTypeTermSynchronizationStatus>(null);
 
     getters = {
-        selectingDocumentType: () => {
-            return this.selectingDocumentType.state;
+        selectingProcessType: () => {
+            return this.selectingProcessType.state;
         },
         expandState: () => {
             return this.expands.state;
         },
-        editingDocumentType: () => {
-            return this.editingDocumentType.state;
+        editingProcessType: () => {
+            return this.editingProcessType.state;
         },
-        editingOriginalDocumentTypeTitle: () => {
-            return this.editingOriginalDocumentTypeTitle.state;
+        editingOriginalProcessTypeTitle: () => {
+            return this.editingOriginalProcessTypeTitle.state;
         },
-        onEditingDocumentTypeMutated: () => {
-            return this.editingDocumentType.onMutated
+        onEditingProcessTypeMutated: () => {
+            return this.editingProcessType.onMutated
         },
         syncStatus: () => {
             return this.latestSyncStatus.state;
@@ -86,24 +86,24 @@ export class ProcessTypeJourneyStore extends Store {
     }
 
     mutations = {
-        setSelectingDocumentType: this.mutation((processType: ProcessType) => {
-            this.selectingDocumentType.mutate(processType);
-            //if (processType && processType.parentId) {
-            //    //ensure expands all parent
-            //    let id = processType.parentId;
-            //    let expands: { [id: string]: boolean } = {};
-            //    while (id != null) {
-            //        expands[id.toString()] = true;
-            //        let parent = this.processTypeStore.getters.byId(id, true);
-            //        id = parent ? parent.parentId : null;
-            //    }
+        setSelectingProcessType: this.mutation((processType: ProcessType) => {
+            this.selectingProcessType.mutate(processType);
+            if (processType && processType.parentId) {
+                //ensure expands all parent
+                let id = processType.parentId;
+                let expands: { [id: string]: boolean } = {};
+                while (id != null) {
+                    expands[id.toString()] = true;
+                    let parent = this.processTypeStore.getters.byId(id, true);
+                    id = parent ? parent.parentId : null;
+                }
 
-            //    this.mutations.setExpand.commit(expands);
-            //}
+                this.mutations.setExpand.commit(expands);
+            }
         }),
-        setEditingDocumentType: this.mutation((processType: ProcessType) => {
-            this.editingDocumentType.mutate(processType);
-            this.editingOriginalDocumentTypeTitle.mutate(processType ? processType.multilingualTitle : '');
+        setEditingProcessType: this.mutation((processType: ProcessType) => {
+            this.editingProcessType.mutate(processType);
+            this.editingOriginalProcessTypeTitle.mutate(processType ? processType.multilingualTitle : '');
         }),
         setExpand: this.mutation((val: { [id: string]: boolean }) => {
             this.expands.mutate(Object.assign({}, this.expands.state, val));
@@ -119,18 +119,18 @@ export class ProcessTypeJourneyStore extends Store {
     actions = {
         addOrUpdate: this.action((processType: ProcessType) => {
             if (processType.id) {
-                return this.processTypeStore.actions.updateProcessType.dispatch(processType).then((updatedDocumentType) => {
+                return this.processTypeStore.actions.updateProcessType.dispatch(processType).then((updatedProcessType) => {
 
-                    this.mutations.setEditingDocumentType.commit(null);
-                    this.mutations.setSelectingDocumentType.commit(updatedDocumentType);
+                    this.mutations.setEditingProcessType.commit(null);
+                    this.mutations.setSelectingProcessType.commit(updatedProcessType);
 
                     return null;
                 })
             }
             else {
-                return this.processTypeStore.actions.createProcessType.dispatch(processType).then((createdDocumentType) => {
-                    this.mutations.setEditingDocumentType.commit(null);
-                    this.mutations.setSelectingDocumentType.commit(createdDocumentType);
+                return this.processTypeStore.actions.createProcessType.dispatch(processType).then((createdProcessType) => {
+                    this.mutations.setEditingProcessType.commit(null);
+                    this.mutations.setSelectingProcessType.commit(createdProcessType);
 
                     return null;
                 })
@@ -139,16 +139,16 @@ export class ProcessTypeJourneyStore extends Store {
         remove: this.action((processType: ProcessType) => {
             return this.processTypeStore.actions.removeProcessType.dispatch(processType).then(() => {
 
-                let root = this.processTypeStore.getters.byId(processType.rootId, true);
-                this.mutations.setEditingDocumentType.commit(null);
-                this.mutations.setSelectingDocumentType.commit(root);
+                let parent = this.processTypeStore.getters.byId(processType.parentId, true);
+                this.mutations.setEditingProcessType.commit(null);
+                this.mutations.setSelectingProcessType.commit(parent);
 
                 return null;
             })
         }),
         sort: this.action((processType: ProcessType, moveUp: boolean) => {
-            var root = this.processTypeStore.getters.byId(processType.rootId, true);
-            var children = this.processTypeStore.getters.children(root.id, true);
+            var parent = this.processTypeStore.getters.byId(processType.parentId, true);
+            var children = this.processTypeStore.getters.children(parent.id, true);
             var childrenIds = children.map(c => c.id);
 
             let currentChildIndex = childrenIds.indexOf(processType.id);
@@ -158,12 +158,12 @@ export class ProcessTypeJourneyStore extends Store {
             childrenIds[swapToChildIndex] = processType.id;
             childrenIds[currentChildIndex] = swapToChildId;
 
-            (root.settings as ProcessTypeGroupSettings).childrenOrders = childrenIds;
+            (parent.settings as ProcessTypeGroupSettings).childrenOrders = childrenIds;
 
-            return this.processTypeStore.actions.updateProcessType.dispatch(root).then(() => {
+            return this.processTypeStore.actions.updateProcessType.dispatch(parent).then(() => {
                 //to let the parent re-render
-                let currentSelecting = this.getters.selectingDocumentType();
-                this.mutations.setSelectingDocumentType.commit(currentSelecting);
+                let currentSelecting = this.getters.selectingProcessType();
+                this.mutations.setSelectingProcessType.commit(currentSelecting);
 
                 return null;
             });

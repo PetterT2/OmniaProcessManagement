@@ -66,7 +66,7 @@ export default class NewProcessDialog extends VueComponentBase implements IWebCo
         ]
 
         Promise.all(promises).then(() => {
-            this.processTypes = this.processTypeStore.getters.allProcessTypes();
+            //this.processTypes = this.processTypeStore.getters.allProcessTypes();
            
             if (this.processTypes.length > 0) {
                 this.process.rootProcessStep.processTypeId = this.processTypes[0].id;

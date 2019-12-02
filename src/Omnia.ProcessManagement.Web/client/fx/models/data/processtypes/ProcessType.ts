@@ -6,7 +6,7 @@ export interface ProcessType {
      * This is also term id or term set id
      * */
     id: GuidValue;
-    rootId: GuidValue;
+    parentId?: GuidValue;
     title: MultilingualString;
     settings: ProcessTypeSettings;
     readonly childCount: number; 

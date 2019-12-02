@@ -98,6 +98,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
+                if (!processType.ParentId.HasValue)
+                    throw new Exception("Don't support client-side to create root process type");
+
                 await IsSyncingDataFromSharePointAsync(processType.Settings.TermSetId);
 
                 var result = await ProcessTypeService.CreateAsync(processType);

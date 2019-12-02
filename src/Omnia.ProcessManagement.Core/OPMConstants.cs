@@ -20,7 +20,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class Topics
             {
-                public static readonly Topic<Dictionary<string, string>> OmniaTokenKeyUpdatedDocumentType = new Topic<Dictionary<string, string>>("OmniaProcessManagement", "UpdateUserOmniaTokenKeyInWorker");
+                public static readonly Topic<Dictionary<string, string>> OmniaTokenKeyUpdatedProcessType = new Topic<Dictionary<string, string>>("OmniaProcessManagement", "UpdateUserOmniaTokenKeyInWorker");
                 public static readonly Topic<List<ProcessType>> OnProcessTypesUpdated = new Topic<List<ProcessType>>("OmniaProcessManagement", "OnProcessTypesUpdated");
                 public static readonly Topic<StringBuilder> OnSettingsUpdated = new Topic<StringBuilder>("OmniaProcessManagement", "OnSettingsUpdated");
             }

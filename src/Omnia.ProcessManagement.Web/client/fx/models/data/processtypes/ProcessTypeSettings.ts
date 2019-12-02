@@ -17,13 +17,13 @@ export interface ProcessTypeSettings {
  * To ensure it fully react on view
  * */
 export const ProcessTypeFactory = {
-    createDefaultProcessTypeItem(termSetId: GuidValue): ProcessType {
+    createDefaultProcessTypeItem(parentId: GuidValue, termSetId: GuidValue): ProcessType {
         let processType: ProcessType = {
             id: null,
             title: {
                 isMultilingualString: true
             },
-            rootId: termSetId,
+            parentId: parentId,
             multilingualTitle: '',
             childCount: 0,
             secondaryOrderNumber: 0,

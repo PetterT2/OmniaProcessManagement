@@ -57,18 +57,18 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
         }
     }
 
-    onDocumentTypeClick(e: MouseEvent) {
+    onProcessTypeClick(e: MouseEvent) {
         e.preventDefault();
         e.stopPropagation();
 
-        let cloneDocumentType = Utils.clone(this.processType);
-        this.processTypeJourneyStore.mutations.setEditingDocumentType.commit(cloneDocumentType);
-        this.processTypeJourneyStore.mutations.setSelectingDocumentType.commit(this.processType);
+        let cloneProcessType = Utils.clone(this.processType);
+        this.processTypeJourneyStore.mutations.setEditingProcessType.commit(cloneProcessType);
+        this.processTypeJourneyStore.mutations.setSelectingProcessType.commit(this.processType);
     }
 
-    onCreateDocumentTypeClick() {
-        let newDocumentType = ProcessTypeFactory.createDefaultProcessTypeItem(this.processType.settings.termSetId);;
-        this.processTypeJourneyStore.mutations.setEditingDocumentType.commit(newDocumentType);
+    onCreateProcessTypeClick() {
+        let newProcessType = ProcessTypeFactory.createDefaultProcessTypeItem(this.processType.id, this.processType.settings.termSetId);;
+        this.processTypeJourneyStore.mutations.setEditingProcessType.commit(newProcessType);
     }
 
     sort(moveUp: boolean) {
@@ -79,8 +79,8 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
     }
 
     render(h) {
-        let editingDocumentType = this.processTypeJourneyStore.getters.selectingDocumentType();
-        let isSelected = editingDocumentType && editingDocumentType.id == this.processType.id;
+        let editingProcessType = this.processTypeJourneyStore.getters.selectingProcessType();
+        let isSelected = editingProcessType && editingProcessType.id == this.processType.id;
         let children = this.processTypeStore.getters.children(this.processType.id, true);
         let levelStyle = this.styles[this.level] || '';
         let theme = this.dark ? 'theme--dark' : 'theme--light';
@@ -89,8 +89,8 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
         let isExpanding = expandState[this.processType.id.toString()];
         return (
             <div>
-                <div onClick={(e) => { this.onDocumentTypeClick(e) }}
-                    class={[theme, isSelected ? this.styles.selectedDocumentTypeWrapper : this.styles.documentTypeWrapper, levelStyle]}>
+                <div onClick={(e) => { this.onProcessTypeClick(e) }}
+                    class={[theme, isSelected ? this.styles.selectedProcessTypeWrapper : this.styles.processTypeWrapper, levelStyle]}>
                     <div class={this.styles.arrowWrapper} style={{ opacity: this.processType.childCount > 0 ? 1 : 0 }}>
                         <v-btn
                             dark={this.dark}
@@ -124,7 +124,7 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
                     }
                     {
                         isSelected && isGroup &&
-                        <v-btn class="ma-0" small dark={this.dark} icon onClick={() => { this.onCreateDocumentTypeClick(); }}>
+                        <v-btn class="ma-0" small dark={this.dark} icon onClick={() => { this.onCreateProcessTypeClick(); }}>
                             <v-icon>add</v-icon>
                         </v-btn>
                     }

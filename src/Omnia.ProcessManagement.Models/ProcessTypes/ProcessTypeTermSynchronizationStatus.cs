@@ -13,7 +13,8 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         {
             Syncing = 0,
             Success = 1,
-            Failed = 2
+            Failed = 2,
+            SkippedNotAvailableWorkingLanguages = 3
         }
 
         public bool SyncFromSharePoint { get; set; }

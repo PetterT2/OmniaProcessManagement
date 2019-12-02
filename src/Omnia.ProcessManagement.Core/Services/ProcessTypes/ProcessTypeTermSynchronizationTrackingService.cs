@@ -53,13 +53,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             //Skip update to dbs for trggering sync if there is db updates already
             if (!documentTypeUpdatedInDb)
                 await TrackingRepository.TriggerSyncAsync(termSetId);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OmniaTokenKeyUpdatedDocumentType, GetUserOmniaTokenKey());
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OmniaTokenKeyUpdatedProcessType, GetUserOmniaTokenKey());
         }
 
         public async ValueTask TriggerSyncFromSharePointAsync(Guid termSetId)
         {
             await TrackingRepository.TriggerSyncFromSharePointAsync(termSetId);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OmniaTokenKeyUpdatedDocumentType, GetUserOmniaTokenKey());
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OmniaTokenKeyUpdatedProcessType, GetUserOmniaTokenKey());
         }
 
         private Dictionary<string, string> GetUserOmniaTokenKey()

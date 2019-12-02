@@ -4,8 +4,8 @@ import { ProcessTypeNodeStyles } from '../../../../models';
 
 type ProcessTypeNodeStylesInterfaceType = NestedCSSProperties | string;
 export interface ProcessTypeNodeStylesInterface<T extends ProcessTypeNodeStylesInterfaceType> {
-    documentTypeWrapper: T;
-    selectedDocumentTypeWrapper: T;
+    processTypeWrapper: T;
+    selectedProcessTypeWrapper: T;
     arrowBtnCollapsedDefault: T;
     arrowBtnExpanded: T;
     title: T;
@@ -33,8 +33,8 @@ export interface ProcessTypeNodeStylesInterface<T extends ProcessTypeNodeStylesI
 export const NodeStyles = {} as ProcessTypeNodeStylesInterface<NestedCSSProperties>;
 
 StyleFlow.define(NodeStyles, {
-    documentTypeWrapper: ProcessTypeNodeStyles.nodeWrapper,
-    selectedDocumentTypeWrapper: ProcessTypeNodeStyles.selectedNodeWrapper,
+    processTypeWrapper: ProcessTypeNodeStyles.nodeWrapper,
+    selectedProcessTypeWrapper: ProcessTypeNodeStyles.selectedNodeWrapper,
     /**
       * Generate static levels to prevent from generating style in each node to improve performance 
       * */

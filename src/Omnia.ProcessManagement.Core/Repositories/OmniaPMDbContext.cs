@@ -48,6 +48,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
         public DbSet<ProcessType> ProcessTypes { get; set; }
+        public DbQuery<ProcessTypeChildCount> ProcessTypeChildCounts { get; set; }
         public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
         public DbSet<Setting> Settings { get; set; }
 
