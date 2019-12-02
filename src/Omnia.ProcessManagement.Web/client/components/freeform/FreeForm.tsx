@@ -6,7 +6,7 @@ import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions
 import { FreeFormStyles } from '../../models';
 import { IFreeForm } from './IFreeForm';
 import { CanvasDefinition, ICanvasDefinition, DrawingShapeTypes, TextPosition, DrawingShapeDefinition } from '../../fx/models';
-import { DrawingCanvas, DrawingCanvasFreeForm } from '../../fx';
+import { DrawingCanvas, DrawingCanvasFreeForm, FreeformShape, IShape } from '../../fx';
 import { Guid } from '@omnia/fx-models';
 import { FreeFormLocalization } from './loc/localize';
 
@@ -15,7 +15,7 @@ export default class FreeFormComponent extends VueComponentBase implements IWebC
     @Prop() styles: typeof FreeFormStyles | any;
     @Prop() shapeDefinition: DrawingShapeDefinition;
     @Prop() onClosed?: () => void;
-    @Prop() onSaved: () => void;
+    @Prop() onSaved: (shape: IShape) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Localize(FreeFormLocalization.namespace) loc: FreeFormLocalization.locInterface;
@@ -51,7 +51,9 @@ export default class FreeFormComponent extends VueComponentBase implements IWebC
     }
 
     private addNewFreeForm() {
-
+        if (this.drawingCanvas.drawingShapes.length > 0)
+            this.onSaved((this.drawingCanvas.drawingShapes[0].shape as FreeformShape).getShapeJson());
+        this.onInternalClosed();
     }
 
     onInternalClosed() {

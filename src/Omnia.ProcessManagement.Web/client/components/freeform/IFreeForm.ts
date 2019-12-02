@@ -1,5 +1,6 @@
 ﻿import { TsxAllowUnknowProperties } from '@omnia/fx/ux'
 import { CanvasDefinition, DrawingShapeDefinition } from '../../fx/models';
+import { IShape } from '../../fx';
 
 export interface IFreeFormAttributes {
     
@@ -11,7 +12,7 @@ export interface IFreeForm extends IFreeFormAttributes {
     shapeDefinition: DrawingShapeDefinition;
 
     /*@DomProperty*/
-    onSaved: () => void;
+    onSaved: (shape: IShape) => void;
 
     /*@DomProperty*/
     onClosed?: () => void;

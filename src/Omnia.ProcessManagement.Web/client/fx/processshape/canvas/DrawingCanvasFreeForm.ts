@@ -4,7 +4,7 @@ import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/
 import { DrawingCanvasEditor } from './DrawingCanvasEditor';
 import { DrawingShapeDefinition } from '../../models';
 import { Guid } from '@omnia/fx-models';
-import { FabricPathShape, FabricShapeExtension, FabricPolylineShape } from '../fabricshape';
+import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape } from '../fabricshape';
 
 export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements CanvasDefinition {
     private polylineShape: fabric.Polyline = null;
@@ -95,11 +95,13 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private checkFinishDrawing() {
         if (this.isInRootPointZone()) {
             if (this.polylineShape == null) {
-                this.polylineShape = this.makeShapeCompleted(this.points);
+                this.polylineShape = this.makePolylineShapeCompleted(this.points);
+                this.makePathShapesCompleted(this.shapeDefinition.backgroundColor);
                 this.canvasObject.add(this.polylineShape);
             }
         } else if (this.polylineShape) {
             this.canvasObject.remove(this.polylineShape);
+            this.makePathShapesCompleted(null);
             this.polylineShape = null;
         }
     }
@@ -124,19 +126,21 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     private createFreeFromShape() {
+        let lineDefinition: DrawingShapeDefinition = Object.assign({}, this.shapeDefinition);
+        lineDefinition.activeBorderColor = this.shapeDefinition.activeBackgroundColor;
+        lineDefinition.borderColor = this.shapeDefinition.backgroundColor;
         let nodes: Array<FabricShapeExtension> = [];
-        let pathsJson = [];
         let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
             return object.type == 'path' && object.path.length > 2;
         });
         pathsObject.forEach((object) => {
-            nodes.push(new FabricPathShape(this.shapeDefinition, false, object.toObject()));
-            pathsJson.push(object.toObject());
+            let objectJson = object.toObject();
+            nodes.push(new FabricPathShape(this.shapeDefinition, false, objectJson));
+            let path = objectJson.path;
+            let points = [path[0][1] - 1, path[0][2] - 1, path[path.length - 1][1] - 1, path[path.length - 1][2] - 1];
+            nodes.push(new FabricLineShape(lineDefinition, false, { points: points, strokeWidth: 5 }));
         })
-        let object = this.polylineShape.toObject();
-        object.points = this.correctPolylinePoints(this.polylineShape.toObject().points, pathsJson);
-        nodes.push(new FabricPolylineShape(this.shapeDefinition, false, object));
-
+        nodes.push(new FabricPolylineShape(this.shapeDefinition, false, this.polylineShape.toObject()));
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),
             type: DrawingShapeTypes.Undefined,
@@ -156,34 +160,23 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         this.drawingShapes.push(drawingShape);
     }
 
-    private correctPolylinePoints(points, pathsJson: Array<fabric.IPathOptions>): any {
-        let space = 2;
-        let space1 = 2;
-        let newPoints = [];
-        points.forEach(point => {
-            pathsJson.forEach(p => {
-                var findPath = p.path.find((path, index) => {
-                    return (index == 0 || index == p.path.length - 1)
-                        && path[1] <= point.x + space && path[2] <= point.y + space
-                        && path[1] >= point.x - space && path[2] >= point.y - space;
-                });
-                if (findPath) {
-                    point.x = findPath[1] < point.x ? findPath[1] - space1 : findPath[1] > point.x ? findPath[1] + space1 : point.x;
-                    point.y = findPath[2] < point.y ? findPath[2] - space1 : findPath[2] > point.y ? findPath[2] + space1 : point.y;
-                }
-                if (newPoints.find(npoint => npoint.x == point.x && npoint.y == point.y) == null)
-                    newPoints.push(point);
-            });
-        })
-        return newPoints;
-    }
-
     private setStartingPoint(options) {
+        if (this.isDrawingFree || this.points.length == 0) {
+            let pathsObject: Array<fabric.IPathOptions> = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+                return object.type == 'path';
+            });
+            if (pathsObject.length > 0) {
+                let pathObject = pathsObject[pathsObject.length - 1];
+                this.x = pathObject.path[pathObject.path.length - 1][1];
+                this.y = pathObject.path[pathObject.path.length - 1][2];
+                return;
+            }
+        }
         this.x = options.e.offsetX;
         this.y = options.e.offsetY;
     }
 
-    private makeShapeCompleted(points) {
+    private makePolylineShapeCompleted(points) {
         var left = this.findLeftPaddingForPolyline(points);
         var top = this.findTopPaddingForPolyline(points);
         points.push(new fabric.Point(points[0].x, points[0].y));
@@ -197,6 +190,13 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         });
 
         return shape;
+    }
+
+    private makePathShapesCompleted(fill) {
+        this.canvasObject._objects.filter(o => o.type == 'path')
+            .forEach((object: fabric.Object) => {
+                object.set({ fill: fill });
+            });
     }
 
     private findTopPaddingForPolyline(polylinePoints) {

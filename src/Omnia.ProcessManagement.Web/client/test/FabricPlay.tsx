@@ -5,9 +5,9 @@ import { Component } from 'vue-property-decorator';
 import { fabric } from 'fabric';
 import { IWebComponentInstance, WebComponentBootstrapper, vueCustomElement, Inject } from '@omnia/fx';
 //import FabricTextShape from '../fx/models/processshape/fabricshape/FabricTextShape';
-import { ShapeTemplatesConstants, CircleShape, DrawingCanvasEditor, DrawingCanvas } from '../fx';
+import { ShapeTemplatesConstants, CircleShape, DrawingCanvasEditor, DrawingCanvas, IShape, FreeformShape } from '../fx';
 import { Guid } from '@omnia/fx-models';
-import { DrawingShapeTypes } from '../fx/models/data/drawingdefinitions';
+import { DrawingShapeTypes, DrawingShape } from '../fx/models/data/drawingdefinitions';
 import { MultilingualStore } from '@omnia/fx/store';
 import { DrawingShapeDefinition, TextPosition } from '../fx/models';
 
@@ -107,7 +107,7 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
             width: 200,
             height: 300,
             textPosition: TextPosition.Center,
-            shapeTemplate: ShapeTemplatesConstants.Pentagon
+            shapeTemplate: ShapeTemplatesConstants.Freeform
         } as DrawingShapeDefinition;
         return (
             <div>
@@ -128,7 +128,17 @@ export class FabricPlayComponent extends Vue implements IWebComponentInstance {
                     //this.updateShape();
                 }} >change ui</v-btn>
                 {this.openFreeForm && <opm-free-form shapeDefinition={changedDefinition} onClosed={() => { this.openFreeForm = false; }}
-                    onSaved={() => { }}></opm-free-form>}
+                    onSaved={(shape: IShape) => {
+                       
+                        let drawingShape: DrawingShape = {
+                            id: Guid.newGuid(),
+                            type: DrawingShapeTypes.Undefined,
+                            title: { isMultilingualString: true, "en-us": "freefrom", "sv-se": "pentagon sv" },
+                            shape: new FreeformShape(shape.definition, shape.nodes, false, { isMultilingualString: true, "en-us": "freefrom", "sv-se": "pentagon sv" }, true)
+                        };
+                        this.drawingCanvas1.addDrawingShape(drawingShape, false, 150, 150);
+
+                    }}></opm-free-form>}
             </div>
         );
     }
