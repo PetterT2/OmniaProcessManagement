@@ -113,7 +113,6 @@ export class ProcessStore extends Store {
                     let loadPromise = new Promise<null>((resolve, reject) => {
                         this.ensureProcess(processReference.processId).then((proces) => {
                             this.ensureProcessData(proces, processReference.processStepId).then((procesData) => {
-                                console.log('resolved ensureProcessData');
                                 resolve();
                             })
                         })
@@ -123,7 +122,6 @@ export class ProcessStore extends Store {
                 }
 
                 Promise.all(ensurePromises).then(() => {
-                    console.log('resolved ensureProcessData all');
                     resolve();
                 }).catch(reject);
 
@@ -154,7 +152,6 @@ export class ProcessStore extends Store {
             let currentState = this.processDict.state;
             let key = this.getProcessCacheKey(process.id);
             let newState = Object.assign({}, currentState, { [key]: process });
-            console.log('updateprocess state'); console.log(key); console.log(newState);
             this.processDict.mutate(newState);
         },
         addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessDataWithAuditing, isRemove?: boolean) => {

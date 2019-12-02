@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../../../fx/models/data/processtemplates/processtemplatesettings.ts" />
-import { Inject, Localize, Utils } from '@omnia/fx';
+﻿import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';

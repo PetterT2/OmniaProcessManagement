@@ -9,6 +9,7 @@ export interface ProcessType {
     rootId: GuidValue;
     title: MultilingualString;
     settings: ProcessTypeSettings;
+    readonly childCount: number; 
     readonly secondaryOrderNumber: number; //This is for secondary-order purpose
 
     //client-side

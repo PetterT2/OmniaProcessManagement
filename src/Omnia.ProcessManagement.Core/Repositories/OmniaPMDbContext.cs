@@ -68,6 +68,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
                  .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+
+            SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
         }
 
         /// <summary>
