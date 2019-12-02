@@ -60,8 +60,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     /**
     * Override protected function logic
     */
-    protected protectedNavigate(title: string, context: OPMRoute, stateData: OPMRouteStateData = null, pushState: boolean = true) {
-        super.protectedNavigate(title, context, stateData, pushState);
+    protected protectedNavigate(title: string, context: OPMRoute, stateData: OPMRouteStateData = null) {
+        super.protectedNavigate(title, context, stateData);
     }
 
     /**
