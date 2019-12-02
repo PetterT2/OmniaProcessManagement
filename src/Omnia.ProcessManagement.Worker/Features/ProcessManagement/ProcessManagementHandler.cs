@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core;
 
-namespace Omnia.ProcessManagement.Worker.Feature.ProcessManagement
+namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
 {
     [OmniaFeature(id: "af2678fd-e2d5-466f-b8fb-3c5a61a3defe")]
     internal class ProcessManagementHandler : BaseFeatureProvider
