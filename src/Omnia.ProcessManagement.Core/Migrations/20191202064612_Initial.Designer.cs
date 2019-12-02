@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191202034523_Initial")]
+    [Migration("20191202064612_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,6 +114,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("RootId")
                         .HasColumnType("uniqueidentifier");
 
@@ -130,7 +133,22 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .IsUnique()
                         .HasAnnotation("SqlServer:Clustered", true);
 
+                    b.HasIndex("RootId")
+                        .IsUnique()
+                        .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
+
                     b.ToTable("ProcessTypes");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeChildCount", b =>
+                {
+                    b.Property<int>("ChildCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.ToTable("ProcessTypeChildCounts");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeTermSynchronizationTracking", b =>

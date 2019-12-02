@@ -72,6 +72,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
             SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
+            modelBuilder.Entity<ProcessType>()
+                .HasIndex(c => new { c.RootId })
+                .IsUnique()
+                .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
             SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
         }
 

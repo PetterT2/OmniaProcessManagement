@@ -53,6 +53,17 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProcessTypeChildCounts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    ChildCount = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProcessTypes",
                 columns: table => new
                 {
@@ -65,6 +76,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(nullable: true),
+                    ParentId = table.Column<Guid>(nullable: true),
                     RootId = table.Column<Guid>(nullable: false),
                     Type = table.Column<int>(nullable: false),
                     JsonValue = table.Column<string>(nullable: true)
@@ -187,6 +199,13 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProcessTypes_RootId",
+                table: "ProcessTypes",
+                column: "RootId",
+                unique: true,
+                filter: "[ParentId] IS NULL AND [DeletedAt] IS NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Settings_ClusteredId",
                 table: "Settings",
                 column: "ClusteredId",
@@ -197,16 +216,13 @@ namespace Omnia.ProcessManagement.Core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "EnterprisePropertyComputedColumnMappings");
-
-            migrationBuilder.DropTable(
-                name: "EntityExistedQuery");
-
-            migrationBuilder.DropTable(
                 name: "ProcessData");
 
             migrationBuilder.DropTable(
                 name: "ProcessTemplates");
+
+            migrationBuilder.DropTable(
+                name: "ProcessTypeChildCounts");
 
             migrationBuilder.DropTable(
                 name: "ProcessTypes");
