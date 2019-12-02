@@ -78,11 +78,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("children")]
         [Authorize]
-        public async ValueTask<ApiResponse<IList<ProcessType>>> GetChildrenAsync(Guid rootId)
+        public async ValueTask<ApiResponse<IList<ProcessType>>> GetChildrenAsync(Guid? parentId)
         {
             try
             {
-                var result = await ProcessTypeService.GetChildrenAsync(rootId);
+                var result = await ProcessTypeService.GetChildrenAsync(parentId);
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)

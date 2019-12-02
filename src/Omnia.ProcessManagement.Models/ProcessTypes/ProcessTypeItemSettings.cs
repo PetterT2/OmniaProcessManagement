@@ -20,9 +20,6 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
             }
         }
         public Guid EnterprisePropertySetId { get; set; }
-        public bool AllowAppendices { get; set; }
-        public bool AllowConnectToTemplate { get; set; }
-        public bool ReplaceTokenOnPublishing { get; set; }
         public bool AllowRevisions { get; set; }
         public bool AllowBypassApprovalForRevisions { get; set; }
         public List<Guid> ProcessTemplateIds { get; set; }

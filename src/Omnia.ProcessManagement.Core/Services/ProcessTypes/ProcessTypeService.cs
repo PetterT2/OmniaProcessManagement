@@ -144,16 +144,16 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             Guid termSetId = Guid.Empty;
 
             var (enterpriseProperties, _) = await EnterprisePropertyService.GetAllAsync();
-            var odmProcessType = enterpriseProperties.Where(e => e.InternalName == OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName).FirstOrDefault();
-            if (odmProcessType != null && odmProcessType.Settings != null)
+            var opmProcessType = enterpriseProperties.Where(e => e.InternalName == OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName).FirstOrDefault();
+            if (opmProcessType != null && opmProcessType.Settings != null)
             {
-                var taxonomyPropertySettings = odmProcessType.Settings.CastTo<TaxonomyPropertySettings>();
+                var taxonomyPropertySettings = opmProcessType.Settings.CastTo<TaxonomyPropertySettings>();
                 if (taxonomyPropertySettings.TermSetId != Guid.Empty)
                 {
                     termSetId = taxonomyPropertySettings.TermSetId;
 
-                    var documentTypes = await GetByIdsAsync(termSetId);
-                    var rootProcessType = documentTypes.FirstOrDefault();
+                    var processTypes = await GetByIdsAsync(termSetId);
+                    var rootProcessType = processTypes.FirstOrDefault();
                     if (rootProcessType == null)
                     {
                         rootProcessType = new ProcessType();
@@ -245,16 +245,16 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             return documentType;
         }
 
-        public async ValueTask<ProcessType> CreateAsync(ProcessType documentType)
+        public async ValueTask<ProcessType> CreateAsync(ProcessType processType)
         {
-            await ProcessTypeValidation.ValidateAsync(documentType);
-            var createdProcessType = await ProcessTypeRepository.CreateAsync(documentType);
+            await ProcessTypeValidation.ValidateAsync(processType);
+            var createdProcessType = await ProcessTypeRepository.CreateAsync(processType);
             RemoveParentDependencyCache(createdProcessType.ParentId, CacheHelper);
             AddOrUpdateIdToParentIdMapping(createdProcessType);
             EnsureChildCountForCreatedProcessType(createdProcessType);
 
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, new List<ProcessType> { createdProcessType });
-            await this.TrackingService.TriggerSyncAsync(documentType.Settings.TermSetId);
+            await this.TrackingService.TriggerSyncAsync(processType.Settings.TermSetId);
             return createdProcessType;
         }
 

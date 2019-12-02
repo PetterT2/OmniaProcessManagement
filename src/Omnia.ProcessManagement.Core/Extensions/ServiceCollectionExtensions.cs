@@ -12,6 +12,7 @@ using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessTypeService, ProcessTypeService>();
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingService, ProcessTypeTermSynchronizationTrackingService>();
             services.AddScopedWithSingeltonRef<ISettingsService, SettingsService>();
+            services.AddScopedWithSingeltonRef<ProcessTypeValidation, ProcessTypeValidation>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
