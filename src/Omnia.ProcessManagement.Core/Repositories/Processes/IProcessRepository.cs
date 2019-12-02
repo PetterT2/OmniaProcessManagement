@@ -1,7 +1,7 @@
-﻿using Omnia.ProcessManagement.Models.Enums;
+﻿using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
-using Omnia.ProcessManagement.Models.ProcessLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
-    public interface IProcessRepository
+    public interface IProcessRepository : IEnterprisePropertiesEntityRepository
     {
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);

@@ -17,11 +17,11 @@ Composer
         ]
     })
     //Note: LoadRules with loadByUrlMatching using regEx should be the correct one to use, but currently it only trigger in the browser first load. Need to fix in OmniaFx
-    //.withLoadRules().loadByUrlMatching({
-    //    regEx: '\/@pm\/'
-    //})
+    .withLoadRules().loadByUrlMatching({
+        regEx: '\/@pm\/'
+    })
 
     //Temp
-    .withLoadRules().loadByUrlMatching({
-        startsWith: "/"
-    })
+    //.withLoadRules().loadByUrlMatching({
+    //    startsWith: "/"
+    //})
