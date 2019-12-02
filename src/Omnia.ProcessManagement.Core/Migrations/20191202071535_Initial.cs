@@ -53,17 +53,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProcessTypeChildCounts",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    ChildCount = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProcessTypes",
                 columns: table => new
                 {
@@ -220,9 +209,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProcessTemplates");
-
-            migrationBuilder.DropTable(
-                name: "ProcessTypeChildCounts");
 
             migrationBuilder.DropTable(
                 name: "ProcessTypes");

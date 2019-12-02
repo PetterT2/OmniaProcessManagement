@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191202065651_Initial")]
+    [Migration("20191202071535_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -138,17 +138,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
 
                     b.ToTable("ProcessTypes");
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeChildCount", b =>
-                {
-                    b.Property<int>("ChildCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.ToTable("ProcessTypeChildCounts");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeTermSynchronizationTracking", b =>

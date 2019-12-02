@@ -113,17 +113,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("ProcessTypes");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeChildCount", b =>
-                {
-                    b.Property<int>("ChildCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.ToTable("ProcessTypeChildCounts");
-                });
-
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeTermSynchronizationTracking", b =>
                 {
                     b.Property<int>("Id")
