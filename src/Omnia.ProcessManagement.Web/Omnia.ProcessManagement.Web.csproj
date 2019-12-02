@@ -65,9 +65,13 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\ProcessTypeHelper.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\IProcessTypesJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\processtypenode\ProcessTypeNode.css.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\processtypenode\ProcessTypeNode.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\service\index.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\service\ProcessTypeTermSynchronizationTrackingService.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
@@ -187,6 +191,7 @@
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessTypeNodeStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />

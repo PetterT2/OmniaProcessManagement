@@ -26,6 +26,7 @@ namespace Omnia.ProcessManagement.Worker
                         {
                             options.AddFeatureHandlers((featureProviderOptions) =>
                             {
+                                featureProviderOptions.AddFeatureProvider<Features.ProcessManagement.ProcessManagementHandler>();
                                 featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryProvider>();
                             });
                         })

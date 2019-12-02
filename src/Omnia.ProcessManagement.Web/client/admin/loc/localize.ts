@@ -5,7 +5,10 @@
         Settings: string,
         ArchiveSiteUrl: string,
         ProcessTypes: {
-            Title: string
+            Title: string,
+            Messages: {
+                ProcessTypesTermSetNotFound: string
+            }
         },
         ProcessTemplates: {
             Title: string,
