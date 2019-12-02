@@ -146,6 +146,7 @@
     <TypeScriptCompile Remove="client\fx\models\route\OPMRoute.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\SimplifyPath.ts" />
     <TypeScriptCompile Remove="client\fx\routing\index.ts" />
@@ -412,6 +413,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\processshape\fabricshape\FabricLineShape.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\processshape\fabricshape\FabricPolylineShape.ts">

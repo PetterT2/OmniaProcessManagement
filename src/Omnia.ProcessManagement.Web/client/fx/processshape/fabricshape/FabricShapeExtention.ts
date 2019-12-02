@@ -35,17 +35,19 @@ export class FabricShapeExtension implements FabricShape {
     }
 
     private getRequiredProperties(): { [k: string]: any } {
+        let opt = {};
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
-            this.properties['left'] = options['left'];
-            this.properties['top'] = options['top'];
-            this.properties['fill'] = options['fill'];
-            this.properties['stroke'] = options['stroke'];
-            this.properties['width'] = options['width'] * options['scaleX'];
-            this.properties['height'] = options['height'] * options['scaleY'];
-            this.properties['angle'] = options['angle'];
+            opt['left'] = options['left'];
+            opt['top'] = options['top'];
+            opt['fill'] = options['fill'];
+            opt['stroke'] = options['stroke'];
+            opt['strokeWidth'] = options['strokeWidth'];
+            opt['width'] = options['width'] * options['scaleX'];
+            opt['height'] = options['height'] * options['scaleY'];
+            opt['angle'] = options['angle'];
         }
-        return this.properties;
+        return opt;
     }
 
     protected getSpecificProperties(): { [k: string]: any } {

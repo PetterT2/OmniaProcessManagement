@@ -21,7 +21,7 @@ export class FabricPathShape extends FabricShapeExtension implements FabricShape
                 if (p.length > 4)
                     points.push({ x: p[3], y: p[4] });
             })
-            points = simplifyPath.simplify(points, 2, true);
+            points = simplifyPath.simplify(points, 1, true);
             newPath.push(path[0]);
             for (var i = 1; i < points.length - 2; i++) {
                 newPath.push(['Q', points[i].x, points[i].y, points[i + 1].x, points[i + 1].y]);

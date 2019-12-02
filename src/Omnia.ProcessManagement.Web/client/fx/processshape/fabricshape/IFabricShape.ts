@@ -10,6 +10,7 @@ export class FabricShapeTypes {
     public static triangle: FabricShapeType = 7;
     public static path: FabricShapeType = 8;
     public static polyline: FabricShapeType = 9;
+    public static line: FabricShapeType = 10;
 }
 
 export interface IFabricShape {
