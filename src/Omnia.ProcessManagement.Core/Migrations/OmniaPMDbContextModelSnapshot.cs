@@ -19,27 +19,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Omnia.Fx.NetCore.EnterpriseProperties.Entities.EnterprisePropertyColumnMapping", b =>
-                {
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("EnterprisePropertyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("EnterprisePropertyInternalName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TableName")
-                        .HasColumnType("nvarchar(max)");
-                });
-
-            modelBuilder.Entity("Omnia.Fx.NetCore.Repositories.EntityFramework.Entities.EntityExistedResult", b =>
-                {
-                    b.Property<int>("Result")
-                        .HasColumnType("int");
-                });
-
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTemplates.ProcessTemplate", b =>
                 {
                     b.Property<Guid>("Id")
