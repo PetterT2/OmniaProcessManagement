@@ -4,4 +4,4 @@ export * from './ProcessLibraryListViewStyles';
 export * from './GlobalProcessRendererStyles';
 export * from './IColor';
 export * from './FreeFormStyles';
-export * from './ProcessTypeNodeStyles';
+export * from './GenericNodeStyles';

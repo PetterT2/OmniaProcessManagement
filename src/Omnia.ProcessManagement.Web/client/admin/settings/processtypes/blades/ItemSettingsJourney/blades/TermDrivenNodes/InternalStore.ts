@@ -13,7 +13,7 @@ import { TermBase } from '@omnia/fx-sp';
 export class InternalStore extends Store {
     constructor() {
         super({
-            id: "C65645B5-B697-4070-B34C-08085631FF7A"
+            id: "040ed498-c9f1-48c2-b774-9212b205567f"
         });
     }
 

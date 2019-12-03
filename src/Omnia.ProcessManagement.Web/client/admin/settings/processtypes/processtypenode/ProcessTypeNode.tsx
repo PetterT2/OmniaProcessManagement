@@ -71,7 +71,7 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
         setTimeout(() => {
             let newProcessType = ProcessTypeFactory.createDefaultProcessTypeItem(this.processType.id, this.processType.settings.termSetId);;
             this.processTypeJourneyStore.mutations.setEditingProcessType.commit(newProcessType);
-        }, 500);
+        }, 100);
     }
 
     sort(moveUp: boolean) {

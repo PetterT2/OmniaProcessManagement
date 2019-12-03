@@ -11,6 +11,7 @@ import ReviewTab from '../ItemSettingsTabs/ReviewTab';
 import ArchiveTab from '../ItemSettingsTabs/ArchiveTab';
 import { ProcessTypesItemSettingsJourneyBladeIds } from '../ItemSettingsJourneyConstants';
 import { TabNames, ProcessTypeHelper } from '../../../core';
+import { setTimeout } from 'timers';
 
 
 interface DefaultBladeProps {
@@ -79,7 +80,6 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         if (bladeId)
             this.journey().travelToNext(bladeId);
     }
-
 
     render(h) {
         return (

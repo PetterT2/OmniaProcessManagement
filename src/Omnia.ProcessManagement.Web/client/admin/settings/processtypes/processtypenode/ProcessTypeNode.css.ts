@@ -1,6 +1,6 @@
 ﻿import { StyleFlow } from '@omnia/fx/ux';
 import { NestedCSSProperties } from 'typestyle/lib/types';
-import { ProcessTypeNodeStyles } from '../../../../models';
+import { GenericNodeStyles } from '../../../../models';
 
 type ProcessTypeNodeStylesInterfaceType = NestedCSSProperties | string;
 export interface ProcessTypeNodeStylesInterface<T extends ProcessTypeNodeStylesInterfaceType> {
@@ -33,26 +33,26 @@ export interface ProcessTypeNodeStylesInterface<T extends ProcessTypeNodeStylesI
 export const NodeStyles = {} as ProcessTypeNodeStylesInterface<NestedCSSProperties>;
 
 StyleFlow.define(NodeStyles, {
-    processTypeWrapper: ProcessTypeNodeStyles.nodeWrapper,
-    selectedProcessTypeWrapper: ProcessTypeNodeStyles.selectedNodeWrapper,
+    processTypeWrapper: GenericNodeStyles.nodeWrapper,
+    selectedProcessTypeWrapper: GenericNodeStyles.selectedNodeWrapper,
     /**
       * Generate static levels to prevent from generating style in each node to improve performance 
       * */
-    ["1"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 0 },
-    ["2"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 1 },
-    ["3"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 2 },
-    ["4"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 3 },
-    ["5"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 4 },
-    ["6"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 5 },
-    ["7"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 6 },
-    ["8"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 7 },
-    ["9"]: { paddingLeft: 10 + ProcessTypeNodeStyles.indentation * 8 },
+    ["1"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 0 },
+    ["2"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 1 },
+    ["3"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 2 },
+    ["4"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 3 },
+    ["5"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 4 },
+    ["6"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 5 },
+    ["7"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 6 },
+    ["8"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 7 },
+    ["9"]: { paddingLeft: 10 + GenericNodeStyles.indentation * 8 },
 
-    arrowBtnCollapsedDefault: ProcessTypeNodeStyles.arrowBtnCollapsedDefault,
-    arrowBtnExpanded: ProcessTypeNodeStyles.arrowBtnExpanded,
-    title: ProcessTypeNodeStyles.title,
-    content: ProcessTypeNodeStyles.content,
-    contentHide: ProcessTypeNodeStyles.contentHide,
-    arrowWrapper: ProcessTypeNodeStyles.arrowWrapper
+    arrowBtnCollapsedDefault: GenericNodeStyles.arrowBtnCollapsedDefault,
+    arrowBtnExpanded: GenericNodeStyles.arrowBtnExpanded,
+    title: GenericNodeStyles.title,
+    content: GenericNodeStyles.content,
+    contentHide: GenericNodeStyles.contentHide,
+    arrowWrapper: GenericNodeStyles.arrowWrapper
 });
 

@@ -59,6 +59,14 @@
                 FeedbackRecipients: string,
                 ReviewReminder: string,
                 ArchiveSiteUrlHint: string,
+                DefaultValueTypes: {
+                    FixedValue: string,
+                    FromSiteProperty: string
+                },
+                AlternativeInternalName: string,
+                DefaultValue: string,
+                InheritParentSettings: string,
+                NoApproverFound: string,
             },
             Messages: {
                 ProcessTypesTermSetNotFound: string

@@ -63,6 +63,14 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
                 FeedbackRecipients: "Feedback Recipients",
                 ReviewReminder: "Review Reminder",
                 ArchiveSiteUrlHint: "Leave it empty to use default archive site url",
+                DefaultValueTypes: {
+                    FixedValue: "Fixed Value",
+                    FromSiteProperty: "From Site Property"
+                },
+                AlternativeInternalName: "Placeholder Shortname",
+                DefaultValue: "Default Value",
+                InheritParentSettings: "Inherit parent settings",
+                NoApproverFound: "no approver found",
             },
             Messages: {
                 ProcessTypesTermSetNotFound: "Term Set for Process Types is not found"

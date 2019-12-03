@@ -95,7 +95,7 @@ const selectedNodeWrapper: NestedCSSProperties = {
     }
 }
 
-export const ProcessTypeNodeStyles = {
+export const GenericNodeStyles = {
     nodeWrapper: nodeWrapper,
     selectedNodeWrapper: selectedNodeWrapper,
     indentation: 16,
