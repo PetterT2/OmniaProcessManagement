@@ -56,7 +56,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
                     {
                         _ensuredSubscribeProcessTypesChanges = true;
 
-                        messageBus.Subscribe(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, async (documentTypes) =>
+                        messageBus.SubscribeAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, async (documentTypes) =>
                         {
                             foreach (var documentType in documentTypes)
                             {

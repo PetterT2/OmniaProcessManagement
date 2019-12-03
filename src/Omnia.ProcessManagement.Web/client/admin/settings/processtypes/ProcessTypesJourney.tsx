@@ -58,7 +58,7 @@ export default class ProcessTypesJourney extends Vue implements IWebComponentIns
         let h = this.$createElement;
         let blade: Blade = {
             id: ProcessTypesJourneyBladeIds.itemSettings,
-            size: BladeSizes.medium,
+            size: null,
             content: <ItemSettingsBlade></ItemSettingsBlade>
         }
 

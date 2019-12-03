@@ -7,6 +7,7 @@ using Omnia.Fx.HostConfiguration.Extensions;
 using Omnia.Fx.Models.AppSettings;
 using Omnia.Fx.NetCore.Worker.Hosting;
 using Omnia.ProcessManagement.Core.Extensions;
+using Omnia.ProcessManagement.Worker.TimerJobs;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -16,37 +17,31 @@ namespace Omnia.ProcessManagement.Worker
     {
         public static async Task Main(string[] args)
         {
-                await new WorkerHost(args)
-                    .ConfigureOmnia((omniaConfig, logging) =>
+            await new WorkerHost(args)
+                .ConfigureOmnia((omniaConfig, logging) =>
+                {
+                    omniaConfig.AddAppSettingsJsonFile("appsettings.json", Directory.GetCurrentDirectory());
+                    omniaConfig.AddAppSettingsJsonFile("appsettings.local.json", Directory.GetCurrentDirectory());
+
+                    omniaConfig.AddOmniaFxNetCore((options) =>
                     {
-                        omniaConfig.AddAppSettingsJsonFile("appsettings.json", Directory.GetCurrentDirectory());
-                        omniaConfig.AddAppSettingsJsonFile("appsettings.local.json", Directory.GetCurrentDirectory());
-
-                        omniaConfig.AddOmniaFxNetCore((options) =>
+                        options.AddFeatureHandlers((featureProviderOptions) =>
                         {
-                            options.AddFeatureHandlers((featureProviderOptions) =>
-                            {
-                                featureProviderOptions.AddFeatureProvider<Features.ProcessManagement.ProcessManagementHandler>();
-                                featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryProvider>();
-                            });
-                        })
-                        .AddOmniaFxNetCoreSharePoint()
-                        .AddOmniaPMCore();
-
-                        omniaConfig.Configuration((configBuilder) =>
-                        {
-                            configBuilder.AddCommandLine(args);
-                            omniaConfig.ConfigureServices((serviceCollection) =>
-                            {
-                                var configuration = configBuilder.Build();
-
-                                serviceCollection.AddLogging();
-                                serviceCollection.AddAsOption<OmniaAppSettings>(configuration);
-                                serviceCollection.AddHostedService<ExampleWorker>();
-                            });
+                            featureProviderOptions.AddFeatureProvider<Features.ProcessManagement.ProcessManagementHandler>();
+                            featureProviderOptions.AddFeatureProvider<Features.ProcessLibrary.ProcessLibraryProvider>();
                         });
                     })
-                    .RunAsync();
+                    .AddOmniaFxNetCoreSharePoint()
+                    .AddOmniaPMCore().
+                    ConfigureServices(serviceCollection =>
+                    {
+                        serviceCollection.AddDistributedMemoryCache();
+
+                        serviceCollection.AddHostedService<ProcessTypeTermSynchronizationTimerJob>();
+                        serviceCollection.AddOmniaPMSqlDB();
+                    });
+                })
+                .RunAsync();
         }
     }
 }
