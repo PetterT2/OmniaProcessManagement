@@ -1,7 +1,7 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { FreeFormStyles } from '../../models';
+import { FreeFormDrawingStyles } from '../../models';
 
-StyleFlow.define(FreeFormStyles,
+StyleFlow.define(FreeFormDrawingStyles,
     {
         wrapper: {
             overflow: 'auto',

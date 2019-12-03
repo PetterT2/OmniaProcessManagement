@@ -1,5 +1,5 @@
-﻿export module FreeFormLocalization {
-    export const namespace = "OPM.FreeForm";
+﻿export module FreeFormDrawingLocalization {
+    export const namespace = "OPM.FreeFormDrawing";
     export interface locInterface {
         NewFreeFormShape: string
     }
