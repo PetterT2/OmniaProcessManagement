@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Omnia.Fx.Contexts;
+using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.Utilities;
@@ -597,11 +598,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        private string FallbackToEmptyStringIfNull(string content)
+        public override bool ShouldAddComputedColumn(EnterprisePropertyDefinition property)
         {
-            if (content == null)
-                return "";
-            return content;
+            return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
     }

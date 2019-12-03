@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape } from '../shapes';
+import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition } from '../../models';
@@ -136,6 +136,12 @@ export class DrawingCanvas implements CanvasDefinition {
                 title: title
             };
             this.addShapeFromTemplateClassName(drawingShape, isActive, position.left, position.top);
+        }
+    }
+
+    addDrawingShape(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
+        if (this.canvasObject) {
+            this.addShapeFromTemplateClassName(drawingShape, isActive, left, top);
         }
     }
 

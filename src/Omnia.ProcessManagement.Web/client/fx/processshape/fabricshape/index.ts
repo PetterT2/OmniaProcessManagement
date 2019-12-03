@@ -9,3 +9,5 @@ export * from "./FabricPolygonShape";
 export * from "./FabricRectShape";
 export * from "./FabricTextShape";
 export * from "./FabricTriangleShape";
+export * from "./FabricPolylineShape";
+export * from "./FabricLineShape";

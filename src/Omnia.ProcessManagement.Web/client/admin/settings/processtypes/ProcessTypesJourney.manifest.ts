@@ -1,9 +1,9 @@
 ﻿import { Composer } from "@omnia/tooling-composers";
 
 Composer
-    .registerManifest('8109e5e6-33b6-441b-961a-61381ab729cf', "opm.admin.processtypes.jorney")
+    .registerManifest('8109e5e6-33b6-441b-961a-61381ab729cf', "opm.admin.processtypes.journey")
     .registerWebComponent({
-        elementName: "opm-admin-settings-processtypes-journey",
+        elementName: "opm-admin-settings-process-types-journey",
         entryPoint: "./ProcessTypesJourney.jsx"
     });
 

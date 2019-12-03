@@ -19,31 +19,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Omnia.Fx.NetCore.EnterpriseProperties.Entities.EnterprisePropertyColumnMapping", b =>
-                {
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("EnterprisePropertyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("EnterprisePropertyInternalName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TableName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("EnterprisePropertyComputedColumnMappings");
-                });
-
-            modelBuilder.Entity("Omnia.Fx.NetCore.Repositories.EntityFramework.Entities.EntityExistedResult", b =>
-                {
-                    b.Property<int>("Result")
-                        .HasColumnType("int");
-
-                    b.ToTable("EntityExistedQuery");
-                });
-
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTemplates.ProcessTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -73,9 +48,114 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("ProcessTemplates");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("ClusteredId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("JsonValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RootId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("RootId")
+                        .IsUnique()
+                        .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
+
+                    b.ToTable("ProcessTypes");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTypes.ProcessTypeTermSynchronizationTracking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Hash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Milliseconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProcessTypeRootId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SyncFromSharePoint")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProcessTypeTermSynchronizationTracking");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.Process", b =>
@@ -180,6 +260,44 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.HasIndex("ProcessId");
 
                     b.ToTable("ProcessData");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Settings.Setting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("ClusteredId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Key")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>

@@ -30,19 +30,9 @@ export class FabricImageShape extends FabricShapeExtension implements FabricShap
         return FabricShapeTypes.image;
     }
 
-    getShapeNodeJson(): IFabricShape {
-        if (this.fabricObject) {
-            let options = this.fabricObject.toJSON();
-            this.properties = [];
-            Object.keys(options).forEach(key => {
-                if (options[key])
-                    this.properties[key] = options[key];
-            });
-            this.properties['imageUrl'] = this.imageUrl;
-        }
-        return {
-            shapeNodeType: FabricShapeTypes.image,
-            properties: this.properties
-        };
+    protected getSpecificProperties(): { [k: string]: any } {
+        let prop = {};
+        prop['imageUrl'] = this.imageUrl;
+        return prop;
     }
 }

@@ -17,14 +17,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
         {
             public Guid Id { get; set; }
             public string Title { get; set; }
+            public Guid? ParentId { get; set; }
             public Guid RootId { get; set; }
+            public ProcessTypeSettingsTypes Type { get; set; }
             public DateTimeOffset ModifiedAt { get; set; }
         }
 
         private OmniaPMDbContext DatabaseContext { get; }
         private DbSet<Entities.ProcessTypes.ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; }
         private DbSet<Entities.ProcessTypes.ProcessType> ProcessTypes { get; }
-
         public ProcessTypeTermSynchronizationTrackingRepository(OmniaPMDbContext databaseContext)
         {
             DatabaseContext = databaseContext;
@@ -42,7 +43,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
 
                 if (tracking != null)
                 {
-                    tracking.Status = result.Success ? ProcessTypeTermSynchronizationStatus.Statuses.Success : ProcessTypeTermSynchronizationStatus.Statuses.Failed;
+                    tracking.Status = result.Success && !result.SkippedNotAvailableWorkingLanguages ? ProcessTypeTermSynchronizationStatus.Statuses.Success :
+                         result.Success && result.SkippedNotAvailableWorkingLanguages ? ProcessTypeTermSynchronizationStatus.Statuses.SkippedNotAvailableWorkingLanguages :
+                        ProcessTypeTermSynchronizationStatus.Statuses.Failed;
+
                     tracking.Milliseconds = result.Milliseconds;
                     tracking.Message = result.Message;
                     tracking.CreatedAt = DateTimeOffset.UtcNow;
@@ -55,7 +59,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
                 tracking.ProcessTypeRootId = result.ProcessTypeRootId;
                 tracking.Hash = result.Hash;
                 tracking.Message = result.Message;
-                tracking.Status = result.Success ? ProcessTypeTermSynchronizationStatus.Statuses.Success : ProcessTypeTermSynchronizationStatus.Statuses.Failed;
+                tracking.Status = result.Success && !result.SkippedNotAvailableWorkingLanguages ? ProcessTypeTermSynchronizationStatus.Statuses.Success :
+                         result.Success && result.SkippedNotAvailableWorkingLanguages ? ProcessTypeTermSynchronizationStatus.Statuses.SkippedNotAvailableWorkingLanguages :
+                        ProcessTypeTermSynchronizationStatus.Statuses.Failed;
+
                 tracking.CreatedAt = result.LatestModifiedAt;
                 tracking.Milliseconds = result.Milliseconds;
 
@@ -112,13 +119,18 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
                        .Select(d => new SimpleProcessType
                        {
                            Id = d.Id,
+                           ParentId = d.ParentId,
                            RootId = d.RootId,
                            Title = d.Title,
+                           Type = d.Type,
                            ModifiedAt = d.ModifiedAt
                        })
                        .ToListAsync();
 
             var latestModifiedAt = processTypes.Select(d => d.ModifiedAt).Max();
+
+            //Exclude root process type
+            processTypes = processTypes.Where(d => d.ParentId != null).ToList();
 
             var processTypeTerms = processTypes.Select(ParseEntityToModel).ToList();
             var hash = CommonUtils.CreateMd5Hash(JsonConvert.SerializeObject(processTypeTerms));
@@ -137,7 +149,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             else if (processTypeTerms.Count == 0)
             {
                 request.Type = ProcessTypeTermSynchronizationTrackingRequest.ProcessTypeTermSynchronizationTrackingRequestType.Synced;
-                var result = request.CreateTrackingResult(true, "", 0);
+                var result = request.CreateTrackingResult(true, false, "", 0);
 
                 await AddTrackingResultAsync(result);
             }
@@ -199,13 +211,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
 
         public async ValueTask TriggerSyncFromSharePointAsync(Guid rootId)
         {
-            var anyProcessTypeExist = await DatabaseContext.ProcessTypes.AnyAsync(d => d.RootId == rootId && d.DeletedAt == null);
+            var anyProcessTypeExist = await DatabaseContext.ProcessTypes.AnyAsync(d => d.ParentId.HasValue && d.RootId == rootId && d.DeletedAt == null);
             if (anyProcessTypeExist)
                 throw new Exception($"There are existing process types mapping to termset {rootId} in database.");
 
             var rootProcessType = await DatabaseContext.ProcessTypes.AsTracking().FirstOrDefaultAsync(d => d.Id == rootId && d.DeletedAt == null);
             if (rootProcessType == null)
-                throw new Exception($"Root document type for termset {rootId} is not created.");
+                throw new Exception($"Root process type for termset {rootId} is not created.");
 
 
             var tracking = await ProcessTypeTermSynchronizationTracking.FirstOrDefaultAsync(d => d.ProcessTypeRootId == rootId && d.Status == ProcessTypeTermSynchronizationStatus.Statuses.Syncing);
@@ -230,6 +242,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             {
                 model = new ProcessTypeTermSynchronizationTrackingRequest.ProcessTypeTerm();
                 model.Id = entity.Id;
+                model.ParentId = entity.ParentId;
+                model.IsGroup = entity.Type == ProcessTypeSettingsTypes.Group;
                 model.Title = string.IsNullOrWhiteSpace(entity.Title) ? new MultilingualString() : JsonConvert.DeserializeObject<MultilingualString>(entity.Title);
             }
 

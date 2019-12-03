@@ -10,6 +10,15 @@ export class FabricTriangleShape extends FabricShapeExtension implements FabricS
         this.fabricObject = new fabric.Triangle(this.properties);
     }
 
+    protected getSpecificProperties(): { [k: string]: any } {
+        let prop = {};
+        if (this.fabricObject) {
+            let options = this.fabricObject.toJSON();
+            prop["strokeDashArray"] = options["strokeDashArray"];
+        }
+        return prop;
+    }
+
     get shapeNodeType() {
         return FabricShapeTypes.triangle;
     }

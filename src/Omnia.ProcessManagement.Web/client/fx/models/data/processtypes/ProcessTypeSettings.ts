@@ -23,8 +23,9 @@ export const ProcessTypeFactory = {
             title: {
                 isMultilingualString: true
             },
-            rootId: null,
+            parentId: parentId,
             multilingualTitle: '',
+            childCount: 0,
             secondaryOrderNumber: 0,
             settings: <ProcessTypeItemSettings>{
                 allowAppendices: false,

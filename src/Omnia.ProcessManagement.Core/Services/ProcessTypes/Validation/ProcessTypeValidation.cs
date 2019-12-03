@@ -33,16 +33,27 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 throw new Exception("ProcessType.TermSetId is invalid");
             }
 
-            var (properties, dependencyCache) = await EnterprisePropetyService.GetAllAsync();
-            var itemSettings = CleanSettingsModel<ProcessTypeItemSettings>(processType);
 
-            var set = await EnterprisePropertySetService.GetByIdAsync(itemSettings.EnterprisePropertySetId);
-
-            ProcessTypeItemSettingsValidation.Validate(itemSettings, properties, set);
-
-            if (itemSettings.PublishingApprovalSettings != null)
+            if (processType.Settings.Type == ProcessTypeSettingsTypes.Item)
             {
-                itemSettings.PublishingApprovalSettings = PublishingApprovalSettingsValidation.Validate(itemSettings.PublishingApprovalSettings, set);
+                if (!processType.ParentId.HasValue)
+                    throw new Exception("ProcessType.ParentId is invalid");
+
+                var (properties, dependencyCache) = await EnterprisePropetyService.GetAllAsync();
+                var itemSettings = CleanSettingsModel<ProcessTypeItemSettings>(processType);
+
+                var set = await EnterprisePropertySetService.GetByIdAsync(itemSettings.EnterprisePropertySetId);
+
+                ProcessTypeItemSettingsValidation.Validate(itemSettings, properties, set);
+
+                if (itemSettings.PublishingApprovalSettings != null)
+                {
+                    itemSettings.PublishingApprovalSettings = PublishingApprovalSettingsValidation.Validate(itemSettings.PublishingApprovalSettings, set);
+                }
+            }
+            else
+            {
+                var groupSettings = CleanSettingsModel<ProcessTypeGroupSettings>(processType);
             }
         }
 

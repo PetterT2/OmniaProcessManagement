@@ -14,6 +14,8 @@ namespace Omnia.ProcessManagement.Core.Entities.ProcessTypes
 
         public string Title { get; set; }
 
+        public Guid? ParentId { get; set; }
+
         public Guid RootId { get; set; }
 
         public ProcessTypeSettingsTypes Type { get; set; }

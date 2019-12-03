@@ -78,11 +78,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("children")]
         [Authorize]
-        public async ValueTask<ApiResponse<IList<ProcessType>>> GetChildrenAsync(Guid rootId)
+        public async ValueTask<ApiResponse<IList<ProcessType>>> GetChildrenAsync(Guid? parentId)
         {
             try
             {
-                var result = await ProcessTypeService.GetChildrenAsync(rootId);
+                var result = await ProcessTypeService.GetChildrenAsync(parentId);
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)
@@ -98,6 +98,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
+                if (!processType.ParentId.HasValue)
+                    throw new Exception("Don't support client-side to create root process type");
+
                 await IsSyncingDataFromSharePointAsync(processType.Settings.TermSetId);
 
                 var result = await ProcessTypeService.CreateAsync(processType);

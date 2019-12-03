@@ -37,10 +37,10 @@ export class ProcessTypeService {
         });
     }
 
-    public getChildren = (rootId: GuidValue): Promise<Array<ProcessType>> => {
+    public getChildren = (parentId: GuidValue): Promise<Array<ProcessType>> => {
         return new Promise<Array<ProcessType>>((resolve, reject) => {
             var params = {
-                rootId: rootId
+                parentId: parentId
             }
             this.httpClient.get<IHttpApiOperationResult<Array<ProcessType>>>('/api/processtypes/children', { params: params }).then(response => {
                 if (response.data.success) {

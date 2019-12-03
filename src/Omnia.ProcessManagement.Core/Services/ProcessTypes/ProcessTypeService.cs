@@ -1,5 +1,6 @@
 ﻿using Omnia.Fx.Caching;
 using Omnia.Fx.EnterpriseProperties;
+using Omnia.Fx.EnterprisePropertySets;
 using Omnia.Fx.Messaging;
 using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
@@ -16,7 +17,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
     {
         internal class IdMapToParentIdCacheModel
         {
-            public Guid ParentId { get; set; }
+            public Guid? ParentId { get; set; }
         }
 
         private static object _lock = new object();
@@ -27,18 +28,19 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
         private ProcessTypeValidation ProcessTypeValidation { get; }
         private IProcessTypeTermSynchronizationTrackingService TrackingService { get; }
         private IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
+
         private IMessageBus MessageBus { get; }
         public ProcessTypeService(IProcessTypeRepository documentTypeRepository,
             IEnterprisePropertyService enterprisePropertyService,
-            ProcessTypeValidation processTypeValidation,
-            IProcessTypeTermSynchronizationTrackingService trackingService,
+            ProcessTypeValidation documentTypeValidation,
             IOmniaMemoryDependencyCache omniaMemoryDependencyCache,
+            IProcessTypeTermSynchronizationTrackingService trackingService,
             IMessageBus messageBus)
         {
             TrackingService = trackingService;
             ProcessTypeRepository = documentTypeRepository;
             EnterprisePropertyService = enterprisePropertyService;
-            ProcessTypeValidation = processTypeValidation;
+            ProcessTypeValidation = documentTypeValidation;
             MessageBus = messageBus;
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
             EnsureSubscribeProcessTypesChanges(messageBus, CacheHelper);
@@ -54,11 +56,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
                     {
                         _ensuredSubscribeProcessTypesChanges = true;
 
-                        messageBus.Subscribe(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, async (processTypes) =>
+                        messageBus.Subscribe(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, async (documentTypes) =>
                         {
-                            foreach (var processType in processTypes)
+                            foreach (var documentType in documentTypes)
                             {
-                                RemoveParentDependencyCache(processType.RootId, cacheHelper);
+                                RemoveParentDependencyCache(documentType.ParentId, cacheHelper);
                             }
                             await Task.CompletedTask;
                         });
@@ -67,27 +69,74 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             }
         }
 
-        public async ValueTask SyncFromSharePointAsync(List<ProcessType> processTypes)
+        private string GetChildrenCacheKey(Guid? parentId)
         {
-            await ProcessTypeRepository.SyncFromSharePointAsync(processTypes);
+            var id = parentId.HasValue ? parentId.Value : Guid.Empty;
+            return CacheHelper.CreateKey("ProcessTypeChildren", id.ToString());
         }
 
-        public async ValueTask<IList<ProcessType>> GetChildrenAsync(Guid rootId)
+        private string GetChildCountCacheKey(Guid documentTypeId)
         {
-            var key = GetChildrenCacheKey(rootId);
-            var dependency = EnsureParentDependencyCache(rootId);
-            var result = await CacheHelper.Instance.GetOrSetDependencyCacheAsync<IList<ProcessType>>(key, async (cacheEntry) =>
-            {
-                cacheEntry.Dependencies.Add(dependency);
-                var children = await ProcessTypeRepository.GetChildrenAsync(rootId);
-                children.ToList().ForEach(AddOrUpdateIdToParentIdMapping);
+            return CacheHelper.CreateKey("ProcessTypeChildCount", documentTypeId.ToString());
+        }
 
-                return children;
+        private static string GetParentDependencyCacheKey(Guid? parentId, IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> cacheHelper)
+        {
+            var id = parentId.HasValue ? parentId.Value : Guid.Empty;
+            return cacheHelper.CreateKey("ProcessTypeParentDependency", id.ToString());
+        }
+
+        private string GetRootDependencyCacheKey()
+        {
+            return CacheHelper.CreateKey("RootProcessTypeDependency");
+        }
+
+        private string GetIdMapToParentCacheKey(Guid id)
+        {
+            return CacheHelper.CreateKey("MapIdToParentId", id.ToString());
+        }
+
+        private ICacheDependencyResult<bool> EnsureRootDependencyCache()
+        {
+            var key = GetRootDependencyCacheKey();
+            var cache = CacheHelper.Instance.GetOrSetDependencyCache<bool>(key, (cacheEntry) =>
+            {
+                return true;
             });
 
-            var documentTypes = result.Value.ToArray();
+            return cache;
+        }
 
-            return documentTypes;
+        private ICacheDependencyResult<bool> EnsureParentDependencyCache(Guid? parentId)
+        {
+            var key = GetParentDependencyCacheKey(parentId, CacheHelper);
+            var rootDependency = EnsureRootDependencyCache();
+            var cache = CacheHelper.Instance.GetOrSetDependencyCache<bool>(key, (cacheEntry) =>
+            {
+                cacheEntry.Dependencies.Add(rootDependency);
+                return true;
+            });
+
+            return cache;
+        }
+
+        private static void RemoveParentDependencyCache(Guid? parentId, IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> cacheHelper)
+        {
+            var key = GetParentDependencyCacheKey(parentId, cacheHelper);
+            cacheHelper.Instance.Remove(key);
+        }
+
+        public void RefreshCache()
+        {
+            var key = GetRootDependencyCacheKey();
+            CacheHelper.Instance.Remove(key);
+        }
+
+        public async ValueTask SyncFromSharePointAsync(List<ProcessType> documentTypes)
+        {
+            await ProcessTypeRepository.SyncFromSharePointAsync(documentTypes);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, documentTypes);
+            RefreshCache();
         }
 
         public async ValueTask<Guid> GetProcessTypeTermSetIdAsync()
@@ -130,10 +179,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
                 var parentIdModel = CacheHelper.Instance.Get<IdMapToParentIdCacheModel>(idToParentIdCacheKey);
                 if (parentIdModel != null)
                 {
-                    var processType = GetInChildrenCacheIfExists(parentIdModel.ParentId, id);
-                    if (processType != null)
+                    var documentType = GetInChildrenCacheIfExists(parentIdModel.ParentId, id);
+                    if (documentType != null)
                     {
-                        result.Add(processType);
+                        result.Add(documentType);
                         continue;
                     }
                     else
@@ -148,50 +197,93 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
 
             if (idsNeedToGetDirectly.Count > 0)
             {
-                var processTypes = await this.ProcessTypeRepository.GetByIdAsync(idsNeedToGetDirectly);
+                var documentTypes = await this.ProcessTypeRepository.GetByIdAsync(idsNeedToGetDirectly);
 
-                foreach (var processType in processTypes)
+                foreach (var documentType in documentTypes)
                 {
-                    AddOrUpdateIdToParentIdMapping(processType);
-                    result.Add(processType);
+                    AddOrUpdateIdToParentIdMapping(documentType);
+                    result.Add(documentType);
                 }
             }
 
+            await EnsureChildCountAsync(result.ToArray());
             return result;
         }
 
-        public async ValueTask<ProcessType> CreateAsync(ProcessType documentType)
+        public async ValueTask<IList<ProcessType>> GetChildrenAsync(Guid? parentId)
         {
-            await ProcessTypeValidation.ValidateAsync(documentType);
-            var createdProcessType = await ProcessTypeRepository.CreateAsync(documentType);
-            RemoveParentDependencyCache(createdProcessType.RootId, CacheHelper);
+            var key = GetChildrenCacheKey(parentId);
+            var dependency = EnsureParentDependencyCache(parentId);
+            var result = await CacheHelper.Instance.GetOrSetDependencyCacheAsync<IList<ProcessType>>(key, async (cacheEntry) =>
+            {
+                cacheEntry.Dependencies.Add(dependency);
+                var children = await ProcessTypeRepository.GetChildrenAsync(parentId);
+                children.ToList().ForEach(AddOrUpdateIdToParentIdMapping);
+
+                return children;
+            });
+
+            var documentTypes = result.Value.ToArray();
+            await EnsureChildCountAsync(documentTypes);
+
+            return documentTypes;
+        }
+
+
+        private ProcessType GetInChildrenCacheIfExists(Guid? parentId, Guid id)
+        {
+            ProcessType documentType = null;
+            var key = GetChildrenCacheKey(parentId);
+            var dependency = EnsureParentDependencyCache(parentId);
+            var result = CacheHelper.Instance.Get<ICacheDependencyResult<IList<ProcessType>>>(key);
+            if (result != null && result.Value != null)
+            {
+                var children = result.Value;
+                documentType = children.FirstOrDefault(c => c.Id == id);
+            }
+
+            return documentType;
+        }
+
+        public async ValueTask<ProcessType> CreateAsync(ProcessType processType)
+        {
+            await ProcessTypeValidation.ValidateAsync(processType);
+            var createdProcessType = await ProcessTypeRepository.CreateAsync(processType);
+            RemoveParentDependencyCache(createdProcessType.ParentId, CacheHelper);
             AddOrUpdateIdToParentIdMapping(createdProcessType);
+            EnsureChildCountForCreatedProcessType(createdProcessType);
 
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, new List<ProcessType> { createdProcessType });
-            await this.TrackingService.TriggerSyncAsync(documentType.Settings.TermSetId);
+            await this.TrackingService.TriggerSyncAsync(processType.Settings.TermSetId);
             return createdProcessType;
         }
 
-        public async ValueTask<ProcessType> UpdateAsync(ProcessType processType)
+        public async ValueTask<ProcessType> UpdateAsync(ProcessType documentType)
         {
-            var processTypeChanged = new List<ProcessType>();
+            var documentTypeChanged = new List<ProcessType>();
 
-            await ProcessTypeValidation.ValidateAsync(processType);
-            var updatedDocumentType = await ProcessTypeRepository.UpdateAsync(processType);
-            RemoveParentDependencyCache(updatedDocumentType.RootId, CacheHelper);
-            processTypeChanged.Add(updatedDocumentType);
+            await ProcessTypeValidation.ValidateAsync(documentType);
+            var (updatedProcessType, originalProcessType) = await ProcessTypeRepository.UpdateAsync(documentType);
+            RemoveParentDependencyCache(updatedProcessType.ParentId, CacheHelper);
+            documentTypeChanged.Add(updatedProcessType);
+            if (updatedProcessType.ParentId != originalProcessType.ParentId)
+            {
+                RemoveParentDependencyCache(originalProcessType.ParentId, CacheHelper);
+                documentTypeChanged.Add(originalProcessType);
+            }
 
-            AddOrUpdateIdToParentIdMapping(updatedDocumentType);
+            AddOrUpdateIdToParentIdMapping(updatedProcessType);
+            await EnsureChildCountAsync(updatedProcessType);
 
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, processTypeChanged);
-            await this.TrackingService.TriggerSyncAsync(updatedDocumentType.Settings.TermSetId);
-            return updatedDocumentType;
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessTypesUpdated, documentTypeChanged);
+            await this.TrackingService.TriggerSyncAsync(updatedProcessType.Settings.TermSetId);
+            return updatedProcessType;
         }
 
         public async ValueTask RemoveAsync(Guid id)
         {
             var removedProcessType = await ProcessTypeRepository.RemoveAsync(id);
-            RemoveParentDependencyCache(removedProcessType.RootId, CacheHelper);
+            RemoveParentDependencyCache(removedProcessType.ParentId, CacheHelper);
 
             var key = GetIdMapToParentCacheKey(removedProcessType.Id);
             CacheHelper.Instance.Remove(key);
@@ -200,85 +292,64 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             await this.TrackingService.TriggerSyncAsync(removedProcessType.Settings.TermSetId);
         }
 
-        public void RefreshCache()
+        private void AddOrUpdateIdToParentIdMapping(ProcessType documentType)
         {
-            var key = GetRootDependencyCacheKey();
-            CacheHelper.Instance.Remove(key);
-        }
-
-        private string GetChildrenCacheKey(Guid rootId)
-        {
-            return CacheHelper.CreateKey("ProcessTypeChildren", rootId.ToString());
-        }
-
-        private ICacheDependencyResult<bool> EnsureParentDependencyCache(Guid parentId)
-        {
-            var key = GetParentDependencyCacheKey(parentId, CacheHelper);
-            var rootDependency = EnsureRootDependencyCache();
-            var cache = CacheHelper.Instance.GetOrSetDependencyCache<bool>(key, (cacheEntry) =>
-            {
-                cacheEntry.Dependencies.Add(rootDependency);
-                return true;
-            });
-
-            return cache;
-        }
-
-        private ICacheDependencyResult<bool> EnsureRootDependencyCache()
-        {
-            var key = GetRootDependencyCacheKey();
-            var cache = CacheHelper.Instance.GetOrSetDependencyCache<bool>(key, (cacheEntry) =>
-            {
-                return true;
-            });
-
-            return cache;
-        }
-
-        private string GetRootDependencyCacheKey()
-        {
-            return CacheHelper.CreateKey("RootProcessTypeDependency");
-        }
-
-        private void AddOrUpdateIdToParentIdMapping(ProcessType processType)
-        {
-            var key = GetIdMapToParentCacheKey(processType.Id);
+            var key = GetIdMapToParentCacheKey(documentType.Id);
             var idMapToParentIdCacheModel = new IdMapToParentIdCacheModel
             {
-                ParentId = processType.RootId
+                ParentId = documentType.ParentId
             };
             CacheHelper.Instance.Set(key, idMapToParentIdCacheModel);
         }
 
-        private string GetIdMapToParentCacheKey(Guid id)
+        private void EnsureChildCountForCreatedProcessType(ProcessType documentType)
         {
-            return CacheHelper.CreateKey("MapIdToParentId", id.ToString());
+            var key = GetChildCountCacheKey(documentType.Id);
+            //child count cache dependency should be its own id as parent id here
+            var dependency = EnsureParentDependencyCache(documentType.Id);
+            CacheHelper.Instance.Set(key, (int?)0, dependency);
+            documentType.ChildCount = 0;
         }
 
-        private static void RemoveParentDependencyCache(Guid rootId, IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> cacheHelper)
-        {
-            var key = GetParentDependencyCacheKey(rootId, cacheHelper);
-            cacheHelper.Instance.Remove(key);
-        }
 
-        private static string GetParentDependencyCacheKey(Guid rootId, IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> cacheHelper)
+        private async ValueTask EnsureChildCountAsync(params ProcessType[] documentTypes)
         {
-            return cacheHelper.CreateKey("ProcessTypeParentDependency", rootId.ToString());
-        }
-
-        private ProcessType GetInChildrenCacheIfExists(Guid rootId, Guid id)
-        {
-            ProcessType processType = null;
-            var key = GetChildrenCacheKey(rootId);
-            var dependency = EnsureParentDependencyCache(rootId);
-            var result = CacheHelper.Instance.Get<ICacheDependencyResult<IList<ProcessType>>>(key);
-            if (result != null && result.Value != null)
+            var needToGetChildCountProcessTypes = new List<ProcessType>();
+            foreach (var documentType in documentTypes)
             {
-                var children = result.Value;
-                processType = children.FirstOrDefault(c => c.Id == id);
+                var key = GetChildCountCacheKey(documentType.Id);
+                var childCount = CacheHelper.Instance.Get<int?>(key);
+
+                if (childCount.HasValue)
+                {
+                    documentType.ChildCount = childCount.Value;
+                }
+                else
+                {
+                    needToGetChildCountProcessTypes.Add(documentType);
+                }
             }
 
-            return processType;
+            if (needToGetChildCountProcessTypes.Count > 0)
+            {
+                var ids = needToGetChildCountProcessTypes.Select(d => d.Id).ToList();
+                var childCounts = await ProcessTypeRepository.GetChildCountAsync(ids);
+
+                foreach (var documentType in needToGetChildCountProcessTypes)
+                {
+                    var key = GetChildCountCacheKey(documentType.Id);
+                    //child count cache dependency should be its own id as parent id here
+                    var dependency = EnsureParentDependencyCache(documentType.Id);
+
+                    int? childCount = 0;
+                    if (childCounts.TryGetValue(documentType.Id, out int count))
+                    {
+                        childCount = count;
+                    }
+                    CacheHelper.Instance.Set(key, childCount, dependency);
+                    documentType.ChildCount = childCount.Value;
+                }
+            }
         }
     }
 }

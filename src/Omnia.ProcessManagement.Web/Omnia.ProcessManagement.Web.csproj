@@ -16,11 +16,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="client\NewFolder\**" />
+    <Content Remove="client\NewFolder\**" />
+    <EmbeddedResource Remove="client\NewFolder\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
+    <None Remove="client\NewFolder\**" />
     <None Remove="wwwroot\omnia\**" />
+    <TypeScriptCompile Remove="client\NewFolder\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -33,6 +38,12 @@
     <TypeScriptCompile Remove="client\admin\models\SubMenuItem.ts" />
     <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\registrations\AdminRegistrations.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\blades\DefaultBlade.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettings.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourney.manifest.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourney.tsx" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\GlobalSettingsJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\globalsettings\IGlobalSettingsJourney.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\DefaultBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\ProcessTemplateSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtemplates\blades\settingsblades\ProcessTemplateDefaultSettingsBlade.tsx" />
@@ -54,13 +65,23 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\core\ProcessTypeHelper.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\IProcessTypesJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\processtypenode\ProcessTypeNode.css.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\processtypenode\ProcessTypeNode.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\ProcessTypesJourneyConstants.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\service\index.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\processtypes\service\ProcessTypeTermSynchronizationTrackingService.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\index.ts" />
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\Freeform.css.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\FreeForm.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\FreeForm.tsx" />
+    <TypeScriptCompile Remove="client\components\freeform\IFreeForm.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\loc\localize.ts" />
     <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
@@ -109,6 +130,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
@@ -123,12 +146,17 @@
     <TypeScriptCompile Remove="client\fx\models\route\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRoute.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\SimplifyPath.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\DrawingCanvasSettingsStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepDrawingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\routing\index.ts" />
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
+    <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
@@ -136,6 +164,7 @@
     <TypeScriptCompile Remove="client\fx\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NodeState.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessReference.ts" />
@@ -161,10 +190,12 @@
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
+    <TypeScriptCompile Remove="client\models\styles\FreeFormStyles.ts" />
 	<TypeScriptCompile Remove="client\models\styles\index.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
 	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessTypeNodeStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
@@ -267,7 +298,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\admin\settings\globalsettings\" />
     <Folder Include="client\processlibrary\components\settingtabs\" />
     <Folder Include="client\processlibrary\components\views\published\" />
     <Folder Include="client\processlibrary\components\views\tasks\" />
@@ -391,6 +421,15 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\route\OPMRoute.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\processshape\fabricshape\FabricLineShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\processshape\fabricshape\FabricPolylineShape.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\routing\index.ts">

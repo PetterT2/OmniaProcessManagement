@@ -24,7 +24,7 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         /// </summary>
         public Guid Id { get; set; }
 
-        public Guid RootId { get; set; }
+        public Guid? ParentId { get; set; }
 
         public int ChildCount { get; set; }
 

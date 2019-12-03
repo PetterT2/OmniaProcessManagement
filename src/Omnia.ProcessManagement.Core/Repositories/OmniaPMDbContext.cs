@@ -7,6 +7,7 @@ using Omnia.ProcessManagement.Core.Entities;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
+using Omnia.ProcessManagement.Core.Entities.Settings;
 using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
@@ -47,7 +48,9 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
         public DbSet<ProcessType> ProcessTypes { get; set; }
+        public DbSet<ProcessTypeChildCount> ProcessTypeChildCounts { get; set; }
         public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -66,6 +69,16 @@ namespace Omnia.ProcessManagement.Core.Repositories
                  .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)
                  .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+
+            SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
+            modelBuilder.Entity<ProcessType>()
+                .HasIndex(c => new { c.RootId })
+                .IsUnique()
+                .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
+            SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
+
+            modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCount)).HasNoKey();
         }
 
         /// <summary>

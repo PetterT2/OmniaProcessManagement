@@ -10,6 +10,15 @@ export class FabricPolygonShape extends FabricShapeExtension implements FabricSh
         this.fabricObject = new fabric.Polygon(this.properties['points'] || [], this.properties);
     }
 
+    protected getSpecificProperties(): { [k: string]: any } {
+        let prop = {};
+        if (this.fabricObject) {
+            let options = this.fabricObject.toJSON();
+            prop["points"] = options["points"];
+        }
+        return prop;
+    }
+
     get shapeNodeType() {
         return FabricShapeTypes.polygon;
     }

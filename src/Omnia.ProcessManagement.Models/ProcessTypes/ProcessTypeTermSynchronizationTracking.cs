@@ -5,10 +5,6 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.ProcessTypes
 {
-    class ProcessTypeTermSynchronizationTracking
-    {
-    }
-
     public class ProcessTypeTermSynchronizationTrackingRequest : ProcessTypeTermSynchronizationTrackingBase
     {
         public enum ProcessTypeTermSynchronizationTrackingRequestType
@@ -22,11 +18,13 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         {
             public Guid Id { get; set; }
             public MultilingualString Title { get; set; }
+            public Guid? ParentId { get; set; }
+            public bool IsGroup { get; set; }
         }
 
         public ProcessTypeTermSynchronizationTrackingRequestType Type { get; set; }
         public List<ProcessTypeTerm> ProcessTypeTerms { get; set; }
-        public ProcessTypeTermSynchronizationTrackingResult CreateTrackingResult(bool success, string message, long milliseconds)
+        public ProcessTypeTermSynchronizationTrackingResult CreateTrackingResult(bool success, bool skippedNotAvailableWorkingLanguages, string message, long milliseconds)
         {
             return new ProcessTypeTermSynchronizationTrackingResult()
             {
@@ -34,6 +32,7 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
                 LatestModifiedAt = LatestModifiedAt,
                 Message = message,
                 Success = success,
+                SkippedNotAvailableWorkingLanguages = skippedNotAvailableWorkingLanguages,
                 Milliseconds = milliseconds,
                 ProcessTypeRootId = ProcessTypeRootId,
                 IsSyncFromSharePoint = Type == ProcessTypeTermSynchronizationTrackingRequestType.PendingSyncFromSharePoint
@@ -45,6 +44,7 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
     {
         public bool IsSyncFromSharePoint { get; set; }
         public bool Success { get; set; }
+        public bool SkippedNotAvailableWorkingLanguages { get; set; }
         public string Message { get; set; }
         public long Milliseconds { get; set; }
     }
