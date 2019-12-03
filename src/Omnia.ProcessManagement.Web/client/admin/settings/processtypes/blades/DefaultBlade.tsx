@@ -75,7 +75,6 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
             this.termStore.actions.ensureTermStoreWorkingLanguages.dispatch()
         ]).then(() => {
             //If this component is destroyed before the promise finish, then we stop
-            debugger;
             if (!this.isDestroyed) {
                 this.isLoading = false;
                 let rootProcessType = this.processTypeStore.getters.rootProcessTypeInGlobalSettings();

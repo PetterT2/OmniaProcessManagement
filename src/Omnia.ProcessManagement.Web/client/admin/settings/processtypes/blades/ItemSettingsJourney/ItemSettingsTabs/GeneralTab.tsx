@@ -5,10 +5,12 @@ import { OmniaTheming, FormValidator, VueComponentBase, OmniaUxLocalizationNames
 import { OPMAdminLocalization } from '../../../../../loc/localize';
 import { EnterprisePropertySetStore } from '@omnia/fx/store';
 import { ProcessTemplateStore } from '../../../../../../fx';
+import { ProcessType, ProcessTypeItemSettings } from '../../../../../../fx/models';
+import { ProcessTypeHelper } from '../../../core';
 
 interface GeneralTabProps {
     formValidator: FormValidator;
-    documentType: DocumentType;
+    processType: ProcessType;
     openPropertySetSettings: () => void;
     closeAllSettings: () => void;
 }
@@ -16,79 +18,77 @@ interface GeneralTabProps {
 @Component
 export default class GeneralTab extends VueComponentBase<GeneralTabProps> {
     @Prop() formValidator: FormValidator;
-    @Prop() documentType: DocumentType;
+    @Prop() processType: ProcessType;
     @Prop() openPropertySetSettings: () => void;
     @Prop() closeAllSettings: () => void;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
     @Inject(EnterprisePropertySetStore) enterprisePropertySetStore: EnterprisePropertySetStore;
-    @Inject(ProcessTemplateStore) documentTemplateStore: ProcessTemplateStore;
+    @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
 
     priviousPropertySetId = null;
 
-    //created() {
-    //    let settings = this.documentType.settings as DocumentTypeItemSettings;
-    //    this.priviousPropertySetId = settings.enterprisePropertySetId;
-    //}
+    created() {
+        let settings = this.processType.settings as ProcessTypeItemSettings;
+        this.priviousPropertySetId = settings.enterprisePropertySetId;
+    }
 
-    //documentTemplateIdsChanged(settings: DocumentTypeItemSettings) {
-    //    if (settings.defaultDocumentTemplateId && !settings.documentTemplateIds.find(d => d == settings.defaultDocumentTemplateId)) {
-    //    } settings.defaultDocumentTemplateId = null;
-    //}
+    processTemplateIdsChanged(settings: ProcessTypeItemSettings) {
+        if (settings.defaultProcessTemplateId && !settings.processTemplateIds.find(d => d == settings.defaultProcessTemplateId)) {
+        } settings.defaultProcessTemplateId = null;
+    }
 
-    //render(h) {
-    //    let settings = this.documentType.settings as DocumentTypeItemSettings;
-    //    let sets = this.enterprisePropertySetStore.getters.enterprisePropertySets();
-    //    let documentTemplates = this.documentTemplateStore.getters.documentTemplates()
-    //        .filter(d => d.settings.type == DocumentTemplateSettingsTypes.ControlledDocument);
+    render(h) {
+        let settings = this.processType.settings as ProcessTypeItemSettings;
+        let sets = this.enterprisePropertySetStore.getters.enterprisePropertySets();
+        let processTemplates = this.processTemplateStore.getters.processTemplates();
 
-    //    let selectingDocumentTemplates = documentTemplates.filter(d => settings.documentTemplateIds.indexOf(d.id) >= 0);
+        let selectingProcessTemplates = processTemplates.filter(d => settings.processTemplateIds.indexOf(d.id) >= 0);
 
-    //    return (
-    //        <div>
-    //            <omfx-multilingual-input
-    //                requiredWithValidator={this.formValidator}
-    //                model={this.documentType.title}
-    //                onModelChange={(title) => { this.documentType.title = title }}
-    //                forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+        return (
+            <div>
+                <omfx-multilingual-input
+                    requiredWithValidator={this.formValidator}
+                    model={this.processType.title}
+                    onModelChange={(title) => { this.processType.title = title }}
+                    forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
 
-    //            <v-layout align-center>
-    //                <v-flex grow>
-    //                    <v-select required persistent-hint hint={settings.enterprisePropertySetId ? this.loc.ChangePropertySetHint : ""} onChange={() => { this.closeAllSettings(); DocumentTypeHelper.ensureValidData(); }} label={this.loc.PropertySet} item-value="id" item-text="multilingualTitle" items={sets} v-model={settings.enterprisePropertySetId}></v-select>
-    //                </v-flex>
-    //                {
-    //                    settings.enterprisePropertySetId &&
-    //                    <v-btn dark={this.omniaTheming.promoted.body.dark} icon onClick={() => { this.openPropertySetSettings() }}>
-    //                        <v-icon size='18'>fas fa-cog</v-icon>
-    //                    </v-btn>
-    //                }
-    //            </v-layout>
-    //            <omfx-field-validation
-    //                useValidator={this.formValidator}
-    //                checkValue={settings.enterprisePropertySetId}
-    //                rules={
-    //                    new FieldValueValidation().IsRequired().getRules()
-    //                }>
-    //            </omfx-field-validation>
+                <v-layout align-center>
+                    <v-flex grow>
+                        <v-select required persistent-hint hint={settings.enterprisePropertySetId ? this.loc.ProcessTypes.Settings.ChangePropertySetHint : ""}
+                            onChange={() => { this.closeAllSettings(); ProcessTypeHelper.ensureValidData(); }} label={this.loc.ProcessTypes.Settings.PropertySet}
+                            item-value="id" item-text="multilingualTitle" items={sets} v-model={settings.enterprisePropertySetId}>
+                        </v-select>
+                    </v-flex>
+                    {
+                        settings.enterprisePropertySetId &&
+                        <v-btn dark={this.omniaTheming.promoted.body.dark} icon onClick={() => { this.openPropertySetSettings() }}>
+                            <v-icon size='18'>fas fa-cog</v-icon>
+                        </v-btn>
+                    }
+                </v-layout>
+                <omfx-field-validation
+                    useValidator={this.formValidator}
+                    checkValue={settings.enterprisePropertySetId}
+                    rules={
+                        new FieldValueValidation().IsRequired().getRules()
+                    }>
+                </omfx-field-validation>
 
-    //            <v-select class="mt-4" chips deletable-chips multiple item-value="id" item-text="multilingualTitle"
-    //                label={this.loc.DocumentTemplates.DocumentTemplates}
-    //                items={documentTemplates}
-    //                v-model={settings.documentTemplateIds}
-    //                onChange={() => { this.documentTemplateIdsChanged(settings) }}></v-select>
+                <v-select class="mt-4" chips deletable-chips multiple item-value="id" item-text="multilingualTitle"
+                    label={this.loc.ProcessTemplates.Title}
+                    items={processTemplates}
+                    v-model={settings.processTemplateIds}
+                    onChange={() => { this.processTemplateIdsChanged(settings) }}></v-select>
 
-    //            <v-select item-value="id" item-text="multilingualTitle"
-    //                label={this.loc.DefaultDocumentTemplate}
-    //                items={selectingDocumentTemplates}
-    //                v-model={settings.defaultDocumentTemplateId}></v-select>
+                <v-select item-value="id" item-text="multilingualTitle"
+                    label={this.loc.ProcessTypes.Settings.DefaultProcessTemplate}
+                    items={selectingProcessTemplates}
+                    v-model={settings.defaultProcessTemplateId}></v-select>
 
-    //            <v-checkbox input-value={settings.allowAppendices} label={this.loc.AllowAppendices} onChange={(val) => { settings.allowAppendices = val; }}></v-checkbox>
-    //            <v-checkbox input-value={settings.showCreateDocumentIconInRollup} label={this.loc.ShowCreateDocumentIconInRollup} onChange={(val) => { settings.showCreateDocumentIconInRollup = val }}></v-checkbox>
-    //            <v-checkbox input-value={settings.allowConnectToTemplate} label={this.loc.AllowConnectToTemplate} onChange={(val) => { settings.allowConnectToTemplate = val }}></v-checkbox>
-
-    //            {this.documentType.id && <v-text-field disabled label={this.loc.UniqueId} value={this.documentType.id}></v-text-field>}
-    //        </div>
-    //    );
-    //}
+                {this.processType.id && <v-text-field disabled label={this.loc.ProcessTypes.UniqueId} value={this.processType.id}></v-text-field>}
+            </div>
+        );
+    }
 }

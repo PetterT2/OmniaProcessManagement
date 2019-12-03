@@ -6,7 +6,6 @@ export const ApproverId: GuidValue = "4c32092d-21ec-4137-a3ed-50bcbf6b0f78"; //r
 export interface ProcessTypeItemSettings extends ProcessTypeSettings {
     type: ProcessTypeSettingsTypes.Item;
     enterprisePropertySetId: GuidValue;
-    allowAppendices: boolean;
     allowRevisions: boolean;
     allowBypassApprovalForRevisions: boolean;
     processTemplateIds: Array<GuidValue>;

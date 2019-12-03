@@ -5,6 +5,7 @@ import { JourneyInstance, Blade, BladeSizes } from '@omnia/fx/ux';
 import { ProcessTypesJourneyBladeIds } from './ProcessTypesJourneyConstants';
 import { IProcessTypesJourney } from './IProcessTypesJourney';
 import DefaultBlade from './blades/DefaultBlade';
+import GroupSettingsBlade from './blades/GroupSettingsBlade';
 import ItemSettingsBlade from './blades/ItemSettingsBlade';
 import SyncStatusBlade from './blades/SyncStatusBlade';
 
@@ -42,6 +43,17 @@ export default class ProcessTypesJourney extends Vue implements IWebComponentIns
         return blade;
     }
 
+    getGroupSettingsBlade() {
+        let h = this.$createElement;
+        let blade: Blade = {
+            id: ProcessTypesJourneyBladeIds.groupSettings,
+            size: BladeSizes.medium,
+            content: <GroupSettingsBlade></GroupSettingsBlade>
+        }
+
+        return blade;
+    }
+
     getItemSettingsBlade() {
         let h = this.$createElement;
         let blade: Blade = {
@@ -67,7 +79,7 @@ export default class ProcessTypesJourney extends Vue implements IWebComponentIns
     render(h) {
         return (
             <omfx-journey onInstanceCreated={this.gotInstance}
-                blades={[this.getDefaultBlade(), this.getItemSettingsBlade(), this.getSyncTrackingBlade()]}></omfx-journey>
+                blades={[this.getDefaultBlade(), this.getGroupSettingsBlade(), this.getItemSettingsBlade(), this.getSyncTrackingBlade()]}></omfx-journey>
         )
     }
 }

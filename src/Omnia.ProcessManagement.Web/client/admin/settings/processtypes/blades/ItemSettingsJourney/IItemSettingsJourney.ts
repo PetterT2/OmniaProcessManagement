@@ -1,6 +1,6 @@
 ﻿import { TsxAllowUnknowProperties } from '@omnia/fx/ux'
 
-/*@WebComponentInterface("odm-admin-settings-documenttype-itemsettings-journey")*/
+/*@WebComponentInterface("opm-admin-settings-processtype-itemsettings-journey")*/
 export interface IProcessTypeItemSettingsJourney {
 
 }

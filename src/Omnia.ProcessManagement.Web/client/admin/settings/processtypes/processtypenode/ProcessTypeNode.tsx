@@ -8,6 +8,7 @@ import { ProcessTypeNodeStylesInterface } from './ProcessTypeNode.css';
 import { ProcessTypeJourneyStore } from '../store';
 import { ProcessTypeStore } from '../../../../fx';
 import { OPMAdminLocalization } from '../../../loc/localize';
+import { setTimeout } from 'timers';
 
 interface ProcessTypeNodeProps {
     processType: ProcessType;
@@ -67,8 +68,10 @@ export default class ProcessTypeNode extends VueComponentBase<ProcessTypeNodePro
     }
 
     onCreateProcessTypeClick() {
-        let newProcessType = ProcessTypeFactory.createDefaultProcessTypeItem(this.processType.id, this.processType.settings.termSetId);;
-        this.processTypeJourneyStore.mutations.setEditingProcessType.commit(newProcessType);
+        setTimeout(() => {
+            let newProcessType = ProcessTypeFactory.createDefaultProcessTypeItem(this.processType.id, this.processType.settings.termSetId);;
+            this.processTypeJourneyStore.mutations.setEditingProcessType.commit(newProcessType);
+        }, 500);
     }
 
     sort(moveUp: boolean) {

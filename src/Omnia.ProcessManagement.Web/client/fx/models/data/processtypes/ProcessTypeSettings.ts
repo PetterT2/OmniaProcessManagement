@@ -40,6 +40,7 @@ export const ProcessTypeFactory = {
                 termSetId: termSetId,
                 defaultProcessTemplateId: null,
                 processTemplateIds: [],
+                type: ProcessTypeSettingsTypes.Item
             }
         }
 

@@ -3,74 +3,74 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { OmniaTheming, FormValidator, VueComponentBase, StyleFlow } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../../loc/localize';
-//import { ProcessType, DocumentTypeItemSettings, GlobalSettings, ArchiveFactory, Archive } from '../../../../../../fx/models';
-//import { SettingsStore } from '../../../../../../stores';
+import { ProcessType, ProcessTypeItemSettings, Setting, ArchiveFactory, Archive } from '../../../../../../fx/models';
+import { SettingsStore } from '../../../../../../fx';
 
 interface ArchiveTabProps {
     formValidator:  FormValidator;
-    documentType: DocumentType;
+    processType: ProcessType;
 }
 
 @Component
 export default class ArchiveTab extends VueComponentBase<ArchiveTabProps> {
     @Prop() formValidator: FormValidator;
-    @Prop() documentType: DocumentType;
+    @Prop() processType: ProcessType;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
-    //@Inject(SettingsStore) settingsStore: SettingsStore;
+    @Inject(SettingsStore) settingsStore: SettingsStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    //enableArchive: boolean = false;
-    //loading = true;
-    //defaultArchiveUrl: string = '';
-    //created() {
-    //    let settings = this.documentType.settings as DocumentTypeItemSettings;
-    //    if (settings.archive) {
-    //        this.enableArchive = true;
-    //    }
+    enableArchive: boolean = false;
+    loading = true;
+    defaultArchiveUrl: string = '';
+    created() {
+        let settings = this.processType.settings as ProcessTypeItemSettings;
+        if (settings.archive) {
+            this.enableArchive = true;
+        }
 
-    //    this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings).then(() => {
-    //        let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
-    //        if (globalSettings)
-    //            this.defaultArchiveUrl = globalSettings.archiveSiteUrl;
+        this.settingsStore.actions.ensureSettings.dispatch().then(() => {
+            let settings = this.settingsStore.getters.getByModel();
+            if (settings)
+                this.defaultArchiveUrl = settings.archiveSiteUrl;
 
-    //        this.loading = false;
-    //    })
-    //}
+            this.loading = false;
+        })
+    }
 
-    //onEnableArchiveChanged() {
-    //    let settings = this.documentType.settings as DocumentTypeItemSettings;
-    //    if (this.enableArchive) {
-    //        settings.archive = ArchiveFactory.createDefault();
-    //    }
-    //    else {
-    //        settings.archive = null;
-    //    }
-    //}
+    onEnableArchiveChanged() {
+        let settings = this.processType.settings as ProcessTypeItemSettings;
+        if (this.enableArchive) {
+            settings.archive = ArchiveFactory.createDefault();
+        }
+        else {
+            settings.archive = null;
+        }
+    }
 
-    //rednerArchiveSettings(h, archive: Archive) {
-    //    return (
-    //        <v-card>
-    //            <v-card-text>
-    //                <v-text-field hint={this.loc.ArchiveSiteUrlHint} placeholder={this.defaultArchiveUrl} v-model={archive.url} label={this.loc.ArchiveSiteUrl}></v-text-field>
-    //            </v-card-text>
-    //        </v-card>
-    //    )
-    //}
+    rednerArchiveSettings(h, archive: Archive) {
+        return (
+            <v-card>
+                <v-card-text>
+                    <v-text-field hint={this.loc.ProcessTypes.Settings.ArchiveSiteUrlHint} placeholder={this.defaultArchiveUrl} v-model={archive.url} label={this.loc.ArchiveSiteUrl}></v-text-field>
+                </v-card-text>
+            </v-card>
+        )
+    }
 
-    //render(h) {
-    //    if (this.loading) return null;
+    render(h) {
+        if (this.loading) return null;
 
-    //    let settings = this.documentType.settings as DocumentTypeItemSettings;
+        let settings = this.processType.settings as ProcessTypeItemSettings;
 
-    //    return (
-    //        <div>
-    //            <v-checkbox label={this.loc.Archive}
-    //                onChange={(val) => { this.enableArchive = val; this.onEnableArchiveChanged() }}
-    //                input-value={this.enableArchive}></v-checkbox>
-    //            {
-    //                this.enableArchive && this.rednerArchiveSettings(h, settings.archive)
-    //            }
-    //        </div>
-    //    );
-    //}
+        return (
+            <div>
+                <v-checkbox label={this.loc.ProcessTypes.Settings.Tabs.Archive}
+                    onChange={(val) => { this.enableArchive = val; this.onEnableArchiveChanged() }}
+                    input-value={this.enableArchive}></v-checkbox>
+                {
+                    this.enableArchive && this.rednerArchiveSettings(h, settings.archive)
+                }
+            </div>
+        );
+    }
 }
