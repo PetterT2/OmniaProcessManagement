@@ -29,6 +29,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
             return models;
         }
 
+        public async ValueTask<IList<ProcessType>> GetAllProcessTypeItemsAsync()
+        {
+            var entities = await _dbSet.Where(i => i.DeletedAt == null && i.Type == ProcessTypeSettingsTypes.Item).ToListAsync();
+            var models = ParseEntitiesToModels(entities);
+            return models;
+        }
+
         public async ValueTask<IList<ProcessType>> GetByIdAsync(List<Guid> ids)
         {
             var entities = await _dbSet.Where(i => i.DeletedAt == null && ids.Contains(i.Id)).ToListAsync();

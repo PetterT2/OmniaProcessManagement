@@ -92,6 +92,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpGet, Route("all")]
+        [Authorize]
+        public async ValueTask<ApiResponse<IList<ProcessType>>> GetAllProcessTypeItemsAsync()
+        {
+            try
+            {
+                var result = await ProcessTypeService.GetAllProcessTypeItemsAsync();
+                return ApiUtils.CreateSuccessResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<IList<ProcessType>>(ex);
+            }
+        }
+
         [HttpPost]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
         public async ValueTask<ApiResponse<ProcessType>> CreateAsync([FromBody] ProcessType processType)

@@ -13,6 +13,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { FilterDialog } from '../dialogs/FilterDialog';
 import { ProcessService } from '../../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat } from '../../../Constants';
+import { DeletedDialog } from '../dialogs/DeleteDialog';
 declare var moment;
 
 interface DraftsViewProps {
@@ -53,8 +54,10 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     disableButtonDelete: boolean = false;
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
+    openDeleteDialog: boolean = false;
     request: ProcessLibraryRequest;
     processes: Array<Process>;
+    selectedProcess: Process;
     pageTotal: number = 1;
     headers: Array<HeaderTable> = [
         {
@@ -146,15 +149,9 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     }
 
-    private deleteDraft(item: Process) {
-        this.$confirm.open({ message: this.loc.Message.DeleteDraftProcessConfirmation }).then((res) => {
-            if (res == ConfirmDialogResponse.Ok) {
-                this.isLoading = true;
-                this.processService.deleteDraftProcess(item.opmProcessId).then(p => {
-                    this.getProcesses();
-                });
-            }
-        })
+    private openDeleteDraft(item: Process) {
+        this.selectedProcess = item;
+        this.openDeleteDialog = true;
     }
 
     private isFilter(column: HeaderTable) {
@@ -164,6 +161,20 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     private pagingNumberChanged(pageNumber: number) {
         this.request.pageNum = pageNumber;
         this.getProcesses();
+    }
+
+    renderDeleteDialog(h) {
+        return (
+            <DeletedDialog
+                closeCallback={(hasUpdate: boolean) => {
+                this.openDeleteDialog = false;
+                if (hasUpdate) {
+                    this.getProcesses();
+                }
+            }}
+                opmProcessId={this.selectedProcess.opmProcessId}>
+            </DeletedDialog>
+        )
     }
 
     renderItems(h, item: DraftProcess) {
@@ -208,7 +219,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                                     <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
                                                 </v-list-item>
                                                 <v-divider></v-divider>
-                                                <v-list-item onClick={() => { this.deleteDraft(item); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
+                                                <v-list-item onClick={() => { this.openDeleteDraft(item); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
                                                     <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
                                                 </v-list-item>
                                             </v-list>
@@ -399,6 +410,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 }
                 {this.openFilterDialog && this.renderFilterDialog(h)}
                 {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
+                {this.openDeleteDialog && this.renderDeleteDialog(h)}
             </div>
         )
     }

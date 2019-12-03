@@ -41,7 +41,8 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             DateFieldDescending: "Newer to older"
         },
         Message: {
-            DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?"
+            DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?",
+            NoProcessTemplateValidation: "This process is not based on any existing process template."
         },
         ProcessType: "Process Type",
         ProcessTemplate: "Process Template"

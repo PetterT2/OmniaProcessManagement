@@ -225,6 +225,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrarySettings.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\IListView.ts" />
