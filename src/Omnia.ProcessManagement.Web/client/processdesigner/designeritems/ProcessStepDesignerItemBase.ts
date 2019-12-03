@@ -1,6 +1,5 @@
 ﻿import { Inject, Localize,Utils as omfUtils, ServiceContainer} from '@omnia/fx';
 import { CurrentProcessStore } from '../../fx';
-import { TabManager } from '../panelrenderers';
 import { ProcessDesignerStore } from '../stores';
 
 export class ProcessStepDesignerItemBase {

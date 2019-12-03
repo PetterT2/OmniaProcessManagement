@@ -1,5 +1,5 @@
-﻿import { style, cssRule, cssRaw } from "typestyle";
-import { background } from 'csx';
+﻿import { style } from "typestyle";
+import { important } from 'csx';
 import colors from 'vuetify/es5/util/colors';
 import { DisplayBreakPoint } from '../../models/processdesigner';
 
@@ -20,7 +20,7 @@ export const DevicePreviewerStyles = {
         boxShadow: "0 3px 14px 2px rgba(0, 0, 0, .12)",
     }),
     deviceToolbar: style({
-        borderRadius: "0px 0px 5px 5px",
+        borderRadius: important("0px 0px 5px 5px"),
         opacity: 0.8
     }),
     fullScreen: style({

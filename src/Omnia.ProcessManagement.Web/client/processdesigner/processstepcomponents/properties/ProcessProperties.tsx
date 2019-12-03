@@ -5,11 +5,11 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
-import { TabRenderer } from '..';
+import { TabRenderer } from '../../core';
 
-export class ProcessLinksTabRenderer extends TabRenderer {
+export class ProcessPropertiesTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
-        return (<ProcessLinksComponent key={Guid.newGuid().toString()}></ProcessLinksComponent>);
+        return (<ProcessPropertiesComponent key={Guid.newGuid().toString()}></ProcessPropertiesComponent>);
     }
 }
 
@@ -17,7 +17,7 @@ export interface ProcessDrawingProps {
 }
 
 @Component
-export class ProcessLinksComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>
+export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>
 {
     //@Prop() public callerEditorStore?: EditorStore;
 
@@ -61,7 +61,7 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessDrawingProps,
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                Links tab content
+                Properties tab content
             </v-card-text>
         </v-card>)
     }

@@ -9,7 +9,7 @@ import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
 import {  NodeState, ProcessStepNavigationNode } from '../../../fx/models';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { MultilingualStore } from '@omnia/fx/store';
-import { NavigationNodeStyles } from '../../../fx/models/navigation/NavigationNodeStyles';
+import { NavigationNodeStyles } from '../../../fx/models/styles';
 import './NavigationNode.css';
 import { OPMRouter } from '../../../fx/routing';
 import { CurrentProcessStore } from '../../../fx';

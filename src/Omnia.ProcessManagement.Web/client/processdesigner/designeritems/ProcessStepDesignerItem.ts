@@ -2,13 +2,13 @@
 import { ProcessStepDesignerItemBase } from './ProcessStepDesignerItemBase';
 import { IProcessDesignerItem, DisplayModes, ActionButton, TabRegistration } from '../../models/processdesigner';
 import { ActionButtonFactory } from '../factory/ActionButtonFactory';
-import { ProcessStepDrawingTabRenderer } from '../panelrenderers/processdrawing';
+import { ProcessStepDrawingTabRenderer } from '../processstepcomponents/processdrawing';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { Localize } from '@omnia/fx';
-import { ProcessContentTabRenderer } from '../panelrenderers/content';
-import { ProcessDocumentsTabRenderer } from '../panelrenderers/documents';
-import { ProcessLinksTabRenderer } from '../panelrenderers/links';
-import { ProcessTasksTabRenderer } from '../panelrenderers/tasks';
+import { ProcessContentTabRenderer } from '../processstepcomponents/content';
+import { ProcessDocumentsTabRenderer } from '../processstepcomponents/documents';
+import { ProcessLinksTabRenderer } from '../processstepcomponents/links';
+import { ProcessTasksTabRenderer } from '../processstepcomponents/tasks';
 
 export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase implements IProcessDesignerItem {
     @Localize(OPMCoreLocalization.namespace) opmCoreLoc: OPMCoreLocalization.locInterface;

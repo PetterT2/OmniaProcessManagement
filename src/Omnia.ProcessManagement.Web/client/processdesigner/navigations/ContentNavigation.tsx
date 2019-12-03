@@ -42,7 +42,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     private rootNavigationNode: ProcessStepNavigationNode = null;
 
     created() {
-        if (this.spContext) {
+        if (this.spContext.pageContext) {
             this.teamSiteName = this.spContext.pageContext.web.title;
         }
         //this.subscriptionHandler.add(this.navigationStore.mutations.addOrUpdateNodes.onCommited((nodes) => {

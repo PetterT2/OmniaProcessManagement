@@ -57,7 +57,7 @@ export class TempTestComponent extends VueComponentBase implements IWebComponent
      */
     public render(h) {
         if (this.display)
-            return <div onClick={() => { this.test() }} >TEST click</div>;
+            return <div onClick={() => { this.test() }} style={{position: 'absolute', top: '0px'}} >TEST click</div>;
         return null;
     }
 }

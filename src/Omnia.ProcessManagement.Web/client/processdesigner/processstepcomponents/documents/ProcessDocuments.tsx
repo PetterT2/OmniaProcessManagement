@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
-import { TabRenderer } from '..';
+import { TabRenderer } from '../../core';
 
 export class ProcessDocumentsTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
