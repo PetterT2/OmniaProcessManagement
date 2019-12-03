@@ -1,18 +1,6 @@
 ﻿import { types } from 'typestyle';
 import { OmniaTheming } from '@omnia/fx/ux';
-
-export interface IColor {
-    base: string
-    lighten5: string
-    lighten4: string
-    lighten3: string
-    lighten2: string
-    lighten1: string
-    darken1: string
-    darken2: string
-    darken3: string
-    darken4: string
-}
+import { IColor } from './IColor';
 
 export const NavigationNodeStyles = {} as {
     wrapper?: types.NestedCSSProperties;

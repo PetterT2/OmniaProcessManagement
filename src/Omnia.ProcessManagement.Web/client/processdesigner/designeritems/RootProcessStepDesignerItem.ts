@@ -1,18 +1,15 @@
 ﻿import { Guid, IMessageBusSubscriptionHandler, StateMutation } from '@omnia/fx-models';
 import { ProcessStepDesignerItemBase } from './ProcessStepDesignerItemBase';
 import { IProcessDesignerItem, DisplayModes, ActionButton, TabRegistration } from '../../models/processdesigner';
-//import { ProcessStepDrawingTabRenderer } from '../panelrenderers';
 import { ActionButtonFactory } from '../factory/ActionButtonFactory';
-import { ProcessStepDrawingTabRenderer } from '../panelrenderers/processdrawing';
-import { ProcessPropertiesTabRenderer } from '../panelrenderers/properties';
+import { ProcessStepDrawingTabRenderer } from '../processstepcomponents/processdrawing';
+import { ProcessPropertiesTabRenderer } from '../processstepcomponents/properties';
 import { CurrentProcessStore } from '../../fx';
 import { ServiceContainer, Localize } from '@omnia/fx';
-import { TabManager } from '../panelrenderers';
-import { ActionButtonIds } from '../factory/ActionButtonIds';
-import { ProcessContentTabRenderer } from '../panelrenderers/content';
-import { ProcessDocumentsTabRenderer } from '../panelrenderers/documents';
-import { ProcessLinksTabRenderer } from '../panelrenderers/links';
-import { ProcessTasksTabRenderer } from '../panelrenderers/tasks';
+import { ProcessContentTabRenderer } from '../processstepcomponents/content';
+import { ProcessDocumentsTabRenderer } from '../processstepcomponents/documents';
+import { ProcessLinksTabRenderer } from '../processstepcomponents/links';
+import { ProcessTasksTabRenderer } from '../processstepcomponents/tasks';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 
 export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase implements IProcessDesignerItem {

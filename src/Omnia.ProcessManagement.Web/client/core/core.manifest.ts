@@ -7,5 +7,6 @@ Composer
         resourcePaths: [
             "../models/**/*.js",
             "./loc/**/*.js",
+            "./messaging/InternalOPMTopics.js"
         ]
     })

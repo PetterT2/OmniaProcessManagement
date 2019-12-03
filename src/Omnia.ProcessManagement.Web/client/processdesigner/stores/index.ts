@@ -1,3 +1,4 @@
-﻿export * from './ProcessDesignerSettingsStore';
+﻿//export * from './ProcessDesignerSettingsStore';
 export * from './ProcessDesignerStore';
-export * from './ProcessDesignerTabStore';
+//export * from './ProcessDesignerTabStore';
+//export * from './ProcessDesignerPanelStore';

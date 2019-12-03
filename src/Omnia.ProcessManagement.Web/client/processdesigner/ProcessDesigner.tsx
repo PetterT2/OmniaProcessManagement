@@ -7,7 +7,7 @@ import { JourneyInstance, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessDesignerStyles } from './ProcessDesigner.css';
 import { ContentNavigationComponent } from './navigations/ContentNavigation';
 import { CurrentProcessStore } from '../fx';
-import { TabsPanelComponent } from './panels';
+import { TabsPanelComponent } from './tabspanel';
 import { ProcessDesignerStore } from './stores';
 import { ActionToolbarComponent } from './actionstoolbar/ActionToolbar';
 import { DisplayModes } from '../models/processdesigner';
@@ -65,11 +65,11 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
         let compensateDrawerRightCss = ""
 
         if (this.processDesignerStore.settings.showContentNavigation.state) {
-            compensateDrawerLeftCss = ProcessDesignerStyles.compensateDrawerLeft
+            compensateDrawerLeftCss = ProcessDesignerStyles.compensateDrawerLeft;
         }
 
-        //if (this.processDesignerStore.canvas.settingsPanel.state.visible) {
-        //    compensateDrawerRightCss = ProcessDesignerStyles.compensateDrawerRight
+        //if (this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.visible) {
+        //    compensateDrawerRightCss = ProcessDesignerStyles.compensateDrawerRight;
         //}
 
         let panelWidth = this.processDesignerStore.tabs.currentTabs.state.length * 100;

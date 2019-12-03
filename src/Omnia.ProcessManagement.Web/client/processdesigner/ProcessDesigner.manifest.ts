@@ -6,7 +6,8 @@ Composer
     .registerManifest(OPMResourceManifests.ProcessDesignerCore, "opm.processdesigner.core")
     .registerResources({
         resourcePaths: [
-            //"./loc/**/*.js",
+            "./core/index.js",
+            "./loc/**/*.js",
             "./stores/**/*.js",
             "./RawStyles.css.js", ,
             "./ProcessDesigner.css.js",
@@ -18,7 +19,6 @@ Composer
     .registerManifest(OPMResourceManifests.ProcessDesignerItem, "opm.processdesigner.items")
     .registerResources({
         resourcePaths: [
-            //"./loc/**/*.js",
             "./designeritems/**/*.js"
         ]
     })

@@ -3,7 +3,7 @@ import { important } from 'csx';
 import colors from 'vuetify/es5/util/colors';
 import { OmniaTheming } from "@omnia/fx/ux"
 import { StyleFlow } from '@omnia/fx/ux';
-import { NavigationNodeStyles, IColor } from '../../../fx/models/navigation/NavigationNodeStyles';
+import { NavigationNodeStyles, IColor } from '../../../fx/models/styles';
 
 export const NavigationDialog = {
     wrapper: style({
