@@ -76,7 +76,7 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\Freeform.css.ts" />
+    <TypeScriptCompile Remove="client\components\freeform\FreeForm.css.ts" />
     <TypeScriptCompile Remove="client\components\freeform\FreeForm.manifest.ts" />
     <TypeScriptCompile Remove="client\components\freeform\FreeForm.tsx" />
     <TypeScriptCompile Remove="client\components\freeform\IFreeForm.ts" />
