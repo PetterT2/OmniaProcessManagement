@@ -1,28 +1,28 @@
 ﻿import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize } from "@omnia/fx";
-import './FreeForm.css';
+import './FreeFormDrawing.css';
 import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
-import { FreeFormStyles } from '../../models';
-import { IFreeForm } from './IFreeForm';
-import { CanvasDefinition, ICanvasDefinition, DrawingShapeTypes, TextPosition, DrawingShapeDefinition } from '../../fx/models';
-import { DrawingCanvas, DrawingCanvasFreeForm, FreeformShape, IShape } from '../../fx';
+import { FreeFormDrawingStyles } from '../../models';
+import { IFreeFormDrawing } from './IFreeFormDrawing';
+import { CanvasDefinition, DrawingShapeDefinition } from '../../fx/models';
+import { DrawingCanvas, DrawingCanvasFreeForm, IShape, FreeformShape } from '../../fx';
 import { Guid } from '@omnia/fx-models';
-import { FreeFormLocalization } from './loc/localize';
+import { FreeFormDrawingLocalization } from './loc/localize';
 
 @Component
-export default class FreeFormComponent extends VueComponentBase implements IWebComponentInstance {
-    @Prop() styles: typeof FreeFormStyles | any;
+export default class FreeFormDrawingComponent extends VueComponentBase implements IWebComponentInstance, IFreeFormDrawing {
+    @Prop() styles: typeof FreeFormDrawingStyles | any;
     @Prop() shapeDefinition: DrawingShapeDefinition;
     @Prop() onClosed?: () => void;
     @Prop() onSaved: (shape: IShape) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Localize(FreeFormLocalization.namespace) loc: FreeFormLocalization.locInterface;
+    @Localize(FreeFormDrawingLocalization.namespace) loc: FreeFormDrawingLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     private dialogModel: DialogModel = { visible: false };
-    private classes = StyleFlow.use(FreeFormStyles, this.styles);
+    private classes = StyleFlow.use(FreeFormDrawingStyles, this.styles);
     private canvasId: string = 'opmcanvas' + Guid.newGuid().toString();
     private drawingCanvas: DrawingCanvasFreeForm;
     private canvasDefinition: CanvasDefinition = {
@@ -50,7 +50,7 @@ export default class FreeFormComponent extends VueComponentBase implements IWebC
         }, 0);
     }
 
-    private addNewFreeForm() {
+    private addNewFreeFormDrawing() {
         if (this.drawingCanvas.drawingShapes.length > 0)
             this.onSaved((this.drawingCanvas.drawingShapes[0].shape as FreeformShape).getShapeJson());
         this.onInternalClosed();
@@ -94,7 +94,7 @@ export default class FreeFormComponent extends VueComponentBase implements IWebC
                                 class="pull-right"
                                 dark={this.omniaTheming.promoted.body.dark}
                                 color={this.omniaTheming.themes.primary.base}
-                                onClick={() => { this.addNewFreeForm(); }}>
+                                onClick={() => { this.addNewFreeFormDrawing(); }}>
                                 {this.omniaUxLoc.Common.Buttons.Create}
                             </v-btn>
                             <v-btn
@@ -113,5 +113,5 @@ export default class FreeFormComponent extends VueComponentBase implements IWebC
 }
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, FreeFormComponent);
+    vueCustomElement(manifest.elementName, FreeFormDrawingComponent);
 });

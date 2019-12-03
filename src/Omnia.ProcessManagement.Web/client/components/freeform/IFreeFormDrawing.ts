@@ -2,12 +2,12 @@
 import { CanvasDefinition, DrawingShapeDefinition } from '../../fx/models';
 import { IShape } from '../../fx';
 
-export interface IFreeFormAttributes {
+export interface IFreeFormDrawingAttributes {
     
 }
 
-/*@WebComponentInterface("opm-free-form")*/
-export interface IFreeForm extends IFreeFormAttributes {
+/*@WebComponentInterface("opm-free-form-drawing")*/
+export interface IFreeFormDrawing extends IFreeFormDrawingAttributes {
     /*@DomProperty*/
     shapeDefinition: DrawingShapeDefinition;
 
@@ -25,7 +25,7 @@ declare global {
         interface ElementAttributesProperty { }
         interface IntrinsicElements {
             /*@WebComponent*/
-            "opm-free-form": TsxAllowUnknowProperties<IFreeForm>
+            "opm-free-form-drawing": TsxAllowUnknowProperties<IFreeFormDrawing>
         }
     }
 }

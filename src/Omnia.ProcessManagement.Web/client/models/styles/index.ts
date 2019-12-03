@@ -3,5 +3,5 @@ export * from './ProcessLibraryStyles';
 export * from './ProcessLibraryListViewStyles';
 export * from './GlobalProcessRendererStyles';
 export * from './IColor';
-export * from './FreeFormStyles';
+export * from './FreeFormDrawingStyles';
 export * from './GenericNodeStyles';
