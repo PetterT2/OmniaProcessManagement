@@ -229,6 +229,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
             return documentTypes;
         }
 
+        public async ValueTask<IList<ProcessType>> GetAllProcessTypeItemsAsync()
+        {
+            return await ProcessTypeRepository.GetAllProcessTypeItemsAsync();
+        }
 
         private ProcessType GetInChildrenCacheIfExists(Guid? parentId, Guid id)
         {

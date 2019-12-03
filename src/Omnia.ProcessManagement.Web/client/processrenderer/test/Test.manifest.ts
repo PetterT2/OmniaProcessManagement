@@ -6,7 +6,7 @@ Composer
     .registerManifest(new Guid('e1bb8fa2-0511-4fe1-a4b2-9782623fa7a2'), "opm.test.component")
     .registerWebComponent({
         elementName: "opm-test-component",
-        entryPoint: "./test.jsx"
+        entryPoint: "./Test.jsx"
     })
     .withDefinition({
         title: "Test Process List",

@@ -37,7 +37,8 @@
             DateFieldDescending: string
         },
         Message: {
-            DeleteDraftProcessConfirmation: string
+            DeleteDraftProcessConfirmation: string,
+            NoProcessTemplateValidation: string
         },
         ProcessType: string,
         ProcessTemplate: string

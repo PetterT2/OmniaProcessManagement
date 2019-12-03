@@ -79,7 +79,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
-            if (checkedOutProcessWithProcessDataIdHash != null && checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() == this.OmniaContext.Identity.LoginName)
+            if (checkedOutProcessWithProcessDataIdHash != null && checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != this.OmniaContext.Identity.LoginName)
             {
                 throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }

@@ -18,12 +18,13 @@ export class ProcessTypeStore extends Store {
     private ensuredProcessTypePromises: { [processTypeId: string]: Promise<null> } = {};
     private refreshCachePromises: { [trackingNumber: number]: Promise<null> } = {};
     private ensureRootProcessTypePromise: Promise<null> = null;
+    private ensureLoadProcessTypesPromise: Promise<null> = null;
 
     private processTypeTermSetId: GuidValue = null;
 
     private processTypes = this.state<{ [parentId: string]: Array<ProcessType> }>({});
     private processTypesDict = this.state<{ [processTypeId: string]: ProcessType }>({});
-
+    private allProcessTypeItems = this.state<Array<ProcessType>>([]);
 
     constructor() {
         super({
@@ -32,6 +33,9 @@ export class ProcessTypeStore extends Store {
     }
 
     getters = {
+        all: (): Array<ProcessType> => {
+            return this.allProcessTypeItems.state;
+        },
         children: (parentId?: GuidValue, includeInvalid?: boolean): Array<ProcessType> => {
             let parentIdKey = this.getParentId(parentId);
             let children = this.processTypes.state[parentIdKey] || [];
@@ -277,6 +281,20 @@ export class ProcessTypeStore extends Store {
             }
 
             return this.refreshCachePromises[trackingNumber];
+        }),
+        ensureLoadProcessTypes: this.action(() => {
+            if (!this.ensureLoadProcessTypesPromise) {
+                this.ensureLoadProcessTypesPromise = this.processTypeService.getAllProcessTypeItems().then(types => {
+                    types.forEach(t => {
+                        t.multilingualTitle = this.multilingualTextsStore.getters.stringValue(t.title);
+                    });
+                    types = types.sort((t1, t2) => t1.multilingualTitle.localeCompare(t2.multilingualTitle));
+                    this.allProcessTypeItems.mutate(types);
+                    return null;
+                })
+            }
+
+            return this.ensureLoadProcessTypesPromise;
         })
     }
 

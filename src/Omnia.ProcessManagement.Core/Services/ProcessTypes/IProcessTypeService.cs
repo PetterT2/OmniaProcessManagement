@@ -11,6 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes
         ValueTask<Guid> GetProcessTypeTermSetIdAsync();
         ValueTask<IList<ProcessType>> GetByIdsAsync(params Guid[] ids);
         ValueTask<IList<ProcessType>> GetChildrenAsync(Guid? parentId);
+        ValueTask<IList<ProcessType>> GetAllProcessTypeItemsAsync();
         ValueTask<ProcessType> CreateAsync(ProcessType processType);
         ValueTask<ProcessType> UpdateAsync(ProcessType processType);
         ValueTask RemoveAsync(Guid id);

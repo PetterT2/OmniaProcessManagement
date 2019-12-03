@@ -106,4 +106,15 @@ export class ProcessTypeService {
             });
         });
     }
+
+    public getAllProcessTypeItems = () => {
+        return new Promise<Array<ProcessType>>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<ProcessType>>>('/api/processtypes/all').then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
 }
