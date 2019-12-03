@@ -329,6 +329,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="appsettings.local.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="client\fx\constants.ts">
       <SubType>Code</SubType>
     </None>
