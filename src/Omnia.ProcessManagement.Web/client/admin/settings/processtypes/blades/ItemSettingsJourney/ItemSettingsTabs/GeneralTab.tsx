@@ -64,7 +64,7 @@ export default class GeneralTab extends VueComponentBase<GeneralTabProps> {
                     {
                         settings.enterprisePropertySetId &&
                         <v-btn dark={this.omniaTheming.promoted.body.dark} icon onClick={() => { this.openPropertySetSettings() }}>
-                            <v-icon size='18'>fas fa-cog</v-icon>
+                            <v-icon size='18'>fal fa-cog</v-icon>
                         </v-btn>
                     }
                 </v-layout>

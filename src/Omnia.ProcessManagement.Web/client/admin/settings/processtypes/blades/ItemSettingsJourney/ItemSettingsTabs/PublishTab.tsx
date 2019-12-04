@@ -75,7 +75,7 @@ export default class PublishTab extends VueComponentBase<PublishTabProps> {
                 {
                     settings.taxonomyEnterprisePropertyDefinitionId &&
                     <v-btn dark={this.omniaTheming.promoted.body.dark} icon onClick={() => { this.openTermDrivenSettings() }}>
-                        <v-icon size='18'>fas fa-cog</v-icon>
+                        <v-icon size='18'>fal fa-cog</v-icon>
                     </v-btn>
                 }
             </v-layout>,
