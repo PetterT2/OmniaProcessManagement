@@ -9,5 +9,9 @@
         GridX: string;
         GridY: string;
         AddImage: string;
+        AddShape: string;
+        SelectShape: string;
+        ShapeType: string;
+        Search: string;
     }
 }

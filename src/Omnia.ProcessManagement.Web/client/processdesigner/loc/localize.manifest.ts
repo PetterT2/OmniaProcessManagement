@@ -12,5 +12,9 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         Height: "Height",
         GridX: "GridX",
         GridY: "GridY",
-        AddImage: "Add Image"
+        AddImage: "Add Image",
+        SelectShape: "Select Shape",
+        AddShape: "Add Shape",
+        ShapeType: "Shape Type",
+        Search: "Search"
     });

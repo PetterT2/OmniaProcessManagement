@@ -54,6 +54,13 @@ export class ProcessTemplateStore extends Store {
 
             return this.ensureLoadProcessTemplatesPromise;
         }),
+        ensureLoadProcessTemplate: this.action((processTemplateId: GuidValue) => {
+            return new Promise<ProcessTemplate>((resolve, reject) => {
+            });
+            //this.processTemplateSerivice.getProcessTemplates(processTemplateId).then(template => {
+
+            //});
+        }),
         addOrUpdateProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
             return this.processTemplateSerivice.addOrUpdateProcessTemplate(processTemplate).then((result) => {
                 this.privateMutations.addOrUpdateDocumentTemplates.commit([result]);

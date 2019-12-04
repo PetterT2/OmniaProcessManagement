@@ -3,7 +3,7 @@ import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes } from '@omnia/fx-models';
 import { DisplayBreakPoint } from '@omnia/wcm/models';
 
-export interface IDrawingCanvasSettingsPanelState {
+export interface IPanelState {
     show: boolean;
     visible: boolean;
 }
@@ -15,11 +15,14 @@ export class ProcessDesignerPanelStore extends Store {
     /**
      * State
      */
-    drawingCanvasSettingsPanel: StoreState<IDrawingCanvasSettingsPanelState> = this.state<IDrawingCanvasSettingsPanelState>({
+    drawingCanvasSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
         show: false,
         visible: false
     });
-
+    addShapePanel: StoreState<IPanelState> = this.state<IPanelState>({
+        show: false,
+        visible: false
+    });
 
     constructor() {
         super({
@@ -50,6 +53,12 @@ export class ProcessDesignerPanelStore extends Store {
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
             this.drawingCanvasSettingsPanel.mutate({
+                show: show,
+                visible: show
+            });
+        }),
+        toggleAddShapePanel: this.mutation((show: boolean) => {
+            this.addShapePanel.mutate({
                 show: show,
                 visible: show
             });

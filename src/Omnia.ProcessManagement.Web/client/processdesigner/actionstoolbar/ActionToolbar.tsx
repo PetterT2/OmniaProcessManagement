@@ -104,7 +104,10 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             }
         }
 
-       
+        result.push(<div onClick={() => {
+            console.log('hi');
+            this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
+        }}>Shape</div>);//todo
         result.push(<v-spacer></v-spacer>);
         result.push(
             <div class={[ActionToolbarStyles.actionButtons]}>

@@ -5,3 +5,5 @@ export * from './TabRegistration';
 export * from './TabRenderer';
 export * from './IProcessDesignerItem';
 export * from './DisplayBreakPoint';
+export * from './AddShapeStep';
+export * from './ShapeDefinitionSelection';

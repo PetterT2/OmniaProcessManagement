@@ -35,7 +35,7 @@ export class ProcessDesignerStore extends Store {
     errorTabIndex = this.state<number>(-1);
     formValidator: FormValidator = null;
 
-    private rootProcessReferenceData: ProcessReferenceData = null;
+    public rootProcessReferenceData: ProcessReferenceData = null;
     private editedProcessReferences: {
         [processStepId: string]: {
             processStep: ProcessStep,
