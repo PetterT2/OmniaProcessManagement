@@ -11,7 +11,7 @@ Composer
     .withDefinition({
         title: "$Localize:OPM.Core.Blocks.ProcessLibrary.Title;",
         description: "$Localize:OPM.Core.Blocks.ProcessLibrary.Description;",
-        icon: new FontAwesomeIcon("fa fa-angle-double-right")
+        icon: new FontAwesomeIcon("fal fa-angle-double-right")
     })
     .registerSpfxWebpart({
         category: "$Localize:OPM.Core.Blocks.ProcessLibrary.Title;"

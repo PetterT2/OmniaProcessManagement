@@ -243,7 +243,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         return column.sortable || column.filterable ?
             (
                 <th class={column.align == 'start' ? 'text-left font-weight-bold' : column.align == 'center' ? 'text-center font-weight-bold' : 'text-right font-weight-bold'}    >
-                    <v-icon v-show={this.isFilter(column)}>fa-filter</v-icon>
+                    <v-icon v-show={this.isFilter(column)}>fal fa-filter</v-icon>
                     <v-icon small v-show={this.request.sortBy == column.value && this.request.sortAsc == true}>arrow_upward</v-icon>
                     <v-icon small v-show={this.request.sortBy == column.value && this.request.sortAsc != true}>arrow_downward</v-icon>
                     <v-menu offset-y close-delay="50"

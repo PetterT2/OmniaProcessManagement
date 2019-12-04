@@ -129,7 +129,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                     {
                         status ? [
                             <v-btn icon onClick={() => { this.openSyncStatusBlade(); }}>
-                                <v-icon color={status.status == ProcessTypeTermSynchronizationStatusStatuses.Failed ? "red" : ""}>fa fa-info-circle</v-icon>
+                                <v-icon color={status.status == ProcessTypeTermSynchronizationStatusStatuses.Failed ? "red" : ""}>fal fa-info-circle</v-icon>
                             </v-btn>
                         ] : null
                     }

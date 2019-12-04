@@ -59,7 +59,7 @@ export default class GroupSettingsBlade extends VueComponentBase<GroupSettingsBl
         return (
             <div>
                 <v-toolbar prominent dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.promoted.header.background.base}>
-                    <v-toolbar-title>{this.editingProcessType.id ? [<v-icon class="mr-2">fas fa-folder</v-icon>, this.title] : ""}</v-toolbar-title>
+                    <v-toolbar-title>{this.editingProcessType.id ? [<v-icon class="mr-2">fal fa-folder</v-icon>, this.title] : ""}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     {
                         this.editingProcessType.id && this.editingProcessType.parentId && !this.editingProcessType.childCount &&

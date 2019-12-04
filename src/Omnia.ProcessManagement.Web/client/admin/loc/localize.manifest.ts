@@ -13,8 +13,8 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
             UniqueId: "Unique Id",
             CreateProcessType: "Create Process Type",
             SyncJob: {
-                SyncProcessTypeToTermSet: "Sync Document Types to Term Set",
-                SyncProcessTypeFromTermSet: "Sync Document Types from Term Set",
+                SyncProcessTypeToTermSet: "Sync Process Types to Term Set",
+                SyncProcessTypeFromTermSet: "Sync Process Types from Term Set",
                 SyncProcessTypeFromTermSetMessage: "There is no any document types, do you want to sync data from mapped Term Set?",
                 WaitingForSyncing: "waiting for syncing...",
                 WarningTermStoreWorkingLanguageNotMatchMessageWithDetails: "The below language(s) could not be synced to SharePoint. Please add it to term store's working language and retry.",

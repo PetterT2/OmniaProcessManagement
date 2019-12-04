@@ -84,18 +84,18 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                                         <v-list-item>
                                             <v-list-item-action>
                                                 <v-btn icon class="mr-0" onClick={() => { }}>
-                                                    <v-icon class="drag-handle" size='14'>fas fa-grip-lines</v-icon>
+                                                    <v-icon class="drag-handle" size='14'>fal fa-grip-lines</v-icon>
                                                 </v-btn>
                                             </v-list-item-action>
                                             <v-list-item-content>{shape.multilingualTitle}</v-list-item-content>
                                             <v-list-item-action>
                                                 <v-btn icon class="mr-0" onClick={() => { this.travelToEditShape(shape, index); }}>
-                                                    <v-icon size='18'>fas fa-pencil-alt</v-icon>
+                                                    <v-icon size='18'>fal fa-pencil-alt</v-icon>
                                                 </v-btn>
                                             </v-list-item-action>
                                             <v-list-item-action>
                                                 <omfx-confirm-dialog
-                                                    icon="far fa-trash-alt"
+                                                    icon="fal fa-trash-alt"
                                                     styles={{ icon: { fontSize: "18px !important" }, button: { marginLeft: "0px !important" } }}
                                                     type={ConfirmDialogDisplay.Icon}
                                                     onClose={(res) => { res == ConfirmDialogResponse.Ok && this.removeShape(index) }}>

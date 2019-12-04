@@ -1,18 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <AssemblyName>Omnia.ProcessManagement.Web</AssemblyName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp2.2\Omnia.ProcessManagement.Web.xml</DocumentationFile>
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -195,9 +186,9 @@
     <TypeScriptCompile Remove="client\models\styles\FreeFormDrawingStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
-	<TypeScriptCompile Remove="client\models\styles\index.ts" />
-	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
-	<TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\index.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
@@ -246,7 +237,7 @@
     <TypeScriptCompile Remove="client\processlibrary\loc\localize.ts" />
     <TypeScriptCompile Remove="client\processlibrary\ProcessLibraryCore.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\index.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\services\ProcessLibraryService.ts" />   
+    <TypeScriptCompile Remove="client\processlibrary\services\ProcessLibraryService.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\DesignerItemFactory.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepDesignerItem.ts" />
@@ -315,7 +306,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -327,8 +318,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.38-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.38-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="3.0.77-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="3.0.77-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 

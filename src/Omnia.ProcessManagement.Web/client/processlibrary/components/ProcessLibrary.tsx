@@ -126,7 +126,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
                 {
                     !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
                         isEmpty ?
-                            <wcm-empty-block-view dark={false} icon={"fa fa-file-alt"} text={this.corLoc.Blocks.ProcessLibrary.Title}></wcm-empty-block-view>
+                            <wcm-empty-block-view dark={false} icon={"fal fa-file-alt"} text={this.corLoc.Blocks.ProcessLibrary.Title}></wcm-empty-block-view>
                             :
                             <div>
                                 <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>

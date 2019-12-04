@@ -6,7 +6,7 @@ Topics.Admin.registerNavigationNode.publish({
     title: '$Localize:OPM.Admin.ProcessManagement;',
     category: AdminNavigationBuiltInCategory.Tenant,
     elementToRender: "opm-admin-journey",
-    icon: new FontAwesomeIcon("fa fa-angle-double-right"),
+    icon: new FontAwesomeIcon("fal fa-angle-double-right"),
     tooltip: 'Process Management',
     weight: 1100
 });

@@ -10,7 +10,7 @@ Composer
     .withDefinition({
         title: "FabricPlay",
         description: "",
-        icon: new FontAwesomeIcon("fa fa-file-alt")
+        icon: new FontAwesomeIcon("fal fa-file-alt")
     })
     .registerSpfxWebpart({
         category: "Omnia Process Management"

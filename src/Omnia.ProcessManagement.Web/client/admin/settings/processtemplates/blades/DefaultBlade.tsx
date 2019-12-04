@@ -72,7 +72,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                     {
                         this.isProcessing[template.id.toString()] ? <v-btn icon loading></v-btn> : [
                             <v-btn icon class="mr-0" onClick={() => { this.travelToEdit(template) }}>
-                                <v-icon size='18'>fas fa-pencil-alt</v-icon>
+                                <v-icon size='18'>fal fa-pencil-alt</v-icon>
                             </v-btn>,
                             this.errMsg[template.id.toString()] ?
                                 <v-tooltip top {
@@ -82,14 +82,14 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                                                 on: ref.on
                                             }
                                             return [
-                                                <v-btn class='ma-0' disabled icon {...toSpread}><v-icon size='18'>fas fa-exclamation-circle</v-icon></v-btn>
+                                                <v-btn class='ma-0' disabled icon {...toSpread}><v-icon size='18'>fal fa-exclamation-circle</v-icon></v-btn>
                                             ]
                                         }
                                     })}>
                                     <span>{this.errMsg[template.id.toString()]}</span>
                                 </v-tooltip> :
                                 <omfx-confirm-dialog
-                                    icon="far fa-trash-alt"
+                                    icon="fal fa-trash-alt"
                                     styles={{ icon: { fontSize: "18px !important" }, button: { marginLeft: "0px !important" } }}
                                     type={ConfirmDialogDisplay.Icon}
                                     onClose={(res) => { res == ConfirmDialogResponse.Ok && this.removeTemplate(template) }}>
