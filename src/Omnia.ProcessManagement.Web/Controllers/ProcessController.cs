@@ -8,13 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
+using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
-using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -203,35 +203,19 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("filteringoptions")]
+        [HttpGet, Route("drafts")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<string>>> GetFilteringOptions(string webUrl, string column)
+        public async ValueTask<ApiResponse<List<Process>>> GetDraftProcessesDataAsync(string webUrl)
         {
             try
             {
-                var values = await ProcessLibraryService.GetFilterOptions(webUrl, column);
-                return values.AsApiResponse();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<string>>(ex);
-            }
-        }
-
-        [HttpPost, Route("drafts")]
-        [Authorize]
-        public async ValueTask<ApiResponse<DraftProcessesResponse>> GetDraftProcessesDataAsync([FromBody]ProcessLibraryRequest processLibraryRequest)
-        {
-            try
-            {
-                var processesData = await ProcessLibraryService.GetDraftProcessesDataAsync(processLibraryRequest);
+                var processesData = await ProcessLibraryService.GetDraftProcessesDataAsync(webUrl);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<DraftProcessesResponse>(ex);
+                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
             }
         }
     }

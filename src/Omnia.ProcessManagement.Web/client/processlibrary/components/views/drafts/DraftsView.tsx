@@ -2,26 +2,23 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, ProcessLibraryRequest, Process, HeaderTable } from '../../../../fx/models';
-import { ProcessLibraryListViewStyles } from '../../../../models';
+import { ProcessLibraryDisplaySettings, Enums, Process } from '../../../../fx/models';
+import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
-import { SharePointContext } from '@omnia/fx-sp';
-import { OmniaContext, Inject, Localize } from '@omnia/fx';
-import { TenantRegionalSettings } from '@omnia/fx-models';
+import { SharePointContext, TermStore } from '@omnia/fx-sp';
+import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { FilterDialog } from '../dialogs/FilterDialog';
 import { ProcessService } from '../../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat } from '../../../Constants';
 import { DeletedDialog } from '../dialogs/DeleteDialog';
-declare var moment;
+import { FiltersAndSorting } from '../../../filtersandsorting';
+import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 
 interface DraftsViewProps {
-    displaySettings: ProcessLibraryDisplaySettings
-}
-
-interface DraftProcess extends Process {
-    isMouseOver?: boolean;
+    displaySettings: ProcessLibraryDisplaySettings;
 }
 
 @Component
@@ -35,6 +32,11 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Inject(ProcessService) processService: ProcessService;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaContext) omniaContext: OmniaContext;
+    @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
+    @Inject(FiltersAndSorting) private filtersAndSorting: FiltersAndSorting;
+    @Inject(UserStore) private userStore: UserStore;
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+    @Inject(TermStore) private termStore: TermStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -42,7 +44,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
     openNewProcessDialog: boolean = false;
-    selectedFilterColumn: HeaderTable;
+    selectedFilterColumn: EnterprisePropertyDefinition;
+    filterOptions: Array<FilterOption> = [];
 
     isCurrentUserCanAddDoc: boolean = true;
     isLoadingContextMenu: boolean = false;
@@ -55,48 +58,75 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
     openDeleteDialog: boolean = false;
-    request: ProcessLibraryRequest;
-    processes: Array<Process>;
+    request: FilterAndSortInfo;
+    filterAndSortProcesses: FilterAndSortResponse = { total: 0, processes: [] };
+    allProcesses: Array<DraftProcess>;
     selectedProcess: Process;
     pageTotal: number = 1;
-    headers: Array<HeaderTable> = [
-        {
-            text: this.coreLoc.Columns.Title,
-            value: LibrarySystemFieldsConstants.Title,
-            align: 'start',
-            sortable: true,
-            filterable: true,
-            type: Enums.ProcessViewEnums.PropertyType.Text
-        },
-        {
-            text: '',
-            value: LibrarySystemFieldsConstants.Menu,
-            align: 'center',
-            type: Enums.ProcessViewEnums.PropertyType.None
-        }
-    ];
+    lcid: number = 1033;
 
     created() {
-        this.init();
+        let languageSettings = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
+        if (languageSettings.availableLanguages.length > 0) {
+            let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
+            if (userLanguageSettings) this.lcid = userLanguageSettings.lcid;
+        }
+        this.isLoading = true;
+
+        this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
+            this.init();
+        });
+    }
+
+    mounted() {
+
     }
 
     beforeDestroy() {
 
     }
 
-    private getProcesses() {
-        this.isLoading = true;
-        this.processService.getProcessesBySite(this.request)
-            .then((value) => {
-                this.processes = value.processes;
-                this.pageTotal = Math.ceil(value.total / this.displaySettings.pageSize);
-                this.isLoading = false;
+    private applyFilterAndSort() {
+        let pageSize = this.displaySettings.pageSize ? parseInt(this.displaySettings.pageSize.toString()) : 0;
+        this.filterAndSortProcesses = this.filtersAndSorting.applyFiltersAndSort(this.allProcesses, this.request, this.displaySettings.pagingType == Enums.ProcessViewEnums.PagingType.Classic ? pageSize : 0);
+        this.isLoading = false;
+    }
+
+    private loadProcesses() {
+        this.processService.getProcessesBySite(this.request.webUrl)
+            .then((processes) => {
+                this.allProcesses = processes as Array<DraftProcess>;
+                this.allProcesses.forEach(p => p.sortValues = {});
+                let personFields = [];
+                let termSetIds = [];
+                this.displaySettings.selectedFields.forEach(f => {
+                    let field = this.getEnterpriseProperty(f);
+                    if (field) {
+                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
+                            personFields.push(f);
+                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
+                            termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
+                    }
+                })
+                let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
+                let promises: Array<Promise<any>> = [
+                    this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
+                ];
+                termSetIds.forEach(t => {
+                    promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
+                })
+
+                Promise.all(promises).then((result) => {
+                    this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
+                    this.applyFilterAndSort();
+                });
             }).catch(() => {
                 this.isLoading = false;
             });
     }
 
     private init() {
+        this.isLoading = true;
         let regionalSettings = this.omniaContext.tenant.propertyBag.getModel(TenantRegionalSettings);
         if (regionalSettings && regionalSettings.dateFormat) {
             this.dateFormat = regionalSettings.dateFormat;
@@ -106,42 +136,62 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             webUrl: this.spContext.pageContext.web.absoluteUrl,
             pageNum: 1,
             filters: {},
-            pageSize: this.displaySettings.pagingType == Enums.ProcessViewEnums.PagingType.Classic ? this.displaySettings.pageSize : 0
+            sortBy: this.displaySettings.defaultOrderingFieldName,
+            sortAsc: this.displaySettings.orderDirection == Enums.ProcessViewEnums.OrderDirection.Ascending ? true : false
         };
-        this.getProcesses();
+        this.loadProcesses();
     }
 
-    private changeSortColumn(column: HeaderTable, isAsc: boolean) {
-        this.request.sortBy = column.value;
+    private changeSortColumn(internalName: string, isAsc: boolean) {
+        this.request.pageNum = 1;
+        this.request.sortBy = internalName;
         this.request.sortAsc = isAsc;
-        this.getProcesses();
+        this.applyFilterAndSort();
     }
 
     private clearFilter(column: string) {
+        this.request.pageNum = 1;
         if (this.request.filters && this.request.filters[column]) {
             delete this.request.filters[column];
-            this.getProcesses();
+            this.applyFilterAndSort();
         }
     }
 
-    private getSortByAscendingText(column: HeaderTable) {
-        switch (column.type) {
-            case Enums.ProcessViewEnums.PropertyType.Text:
+    private getSortByAscendingText(field: EnterprisePropertyDefinition) {
+        switch (field.enterprisePropertyDataType.indexedType) {
+            case PropertyIndexedType.Text:
+            case PropertyIndexedType.Person:
+            case PropertyIndexedType.Taxonomy:
                 return this.loc.SortText.TextFieldAscending;
+            case PropertyIndexedType.Number:
+                return this.loc.SortText.NumberFieldAscending;
+            case PropertyIndexedType.Boolean:
+                return this.loc.SortText.BooleanFieldAscending;
+            case PropertyIndexedType.DateTime:
+                return this.loc.SortText.DateFieldAscending;
         }
         return '';
     }
 
-    private getSortByDescendingText(column: HeaderTable) {
-        switch (column.type) {
-            case Enums.ProcessViewEnums.PropertyType.Text:
+    private getSortByDescendingText(field: EnterprisePropertyDefinition) {
+        switch (field.enterprisePropertyDataType.indexedType) {
+            case PropertyIndexedType.Text:
+            case PropertyIndexedType.Person:
+            case PropertyIndexedType.Taxonomy:
                 return this.loc.SortText.TextFieldDescending;
+            case PropertyIndexedType.Number:
+                return this.loc.SortText.NumberFieldDescending;
+            case PropertyIndexedType.Boolean:
+                return this.loc.SortText.BooeleanFieldDescending;
+            case PropertyIndexedType.DateTime:
+                return this.loc.SortText.DateFieldDescending;
         }
         return '';
     }
 
-    private openFilter(column: HeaderTable) {
-        this.selectedFilterColumn = column;
+    private openFilter(field: EnterprisePropertyDefinition) {
+        this.selectedFilterColumn = field;
+        this.filterOptions = this.filtersAndSorting.getFilterOptions(this.allProcesses, this.selectedFilterColumn.internalName, this.request.filters);
         this.openFilterDialog = true;
     }
 
@@ -154,24 +204,37 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         this.openDeleteDialog = true;
     }
 
-    private isFilter(column: HeaderTable) {
-        return this.request.filters && this.request.filters[column.value] != null;
+    private isFilter(internalName: string) {
+        return this.request.filters && this.request.filters[internalName] != null;
     }
 
     private pagingNumberChanged(pageNumber: number) {
         this.request.pageNum = pageNumber;
-        this.getProcesses();
+        this.applyFilterAndSort();
+    }
+
+    private getEnterpriseProperty(internalName: string) {
+        let field: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
+        if (internalName == LibrarySystemFieldsConstants.Title)
+            field = {
+                multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
+                    indexedType: PropertyIndexedType.Text
+                },
+                internalName: LibrarySystemFieldsConstants.Title
+            } as EnterprisePropertyDefinition;
+        return field;
     }
 
     renderDeleteDialog(h) {
         return (
             <DeletedDialog
                 closeCallback={(hasUpdate: boolean) => {
-                this.openDeleteDialog = false;
-                if (hasUpdate) {
-                    this.getProcesses();
-                }
-            }}
+                    this.openDeleteDialog = false;
+                    if (hasUpdate) {
+                        this.request.pageNum = 1;
+                        this.applyFilterAndSort();
+                    }
+                }}
                 opmProcessId={this.selectedProcess.opmProcessId}>
             </DeletedDialog>
         )
@@ -181,8 +244,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         return (
             <tr onMouseover={() => { item.isMouseOver = true; this.$forceUpdate(); }} onMouseout={() => { item.isMouseOver = false; this.$forceUpdate(); }}>
                 {
-                    this.headers.map((column: HeaderTable) => {
-                        switch (column.value) {
+                    this.displaySettings.selectedFields.map((internalName: string) => {
+                        switch (internalName) {
                             case LibrarySystemFieldsConstants.Menu:
                                 return (
                                     <td class={this.listViewClasses.menuColumn}>
@@ -232,6 +295,10 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                         <a onClick={() => { this.openProcess(item); }}>{item.rootProcessStep.multilingualTitle}</a>
                                     </td>
                                 );
+                            default:
+                                return (
+                                    <td>{Utils.isNullOrEmpty(item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(item, internalName) : item.sortValues[internalName]}</td>
+                                )
                         };
                     })
                 }
@@ -239,67 +306,45 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         );
     }
 
-    private renderHeaderForOtherColumns(h, column: HeaderTable) {
-        return column.sortable || column.filterable ?
-            (
-                <th class={column.align == 'start' ? 'text-left font-weight-bold' : column.align == 'center' ? 'text-center font-weight-bold' : 'text-right font-weight-bold'}    >
-                    <v-icon v-show={this.isFilter(column)}>fal fa-filter</v-icon>
-                    <v-icon small v-show={this.request.sortBy == column.value && this.request.sortAsc == true}>arrow_upward</v-icon>
-                    <v-icon small v-show={this.request.sortBy == column.value && this.request.sortAsc != true}>arrow_downward</v-icon>
-                    <v-menu offset-y close-delay="50"
-                        {
-                        ...this.transformVSlot({
-                            activator: (ref) => {
-                                const toSpread = {
-                                    on: ref.on
-                                }
-                                return [
-                                    <span {...toSpread} class={this.listViewClasses.menuHeader}>{column.text} <v-icon small>expand_more</v-icon></span>
-                                ]
-                            }
-                        })}>
-                        <v-list>
-                            {column.sortable &&
-                                [<v-list-item onClick={() => { this.changeSortColumn(column, true); }}>
-                                    <v-list-item-title>{this.getSortByAscendingText(column)}</v-list-item-title>
-                                </v-list-item>,
-                                <v-list-item onClick={() => { this.changeSortColumn(column, false); }}>
-                                    <v-list-item-title>{this.getSortByDescendingText(column)}</v-list-item-title>
-                                </v-list-item>]
-                            }
-                            {column.sortable && column.filterable && <v-divider></v-divider>}
-                            {column.filterable &&
-                                [
-                                    <v-list-item onClick={() => { this.openFilter(column); }}>
-                                        <v-list-item-title>{this.loc.Filter.FilterBy}</v-list-item-title>
-                                    </v-list-item>,
-                                    (
-                                        (<v-list-item onClick={() => { this.clearFilter(column.value); }}>
-                                            <v-list-item-title>{this.loc.Filter.ClearFilter}</v-list-item-title>
-                                        </v-list-item>)
-                                    )
-                                ]
-                            }
+    renderHeaderForOtherColumns(h, internalName: string) {
+        let field = this.getEnterpriseProperty(internalName);
 
-                        </v-list>
-                    </v-menu>
-                </th>
-            ) : (
-                <th class='text-left'>
-                    <v-tooltip top {
-                        ...this.transformVSlot({
-                            activator: (ref) => {
-                                const toSpread = {
-                                    on: ref.on
-                                }
-                                return [
-                                    <span {...toSpread}>{column.text}</span>
-                                ]
+        return (
+            <th class={'text-left font-weight-bold'}    >
+                <v-icon v-show={this.isFilter(internalName)} size='16' class="mr-1">fal fa-filter</v-icon>
+                <v-icon small v-show={this.request.sortBy == internalName && this.request.sortAsc == true}>arrow_upward</v-icon>
+                <v-icon small v-show={this.request.sortBy == internalName && this.request.sortAsc != true}>arrow_downward</v-icon>
+                <v-menu offset-y close-delay="50"
+                    {
+                    ...this.transformVSlot({
+                        activator: (ref) => {
+                            const toSpread = {
+                                on: ref.on
                             }
-                        })}>
-                        <span>{column.text}</span>
-                    </v-tooltip>
-                </th>);
+                            return [
+                                <span {...toSpread} class={this.listViewClasses.menuHeader}>{field ? field.multilingualTitle : ''} <v-icon small>expand_more</v-icon></span>
+                            ]
+                        }
+                    })}>
+                    <v-list>
+                        <v-list-item onClick={() => { this.changeSortColumn(internalName, true); }}>
+                            <v-list-item-title>{this.getSortByAscendingText(field)}</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item onClick={() => { this.changeSortColumn(internalName, false); }}>
+                            <v-list-item-title>{this.getSortByDescendingText(field)}</v-list-item-title>
+                        </v-list-item>
+                        <v-divider></v-divider>
+
+                        <v-list-item onClick={() => { this.openFilter(field); }}>
+                            <v-list-item-title>{this.loc.Filter.FilterBy}</v-list-item-title>
+                        </v-list-item><v-list-item disabled={!(this.request.filters && this.request.filters[internalName])} onClick={() => { this.clearFilter(internalName); }}>
+                            <v-list-item-title>{this.loc.Filter.ClearFilter}</v-list-item-title>
+                        </v-list-item>
+
+                    </v-list>
+                </v-menu>
+            </th>
+        )
     }
 
     renderHeaders(h) {
@@ -307,8 +352,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             <thead>
                 <tr>
                     {
-                        this.headers.map(header => {
-                            return header.value == LibrarySystemFieldsConstants.Menu ?
+                        this.displaySettings.selectedFields.map(header => {
+                            return header == LibrarySystemFieldsConstants.Menu ?
                                 <th class={this.listViewClasses.menuColumn}></th>
                                 : this.renderHeaderForOtherColumns(h, header);
                         })
@@ -320,14 +365,23 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     renderProcesses(h) {
         let isPaging = this.displaySettings.pagingType == Enums.ProcessViewEnums.PagingType.Classic;
+        if (!isPaging && this.pageTotal > 0)
+            this.applyFilterAndSort();
+        let pageSize = this.displaySettings.pageSize ? parseInt(this.displaySettings.pageSize.toString()) : 0;
+        this.pageTotal = isPaging && pageSize > 0 ? Math.ceil(this.filterAndSortProcesses.total / pageSize) : 0;
+
         return (
             <div>
                 <v-data-table
-                    headers={this.headers}
-                    items={this.processes}
+                    headers={this.displaySettings.selectedFields.map(t => {
+                        return {
+                            text: t
+                        };
+                    })}
+                    items={this.filterAndSortProcesses.processes}
                     hide-default-footer
                     hide-default-header
-                    items-per-page={isPaging ? this.displaySettings.pageSize : Number.MAX_SAFE_INTEGER}
+                    items-per-page={isPaging ? pageSize : Number.MAX_SAFE_INTEGER}
                     scopedSlots={{
                         item: p => this.renderItems(h, p.item),
                         header: p => this.renderHeaders(h)
@@ -337,12 +391,14 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                     </div>
                 </v-data-table>
                 {
-                    isPaging ?
+                    isPaging && this.pageTotal > 1 ?
                         <div class="text-center">
                             <v-pagination
                                 v-model={this.request.pageNum}
                                 length={this.pageTotal}
-                                onInput={(pageNumber) => { this.pagingNumberChanged(pageNumber); }}
+                                onInput={(pageNumber) => {
+                                    this.pagingNumberChanged(pageNumber);
+                                }}
                             ></v-pagination>
                         </div>
                         : null
@@ -357,17 +413,16 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 closeCallback={() => { this.openFilterDialog = false; }}
                 selectedColumn={this.selectedFilterColumn}
                 changeFilterValues={(column: string, selectedOptions: Array<any>) => {
+                    this.request.pageNum = 1;
                     this.request.filters[column] = selectedOptions;
                     this.openFilterDialog = false;
-                    this.getProcesses();
+                    this.applyFilterAndSort();
                 }}
                 clearFilter={(column: string) => {
                     this.clearFilter(column);
                     this.openFilterDialog = false;
                 }}
-                isFilteringValue={(column: string, value: string) => {
-                    return this.request.filters && this.request.filters[column] && this.request.filters[column].findIndex(v => v == value) > -1;
-                }}
+                filterOptions={this.filterOptions}
             >
             </FilterDialog>
         )
@@ -381,7 +436,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                     if (isUpdate) {
                         this.request.pageNum = 1;
                         this.request.filters = {};
-                        this.getProcesses();
+                        this.applyFilterAndSort();
                     }
                 }}
             ></opm-new-process-dialog>

@@ -7,8 +7,7 @@
 
         export enum PagingType {
             NoPaging = 1,
-            Classic = 2,
-            Scroll = 3
+            Classic = 2
         }
 
         export enum StartPageTab {
