@@ -166,7 +166,7 @@ export class CurrentProcessStore extends Store {
         }),
         checkOutProcess: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
-                return new Promise<null>((resolve, reject) => {
+                return new Promise<ProcessReference>((resolve, reject) => {
 
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -183,10 +183,11 @@ export class CurrentProcessStore extends Store {
                             processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
                         }
 
-                        this.actions.setProcessToShow.dispatch(processReferenceToUse).then(resolve).catch(reject)
-
+                        resolve(processReferenceToUse);
                     }).catch(reject);
                 })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
         saveState: this.action((): Promise<null> => {
