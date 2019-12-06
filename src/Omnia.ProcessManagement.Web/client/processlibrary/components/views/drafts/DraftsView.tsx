@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, HeaderTable, ViewOptions } from '../../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, ViewOptions } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
