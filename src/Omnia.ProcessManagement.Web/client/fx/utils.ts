@@ -37,7 +37,7 @@ export module OPMUtils {
         var hash = window.location.hash.split("|")[0];
         if (hash.indexOf("?") > -1)
             hash = hash.split("?")[0];
-        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + hash + path;
+        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + path + hash;
         window.history.pushState({ path: newurl }, '', newurl);
     }
 }

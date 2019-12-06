@@ -38,6 +38,9 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
 
     redirectOnStart() {
         var displayTabParamValue = WebUtils.getQs(UrlParameters.DisplayTab);
+        if (displayTabParamValue.endsWith('/')) {
+            displayTabParamValue = displayTabParamValue.substr(0, displayTabParamValue.length - 1)
+        }
         if (displayTabParamValue) {
             if (displayTabParamValue == UrlParameters.Drafts) {
                 this.selectingTab = this.tabPrefix + UrlParameters.Drafts;

@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, ViewOptions } from '../../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
@@ -234,20 +234,13 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     }
 
     private editProcess(process: DraftProcess) {
-        let processReference = OPMUtils.generateProcessReference(process, process.rootProcessStep.id)
-        this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
-            this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
-                //ProcessDesignerUtils.openProcessDesigner();
-                //this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-            });
-            ProcessDesignerUtils.openProcessDesigner();
-            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-        })
-        //OPMRouter.navigate(process, process.rootProcessStep, ViewOptions.viewLatestPublishedInBlock)
-        //    .then(() => {
-        //        ProcessDesignerUtils.openProcessDesigner();
-        //        this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-        //    })
+        OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.normal)
+            .then(() => {
+                this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
+                    ProcessDesignerUtils.openProcessDesigner();
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                })
+            })
     }
 
     renderDeleteDialog(h) {
