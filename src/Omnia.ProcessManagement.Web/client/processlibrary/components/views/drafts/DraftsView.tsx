@@ -237,9 +237,11 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         let processReference = OPMUtils.generateProcessReference(process, process.rootProcessStep.id)
         this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
             this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
-                ProcessDesignerUtils.openProcessDesigner();
-                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-            })
+                //ProcessDesignerUtils.openProcessDesigner();
+                //this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+            });
+            ProcessDesignerUtils.openProcessDesigner();
+            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
         })
         //OPMRouter.navigate(process, process.rootProcessStep, ViewOptions.viewLatestPublishedInBlock)
         //    .then(() => {
