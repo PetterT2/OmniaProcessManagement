@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, ProcessLibraryRequest, Process, HeaderTable } from '../../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, ProcessLibraryRequest, Process, HeaderTable, ViewOptions } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles } from '../../../../models';
 import { ProcessLibraryService } from '../../../services';
 import { SharePointContext } from '@omnia/fx-sp';
@@ -11,9 +11,14 @@ import { TenantRegionalSettings } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { FilterDialog } from '../dialogs/FilterDialog';
-import { ProcessService } from '../../../../fx';
+import { ProcessService, CurrentProcessStore, OPMRouter, OPMUtils } from '../../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat } from '../../../Constants';
 import { DeletedDialog } from '../dialogs/DeleteDialog';
+import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
+import { ProcessDesignerStore } from '../../../../processdesigner/stores';
+import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
+import { DisplayModes } from '../../../../models/processdesigner';
+
 declare var moment;
 
 interface DraftsViewProps {
@@ -35,6 +40,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Inject(ProcessService) processService: ProcessService;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaContext) omniaContext: OmniaContext;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -163,6 +170,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         this.getProcesses();
     }
 
+    private editProcess(process: DraftProcess) {
+        let processReference = OPMUtils.generateProcessReference(process, process.rootProcessStep.id)
+        this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
+            this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
+                ProcessDesignerUtils.openProcessDesigner();
+                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+            })
+        })
+        //OPMRouter.navigate(process, process.rootProcessStep, ViewOptions.viewLatestPublishedInBlock)
+        //    .then(() => {
+        //        ProcessDesignerUtils.openProcessDesigner();
+        //        this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+        //    })
+    }
+
     renderDeleteDialog(h) {
         return (
             <DeletedDialog
@@ -201,7 +223,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                                 }
                                             })}>
                                             <v-list>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonEdit}>
+                                                <v-list-item onClick={() => { this.editProcess(item); }} disabled={this.isLoadingContextMenu || this.disableButtonEdit}>
                                                     <v-list-item-title>{this.loc.ProcessActions.Edit}</v-list-item-title>
                                                 </v-list-item>
                                                 <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonPreview}>
