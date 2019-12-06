@@ -4,7 +4,10 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
-import { OmniaTheming, VueComponentBase, RichTextEditorExtension, HeadingEditorExtension, TextColorEditorExtension, HistoryEditorExtension, HtmlEditorExtension, TableEditorExtension, ExtendedElementsEditorExtension, HorizontalRuleEditorExtension, ListItemEditorExtension, CodeBlockEditorExtension, OrderedListEditorExtension, BulletListEditorExtension, BlockquoteEditorExtension, StrikeEditorExtension, UnderlineEditorExtension, ItalicEditorExtension, BoldEditorExtension } from '@omnia/fx/ux';
+import { ProcessReferenceData } from '../../../fx/models';
+import {
+    OmniaTheming, VueComponentBase, RichTextEditorExtension
+} from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 
 export class ProcessContentTabRenderer extends TabRenderer {
@@ -23,43 +26,34 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
+    private editContentTimeout = null;
     private extensions: Array<RichTextEditorExtension> = [];
     private isEditMode: boolean = false;
     private content: string = "";
+    private currentProcessReferenceData: ProcessReferenceData = null;
 
     created() {
         this.init();
     }
 
     init() {
-        this.setupEditorExtension();
-        var data = this.currentProcessStore.getters.referenceData();
-        data.currentProcessData.content
-        this.currentProcessStore.actions.saveState.dispatch();
-    }
-
-    private setupEditorExtension() {
-        this.extensions.push(new HeadingEditorExtension({ levels: [1, 2, 3, 4, 5, 0] }));
-        this.extensions.push(new TextColorEditorExtension());
-        this.extensions.push(new HistoryEditorExtension());
-        this.extensions.push(new BoldEditorExtension());
-        this.extensions.push(new ItalicEditorExtension());
-        this.extensions.push(new UnderlineEditorExtension());
-        this.extensions.push(new StrikeEditorExtension());
-        this.extensions.push(new BlockquoteEditorExtension());
-        this.extensions.push(new BulletListEditorExtension());
-        this.extensions.push(new OrderedListEditorExtension());
-        this.extensions.push(new CodeBlockEditorExtension());
-        this.extensions.push(new ListItemEditorExtension());
-        this.extensions.push(new HorizontalRuleEditorExtension());
-        this.extensions.push(new ExtendedElementsEditorExtension());
-        this.extensions.push(new TableEditorExtension());
-        this.extensions.push(new HtmlEditorExtension());
+        this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
+        //this.currentProcessStore.actions.saveState.dispatch();
     }
 
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
+    }
+
+    onContentChanged(content) {
+        this.currentProcessReferenceData.currentProcessData.content = content;
+        if (this.editContentTimeout) {
+            window.clearTimeout(this.editContentTimeout);
+        }
+        this.editContentTimeout = window.setTimeout(() => {
+            this.currentProcessStore.actions.saveState.dispatch();
+        }, 1000);
     }
 
     /**
@@ -69,17 +63,12 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                <omfx-rich-text-editor onContentChange={(content) => { this.content = content; }}
-                    placeholder={
-                        {
-                            emptyClass: 'is-empty',
-                            emptyNodeText: "",
-                            showOnlyWhenEditable: true
-                        }
-                    }
-                    initialContent={""}
-                    extensions={this.extensions}>
-                </omfx-rich-text-editor>
+                <omfx-multilingual-input
+                    multipleLines={true}
+                    richText={true}
+                    model={this.currentProcessReferenceData.currentProcessData.content}
+                    onModelChange={(content) => { this.onContentChanged(content); }}
+                    forceTenantLanguages></omfx-multilingual-input>
             </v-card-text>
         </v-card>)
     }
