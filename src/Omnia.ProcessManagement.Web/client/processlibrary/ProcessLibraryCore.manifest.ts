@@ -5,8 +5,10 @@ Composer
     .registerManifest(OPMWebComponentManifests.ProcessLibraryCore, "opm.processlibrary.core")
     .registerResources({
         resourcePaths: [
-            "./Constants.js",
+            './Constants.js',
             './services/**/*.js',
-            './loc/**/*.js'
+            './filtersandsorting/**/*.js',
+            './loc/**/*.js',
+            './factory/**/*.js',
         ]
     })

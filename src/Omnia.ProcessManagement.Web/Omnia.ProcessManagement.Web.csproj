@@ -86,7 +86,6 @@
     <TypeScriptCompile Remove="client\fx\messaging\index.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\opmPublishTopic.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\HeaderTable.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryData.ts" />
@@ -110,9 +109,6 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\DraftProcessesResponse.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processlibrary\ProcessLibraryRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
@@ -157,6 +153,11 @@
     <TypeScriptCompile Remove="client\fx\models\navigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\NodeState.ts" />
     <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
+    <TypeScriptCompile Remove="client\models\filters\DraftProcess.ts" />
+    <TypeScriptCompile Remove="client\models\filters\FilterAndSortInfo.ts" />
+    <TypeScriptCompile Remove="client\models\filters\FilterAndSortResponse.ts" />
+    <TypeScriptCompile Remove="client\models\filters\FilterOption.ts" />
+    <TypeScriptCompile Remove="client\models\filters\index.ts" />
     <TypeScriptCompile Remove="client\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessReference.ts" />
@@ -210,6 +211,7 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessDesignerPanelStore.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\FilterDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\INewProcessDialog.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.tsx" />
@@ -217,6 +219,9 @@
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrarySettings.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayFileldTab.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayTab.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\GeneralTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.tsx" />
@@ -225,6 +230,9 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting - Copy.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\index.ts" />
     <TypeScriptCompile Remove="client\processlibrary\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\loc\localize.ts" />
     <TypeScriptCompile Remove="client\processlibrary\ProcessLibraryCore.manifest.ts" />
@@ -291,7 +299,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\processlibrary\components\settingtabs\" />
     <Folder Include="client\processlibrary\components\views\published\" />
     <Folder Include="client\processlibrary\components\views\tasks\" />
     <Folder Include="wwwroot\" />
@@ -335,13 +342,10 @@
     <None Update="client\fx\models\components\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\processlibrary\index.ts">
+    <None Update="client\models\filters\FilterAndSortResponse.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\processlibrary\DraftProcessesResponse.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processlibrary\ProcessLibraryRequest.ts">
+    <None Update="client\models\filters\FilterAndSortInfo.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\Enums.ts">
@@ -432,6 +436,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\routing\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\filters\FilterOption.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\filters\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\models\index.ts">
@@ -534,6 +544,15 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\filters\DraftProcess.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processlibrary\filtersandsorting\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processlibrary\filtersandsorting\FiltersAndSorting.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\services\ProcessLibraryService.ts">

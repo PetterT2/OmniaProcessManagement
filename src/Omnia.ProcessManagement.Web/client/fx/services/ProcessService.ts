@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessLibraryRequest, DraftProcessesResponse } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -118,24 +118,6 @@ export class ProcessService {
         })
     }
 
-    public getFilteringOptions = (webUrl: string, column: string) => {
-        return new Promise<Array<string>>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Array<string>>>(`/api/processes/filteringoptions`, {
-                params: {
-                    column: column,
-                    webUrl: webUrl
-                }
-            }).then((response) => {
-                if (response.data.success) {
-                    resolve(response.data.data);
-                }
-                else {
-                    reject(response.data.errorMessage);
-                }
-            }).catch(reject);
-        })
-    }
-
     public deleteDraftProcess = (opmProcessId: GuidValue) => {
         return new Promise<void>((resolve, reject) => {
             this.httpClient.delete<IHttpApiOperationResult<void>>(`/api/processes/draft/${opmProcessId}`).then((response) => {
@@ -162,11 +144,12 @@ export class ProcessService {
         })
     }
 
-    public getProcessesBySite = (request: ProcessLibraryRequest) => {
-        return new Promise<DraftProcessesResponse>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<DraftProcessesResponse>>(`/api/processes/drafts`, request).then((response) => {
+    public getProcessesBySite = (webUrl: string) => {
+        return new Promise<Array<Process>>((resolve, reject) => {
+            let params = { webUrl: webUrl };
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/drafts`, { params: params }).then((response) => {
                 if (response.data.success) {
-                    response.data.data.processes.forEach(p => {
+                    response.data.data.forEach(p => {
                         p.rootProcessStep.multilingualTitle = this.multilingualStore.getters.stringValue(p.rootProcessStep.title);
                     })
                     resolve(response.data.data);

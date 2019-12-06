@@ -1,6 +1,9 @@
 ﻿export module OPMCoreLocalization {
     export const namespace = "OPM.Core";
     export interface locInterface {
+        Common: {
+            SearchBoxPlaceholder: string
+        },
         Features: {
             ProcessLibrary: {
                 Category: string,
@@ -27,6 +30,7 @@
             Process: string
         },
         Columns: {
+            ProcessMenu: string,
             Title: string
         },
         Process: {

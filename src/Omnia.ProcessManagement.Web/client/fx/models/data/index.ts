@@ -5,6 +5,5 @@ export * from './processactions';
 export * from './enums';
 export * from './processtypes';
 export * from './drawingdefinitions';
-export * from './processlibrary';
 export * from './MultilingualData';
 export * from './settings';

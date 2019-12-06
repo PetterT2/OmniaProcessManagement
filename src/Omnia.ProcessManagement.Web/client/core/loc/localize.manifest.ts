@@ -5,6 +5,9 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
     .registerLocalization()
     .namespace(OPMCoreLocalization.namespace)
     .add<OPMCoreLocalization.locInterface>({
+        Common: {
+            SearchBoxPlaceholder: "Search"
+        },
         Features: {
             ProcessLibrary: {
                 Category: "Process Management",
@@ -31,6 +34,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Process: "Process"
         },
         Columns: {
+            ProcessMenu: "Process Menu",
             Title: "Title"
         },
         Process: {
