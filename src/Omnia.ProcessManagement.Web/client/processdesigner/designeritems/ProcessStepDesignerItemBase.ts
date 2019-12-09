@@ -1,6 +1,7 @@
 ﻿import { Inject, Localize,Utils as omfUtils, ServiceContainer} from '@omnia/fx';
 import { CurrentProcessStore } from '../../fx';
 import { ProcessDesignerStore } from '../stores';
+import { ProcessDesignerUtils } from '../../processdesigner/Utils';
 
 export class ProcessStepDesignerItemBase {
     currentProcessStore: CurrentProcessStore;
@@ -12,27 +13,22 @@ export class ProcessStepDesignerItemBase {
 
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
-    public onSave() {
-        //todo
-        //if (this.validateAll()) {
-        //    this.editorStore.mutations.stopSavePageStateManager.commit();
-        //    TabManager.addLoadingToButton(this as any, ActionButtonIds.saveAsDraft);
-        //    let operationPromise = this.currentPageStore.actions.checkIn.dispatch();
-        //    operationPromise.then(() => {
-        //        this.editorStore.actions.setEditorToReadMode.dispatch(true);
-        //        TabManager.removeLoadingFromButton(this as any, ActionButtonIds.saveAsDraft);
-        //    });
-        //    return operationPromise;
-        //}
+    public onSaveAsDraft() {
+        this.currentProcessStore.actions.checkInProcess.dispatch().then(() => {
+            ProcessDesignerUtils.closeProcessDesigner();
+        });
         return new Promise<any>(() => {
         });
     }
     public onDiscardChanges() {
-        //todo
+        this.currentProcessStore.actions.discardChange.dispatch().then(() => {
+            ProcessDesignerUtils.closeProcessDesigner();
+        });
         return new Promise<any>(() => {
         });
     }
     public onClose() {
+        ProcessDesignerUtils.closeProcessDesigner();
         return new Promise<any>(() => {
         });
     }
