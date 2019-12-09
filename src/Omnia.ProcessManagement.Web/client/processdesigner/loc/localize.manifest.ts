@@ -25,5 +25,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
             Link: "Link"
         },
         New: "New",
-        AddLink: "Add Link"
+        AddLink: "Add Link",
+        NoProperties: "There are no properties to be edited."
     });

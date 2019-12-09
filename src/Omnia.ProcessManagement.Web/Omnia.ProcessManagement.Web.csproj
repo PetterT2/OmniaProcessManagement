@@ -133,6 +133,13 @@
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationNodeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationData.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessBooleanPropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessDatetimePropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessNumberPropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessPersonPropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessPropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessTaxonomyPropertyInfo.ts" />
+    <TypeScriptCompile Remove="client\fx\models\processes\ProcessTextPropertyInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRoute.ts" />
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
@@ -357,6 +364,27 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessNumberPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessBooleanPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessDatetimePropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessTaxonomyPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessPersonPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessTextPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\processes\ProcessPropertyInfo.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\models\filters\FilterAndSortResponse.ts">

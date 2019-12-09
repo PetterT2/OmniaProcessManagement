@@ -22,5 +22,6 @@
         },
         New: string;
         AddLink: string;
+        NoProperties: string;
     }
 }
