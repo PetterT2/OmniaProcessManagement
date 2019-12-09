@@ -32,4 +32,8 @@ export class ProcessStepDesignerItemBase {
         return new Promise<any>(() => {
         });
     }
+    public onClose() {
+        return new Promise<any>(() => {
+        });
+    }
 }

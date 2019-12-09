@@ -9,5 +9,6 @@ export interface IProcessDesignerItem {
     onActivation();
     onSave<ItemType>(): Promise<ItemType>;
     onDiscardChanges<ItemType>(): Promise<ItemType>;
+    onClose<ItemType>(): Promise<ItemType>;
     //onCheckOut<ItemType>(): Promise<ItemType>;
 }

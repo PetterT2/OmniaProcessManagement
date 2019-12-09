@@ -6,6 +6,7 @@ import { OmniaTheming, Router } from "@omnia/fx/ux"
 import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessDesignerStore } from '../stores';
 import { CurrentProcessStore } from '../../fx';
+import { ProcessVersionType } from '../../fx/models';
 import { ActionItem, ActionItemType, ActionCustomButton, ActionButton } from '../../models/processdesigner';
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
 import { ActionToolbarStyles } from './ActionToolbar.css';
@@ -91,10 +92,11 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
     private renderToolbarWithButtons(h) {
         let actionButtons = new Array<JSX.Element>();
         let result = new Array<JSX.Element>();
+        let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
 
         /* Action buttons in toolbar */
-        if (this.processDesignerStore.tabs.selectedTab.state) {
-            if (this.processDesignerStore.settings.itemIsCheckOut.state) {
+        if (this.processDesignerStore.tabs.selectedTab.state && currentProcessReferenceData && currentProcessReferenceData.process) {
+            if (currentProcessReferenceData.process.versionType == ProcessVersionType.CheckedOut) {
                 actionButtons = this.createActionButtons(h,
                     this.processDesignerStore.tabs.selectedTab.state.actionToolbar.checkedOutButtons)
             }            
