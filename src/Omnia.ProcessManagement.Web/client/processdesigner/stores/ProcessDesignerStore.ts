@@ -1,14 +1,14 @@
 ﻿import { Store } from '@omnia/fx/store';
 import { Injectable, Inject, Topics, Utils } from '@omnia/fx';
 import { FormValidator, VueComponentBase } from '@omnia/fx/ux';
-import { InstanceLifetimes, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
+import { InstanceLifetimes, IMessageBusSubscriptionHandler, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessDesignerSettingsStore } from './ProcessDesignerSettingsStore';
 import { ProcessDesignerTabStore } from './ProcessDesignerTabStore';
 import { CurrentProcessStore } from '../../fx';
-import { IProcessDesignerItem, ActionItem, DisplayModes } from '../../models/processdesigner';
+import { IProcessDesignerItem, ActionItem, DisplayModes, AddShapeOptions } from '../../models/processdesigner';
 import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition } from '../../fx/models';
+import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition, DrawingShape, ShapeDefinition } from '../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -34,8 +34,9 @@ export class ProcessDesignerStore extends Store {
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     errorTabIndex = this.state<number>(-1);
     formValidator: FormValidator = null;
+    recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
 
-    private rootProcessReferenceData: ProcessReferenceData = null;
+    public rootProcessReferenceData: ProcessReferenceData = null;
     private editedProcessReferences: {
         [processStepId: string]: {
             processStep: ProcessStep,
@@ -85,7 +86,7 @@ export class ProcessDesignerStore extends Store {
             if (this.temporaryActionButtons.state === buttons) {
                 this.temporaryActionButtons.mutate([]);
             }
-        }),      
+        }),
         setActiveItemInDesigner: this.mutation((item: IProcessDesignerItem) => {
             this.mutations.setEditorLoadingState.commit(true);
             //this.savePageStateManager.stop();//todo check this
@@ -109,6 +110,9 @@ export class ProcessDesignerStore extends Store {
             }
             this.formValidator = new FormValidator(el);
         }),
+        addShapeToDrawing: this.mutation((addShapeOptions: AddShapeOptions) => {
+
+        })
     }
 
     actions = {
@@ -191,6 +195,35 @@ export class ProcessDesignerStore extends Store {
                     resolve();
                 });
             })
+        }),
+        addProcessStep: this.action((processStepTitle: MultilingualString) => {
+            return new Promise<ProcessStep>((resolve, reject) => {
+                var processStepTemplateId = this.editingProcessReference.state.processStep.processTemplateId;
+                var childProcessStep: ProcessStep = {
+                    id: Guid.newGuid(),
+                    title: processStepTitle,
+                    processSteps: [],
+                    processTemplateId: processStepTemplateId,
+                    processDataHash: ''
+                };
+                this.editingProcessReference.state.processStep.processSteps.push(childProcessStep);
+                //todo: handle add to navigations
+                resolve(childProcessStep);
+            });
+        }),
+        addRecentShapeDefinitionSelection: this.action((shapeDefinition: ShapeDefinition) => {
+            return new Promise<any>((resolve, reject) => {
+                var shapeDefinitions = this.recentShapeSelections.state.filter((item) => {
+                    return item.id != shapeDefinition.id;
+                });
+                var recentShapeDefinitions = [];
+                recentShapeDefinitions.push(shapeDefinition);
+                recentShapeDefinitions = recentShapeDefinitions.concat(shapeDefinitions);
+                if (recentShapeDefinitions.length > 5) {
+                    recentShapeDefinitions = recentShapeDefinitions.slice(0, 5);
+                }
+                this.recentShapeSelections.mutate(recentShapeDefinitions);
+            });
         })
     }
 

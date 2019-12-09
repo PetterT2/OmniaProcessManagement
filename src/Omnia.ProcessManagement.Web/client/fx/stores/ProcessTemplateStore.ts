@@ -40,6 +40,16 @@ export class ProcessTemplateStore extends Store {
                     });
                 }
             })
+        }),
+        addOrUpdateDocumentTemplate: this.mutation((template: ProcessTemplate) => {
+            var existedTemplateIndex = this.processTemplates.state.findIndex((item) =>
+                item.id == template.id);
+            if (existedTemplateIndex >= 0) {
+                this.processTemplates.state[existedTemplateIndex] = template;
+            }
+            else {
+                this.processTemplates.state.push(template);
+            }
         })
     }
 
@@ -53,6 +63,25 @@ export class ProcessTemplateStore extends Store {
             }
 
             return this.ensureLoadProcessTemplatesPromise;
+        }),
+        ensureLoadProcessTemplate: this.action((processTemplateId: GuidValue, alwaysGetLatest: boolean = false) => {
+            return new Promise<ProcessTemplate>((resolve, reject) => {
+                let result: ProcessTemplate = null;
+                if (!alwaysGetLatest) {
+                    if (this.processTemplates.state) {
+                        result = this.processTemplates.state.find(item => item.id == processTemplateId);
+                    }
+                }
+                if (!result) {
+                    this.processTemplateSerivice.getProcessTemplateById(processTemplateId).then((template) => {
+                        this.privateMutations.addOrUpdateDocumentTemplate.commit(template);
+                        resolve(template);
+                    }).catch(reject);
+                }
+                else {
+                    resolve(result);
+                }
+            });
         }),
         addOrUpdateProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
             return this.processTemplateSerivice.addOrUpdateProcessTemplate(processTemplate).then((result) => {

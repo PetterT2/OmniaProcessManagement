@@ -9,5 +9,18 @@
         GridX: string;
         GridY: string;
         AddImage: string;
+        AllShapes: string;
+        RecentShapes: string;
+        AddShape: string;
+        SelectShape: string;
+        ShapeType: string;
+        Search: string;
+        ShapeTypes: {
+            None: string;
+            ProcessStep: string;
+            Link: string;
+        },
+        New: string;
+        AddLink: string;
     }
 }

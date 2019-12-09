@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore, DrawingCanvasEditor, ShapeTemplatesConstants, DrawingCanvas } from '../../../fx';
-import { OmniaTheming, VueComponentBase, StyleFlow } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { DrawingShapeTypes, DrawingShapeDefinition, TextPosition, ProcessData, CanvasDefinition } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models/styles';
@@ -14,6 +14,8 @@ import { component } from 'vue-tsx-support';
 import { setTimeout } from 'timers';
 import { Watch } from 'vue-property-decorator';
 import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
+import { ProcessDesignerLocalization } from '../../loc/localize';
+import { AddShapeOptions } from '../../../models/processdesigner';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -28,6 +30,7 @@ export interface ProcessDrawingProps {
 export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>{
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private drawingCanvas: DrawingCanvas = null;
@@ -52,6 +55,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     init() {
         this.initDrawingCanvas();
+        this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
+            console.log('added shape test');
+            this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
+        });
     }
 
     private onCanvasDefinitionChanged() {
@@ -87,7 +94,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             } as DrawingShapeDefinition;
 
             myfirstShape.shapeTemplate = ShapeTemplatesConstants.Circle;
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, myfirstShape, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
+
+            //this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, myfirstShape, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
         }
     }
 
@@ -115,9 +123,22 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
                 v-model={this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show}>
                 {this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show ? <opm-processdesigner-drawingcanvas-settings></opm-processdesigner-drawingcanvas-settings> : null}
-            </v-navigation-drawer>
+            </v-navigation-drawer>            
         );
+        components.push(this.renderAddShapePanel(h));
         return components;
+    }
+
+    private renderAddShapePanel(h) {
+        if (!this.processDesignerStore.panels.addShapePanel.state.show) {
+            return null;
+        }
+        else {
+            return <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>;
+        }
+    }
+    private closeAddShapePanel() {
+        this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(false);
     }
 
     private renderCanvasToolbar(h) {

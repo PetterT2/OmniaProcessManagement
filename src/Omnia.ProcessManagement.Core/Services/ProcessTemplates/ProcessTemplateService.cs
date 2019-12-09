@@ -17,6 +17,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTemplates
         {
             return await ProcessTemplateRepository.GetAllAsync();
         }
+        public async ValueTask<ProcessTemplate> GetByIdAsync(Guid id)
+        {
+            return await ProcessTemplateRepository.GetByIdAsync(id);
+        }
 
         public async ValueTask<ProcessTemplate> AddOrUpdateAsync(ProcessTemplate processTemplate)
         {

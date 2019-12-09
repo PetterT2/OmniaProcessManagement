@@ -12,6 +12,9 @@ export class OPMResourceManifests {
     public static get ProcessDesignerItem(): Guid { return new Guid("9b9a5055-d871-42a8-aba6-59bb66cce039"); }
     public static get ProcessDesigner(): Guid { return new Guid("8c220ecc-3171-4549-a3a3-051a7ef76d87"); }
     public static get ProcessDesignerDrawingCanvasSettings(): Guid { return new Guid("55f7b908-73e1-4e0c-8c8f-caae6f58b34f"); }
+    public static get ProcessDesignerAddShapeWizard(): Guid { return new Guid("727d945c-5bb9-42bc-ae80-3f3f9d9251a4"); }
+    public static get ProcessDesignerShapeSelectionStep(): Guid { return new Guid("337862cc-491e-40a6-8515-f01eb256aea8"); }
+    public static get ProcessDesignerShapeTypeStep(): Guid { return new Guid("a675ce84-2608-45e7-b05d-a0dc99f1e203"); }
 }
 
 export class OPMWebComponentManifests {

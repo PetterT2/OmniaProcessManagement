@@ -15,6 +15,7 @@ import './ProcessTemplateShapeSettingsBlade.css';
 import { ProcessTemplateShapeSettingsBladeStyles } from '../../../../../models';
 import { classes } from 'typestyle';
 import { DrawingCanvas } from '../../../../../fx/processshape';
+import { OPMCoreLocalization } from '../../../../../core/loc/localize';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -29,6 +30,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) opmCoreloc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     internalValidator: FormValidator = new FormValidator(this);
@@ -51,15 +53,15 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     textPositions = [
         {
             value: TextPosition.Above,
-            title: this.loc.ProcessTemplates.ShapeSettings.Above
+            title: this.opmCoreloc.DrawingShapeSettings.Above
         },
         {
             value: TextPosition.Center,
-            title: this.loc.ProcessTemplates.ShapeSettings.Center
+            title: this.opmCoreloc.DrawingShapeSettings.Center
         },
         {
             value: TextPosition.Bottom,
-            title: this.loc.ProcessTemplates.ShapeSettings.Below
+            title: this.opmCoreloc.DrawingShapeSettings.Below
         }
     ]
 
@@ -175,14 +177,14 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             <omfx-color-picker
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.loc.ProcessTemplates.ShapeSettings.TextColor}
+                                label={this.opmCoreloc.DrawingShapeSettings.TextColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
                                 disableRgba={true}
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                             <div class={this.classes.flexDisplay}>
                                 <v-flex lg6>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.loc.ProcessTemplates.ShapeSettings.Width}
+                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
                                         onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
                                     <omfx-field-validation
                                         useValidator={this.internalValidator}
@@ -191,7 +193,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                     </omfx-field-validation>
                                 </v-flex>
                                 <v-flex lg6 class={this.classes.contentPadding}>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.loc.ProcessTemplates.ShapeSettings.Height}
+                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
                                         onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
                                     <omfx-field-validation
                                         useValidator={this.internalValidator}
@@ -204,28 +206,28 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         <v-flex lg6 class={this.classes.contentPadding}>
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.loc.ProcessTemplates.ShapeSettings.ActiveBackgroundColor}
+                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
                                 disableRgba={true}
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.loc.ProcessTemplates.ShapeSettings.ActiveBorderColor}
+                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBorderColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).activeBorderColor }}
                                 disableRgba={true}
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBorderColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.loc.ProcessTemplates.ShapeSettings.ActiveTextColor}
+                                label={this.opmCoreloc.DrawingShapeSettings.ActiveTextColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).activeTextColor }}
                                 disableRgba={true}
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                             <div class={this.classes.flexDisplay}>
                                 <v-flex lg6>
-                                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.loc.ProcessTemplates.ShapeSettings.TextPosition}
+                                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                                         onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
                                     <omfx-field-validation
                                         useValidator={this.internalValidator}
@@ -234,7 +236,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                     </omfx-field-validation>
                                 </v-flex>
                                 <v-flex lg6 class={this.classes.contentPadding}>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.loc.ProcessTemplates.ShapeSettings.FontSize}
+                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
                                         onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
                                     <omfx-field-validation
                                         useValidator={this.internalValidator}
