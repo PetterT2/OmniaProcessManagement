@@ -21,7 +21,7 @@ export class ProcessStepDesignerItemBase {
         });
     }
     public onDiscardChanges() {
-        this.currentProcessStore.actions.discardChangesProcess.dispatch().then(() => {
+        this.currentProcessStore.actions.discardChange.dispatch().then(() => {
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
