@@ -119,9 +119,6 @@ export class CurrentProcessStore extends Store {
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
-    //All the process data of current process that has been loaded 
-    private loadedProcessData: { [processStepId: string]: ProcessData } = {};
-
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
     );
@@ -146,9 +143,6 @@ export class CurrentProcessStore extends Store {
             }
 
             return this.transaction.newState(processReferenceToUse.processId, (newState) => {
-                if (newState) {
-                    this.loadedProcessData = {};
-                }
 
                 return new Promise<null>((resolve, reject) => {
                     this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
@@ -191,20 +185,16 @@ export class CurrentProcessStore extends Store {
             })
         }),
         saveState: this.action((): Promise<null> => {
-            //Get the reference data first before jump into all the async flow that could change the expected data
-            let loadedProcessData = this.loadedProcessData;
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let actionModel: ProcessActionModel = {
                         process: currentProcessReferenceData.process,
-                        processData: loadedProcessData
+                        processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
                     }
 
                     this.processService.saveCheckedOutProcess(actionModel).then(process => {
-                        //TO DO
-
                         resolve(null);
                     }).catch(reject);
                 })

@@ -38,7 +38,7 @@ export class ProcessStore extends Store {
     }
 
     public getters = {
-        getProcessReferenceData: (processReference: ProcessReference) => {
+        getProcessReferenceData: (processReference: ProcessReference): ProcessReferenceData => {
             let processCacheKey = this.getProcessCacheKey(processReference.processId);
             let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId, processReference.processDataHash);
             let process = this.processDict.state[processCacheKey];
@@ -56,7 +56,7 @@ export class ProcessStore extends Store {
                 throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.processStepId}`;
 
 
-            let processReferenceData = {
+            let processReferenceData: ProcessReferenceData = {
                 process: process,
                 currentProcessStep: processStep,
                 currentProcessData: processData,
