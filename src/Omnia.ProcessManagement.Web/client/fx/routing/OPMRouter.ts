@@ -111,7 +111,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                     }).catch(reject);
                 }
                 else {
-                    reject(`Cannot find valid ${processVersionLabels[process.versionType]}-version process for the process step with id: ${processStep.id}`)
+                    let reason = `Cannot find valid ${processVersionLabels[process.versionType]}-version process for the process step with id: ${processStep.id}`;
+                    console.warn(reason);
+                    reject(reason);
                 }
             }
         })
@@ -136,9 +138,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
                     this.navigate(process, processStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
-
-                    console.warn(`Cannot find valid ${processVersionLabels[processVersionType]}-version process for the process step with id: ${newProcessStepId}`, errMsg);
-                    reject();
+                    let reason = `Cannot find valid ${processVersionLabels[processVersionType]}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
+                    console.warn(reason);
+                    reject(reason);
                 })
             }
             else {
