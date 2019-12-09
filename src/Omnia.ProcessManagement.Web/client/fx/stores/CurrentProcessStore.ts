@@ -176,12 +176,35 @@ export class CurrentProcessStore extends Store {
                         else {
                             processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
                         }
-
+                        debugger;
                         resolve(processReferenceToUse);
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
+                debugger;
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+            })
+        }),
+        checkInProcess: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<void>((resolve, reject) => {
+                    this.processStore.actions.checkInProcess.dispatch(this.currentProcessReferenceData.state.process.opmProcessId).then(() => {
+                        resolve();
+                    }).catch(reject);
+                })
+            }).then(() => {
+                return this.actions.setProcessToShow.dispatch(null);
+            })
+        }),
+        discardChangesProcess: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<void>((resolve, reject) => {
+                    this.processStore.actions.discardChangeProcess.dispatch(this.currentProcessReferenceData.state.process.opmProcessId).then(() => {
+                        resolve();
+                    }).catch(reject);
+                })
+            }).then(() => {
+                return this.actions.setProcessToShow.dispatch(null);
             })
         }),
         saveState: this.action((): Promise<null> => {

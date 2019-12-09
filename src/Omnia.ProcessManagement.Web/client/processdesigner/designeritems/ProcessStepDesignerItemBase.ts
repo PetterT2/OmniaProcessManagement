@@ -12,7 +12,7 @@ export class ProcessStepDesignerItemBase {
 
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
-    public onSave() {
+    public onSaveAsDraft() {
         //todo
         //if (this.validateAll()) {
         //    this.editorStore.mutations.stopSavePageStateManager.commit();
@@ -24,15 +24,19 @@ export class ProcessStepDesignerItemBase {
         //    });
         //    return operationPromise;
         //}
+        console.log("Save as draft");
         return new Promise<any>(() => {
+
         });
     }
     public onDiscardChanges() {
         //todo
+        console.log("Discard changes");
         return new Promise<any>(() => {
         });
     }
     public onClose() {
+        console.log("Close");
         return new Promise<any>(() => {
         });
     }

@@ -34,7 +34,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(ProcessLibraryService) documentLibraryService: ProcessLibraryService;
+    @Inject(ProcessLibraryService) processLibraryService: ProcessLibraryService;
     @Inject(ProcessService) processService: ProcessService;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaContext) omniaContext: OmniaContext;

@@ -44,7 +44,8 @@
         Buttons: {
             DiscardChanges: string,
             Design: string,
-            Preview: string
+            Preview: string,
+            SaveAsDraft: string,
         }
     }
 }
