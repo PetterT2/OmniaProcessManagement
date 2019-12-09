@@ -54,6 +54,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
             SetOPMClusteredIndex<Process>(modelBuilder, c => new { c.Id });
             modelBuilder.Entity<Process>()
