@@ -87,7 +87,7 @@ export class ProcessStore extends Store {
             return this.processService.checkinProcess(opmProcessId).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
 
-                return null;
+                return process;
             })
         }),
         discardChangeProcess: this.action((opmProcessId: GuidValue) => {

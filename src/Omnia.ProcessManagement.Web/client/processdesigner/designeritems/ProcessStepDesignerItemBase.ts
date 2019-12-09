@@ -1,5 +1,5 @@
-﻿import { Inject, Localize,Utils as omfUtils, ServiceContainer} from '@omnia/fx';
-import { CurrentProcessStore } from '../../fx';
+﻿import { Inject, Localize, Utils as omfUtils, ServiceContainer } from '@omnia/fx';
+import { CurrentProcessStore, OPMRouter } from '../../fx';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerUtils } from '../../processdesigner/Utils';
 
@@ -15,6 +15,7 @@ export class ProcessStepDesignerItemBase {
 
     public onSaveAsDraft() {
         this.currentProcessStore.actions.checkInProcess.dispatch().then(() => {
+            OPMRouter.clearRoute();
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
@@ -22,12 +23,14 @@ export class ProcessStepDesignerItemBase {
     }
     public onDiscardChanges() {
         this.currentProcessStore.actions.discardChange.dispatch().then(() => {
+            OPMRouter.clearRoute();
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
         });
     }
     public onClose() {
+        OPMRouter.clearRoute();
         ProcessDesignerUtils.closeProcessDesigner();
         return new Promise<any>(() => {
         });
