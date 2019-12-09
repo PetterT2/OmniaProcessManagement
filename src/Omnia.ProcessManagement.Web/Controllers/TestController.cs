@@ -48,7 +48,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     throw new Exception("web url is missing");
 
                 //Saft amount of data to create 
-                if (Math.Pow(numberOfChildInEachLevel, treeLevel) * numberOfProcessToCreate > 2500) {
+                if ((Math.Pow(numberOfChildInEachLevel, treeLevel + 1) -1 ) * numberOfProcessToCreate > 2500) {
                     throw new Exception("this amount of data to create is toooo big. it could hang your web server =))");
                 }
 
