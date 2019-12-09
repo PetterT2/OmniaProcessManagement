@@ -4,4 +4,3 @@ export * from './route';
 export * from './processes';
 export * from './Enums';
 export * from './components';
-export * from './navigation';

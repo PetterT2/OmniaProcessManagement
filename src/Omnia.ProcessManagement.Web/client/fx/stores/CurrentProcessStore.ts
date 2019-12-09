@@ -3,7 +3,7 @@ import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process } from '../models';
 import { OPMUtils } from '../utils';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
@@ -166,17 +166,7 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.checkoutProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
-                        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessReference.processStepId);
-                        let processReferenceToUse: ProcessReference = null;
-
-                        if (processStep) {
-                            processReferenceToUse = { processId: process.id, processStepId: processStep.id, processDataHash: processStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-                        //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
-                        else {
-                            processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-
+                        let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
                 })
@@ -208,17 +198,7 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.discardChangeProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
-                        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessReference.processStepId);
-                        let processReferenceToUse: ProcessReference = null;
-
-                        if (processStep) {
-                            processReferenceToUse = { processId: process.id, processStepId: processStep.id, processDataHash: processStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-                        //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
-                        else {
-                            processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-
+                        let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
                 })
@@ -226,6 +206,21 @@ export class CurrentProcessStore extends Store {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         })
+    }
+
+    private prepareProcessReferenceToUse(process: Process, processStepId: GuidValue) {
+        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
+        let processReferenceToUse: ProcessReference = null;
+
+        if (processStep) {
+            processReferenceToUse = { processId: process.id, processStepId: processStep.id, opmProcessId: process.opmProcessId }
+        }
+        //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
+        else {
+            processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, opmProcessId: process.opmProcessId }
+        }
+
+        return processReferenceToUse;
     }
 
     protected onActivated() {

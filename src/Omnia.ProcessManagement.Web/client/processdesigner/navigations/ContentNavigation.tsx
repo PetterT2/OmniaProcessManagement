@@ -4,17 +4,11 @@ import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { JourneyInstance, OmniaTheming } from '@omnia/fx/ux';
-import { NodeState, ProcessReferenceData } from '../../fx/models';
 import { style } from 'typestyle';
 import { CurrentProcessStore } from '../../fx';
-import { ProcessStepNavigationNode } from '../../fx/models/navigation/ProcessStepNavigationNode';
-import { ProcessTreeNavigationComponent } from './navigationpanel/ProcessTreeNavigation';
 import { ContentNavigationStyles } from './ContentNavigation.css';
-import { navajowhite } from 'csx';
-import { ProcessDesignerStore } from '../stores';
-import { ProcessDesignerItemFactory } from '../designeritems';
-import { DisplayModes } from '../../models/processdesigner';
 import { SharePointContext } from '@omnia/fx-sp';
+import { NavigationNodeComponent } from './navigationtree/NavigationNode';
 
 
 export interface ContentNavigationProps {
@@ -36,68 +30,29 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(SharePointContext) spContext: SharePointContext;
 
-    private  teamSiteName: string = "";
-    private ensuringNavigationData: boolean = false;//true;
-    private currentProcessReference: ProcessReferenceData = null;
-    private rootNavigationNode: ProcessStepNavigationNode = null;
+    private teamSiteName: string = "";
+    private expandState: { [id: string]: boolean } = {};
+    private readyToRender = false;
 
     created() {
         if (this.spContext.pageContext) {
             this.teamSiteName = this.spContext.pageContext.web.title;
         }
-        //this.subscriptionHandler.add(this.navigationStore.mutations.addOrUpdateNodes.onCommited((nodes) => {
-        //    this.navigationNodes = this.currentNavigationStore.getters.getChildren(null);
-        //}));
-        this.initRootProcessStepNavigationNode();
     }
 
     mounted() {
         //Do not freeze the UI render when open editor. wait for 100ms before rendering the nodes in store
         setTimeout(() => {
-            this.loadNodes();
+            this.readyToRender = true;
         }, 100);
     }
-
-    loadNodes() {
-        //this.ensuringNavigationData = true;
-        //this.currentNavigationStore.mutations.resetExpandedState.commit();
-        //this.navigationStore.actions.ensureChildren.dispatch(null, 0).then(() => {
-        //    this.ensuringNavigationData = false;
-        //})
-    }
-
-    beforeDestroy() {
-        this.subscriptionHandler.unsubscribe();
-    }
-
-
-    ///**
-    // * Eventhandler for selecting app editor
-    // * @param pageType selected
-    // */
-    //private onAppSettingsSelected() {
-    //    this.editorStore.mutations.setActiveItemInEditor.commit(new AppEditorItem());
-    //}
-
-    //private onPageReportsSelected() {
-    //    this.editorStore.mutations.setActiveItemInEditor.commit(new PageReportsEditorItem());
-    //}
 
     @Emit('close')
     private onClose() {
     }
 
-    private initRootProcessStepNavigationNode() {
-        this.currentProcessReference = Utils.clone(this.currentProcessStore.getters.referenceData());
-        if (this.currentProcessReference) {
-            this.rootNavigationNode = this.currentProcessReference.currentProcessStep;
-            this.rootNavigationNode.nodeState = {
-                isExpanded: false
-            };
-        }
-    }
-
     private renderContent(h) {
+        let rootNavigationNode = this.currentProcessStore.getters.referenceData().process.rootProcessStep;
         return (
             <div class={style({ backgroundColor: this.omniaTheming.chrome.background.base })}>
                 <v-list-item dark={this.omniaTheming.chrome.dark}>
@@ -111,7 +66,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                     </div>
                 </v-list-item>
                 <div class={ContentNavigationStyles.scrollContainer}>
-                    <ProcessTreeNavigationComponent rootNavigationNode={this.rootNavigationNode}></ProcessTreeNavigationComponent>
+                    <NavigationNodeComponent expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
                 </div>
             </div>)
     }
@@ -124,14 +79,14 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     public render(h) {
         return (
             <v-skeleton-loader
-                loading={this.ensuringNavigationData}
+                loading={!this.readyToRender}
                 height="100%"
                 type="list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar"
             >
                 <div>
-                    {this.renderContent(h)}
+                    {this.readyToRender && this.renderContent(h)}
                 </div>
-            </v-skeleton-loader>                        
+            </v-skeleton-loader>
         )
     }
 }

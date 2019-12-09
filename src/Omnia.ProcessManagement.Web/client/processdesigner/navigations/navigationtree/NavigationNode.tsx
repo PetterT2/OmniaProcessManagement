@@ -6,7 +6,7 @@ import 'vue-tsx-support/enable-check';
 import { Utils } from "@omnia/fx";
 import './NavigationNode.css';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import {  NodeState, ProcessStepNavigationNode } from '../../../fx/models';
+import { ProcessStep } from '../../../fx/models';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { NavigationNodeStyles } from '../../../fx/models/styles';
@@ -19,7 +19,8 @@ import { DisplayModes } from '../../../models/processdesigner';
 
 export interface NavigationNodeComponentProps {
     level: number;
-    navigationNode: ProcessStepNavigationNode;
+    processStep: ProcessStep;
+    expandState: { [id: string]: boolean }
 }
 
 export interface NavigationNodeComponentEvents {
@@ -31,7 +32,8 @@ export interface NavigationNodeComponentEvents {
 export class NavigationNodeComponent extends tsx.Component<NavigationNodeComponentProps, NavigationNodeComponentEvents>
 {
     @Prop() private level: number;
-    @Prop() private navigationNode: ProcessStepNavigationNode;
+    @Prop() private processStep: ProcessStep;
+    @Prop() private expandState: { [id: string]: boolean };
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -39,27 +41,12 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
-
-    private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private navigationNodeStyles = StyleFlow.use(NavigationNodeStyles);
 
     private isExpanded: boolean = false;
 
-    public created() {
-        if (this.navigationNode) {
-            this.isExpanded = this.navigationNode.nodeState.isExpanded;
-        }
-    }
-
-    public mounted() {
-    }
-
-   
-    public beforeDestroy() {
-        if (this.subscriptionHandler)
-            this.subscriptionHandler.unsubscribe();
-        //window.removeEventListener('keydown', this.onDialogEscape);
-        //window.removeEventListener('keydown', this.onCloseMoveNode);
+    created() {
+        this.isExpanded = this.expandState[this.processStep.id.toString().toLowerCase()] || false;
     }
 
     /**
@@ -67,100 +54,46 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
      * @param e
      * @param navigateToNode
      */
-    public onHeaderClick(e: Event, navigateToNode: boolean, handleExpandNode: boolean) {
+    onHeaderClick(e: Event, navigateToNode: boolean, handleExpandNode: boolean) {
         e.stopPropagation();
         if (handleExpandNode) {
-            this.navigationNode.nodeState.isExpanded = !this.navigationNode.nodeState.isExpanded;
-            this.isExpanded = this.navigationNode.nodeState.isExpanded;
+            this.isExpanded = !this.isExpanded;
+            this.expandState[this.processStep.id.toString().toLowerCase()] = this.isExpanded;
         }
 
         if (navigateToNode) {
-            OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.navigationNode).then(() => {                
+            OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
                 this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
             });
         }
-    }
-   
-
-    //todo
-    //private onAddPage() {
-    //    let context: PageContextInfo = {
-    //        parentNavigationNode: this.navigationNode,
-    //        publishingAppId: this.wcmContext.publishingAppId.toString()
-    //    }
-    //    PublishingAppTopics.showCreateLayoutItemPanelTopic.publish({
-    //        creationType: CreateDialogType.createPage,
-    //        context: context
-    //    });
-    //}
-
-   
-    private onSaveNavigation() {
-    }
-    
-    onDialogEscape(e) {
-        if (e.keyCode === 27) {
-            //window.removeEventListener('keydown', this.onCloseEditNavigationDialog);
-            //this.onCloseEditNavigationDialog();
-        }
-        
     }
 
     /**
      * Renders the child nodes
      * @param h
      */
-    private renderChildren(h): Array<JSX.Element> {
+    renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.navigationNode.processSteps.forEach(childProcessStep => {
-            let childNavigationNode: ProcessStepNavigationNode = childProcessStep;
-            childNavigationNode.nodeState = {
-                isExpanded: false
-            }
+        this.processStep.processSteps.forEach(childProcessStep => {
             result.push(
                 <NavigationNodeComponent
+                    expandState={this.expandState}
                     level={this.level + 1}
-                    navigationNode={childNavigationNode}
-                >
+                    processStep={childProcessStep}>
                 </NavigationNodeComponent>
             )
         });
         return result;
     }
 
-    private transformVSlot(slot) {
-        let vSlot = [];
-        Object.keys(slot).forEach(name => {
-            let proxy = false;
-            let slotName = name;
-            if (slotName.indexOf("proxy-") === 0) {
-                proxy = true;
-                slotName = slotName.replace("proxy-", "");
-            }
-            vSlot.push(proxy ? {
-                'key': slotName,
-                'fn': slot[name],
-                'proxy': true
-            } : {
-                    'key': slotName,
-                    'fn': slot[name]
-                })
-        })
-        return {
-            scopedSlots: (this as any)._u(vSlot)
-        };
-    }
-
     /**
      * Render 
      * @param h
      */
-    public render(h) {
+    render(h) {
         let collapsedStyle = "";
         let expandedIconStyle = "";
-        if (!this.navigationNode) {
-            return <div />
-        }
+
         if (this.isExpanded) {
             expandedIconStyle = this.navigationNodeStyles.leftIconExpanded;
         }
@@ -168,15 +101,11 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             collapsedStyle = this.navigationNodeStyles.contentHide;
         }
 
-        //let selectedNode = this.currentNavigationStore.getters.selectedNode();
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep;
 
-        //let isSelectedNode = (this.navigationNode && selectedNode && selectedNode.id === this.navigationNode.id);
-        //if (this.editorStore.item.state as LinkEditorItem && (this.editorStore.item.state as LinkEditorItem).linkItem) {
-        //    isSelectedNode = (this.editorStore.item.state as LinkEditorItem).navigationNode.id === this.navigationNode.id;
-        //}
+        let isSelectedNode = (currentProcessStep == this.processStep);
 
-        let hasChildren: boolean = this.navigationNode.processSteps && this.navigationNode.processSteps.length > 0;
-        let isSelectedNode: boolean = false; //todo
+        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
 
         return (
             <div class={this.navigationNodeStyles.wrapper}>
@@ -194,7 +123,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-btn>
                     </div>
-                    <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.multilingualStore.getters.stringValue(this.navigationNode.title)}</div>
+                    <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.multilingualStore.getters.stringValue(this.processStep.title)}</div>
                     <div class={[this.navigationNodeStyles.actionBar]} v-show={isSelectedNode}>
                         {
                             //<ActionsMenuComponent
@@ -208,13 +137,13 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                         }
                     </div>
                 </div>
-                <div class={[this.navigationNodeStyles.content, collapsedStyle]}>
-                    {
-                        this.isExpanded && this.renderChildren(h)
-                    }
-                </div>
                 {
-                    //this.renderEditNavigationDialog(h)
+                    hasChildren &&
+                    <div class={[this.navigationNodeStyles.content, collapsedStyle]}>
+                        {
+                            this.isExpanded && this.renderChildren(h)
+                        }
+                    </div>
                 }
             </div>
         )

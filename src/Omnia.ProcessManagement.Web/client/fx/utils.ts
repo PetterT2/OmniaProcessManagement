@@ -25,8 +25,7 @@ export module OPMUtils {
             processReference = {
                 opmProcessId: process.opmProcessId,
                 processId: process.id,
-                processStepId: processStepId,
-                processDataHash: processStep.processDataHash
+                processStepId: processStepId
             }
         }
         return processReference;
