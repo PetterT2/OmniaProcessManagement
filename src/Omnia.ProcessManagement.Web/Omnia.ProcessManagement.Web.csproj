@@ -163,8 +163,6 @@
     <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessTemplateStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessTypeStore.ts" />
-    <TypeScriptCompile Remove="client\fx\models\navigation\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\navigation\NodeState.ts" />
     <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
     <TypeScriptCompile Remove="client\models\filters\DraftProcess.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterAndSortInfo.ts" />
@@ -271,7 +269,6 @@
     <TypeScriptCompile Remove="client\processdesigner\factory\ActionButtonIds.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\ContentNavigation.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\ContentNavigation.tsx" />
-    <TypeScriptCompile Remove="client\processdesigner\navigations\navigationpanel\ProcessTreeNavigation.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\NavigationNode.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\index - Copy.ts" />

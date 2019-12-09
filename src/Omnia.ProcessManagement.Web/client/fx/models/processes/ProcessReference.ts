@@ -4,5 +4,4 @@ export interface ProcessReference {
     processId: GuidValue;
     processStepId: GuidValue;
     opmProcessId: GuidValue;
-    processDataHash: string;
 }

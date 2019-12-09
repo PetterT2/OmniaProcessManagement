@@ -41,8 +41,7 @@ export class TempTestComponent extends VueComponentBase implements IWebComponent
         this.currentProcessStore.actions.setProcessToShow.dispatch({
             processId: 'decd998e-1483-4241-83db-22e01fb9ffce',
             processStepId: '4e7ff975-6638-432b-9299-8c5333ad38c2',
-            opmProcessId: '163a63bd-7be8-4347-a382-42fd2550aac0',
-            processDataHash: 'hihi'
+            opmProcessId: '163a63bd-7be8-4347-a382-42fd2550aac0'
         }).then(() => {
             console.log('test3');
             ProcessDesignerUtils.openProcessDesigner();
