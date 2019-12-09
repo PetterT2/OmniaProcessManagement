@@ -38,7 +38,6 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
 
     init() {
         this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
-        debugger;
     }
 
     beforeDestroy() {

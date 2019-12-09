@@ -176,12 +176,10 @@ export class CurrentProcessStore extends Store {
                         else {
                             processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
                         }
-                        debugger;
                         resolve(processReferenceToUse);
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                debugger;
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),

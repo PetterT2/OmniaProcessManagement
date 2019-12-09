@@ -78,7 +78,6 @@ export class ProcessStore extends Store {
         }),
         checkoutProcess: this.action((opmProcessId: GuidValue) => {
             return this.processService.checkoutProcess(opmProcessId).then((process) => {
-                debugger;
                 this.internalMutations.addOrUpdateProcess(process);
 
                 return process;

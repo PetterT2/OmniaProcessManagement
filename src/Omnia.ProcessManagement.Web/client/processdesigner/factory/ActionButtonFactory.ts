@@ -63,7 +63,7 @@ export class ActionButtonFactory {
             loading: false,
             disabled: false,
             id: ActionButtonIds.save,
-            actionCallback: () => { return this.processDesignerStore.actions.showDesigner.dispatch(false) },
+            actionCallback: editorItem.onClose.bind(editorItem),
             highLighted: highLighted,
             icon: "",
             title: this.omniaLoc.Common.Buttons.Close
