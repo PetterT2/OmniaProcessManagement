@@ -29,6 +29,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTemplates
             return models;
         }
 
+        public async ValueTask<ProcessTemplate> GetByIdAsync(Guid id)
+        {
+            var entity = await _dbSet.Where(d => d.Id == id && d.DeletedAt == null).FirstOrDefaultAsync();
+            return ParseEntityToModel(entity);
+        }
+
         public async ValueTask<ProcessTemplate> AddOrUpdateAsync(ProcessTemplate processTemplate)
         {
             var entity = ParseModelToEntity(processTemplate);

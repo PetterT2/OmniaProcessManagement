@@ -40,6 +40,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpGet, Route("{id:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<ProcessTemplate>> GetAllAsync(Guid id)
+        {
+            try
+            {
+                var processTemplate = await ProcessTemplateService.GetByIdAsync(id);
+                return processTemplate.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<ProcessTemplate>(ex);
+            }
+        }
+
 
         [HttpPost, Route("addorupdate")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]

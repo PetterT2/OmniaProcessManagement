@@ -8,11 +8,11 @@ import { CurrentProcessStore } from '../../fx';
 import { IProcessDesignerItem, ActionItem, DisplayModes, AddShapeStep } from '../../models/processdesigner';
 import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition } from '../../fx/models';
+import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition, ShapeDefinition } from '../../fx/models';
 import { ProcessDesignerLocalization } from '../loc/localize';
 
 @Injectable({
-    onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
+    onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 
 export class AddShapeWizardStore extends Store {
@@ -22,8 +22,9 @@ export class AddShapeWizardStore extends Store {
      * State
      */
     wizardSteps = this.state<Array<AddShapeStep>>(null);
-    currentStep = this.state<AddShapeStep>(null);
-	currentStepIndex = this.state<number>(1);
+    //currentStep = this.state<AddShapeStep>(null);
+    currentStepIndex = this.state<number>(1);
+    selectedShape = this.state<ShapeDefinition>(null);
     
 
     constructor() {
@@ -41,6 +42,8 @@ export class AddShapeWizardStore extends Store {
                 title: this.pdLoc.ShapeType
             }
         ]);
+        this.currentStepIndex.mutate(1);
+        console.log('shape store init');
     }
 
     onDisposing() {
@@ -56,23 +59,25 @@ export class AddShapeWizardStore extends Store {
      * Adds an item to the layout.
      */
     mutations = {
-       
+        setSelectedShape: this.mutation((shapeDefinition: ShapeDefinition) => {
+            this.selectedShape.mutate(shapeDefinition);
+        })
     }
 
     actions = {
         goToNextStep: this.action(() => {
             return new Promise<null>((resolve, reject) => {
-                var idx = this.currentStepIndex.state;
-				this.currentStepIndex.mutate(idx++);
-				this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state]);
+                var stepperIndex = this.currentStepIndex.state;
+                this.currentStepIndex.mutate(stepperIndex + 1);
+				//this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state - 1]);
 				resolve();
             });
         }),
         goToPreviousStep: this.action(() => {
             return new Promise<null>((resolve, reject) => {
-				var idx = this.currentStepIndex.state;
-				this.currentStepIndex.mutate(idx--);
-				this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state]);
+				var stepperIndex = this.currentStepIndex.state;
+                this.currentStepIndex.mutate(stepperIndex - 1);
+				//this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state - 1]);
 				resolve();
             });
         })

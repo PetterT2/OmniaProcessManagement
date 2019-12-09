@@ -1,7 +1,7 @@
 ﻿import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 
-import { Inject, Utils } from '@omnia/fx';
+import { Inject, Utils, Localize } from '@omnia/fx';
 import { OmniaTheming, Router } from "@omnia/fx/ux"
 import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessDesignerStore } from '../stores';
@@ -10,6 +10,8 @@ import { ActionItem, ActionItemType, ActionCustomButton, ActionButton } from '..
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
 import { ActionToolbarStyles } from './ActionToolbar.css';
 import { DisplaySettingsToolbarComponent } from './DisplaySettingsToolbar';
+import { Localization } from '@omnia/tooling-composers';
+import { ProcessDesignerLocalization } from '../loc/localize';
 
 export interface ActionToolbarProps {
 }
@@ -20,6 +22,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) private omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     public mounted() {
     }
@@ -104,10 +107,9 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             }
         }
 
-        result.push(<div onClick={() => {
-            console.log('hi');
+        result.push(<v-btn onClick={() => {
             this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-        }}>Shape</div>);//todo
+        }}>{this.pdLoc.AddShape}</v-btn>);
         result.push(<v-spacer></v-spacer>);
         result.push(
             <div class={[ActionToolbarStyles.actionButtons]}>

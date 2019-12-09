@@ -17,5 +17,7 @@ namespace Omnia.ProcessManagement.Models.Shapes
         public virtual ShapeDefinitionTypes Type { get; set; } = ShapeDefinitionTypes.Undefined;
 
         public MultilingualString Title { get; set; }
+
+        public Guid Id { get; set; }
     }
 }

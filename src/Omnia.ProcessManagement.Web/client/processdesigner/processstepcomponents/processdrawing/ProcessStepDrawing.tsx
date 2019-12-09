@@ -15,6 +15,7 @@ import { setTimeout } from 'timers';
 import { Watch } from 'vue-property-decorator';
 import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import { ProcessDesignerLocalization } from '../../loc/localize';
+import { AddShapeOptions } from '../../../models/processdesigner';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -54,6 +55,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     init() {
         this.initDrawingCanvas();
+        this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
+            console.log('added shape test');
+            this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
+        });
     }
 
     private onCanvasDefinitionChanged() {
@@ -89,7 +94,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             } as DrawingShapeDefinition;
 
             myfirstShape.shapeTemplate = ShapeTemplatesConstants.Circle;
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, myfirstShape, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
+
+            //this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, myfirstShape, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
         }
     }
 
@@ -127,7 +133,9 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (!this.processDesignerStore.panels.addShapePanel.state.show) {
             return null;
         }
-        return <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>;
+        else {
+            return <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>;
+        }
     }
     private closeAddShapePanel() {
         this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(false);

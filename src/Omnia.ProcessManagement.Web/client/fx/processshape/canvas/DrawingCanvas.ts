@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition } from '../../models';
 
 export class DrawingCanvas implements CanvasDefinition {
@@ -120,7 +120,7 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number, processStepId?: GuidValue, customLink?: string) {
         if (!definition.shapeTemplate)
             return;
         let position = this.correctDefinition(definition, left, top);
@@ -135,6 +135,12 @@ export class DrawingCanvas implements CanvasDefinition {
                 },
                 title: title
             };
+            if (type == DrawingShapeTypes.ProcessStep) {
+                (drawingShape as DrawingProcessStepShape).processStepId = processStepId;
+            }
+            if (type == DrawingShapeTypes.CustomLink) {
+                (drawingShape as DrawingCustomLinkShape).link = customLink;
+            }
             this.addShapeFromTemplateClassName(drawingShape, isActive, position.left, position.top);
         }
     }

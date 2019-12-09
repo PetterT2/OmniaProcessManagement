@@ -41,6 +41,19 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Properties: "Properties",
             Tasks: "Tasks"
         },
+        DrawingShapeSettings: {
+            TextColor: "Text Color",
+            ActiveBackgroundColor: "Active Background Color",
+            ActiveBorderColor: "Active Border Color",
+            ActiveTextColor: "Active Text Color",
+            Width: "Width",
+            Height: "Height",
+            TextPosition: "Text Position",
+            FontSize: "Font Size",
+            Above: "Above",
+            Center: "Center",
+            Below: "Below"
+        },
         Buttons: {
             DiscardChanges: "Discard changes",
             Design: "Design",

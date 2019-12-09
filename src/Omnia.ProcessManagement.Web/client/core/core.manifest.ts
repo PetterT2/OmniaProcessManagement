@@ -9,4 +9,11 @@ Composer
             "./loc/**/*.js",
             "./messaging/InternalOPMTopics.js"
         ]
-    })
+    });
+//Composer
+//    .registerManifest(OPMResourceManifests.Core, "omnia.pm.core.css")
+//    .registerResources({
+//        resourcePaths: [
+//            "./styles/**/*.js",
+//        ]
+//    })

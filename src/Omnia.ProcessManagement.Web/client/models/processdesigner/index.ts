@@ -7,3 +7,4 @@ export * from './IProcessDesignerItem';
 export * from './DisplayBreakPoint';
 export * from './AddShapeStep';
 export * from './ShapeDefinitionSelection';
+export * from './AddShapeOptions';
