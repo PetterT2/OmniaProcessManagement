@@ -236,7 +236,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     private editProcess(process: DraftProcess) {
         OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.normal)
             .then(() => {
-                this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
+                this.currentProcessStore.actions.checkOut.dispatch().then(() => {
                     ProcessDesignerUtils.openProcessDesigner();
                     this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                 })
