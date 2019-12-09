@@ -62,9 +62,19 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         if (navigateToNode) {
-            OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
-                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-            });
+            if (this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser) {
+                //Ensure savestate before navigating to another process step
+                this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                    OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
+                        this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                    });
+                })
+            }
+            else {
+                OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                });
+            }
         }
     }
 
@@ -123,7 +133,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-btn>
                     </div>
-                    <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.multilingualStore.getters.stringValue(this.processStep.title)}</div>
+                    <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
                     <div class={[this.navigationNodeStyles.actionBar]} v-show={isSelectedNode}>
                         {
                             //<ActionsMenuComponent

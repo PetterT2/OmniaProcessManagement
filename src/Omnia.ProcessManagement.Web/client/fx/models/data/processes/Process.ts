@@ -10,4 +10,7 @@ export interface Process {
     versionType: ProcessVersionType;
     siteId: GuidValue;
     webId: GuidValue;
+
+    //client-side
+    readonly isCheckedOutByCurrentUser: boolean;
 }

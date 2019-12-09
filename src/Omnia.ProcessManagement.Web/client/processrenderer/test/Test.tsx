@@ -23,6 +23,7 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTemplateId: null,
                 title: { "en-us": "Process A", isMultilingualString: true }
             },
+            isCheckedOutByCurrentUser: false,
             checkedOutBy: null,
             siteId: null,
             webId: null
@@ -40,6 +41,7 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTemplateId: null,
                 title: { "en-us": "Process B", isMultilingualString: true }
             },
+            isCheckedOutByCurrentUser: false,
             checkedOutBy: null,
             siteId: null,
             webId: null

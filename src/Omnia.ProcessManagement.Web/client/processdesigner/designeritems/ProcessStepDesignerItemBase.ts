@@ -14,7 +14,7 @@ export class ProcessStepDesignerItemBase {
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
     public onSaveAsDraft() {
-        this.currentProcessStore.actions.checkInProcess.dispatch().then(() => {
+        this.currentProcessStore.actions.checkIn.dispatch().then(() => {
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
