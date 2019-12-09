@@ -7,7 +7,7 @@ export interface IProcessDesignerItem {
     tabs: Array<TabRegistration>,
     title: string,
     onActivation();
-    onSave<ItemType>(): Promise<ItemType>;
+    onSaveAsDraft<ItemType>(): Promise<ItemType>;
     onDiscardChanges<ItemType>(): Promise<ItemType>;
     onClose<ItemType>(): Promise<ItemType>;
     //onCheckOut<ItemType>(): Promise<ItemType>;

@@ -1,4 +1,4 @@
-﻿import { MultilingualString } from '@omnia/fx-models';
+﻿import { MultilingualString, GuidValue, Guid } from '@omnia/fx-models';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { DrawingShapeDefinition } from './DrawingShapeDefinition';
 import { ShapeTemplatesConstants } from '../../../constants';
@@ -9,6 +9,7 @@ export enum ShapeDefinitionTypes {
 }
 
 export interface ShapeDefinition {
+    id: GuidValue;//todo
     type: ShapeDefinitionTypes;
     title: MultilingualString;
 
@@ -24,7 +25,8 @@ export const ShapeDefinitionFactory = {
     createDefaultProcessTemplate(theming: OmniaTheming, type?: ShapeDefinitionTypes): ShapeDefinition {
         let shapeDefinition: ShapeDefinition = {
             type: type ? type : ShapeDefinitionTypes.Drawing,
-            title: { isMultilingualString: true }
+            title: { isMultilingualString: true },
+            id: Guid.newGuid()
         } as ShapeDefinition
 
         if (shapeDefinition.type == ShapeDefinitionTypes.Drawing) {

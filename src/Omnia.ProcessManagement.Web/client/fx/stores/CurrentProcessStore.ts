@@ -174,6 +174,17 @@ export class CurrentProcessStore extends Store {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
+        checkInProcess: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<void>((resolve, reject) => {
+                    this.processStore.actions.checkInProcess.dispatch(this.currentProcessReferenceData.state.process.opmProcessId).then(() => {
+                        resolve();
+                    }).catch(reject);
+                })
+            }).then(() => {
+                return this.actions.setProcessToShow.dispatch(null);
+            })
+        }),
         saveState: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {

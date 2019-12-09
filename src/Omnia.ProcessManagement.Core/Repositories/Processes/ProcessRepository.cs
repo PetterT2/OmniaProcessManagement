@@ -415,7 +415,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                        .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Draft)
                        .SingleOrDefaultAsync();
 
-            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, false);
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
             if (checkedOutProcessWithProcessDataIdHash == null)
             {

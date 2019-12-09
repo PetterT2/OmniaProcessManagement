@@ -27,6 +27,18 @@ export class ProcessTemplateService {
         });
     }
 
+    public getProcessTemplateById = (id: GuidValue) => {
+        return new Promise<ProcessTemplate>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessTemplate>>('/api/processtemplates/' + id).then(response => {
+                if (response.data.success) {
+                    this.generateDocumentTemplatesMultilingualText([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
     public addOrUpdateProcessTemplate = (processTemplate: ProcessTemplate) => {
         return new Promise<ProcessTemplate>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<ProcessTemplate>>('/api/processtemplates/addorupdate', processTemplate).then(response => {

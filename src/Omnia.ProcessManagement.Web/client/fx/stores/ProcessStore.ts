@@ -94,7 +94,7 @@ export class ProcessStore extends Store {
             return this.processService.discardChangeProcess(opmProcessId).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
 
-                return null;
+                return process;
             })
         }),
         saveCheckedOutProcess: this.action((actionModel: ProcessActionModel) => {

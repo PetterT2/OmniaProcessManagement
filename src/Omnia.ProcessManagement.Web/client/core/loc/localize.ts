@@ -41,10 +41,24 @@
             Tasks: string,
             Properties: string
         },
+        DrawingShapeSettings: {
+            TextColor: string,
+            ActiveBackgroundColor: string,
+            ActiveBorderColor: string,
+            ActiveTextColor: string,
+            Width: string,
+            Height: string,
+            TextPosition: string,
+            FontSize: string,
+            Above: string,
+            Center: string,
+            Below: string
+        },
         Buttons: {
             DiscardChanges: string,
             Design: string,
-            Preview: string
+            Preview: string,
+            SaveAsDraft: string,
         }
     }
 }

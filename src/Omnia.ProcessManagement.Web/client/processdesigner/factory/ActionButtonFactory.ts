@@ -29,16 +29,16 @@ export class ActionButtonFactory {
         } as ActionButton
     }
 
-    static saveButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
+    static saveAsDraftButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
         return {
             type: ActionItemType.Button,
             loading: false,
             disabled: false,
             id: ActionButtonIds.save,
-            actionCallback: editorItem.onSave.bind(editorItem),
+            actionCallback: editorItem.onSaveAsDraft.bind(editorItem),
             highLighted: highLighted,
             icon: "",
-            title: this.omniaLoc.Common.Buttons.Save,
+            title: this.opmCoreLoc.Buttons.SaveAsDraft,
             visibilityCallBack: () => { return true; }
         } as ActionButton
     }
@@ -63,7 +63,7 @@ export class ActionButtonFactory {
             loading: false,
             disabled: false,
             id: ActionButtonIds.save,
-            actionCallback: () => { return this.processDesignerStore.actions.showDesigner.dispatch(false) },
+            actionCallback: editorItem.onClose.bind(editorItem),
             highLighted: highLighted,
             icon: "",
             title: this.omniaLoc.Common.Buttons.Close
@@ -87,7 +87,7 @@ export class ActionButtonFactory {
     static createDefaultCheckoutedButtons(editorItem: ProcessStepDesignerItemBase): Array<ActionItem> {
         return [
             this.discardChangesButton(editorItem, false),
-            this.saveButton(editorItem, true),
+            this.saveAsDraftButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]
     }

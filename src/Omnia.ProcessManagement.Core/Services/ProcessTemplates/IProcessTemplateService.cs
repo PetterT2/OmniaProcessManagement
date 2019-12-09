@@ -11,6 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTemplates
     public interface IProcessTemplateService
     {
         ValueTask<List<ProcessTemplate>> GetAllAsync();
+        ValueTask<ProcessTemplate> GetByIdAsync(Guid id);
         ValueTask<ProcessTemplate> AddOrUpdateAsync(ProcessTemplate processTemplate);
         ValueTask DeleteAsync(Guid id);
     }

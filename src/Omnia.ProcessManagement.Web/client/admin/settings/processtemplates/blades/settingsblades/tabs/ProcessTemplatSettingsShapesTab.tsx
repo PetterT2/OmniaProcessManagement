@@ -7,6 +7,7 @@ import { OPMAdminLocalization } from '../../../../../loc/localize';
 import { ProcessTemplatesJourneyBladeIds } from '../../../ProcessTemplatesJourneyConstants';
 import { ProcessTemplateJourneyStore } from '../../../store';
 import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, ShapeDefinitionFactory } from '../../../../../../fx/models';
+import { Guid } from '@omnia/fx-models';
 
 interface ProcessTemplatSettingsShapesTabProps {
     journey: () => JourneyInstance;

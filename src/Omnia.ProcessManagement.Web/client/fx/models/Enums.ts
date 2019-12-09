@@ -22,4 +22,9 @@
             Number = 2
         }
     }
+    export enum ShapeTypes {
+        None = 0,
+        ProcessStep = 1,
+        Link = 2
+    }
 }
