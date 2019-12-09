@@ -37,7 +37,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
-            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId);
+            var process = await ProcessRepository.DiscardChangeProcessAsync(opmProcessId);
             return process;
         }
 
