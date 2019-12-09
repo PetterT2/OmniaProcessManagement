@@ -3,12 +3,37 @@
     export interface locInterface {
         Common: {
             NoDraftItemToShow: string,
+            Yes: string,
+            No: string
+        },
+        ProcessLibrarySettings: {
+            Tabs: {
+                General: string,
+                Display: string,
+                Drafts: string,
+                Published: string
+            },
+            Title: string,
+            DefaultTab: string,
+            HideTasksTab: string,
+            DisplayColumnsInPublishedView: string,
+            DisplayColumnsInDraftView: string,
+            DefaultOrderingField: string,
+            Column: string,
+            ShowSearchBox: string,
+            PageSize: string,
+            Paging: string
         },
         Filter: {
             FilterBy: string,
             ClearFilter: string,
             ClearAll: string,
-            ApplyFilter: string
+            ApplyFilter: string,
+            Empty: string
+        },
+        PagingType: {
+            NoPaging: string,
+            Classic: string
         },
         ViewTabs: {
             Drafts: string,
@@ -27,6 +52,9 @@
             DeleteDraft: string
         },
         SortText: {
+            Direction: string,
+            Ascending: string,
+            Descending: string,
             TextFieldAscending: string,
             TextFieldDescending: string,
             NumberFieldAscending: string,

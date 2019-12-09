@@ -16,7 +16,6 @@ using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
-using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
@@ -182,11 +181,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
             }
 
-            checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
-            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
-            checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
-            checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
-
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
 
@@ -194,6 +188,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             UpdateProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
             RemoveOldProcessData(actionModel.Process.Id, existingProcessDataDict, usingProcessDataIdHashSet);
+
+            checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
+            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
+            checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
+            checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
 
             await DbContext.SaveChangesAsync();
 
@@ -563,6 +562,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var tableName = nameof(DbContext.ProcessData);
             var processStepIdColumnName = nameof(Entities.Processes.ProcessData.ProcessStepId);
             var processIdColumnName = nameof(Entities.Processes.ProcessData.ProcessId);
+            var referenceProcessStepIdsColumnName = nameof(Entities.Processes.ProcessData.ReferenceProcessStepIds);
             var jsonValueColumnName = nameof(Entities.Processes.ProcessData.JsonValue);
             var hashColumnName = nameof(Entities.Processes.ProcessData.Hash);
             var createdAtColumnName = nameof(Entities.Processes.ProcessData.CreatedAt);
@@ -572,7 +572,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
 
             #region SQL
-            return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{processStepId}', '{newProcessId}', pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processStepIdColumnName} = '{processStepId}' AND {processIdColumnName} = '{oldProcessId}'";
+            return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {referenceProcessStepIdsColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{processStepId}', '{newProcessId}', pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{referenceProcessStepIdsColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processStepIdColumnName} = '{processStepId}' AND {processIdColumnName} = '{oldProcessId}'";
             #endregion
         }
 

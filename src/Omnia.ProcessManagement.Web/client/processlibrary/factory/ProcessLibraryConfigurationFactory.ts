@@ -14,16 +14,18 @@ export const ProcessLibraryConfigurationFactory = {
                     draftTabDisplaySettings: {
                         pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
                         itemLimit: 0,
-                        orderDirection: Enums.ProcessViewEnums.OrderDirection.Ascending,
+                        orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
                         defaultOrderingFieldName: LibrarySystemFieldsConstants.Title,
-                        selectedFields: ProcessLibraryConfigurationFactory.getDefaultDraftDisplayFields()
+                        selectedFields: ProcessLibraryConfigurationFactory.getDefaultDraftDisplayFields(),
+                        showSearchBox: true
                     },
                     publishedTabDisplaySettings: {
                         pagingType: Enums.ProcessViewEnums.PagingType.Classic,
                         itemLimit: 30,
                         orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
                         defaultOrderingFieldName: "",
-                        selectedFields: ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields()
+                        selectedFields: ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields(),
+                        showSearchBox: true
                     },
                 }
             } as any
@@ -38,7 +40,8 @@ export const ProcessLibraryConfigurationFactory = {
     },
     getDefaultDraftDisplayFields() {
         return [
-
+            LibrarySystemFieldsConstants.Title,
+            LibrarySystemFieldsConstants.Menu
         ]
     }
 }

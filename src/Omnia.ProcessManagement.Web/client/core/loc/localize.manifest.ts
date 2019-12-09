@@ -5,11 +5,14 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
     .registerLocalization()
     .namespace(OPMCoreLocalization.namespace)
     .add<OPMCoreLocalization.locInterface>({
+        Common: {
+            SearchBoxPlaceholder: "Search"
+        },
         Features: {
             ProcessLibrary: {
                 Category: "Process Management",
                 Description: "Creates a library to manage process in the site.",
-                Title: "Processes"
+                Title: "Processes Library"
             },
             ProcessManagement: {
                 Category: "Tenant",
@@ -19,7 +22,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         },
         Blocks: {
             ProcessLibrary: {
-                Title: "Processes",
+                Title: "Processes Library",
                 Description: "Add this to a site where you want to work with processes."
             },
             BlockProcessRenderer: {
@@ -31,6 +34,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Process: "Process"
         },
         Columns: {
+            ProcessMenu: "Process Menu",
             Title: "Title"
         },
         Process: {

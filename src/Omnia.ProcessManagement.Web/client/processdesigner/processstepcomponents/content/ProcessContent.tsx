@@ -4,7 +4,10 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
-import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
+import { ProcessReferenceData } from '../../../fx/models';
+import {
+    OmniaTheming, VueComponentBase, RichTextEditorExtension
+} from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 
 export class ProcessContentTabRenderer extends TabRenderer {
@@ -19,39 +22,38 @@ export interface ProcessDrawingProps {
 @Component
 export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>
 {
-    //@Prop() public callerEditorStore?: EditorStore;
-
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
+    private editContentTimeout = null;
+    private extensions: Array<RichTextEditorExtension> = [];
     private isEditMode: boolean = false;
+    private content: string = "";
+    private currentProcessReferenceData: ProcessReferenceData = null;
 
     created() {
         this.init();
     }
 
     init() {
-        //todo
-        //if (this.callerEditorStore) {
-        //    this.callerEditorStore = this.editorStore;
-        //    this.callerEditorStore.mutations.initFormValidator.commit(this);
-        //}
-    }
-
-    mounted() {
-        //todo
-        //this.$nextTick(function () {
-        //    setTimeout(() => {
-        //        if (this.editorStore.errorTabIndex.state > -1)
-        //            this.editorStore.formValidator.validateAll();
-        //    }, 1000);
-        //});
+        this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
+        //this.currentProcessStore.actions.saveState.dispatch();
     }
 
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
+    }
+
+    onContentChanged(content) {
+        this.currentProcessReferenceData.currentProcessData.content = content;
+        if (this.editContentTimeout) {
+            window.clearTimeout(this.editContentTimeout);
+        }
+        this.editContentTimeout = window.setTimeout(() => {
+            this.currentProcessStore.actions.saveState.dispatch();
+        }, 1000);
     }
 
     /**
@@ -61,7 +63,12 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                Content tab
+                <omfx-multilingual-input
+                    multipleLines={true}
+                    richText={true}
+                    model={this.currentProcessReferenceData.currentProcessData.content}
+                    onModelChange={(content) => { this.onContentChanged(content); }}
+                    forceTenantLanguages></omfx-multilingual-input>
             </v-card-text>
         </v-card>)
     }

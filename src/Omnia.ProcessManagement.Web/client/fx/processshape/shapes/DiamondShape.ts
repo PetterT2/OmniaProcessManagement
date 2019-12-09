@@ -23,7 +23,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
             if (rectNode)
                 this.fabricShapes.push(new FabricRectShape(this.definition, isActive, Object.assign({ selectable: selectable }, rectNode.properties || {})));
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties) || {}, title));
         }
         else if (this.definition) {
             let diamondWidth = Math.floor(Math.sqrt(Math.pow(this.definition.width, 2) / 2));
@@ -45,7 +45,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
                     break;
             }
             this.fabricShapes.push(new FabricRectShape(this.definition, isActive, { left: recleft, top: rectop, angle: 45, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: selectable }, title));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

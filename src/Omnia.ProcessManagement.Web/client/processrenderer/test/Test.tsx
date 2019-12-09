@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, ServiceContainer, OmniaContext } from "@omnia/fx";
 import { IOmniaContext } from '@omnia/fx-models';
 import { OPMRouter, CurrentProcessStore } from '../../fx';
-import { ViewOptions, Process, ProcessVersionType } from '../../fx/models';
+import { RouteOptions, Process, ProcessVersionType } from '../../fx/models';
 
 @Component
 export class TestComponent extends Vue implements IWebComponentInstance {
@@ -63,8 +63,8 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                         return (
                             <div>
                                 <h2>{process.rootProcessStep.title['en-us']}</h2>
-                                <v-btn onClick={() => { OPMRouter.navigate(process, process.rootProcessStep, ViewOptions.viewLatestPublishedInBlock) }}>Show in block view</v-btn>
-                                <v-btn onClick={() => { OPMRouter.navigate(process, process.rootProcessStep, ViewOptions.viewLatestPublishedInGlobal) }}>Show in global view</v-btn>
+                                <v-btn onClick={() => { OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.normal) }}>Show in block view</v-btn>
+                                <v-btn onClick={() => { OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.viewLatestPublishedInGlobal) }}>Show in global view</v-btn>
                             </div>
                         )
                     })

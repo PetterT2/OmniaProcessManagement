@@ -1,6 +1,6 @@
 ﻿import { Composer } from '@omnia/tooling/composers';
 import { FontAwesomeIcon } from '@omnia/fx-models';
-import { OPMWebComponentManifests } from '../../fx/models';
+import { OPMWebComponentManifests, OPMService } from '../../fx/models';
 
 Composer
     .registerManifest(OPMWebComponentManifests.ProcessLibrary, "opm.processlibrary")
@@ -23,4 +23,3 @@ Composer
         elementName: "opm-process-library-settings",
         entryPoint: "./ProcessLibrarySettings.jsx"
     })
-

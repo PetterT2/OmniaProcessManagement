@@ -119,9 +119,6 @@ export class CurrentProcessStore extends Store {
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
-    //All the process data of current process that has been loaded 
-    private loadedProcessData: { [processStepId: string]: ProcessData } = {};
-
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
     );
@@ -146,9 +143,6 @@ export class CurrentProcessStore extends Store {
             }
 
             return this.transaction.newState(processReferenceToUse.processId, (newState) => {
-                if (newState) {
-                    this.loadedProcessData = {};
-                }
 
                 return new Promise<null>((resolve, reject) => {
                     this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
@@ -164,9 +158,9 @@ export class CurrentProcessStore extends Store {
                 })
             });
         }),
-        checkOutProcess: this.action((): Promise<null> => {
+        checkOut: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
-                return new Promise<null>((resolve, reject) => {
+                return new Promise<ProcessReference>((resolve, reject) => {
 
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -183,30 +177,53 @@ export class CurrentProcessStore extends Store {
                             processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
                         }
 
-                        this.actions.setProcessToShow.dispatch(processReferenceToUse).then(resolve).catch(reject)
-
+                        resolve(processReferenceToUse);
                     }).catch(reject);
                 })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
         saveState: this.action((): Promise<null> => {
-            //Get the reference data first before jump into all the async flow that could change the expected data
-            let loadedProcessData = this.loadedProcessData;
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let actionModel: ProcessActionModel = {
                         process: currentProcessReferenceData.process,
-                        processData: loadedProcessData
+                        processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
                     }
 
                     this.processService.saveCheckedOutProcess(actionModel).then(process => {
-                        //TO DO
-
                         resolve(null);
                     }).catch(reject);
                 })
+            })
+        }),
+        discardChange: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<ProcessReference>((resolve, reject) => {
+
+                    let currentProcessReference = this.currentProcessReference.state;
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+
+                    this.processStore.actions.discardChangeProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
+                        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessReference.processStepId);
+                        let processReferenceToUse: ProcessReference = null;
+
+                        if (processStep) {
+                            processReferenceToUse = { processId: process.id, processStepId: processStep.id, processDataHash: processStep.processDataHash, opmProcessId: process.opmProcessId }
+                        }
+                        //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
+                        else {
+                            processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
+                        }
+
+                        resolve(processReferenceToUse);
+                    }).catch(reject);
+                })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         })
     }

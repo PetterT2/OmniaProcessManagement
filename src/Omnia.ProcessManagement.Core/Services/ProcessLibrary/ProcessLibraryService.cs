@@ -13,7 +13,6 @@ using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
-using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 {
@@ -33,33 +32,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         }
 
 
-        public async ValueTask<DraftProcessesResponse> GetDraftProcessesDataAsync(ProcessLibraryRequest processLibraryRequest)
-        {
-            var (siteId, webId, language) = await GetProcessSiteInfo(processLibraryRequest.WebUrl);
-            var processes = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
-            int total = processes.Count;
-
-            processes = ApplyFilters(processLibraryRequest, processes, language);
-            ApplySorting(processLibraryRequest, processes, language);
-
-            if (processLibraryRequest.PageSize > 0)
-                processes = processes.Skip((processLibraryRequest.PageNum - 1) * processLibraryRequest.PageSize)
-                    .Take(processLibraryRequest.PageSize).ToList();
-
-            return new DraftProcessesResponse
-            {
-                Total = total,
-                Processes = processes
-            };
-        }
-
-        public async ValueTask<List<string>> GetFilterOptions(string webUrl, string column)
+        public async ValueTask<List<Process>> GetDraftProcessesDataAsync(string webUrl)
         {
             var (siteId, webId, language) = await GetProcessSiteInfo(webUrl);
             var processes = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
-            if (column == OPMConstants.ProcessColumns.Title)
-                return processes.Select(p => GetMultilingualStringValue(p.RootProcessStep.Title, language)).ToList();
-            return processes.Select(p => column).ToList();
+
+            return processes;
         }
 
 
@@ -82,45 +60,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         private string GetMultilingualStringValue(MultilingualString value, LanguageTag language)
         {
             return value.Keys.Contains(language) ? value[language] : value.FirstOrDefault().Value;
-        }
-
-        private void ApplySorting(ProcessLibraryRequest processLibraryRequest, List<Process> processes, LanguageTag language)
-        {
-            if (!string.IsNullOrEmpty(processLibraryRequest.SortBy))
-                processes.Sort(delegate (Process x, Process y)
-                {
-                    int compare = 0;
-                    switch (processLibraryRequest.SortBy)
-                    {
-                        case OPMConstants.ProcessColumns.Title:
-                            compare = GetMultilingualStringValue(x.RootProcessStep.Title, language).CompareTo(GetMultilingualStringValue(y.RootProcessStep.Title, language));
-                            break;
-                    }
-                    if (!processLibraryRequest.SortAsc)
-                    {
-                        compare = compare == 1 ? -1 : compare == -1 ? 1 : 0;
-                    }
-                    return compare;
-                });
-        }
-
-        private List<Process> ApplyFilters(ProcessLibraryRequest processLibraryRequest, List<Process> processes, LanguageTag language)
-        {
-            if (processLibraryRequest.Filters != null && processLibraryRequest.Filters.Any())
-            {
-                foreach (string key in processLibraryRequest.Filters.Keys)
-                {
-                    switch (key)
-                    {
-                        case OPMConstants.ProcessColumns.Title:
-                            List<string> values = processLibraryRequest.Filters[key];
-                            processes = processes.Where(p => values.Any(value => GetMultilingualStringValue(p.RootProcessStep.Title, language).Contains(value))).ToList();
-                            break;
-                    }
-                }
-            }
-
-            return processes;
         }
 
         #endregion

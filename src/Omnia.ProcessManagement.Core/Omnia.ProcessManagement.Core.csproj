@@ -16,8 +16,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore" Version="3.0.77-dev" />
-    <PackageReference Include="Omnia.Fx.SharePoint" Version="3.0.77-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore" Version="4.0.2-dev" />
+    <PackageReference Include="Omnia.Fx.SharePoint" Version="4.0.2-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 

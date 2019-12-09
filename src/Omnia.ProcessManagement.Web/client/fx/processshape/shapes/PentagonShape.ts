@@ -41,7 +41,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             fabricGroupObjects.push(triangleShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}, title));
+            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties || {}, title));
             this.fabricShapes.push(textShape);
             fabricTextObject = textShape.fabricObject;
         }
@@ -84,7 +84,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
             this.fabricShapes.push(new FabricRectShape(recDefinition, isActive, { strokeDashArray: daskArray, left: recleft, top: rectop, selectable: selectable }));
             this.fabricShapes.push(new FabricTriangleShape(triangleDefinition, isActive, { strokeDashArray: triangleDaskArray, left: trleft, top: trtop, selectable: selectable, angle: 90 }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: tleft, top: ttop, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: tleft, top: ttop, selectable: selectable }, title));
 
             this.fabricObjects.push(new fabric.Group([this.fabricShapes[0].fabricObject, this.fabricShapes[1].fabricObject], { selectable: selectable, left: recleft, top: rectop, hoverCursor: "pointer" }));
             this.fabricObjects.push(this.fabricShapes[2].fabricObject);

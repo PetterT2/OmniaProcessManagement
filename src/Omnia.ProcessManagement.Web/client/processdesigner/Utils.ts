@@ -12,11 +12,7 @@ export module ProcessDesignerUtils {
         handleEditMode();
     }
     function handleEditMode() {
-        
         if (document.body.className.indexOf('opm-processdesigner-mode') < 0)
             document.body.className += " opm-processdesigner-mode";
-
-        if (document.body.className.indexOf('opm-processdesinger-mode') < 0)
-            document.body.className += " opm-processdesinger-mode";
     }
 }

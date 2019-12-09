@@ -8,6 +8,10 @@ namespace Omnia.ProcessManagement.Models.Processes
 {
     public class ProcessData
     {
+        public ProcessData() 
+        {
+            this.Content = new MultilingualString();
+        }
         public CanvasDefinition CanvasDefinition { get; set; }
         public MultilingualString Content { get; set; }
         public object Documents { get; set; } //TODO

@@ -2,7 +2,6 @@
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
-using Omnia.ProcessManagement.Models.ProcessLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,8 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 {
     public interface IProcessLibraryService
     {
-        ValueTask<DraftProcessesResponse> GetDraftProcessesDataAsync(ProcessLibraryRequest processLibraryRequest);
-        ValueTask<List<string>> GetFilterOptions(string webUrl, string column);
+        ValueTask<List<Process>> GetDraftProcessesDataAsync(string webUrl);
         ValueTask<(Guid, Guid, LanguageTag)> GetProcessSiteInfo(string webUrl);
     }
 }

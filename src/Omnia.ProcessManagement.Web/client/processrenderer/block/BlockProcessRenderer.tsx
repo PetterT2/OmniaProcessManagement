@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, ServiceContainer, OmniaContext } from "@omnia/fx";
 import { IOmniaContext } from '@omnia/fx-models';
 import { OPMRouter, CurrentProcessStore } from '../../fx';
-import { ViewOptions } from '../../fx/models';
+import { RouteOptions } from '../../fx/models';
 
 @Component
 export class BlockProcessRendererComponent extends Vue implements IWebComponentInstance {
@@ -20,7 +20,7 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
     get hidden(): boolean {
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
-            OPMRouter.routeContext.route.viewOption != ViewOptions.viewLatestPublishedInBlock ? true : false
+            OPMRouter.routeContext.route.routeOption != RouteOptions.normal ? true : false
     }
 
     //TODO: Complete the render process function
