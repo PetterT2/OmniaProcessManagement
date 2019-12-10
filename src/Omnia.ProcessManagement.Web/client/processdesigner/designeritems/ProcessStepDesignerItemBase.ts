@@ -3,6 +3,8 @@ import { CurrentProcessStore, OPMRouter } from '../../fx';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerUtils } from '../../processdesigner/Utils';
 import { FormValidator } from '@omnia/fx/ux';
+import { TabManager } from '../core';
+import { ActionButtonIds } from '../factory/ActionButtonIds';
 
 export class ProcessStepDesignerItemBase {
     currentProcessStore: CurrentProcessStore;
@@ -19,7 +21,9 @@ export class ProcessStepDesignerItemBase {
 
     public onSaveAsDraft() {
         if (this.formValidator.validateAll()) {
+            TabManager.addLoadingToButton(this as any, ActionButtonIds.saveasdraft);
             this.currentProcessStore.actions.checkIn.dispatch().then(() => {
+                TabManager.removeLoadingFromButton(this as any, ActionButtonIds.saveasdraft);
                 this.handleCloseDesinger();
                 ProcessDesignerUtils.closeProcessDesigner();
             });
@@ -29,7 +33,9 @@ export class ProcessStepDesignerItemBase {
     }
     public onDiscardChanges() {
         this.formValidator.clearValidation();
+        TabManager.addLoadingToButton(this as any, ActionButtonIds.discardchanges)
         this.currentProcessStore.actions.discardChange.dispatch().then(() => {
+            TabManager.removeLoadingFromButton(this as any, ActionButtonIds.discardchanges);
             this.handleCloseDesinger();
             ProcessDesignerUtils.closeProcessDesigner();
         });
