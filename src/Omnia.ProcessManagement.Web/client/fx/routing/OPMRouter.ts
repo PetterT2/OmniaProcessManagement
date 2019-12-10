@@ -7,7 +7,7 @@ import { OPMUtils } from '../utils';
 import { MultilingualStore } from '@omnia/fx/store';
 
 const processVersionLabels = {
-    [ProcessVersionType.Draft] : 'draft',
+    [ProcessVersionType.Draft]: 'draft',
     [ProcessVersionType.CheckedOut]: 'checked out',
     [ProcessVersionType.Published]: 'published'
 }
@@ -120,6 +120,11 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     }
 
     public clearRoute() {
+        this.currentTitle = '';
+        this.currentProcessId = '';
+        this.currentProcessStepId = '';
+        this.currentRouteOption = '';
+
         this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
             this.protectedClearRoute();
         })
