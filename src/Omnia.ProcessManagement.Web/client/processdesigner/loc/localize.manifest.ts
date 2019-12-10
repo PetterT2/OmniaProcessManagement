@@ -28,7 +28,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         AddLink: "Add Link",
         NoProperties: "There are no properties to be edited.",
         CreateProcessStep: "Create Process Step",
-        MoveProcessStep: "Move Process Step"
+        MoveProcessStep: "Move Process Step",
         NewDataNotSaved: "New data not saved",
         NewDataHasBeenSaved: "New data has been saved",
     });
