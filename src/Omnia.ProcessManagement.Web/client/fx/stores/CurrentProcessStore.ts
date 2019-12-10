@@ -182,17 +182,7 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.checkInProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
-                        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessReference.processStepId);
-                        let processReferenceToUse: ProcessReference = null;
-
-                        if (processStep) {
-                            processReferenceToUse = { processId: process.id, processStepId: processStep.id, processDataHash: processStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-                        //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
-                        else {
-                            processReferenceToUse = { processId: process.id, processStepId: process.rootProcessStep.id, processDataHash: process.rootProcessStep.processDataHash, opmProcessId: process.opmProcessId }
-                        }
-
+                        let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
                 })
