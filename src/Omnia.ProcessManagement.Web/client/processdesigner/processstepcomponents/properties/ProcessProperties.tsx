@@ -11,12 +11,19 @@ import { EnterprisePropertyStore, EnterprisePropertySetStore, MultilingualStore 
 import { ProcessDesignerLocalization } from '../../loc/localize';
 
 export class ProcessPropertiesTabRenderer extends TabRenderer {
+    useValidator: IValidator;
+
+    constructor(useValidator: IValidator) {
+        super();
+        this.useValidator = useValidator;
+    }
     generateElement(h): JSX.Element {
-        return (<ProcessPropertiesComponent key={Guid.newGuid().toString()}></ProcessPropertiesComponent>);
+        return (<ProcessPropertiesComponent key={Guid.newGuid().toString()} useValidator={this.useValidator}></ProcessPropertiesComponent>);
     }
 }
 
 export interface ProcessDrawingProps {
+    useValidator: IValidator;
 }
 
 @Component
@@ -47,6 +54,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     init() {
+        this.useValidator.register(this);
         this.isLoading = true;
         this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
         let regionalSettings = this.omniaContext.tenant.propertyBag.getModel(TenantRegionalSettings);
@@ -76,6 +84,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     beforeDestroy() {
+        this.useValidator.clearValidation();
     }
 
     onPropertiesChanged() {
@@ -106,7 +115,8 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             window.clearTimeout(this.editContentTimeout);
         }
         this.editContentTimeout = window.setTimeout(() => {
-            this.currentProcessStore.actions.saveState.dispatch();
+            if (this.currentProcessStore.getters.referenceData())
+                this.currentProcessStore.actions.saveState.dispatch();
         }, 1000);
     }
 
@@ -186,9 +196,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         * @param h
         */
 
-    renderTextField(h, field: ProcessTextPropertyInfo) {
-        let label = field.required ? field.title + '*' : field.title;
-
+    renderTextField(h, field: ProcessTextPropertyInfo, label: string) {
         return [
             <v-text-field filled={true} dark={this.omniaTheming.promoted.body.dark} label={label} v-model={field.value}
                 rules={new FieldValueValidation().IsRequired(field.required).getRules()} onChange={this.onPropertiesChanged}>
@@ -196,8 +204,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         ]
     }
 
-    renderNumberField(h, field: ProcessNumberPropertyInfo) {
-        let label = field.required ? field.title + '*' : field.title;
+    renderNumberField(h, field: ProcessNumberPropertyInfo, label: string) {
 
         return [
             <v-text-field filled={true} type="number" dark={this.omniaTheming.promoted.body.dark} label={label} v-model={field.value}
@@ -207,6 +214,8 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     renderBooleanField(h, field: ProcessBooleanPropertyInfo) {
+        if (Utils.isNullOrEmpty(field.value))
+            field.value = false;
         return (
             <v-checkbox dark={this.omniaTheming.promoted.body.dark}
                 label={field.title}
@@ -230,7 +239,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         )
     }
 
-    renderTaxonomyField(h, field: ProcessTaxonomyPropertyInfo, fields: Array<ProcessTaxonomyPropertyInfo>) {
+    renderTaxonomyField(h, field: ProcessTaxonomyPropertyInfo, label: string, fields: Array<ProcessTaxonomyPropertyInfo>) {
         let key = this.taxonomyComponentKey[field.internalName];
         let startWithIds: Array<GuidValue> = null;
         let limitLevel = field.limitLevel
@@ -254,7 +263,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 disabled={disabled}
                 multi={field.multiple}
                 dark={this.omniaTheming.promoted.body.dark}
-                label={field.title}
+                label={label}
                 termSetId={field.termSetId}
                 preSelectedTermIds={field.termIds}
                 onTermsSelected={(model) => {
@@ -289,25 +298,30 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         ]
     }
 
+    renderProperty(h, field: ProcessPropertyInfo, taxonomyProperties: Array<ProcessPropertyInfo>) {
+        let label = field.required ? field.title + '*' : field.title;
+        switch (field.type) {
+            case PropertyIndexedType.Text:
+                return this.renderTextField(h, field as ProcessTextPropertyInfo, label);
+            case PropertyIndexedType.Number:
+                return this.renderNumberField(h, field as ProcessNumberPropertyInfo, label);
+            case PropertyIndexedType.Boolean:
+                return this.renderBooleanField(h, field as ProcessBooleanPropertyInfo);
+            case PropertyIndexedType.Person:
+                return this.renderPersonField(h, field as ProcessPersonPropertyInfo);
+            case PropertyIndexedType.Taxonomy:
+                return this.renderTaxonomyField(h, field as ProcessTaxonomyPropertyInfo, label, taxonomyProperties as Array<ProcessTaxonomyPropertyInfo>);
+            case PropertyIndexedType.DateTime:
+                return this.renderDateTimeField(h, field as ProcessDatetimePropertyInfo);
+            default:
+                return null;
+        }
+    }
+
     renderProperties(h) {
         let taxonomyProperties = this.processProperties.filter(p => p.type == PropertyIndexedType.Taxonomy);
         return this.processProperties.map(field => {
-            switch (field.type) {
-                case PropertyIndexedType.Text:
-                    return (<v-col cols="12" class="py-1">{this.renderTextField(h, field as ProcessTextPropertyInfo)}</v-col>);
-                case PropertyIndexedType.Number:
-                    return (<v-col cols="12" class="py-1">{this.renderNumberField(h, field as ProcessNumberPropertyInfo)}</v-col>);
-                case PropertyIndexedType.Boolean:
-                    return (<v-col cols="12" class="py-1">{this.renderBooleanField(h, field as ProcessBooleanPropertyInfo)}</v-col>);
-                case PropertyIndexedType.Person:
-                    return (<v-col cols="12" class="py-1">{this.renderPersonField(h, field as ProcessPersonPropertyInfo)}</v-col>);
-                case PropertyIndexedType.Taxonomy:
-                    return (<v-col cols="12" class="py-1">{this.renderTaxonomyField(h, field as ProcessTaxonomyPropertyInfo, taxonomyProperties as Array<ProcessTaxonomyPropertyInfo>)}</v-col>);
-                case PropertyIndexedType.DateTime:
-                    return (<v-col cols="12" class="py-1">{this.renderDateTimeField(h, field as ProcessDatetimePropertyInfo)}</v-col>);
-                default:
-                    return null;
-            }
+            return (<v-col cols="12" class="py-1">{this.renderProperty(h, field, taxonomyProperties)}</v-col>);
         })
     }
 

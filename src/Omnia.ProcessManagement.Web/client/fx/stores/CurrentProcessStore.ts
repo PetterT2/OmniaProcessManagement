@@ -120,6 +120,7 @@ export class CurrentProcessStore extends Store {
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
     private currentProcessDataJson = '';
+    private currentProcessPropertiesJson = '';
 
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
@@ -139,6 +140,7 @@ export class CurrentProcessStore extends Store {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
             if (processReferenceToUse == null) {
                 this.currentProcessDataJson = '';
+                this.currentProcessPropertiesJson = '';
                 this.currentProcessReference.mutate(null);
                 this.currentProcessReferenceData.mutate(null);
                 this.transaction.clearState();
@@ -155,6 +157,7 @@ export class CurrentProcessStore extends Store {
                         this.currentProcessReferenceData.mutate(processReferenceData);
 
                         this.currentProcessDataJson = JSON.stringify(processReferenceData.currentProcessData)
+                        this.currentProcessPropertiesJson = JSON.stringify(processReferenceData.process.rootProcessStep.enterpriseProperties)
 
                         resolve();
                     }).catch((reason) => {
@@ -201,7 +204,8 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
-                    if (this.currentProcessDataJson != newProcessDataJson) {
+                    let newProcessPropertiesJson = JSON.stringify(currentProcessReferenceData.process.rootProcessStep.enterpriseProperties);
+                    if (this.currentProcessDataJson != newProcessDataJson || this.currentProcessPropertiesJson != newProcessPropertiesJson) {
                         let actionModel: ProcessActionModel = {
                             process: currentProcessReferenceData.process,
                             processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
@@ -209,7 +213,7 @@ export class CurrentProcessStore extends Store {
 
                         this.processService.saveCheckedOutProcess(actionModel).then(process => {
                             this.currentProcessDataJson = newProcessDataJson;
-
+                            this.currentProcessPropertiesJson = newProcessPropertiesJson;
                             resolve(null);
                         }).catch(reject);
                     }
