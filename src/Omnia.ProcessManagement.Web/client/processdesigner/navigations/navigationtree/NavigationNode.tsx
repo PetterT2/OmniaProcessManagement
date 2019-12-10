@@ -16,6 +16,7 @@ import { CurrentProcessStore } from '../../../fx';
 import { ProcessDesignerStore } from '../../stores';
 import { ProcessDesignerItemFactory } from '../../designeritems';
 import { DisplayModes } from '../../../models/processdesigner';
+import { ActionsMenuComponent } from './ActionsMenu';
 
 export interface NavigationNodeComponentProps {
     level: number;
@@ -155,31 +156,34 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                         </v-btn>
                     </div>
                     <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
-                    <div class={[this.navigationNodeStyles.actionBar]} v-show={isSelectedNode}>
-                        {
-                            !this.firstNode || !this.lastNode ? [
-                                <v-btn
-                                    icon
-                                    dark
-                                    small
-                                    class={["ml-0", "mr-0"]}
-                                    onClick={(e: Event) => { this.onMoveNavigation(e, true) }}
-                                    disabled={this.firstNode}>
-                                    <v-icon>arrow_drop_up</v-icon>
-                                </v-btn>,
-                                <v-btn
-                                    icon
-                                    dark
-                                    small
-                                    onClick={(e: Event) => { this.onMoveNavigation(e, false) }}
-                                    disabled={this.lastNode}
-                                    class={["ml-0", "mr-0"]}>
-                                    <v-icon>arrow_drop_down</v-icon>
-                                </v-btn>
-                            ] : null
-                        }
-
-                    </div>
+                    {
+                        isSelectedNode &&
+                        <div class={[this.navigationNodeStyles.actionBar]}>
+                            {
+                                !this.firstNode || !this.lastNode ? [
+                                    <v-btn
+                                        icon
+                                        dark
+                                        small
+                                        class={["ml-0", "mr-0"]}
+                                        onClick={(e: Event) => { this.onMoveNavigation(e, true) }}
+                                        disabled={this.firstNode}>
+                                        <v-icon>arrow_drop_up</v-icon>
+                                    </v-btn>,
+                                    <v-btn
+                                        icon
+                                        dark
+                                        small
+                                        onClick={(e: Event) => { this.onMoveNavigation(e, false) }}
+                                        disabled={this.lastNode}
+                                        class={["ml-0", "mr-0"]}>
+                                        <v-icon>arrow_drop_down</v-icon>
+                                    </v-btn>
+                                ] : null
+                            }
+                            <ActionsMenuComponent></ActionsMenuComponent>
+                        </div>
+                    }
                 </div>
                 {
                     hasChildren &&

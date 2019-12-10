@@ -11,6 +11,7 @@ type EnsureActiveProcessInStoreFunc = () => boolean;
 
 class ProcessStateTransaction {
     private currentProcessId: GuidValue = '';
+    
     private pendingStateOperation: Promise<any> = null;
 
     private ensureActiveProcessInStore: EnsureActiveProcessInStoreFunc;
@@ -206,7 +207,7 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
-                    if (this.currentProcessDataJson != newProcessDataJson) {
+                    if (this.currentProcessDataJson != newProcessDataJson || forceAndRefresh) {
                         this.isSavingData.mutate(true);
                         let actionModel: ProcessActionModel = {
                             process: currentProcessReferenceData.process,
@@ -219,8 +220,6 @@ export class CurrentProcessStore extends Store {
 
                             let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.currentProcessStep.id);
                             resolve(processReferenceToUse);
-
-                            resolve(null);
                         }).catch(reject);
                     }
                     else {
