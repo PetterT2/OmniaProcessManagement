@@ -139,9 +139,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
                     //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
                     //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
-                    let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
+                    let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
 
-                    this.navigate(process, processStep).then(resolve).catch(reject);
+                    this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
                     let reason = `Cannot find valid ${processVersionLabels[processVersionType]}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
                     console.warn(reason);

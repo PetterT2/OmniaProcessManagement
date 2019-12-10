@@ -210,6 +210,7 @@
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\factory\BreakPointFactory.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\ActionsMenu.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\ProcessContent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\index.ts" />

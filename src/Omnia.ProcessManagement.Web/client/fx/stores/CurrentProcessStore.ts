@@ -5,11 +5,13 @@ import { ProcessStore } from './ProcessStore';
 import { ProcessService } from '../services';
 import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process } from '../models';
 import { OPMUtils } from '../utils';
+import { setTimeout } from 'timers';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
 class ProcessStateTransaction {
     private currentProcessId: GuidValue = '';
+
     private pendingStateOperation: Promise<any> = null;
 
     private ensureActiveProcessInStore: EnsureActiveProcessInStoreFunc;
@@ -116,6 +118,7 @@ export class CurrentProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
     @Inject(OmniaContext) private omniaContext: OmniaContext;
 
+    private isSavingData = this.state<boolean>(false);
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
@@ -133,7 +136,10 @@ export class CurrentProcessStore extends Store {
     }
 
     public getters = {
-        referenceData: () => this.currentProcessReferenceData.state
+        referenceData: () => this.currentProcessReferenceData.state,
+        isSavingData: (): boolean => {
+            return this.isSavingData.state;
+        }
     }
 
     public actions = {
@@ -169,7 +175,6 @@ export class CurrentProcessStore extends Store {
         checkOut: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
-
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
@@ -190,6 +195,7 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.checkInProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
+                        this.isSavingData.mutate(false);
                         let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
@@ -198,39 +204,50 @@ export class CurrentProcessStore extends Store {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
-        saveState: this.action((): Promise<null> => {
+        saveState: this.action((forceAndRefresh?: boolean): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
-                return new Promise<null>((resolve, reject) => {
+                return new Promise<ProcessReference>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
                     let newProcessPropertiesJson = JSON.stringify(currentProcessReferenceData.process.rootProcessStep.enterpriseProperties);
-                    if (this.currentProcessDataJson != newProcessDataJson || this.currentProcessPropertiesJson != newProcessPropertiesJson) {
+                    if (this.currentProcessDataJson != newProcessDataJson || forceAndRefresh || this.currentProcessPropertiesJson != newProcessPropertiesJson) {
+                        this.isSavingData.mutate(true);
                         let actionModel: ProcessActionModel = {
                             process: currentProcessReferenceData.process,
                             processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
                         }
 
-                        this.processService.saveCheckedOutProcess(actionModel).then(process => {
+                        this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                            this.isSavingData.mutate(false);
                             this.currentProcessDataJson = newProcessDataJson;
                             this.currentProcessPropertiesJson = newProcessPropertiesJson;
-                            resolve(null);
+                            let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.currentProcessStep.id);
+                            resolve(processReferenceToUse);
                         }).catch(reject);
                     }
                     else {
                         resolve(null);
                     }
                 })
+            }).then((processReferenceToUse) => {
+                if (forceAndRefresh) {
+                    return this.actions.setProcessToShow.dispatch(processReferenceToUse);
+                }
+                else {
+                    return null;
+                }
             })
         }),
         discardChange: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
-
+                    this.isSavingData.mutate(true);
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.discardChangeProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
+                        this.isSavingData.mutate(false);
                         let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
@@ -242,11 +259,11 @@ export class CurrentProcessStore extends Store {
     }
 
     private prepareProcessReferenceToUse(process: Process, processStepId: GuidValue) {
-        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
+        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
         let processReferenceToUse: ProcessReference = null;
 
-        if (processStep) {
-            processReferenceToUse = { processId: process.id, processStepId: processStep.id, opmProcessId: process.opmProcessId }
+        if (processStepRef.desiredProcessStep) {
+            processReferenceToUse = { processId: process.id, processStepId: processStepId, opmProcessId: process.opmProcessId }
         }
         //If selecting process step is not found after checking out process. it means the client-side data is old/out-of-date. We fallback to the root process step
         else {

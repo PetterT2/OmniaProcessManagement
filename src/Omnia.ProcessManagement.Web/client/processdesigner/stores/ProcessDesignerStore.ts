@@ -159,7 +159,7 @@ export class ProcessDesignerStore extends Store {
         editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
-                if (currentProcess.isRootProcessStep) {
+                if (!currentProcess.parentProcessStep) {
                     this.rootProcessReferenceData = Utils.clone(currentProcess);
                 }
                 var editingProcessReference: {
@@ -198,12 +198,10 @@ export class ProcessDesignerStore extends Store {
         }),
         addProcessStep: this.action((processStepTitle: MultilingualString) => {
             return new Promise<ProcessStep>((resolve, reject) => {
-                var processStepTemplateId = this.editingProcessReference.state.processStep.processTemplateId;
                 var childProcessStep: ProcessStep = {
                     id: Guid.newGuid(),
                     title: processStepTitle,
                     processSteps: [],
-                    processTemplateId: processStepTemplateId,
                     processDataHash: ''
                 };
                 this.editingProcessReference.state.processStep.processSteps.push(childProcessStep);
