@@ -1,14 +1,15 @@
-﻿import { Inject, Localize, Utils, SubscriptionHandler, OmniaContext } from '@omnia/fx';
+﻿import { Inject, Localize, SubscriptionHandler, OmniaContext, Utils } from '@omnia/fx';
 import * as tsx from 'vue-tsx-support';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { JourneyInstance, OmniaTheming } from '@omnia/fx/ux';
 import { style } from 'typestyle';
-import { CurrentProcessStore } from '../../fx';
+import { CurrentProcessStore, OPMUtils } from '../../fx';
 import { ContentNavigationStyles } from './ContentNavigation.css';
 import { SharePointContext } from '@omnia/fx-sp';
 import { NavigationNodeComponent } from './navigationtree/NavigationNode';
+import { RootProcessStep, ProcessStep } from '../../fx/models';
 
 
 export interface ContentNavigationProps {
@@ -31,13 +32,15 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     @Inject(SharePointContext) spContext: SharePointContext;
 
     private teamSiteName: string = "";
-    private expandState: { [id: string]: boolean } = {};
+    private expandState: { [id: string]: true } = {};
     private readyToRender = false;
+    private renderKey = Utils.generateGuid();
 
     created() {
         if (this.spContext.pageContext) {
             this.teamSiteName = this.spContext.pageContext.web.title;
         }
+        this.subscribeEvents();
     }
 
     mounted() {
@@ -45,6 +48,25 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
         setTimeout(() => {
             this.readyToRender = true;
         }, 100);
+    }
+
+    subscribeEvents() {
+        this.subscriptionHandler.add(
+            this.currentProcessStore.actions.addProcessStep.onDispatched((result) => {
+                this.refreshExpandState(result.process.rootProcessStep, result.processStep);
+            })
+        )
+        this.subscriptionHandler.add(
+            this.currentProcessStore.actions.moveProcessStep.onDispatched((result) => {
+                this.refreshExpandState(result.process.rootProcessStep, result.processStep);
+            })
+        )
+    }
+
+    refreshExpandState(rootProcessStep: RootProcessStep, processStep: ProcessStep) {
+        let newExpandState = OPMUtils.generateProcessStepExpandState(rootProcessStep, processStep.id);
+        this.expandState = Object.assign({}, this.expandState, newExpandState);
+        this.renderKey = Utils.generateGuid();
     }
 
     @Emit('close')
@@ -65,7 +87,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                         </v-btn>
                     </div>
                 </v-list-item>
-                <div class={ContentNavigationStyles.scrollContainer}>
+                <div class={ContentNavigationStyles.scrollContainer} key={this.renderKey}>
                     <NavigationNodeComponent firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
                 </div>
             </div>)

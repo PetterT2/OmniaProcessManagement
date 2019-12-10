@@ -1,29 +1,29 @@
-import { Inject, Localize } from '@omnia/fx';
+import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
-import { VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
+import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { CurrentProcessStore } from '../../../fx';
+import { CurrentProcessStore, OPMRouter } from '../../../fx';
+import { MultilingualString, Guid } from '@omnia/fx-models';
 
 
 @Component
 export class ActionsMenuComponent extends VueComponentBase<{}>
 {
     @Localize(ProcessDesignerLocalization.namespace) loc: ProcessDesignerLocalization.locInterface;
+    @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
+
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
-    private showCreateProcessStepDialog = false;
+    internalValidator: FormValidator = new FormValidator(this);
+    title: MultilingualString = {} as MultilingualString;
 
-    private menuModel = {
+    showCreateProcessStepDialog = false;
+
+    menuModel = {
         showMenu: false
-    }
-
-    public mounted() {
-    }
-
-    public beforeDestroy() {
     }
 
 
@@ -41,19 +41,68 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     }
 
+    closeCreateProcessStepDialog() {
+        this.showCreateProcessStepDialog = false;
+    }
+
+    addProcessStep() {
+        this.currentProcessStore.actions.addProcessStep.dispatch(this.title).then((result) => {
+            OPMRouter.navigate(result.process, result.processStep)
+        })
+    }
+
     renderCreateProcessStepDialog(h) {
         return (
-            <v-dialog>
-
-            </v-dialog>
+            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
+                contentClass={this.omniaTheming.promoted.body.class}
+                onClose={() => { this.closeCreateProcessStepDialog(); }}
+                model={{ visible: this.showCreateProcessStepDialog }}
+                hideCloseButton
+                width="800px"
+                position={DialogPositions.Center}>
+                <div>
+                    <v-card>
+                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
+                            <v-toolbar-title>{this.loc.CreateProcessStep}</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-btn icon onClick={() => { this.closeCreateProcessStepDialog(); }}>
+                                <v-icon>close</v-icon>
+                            </v-btn>
+                        </v-toolbar>
+                        <v-divider></v-divider>
+                        <v-card-text class={this.omniaTheming.promoted.body.class}>
+                            <omfx-multilingual-input
+                                model={this.title}
+                                onModelChange={(title) => { this.title = title }}
+                                forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    text
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    color={this.omniaTheming.themes.primary.base}
+                                    onClick={() => { this.addProcessStep() }}>
+                                    {this.omniaLoc.Common.Buttons.Create}
+                                </v-btn>
+                                <v-btn
+                                    text
+                                    light={!this.omniaTheming.promoted.body.dark}
+                                    onClick={() => { this.closeCreateProcessStepDialog(); }}>
+                                    {this.omniaLoc.Common.Buttons.Cancel}
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card-text>
+                    </v-card>
+                </div>
+            </omfx-dialog>
         )
     }
 
     renderDialogs(h) {
         if (this.showCreateProcessStepDialog)
-            return this.renderCreateProcessStepDialog(h);
-        else
-            return null;
+            return this.renderCreateProcessStepDialog(h)
+
+        return null;
     }
 
 
