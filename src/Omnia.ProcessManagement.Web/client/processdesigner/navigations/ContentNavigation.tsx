@@ -66,7 +66,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                     </div>
                 </v-list-item>
                 <div class={ContentNavigationStyles.scrollContainer}>
-                    <NavigationNodeComponent expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
+                    <NavigationNodeComponent firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
                 </div>
             </div>)
     }

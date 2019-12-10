@@ -159,7 +159,7 @@ export class ProcessDesignerStore extends Store {
         editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
-                if (currentProcess.isRootProcessStep) {
+                if (!currentProcess.parentProcessStep) {
                     this.rootProcessReferenceData = Utils.clone(currentProcess);
                 }
                 var editingProcessReference: {

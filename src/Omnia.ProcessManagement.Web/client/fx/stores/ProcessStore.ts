@@ -50,17 +50,17 @@ export class ProcessStore extends Store {
             if (processData == null)
                 throw `Process with id: ${processReference.processId} does not contains valid process data for process step id: ${processReference.processStepId}`;
 
-            let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.processStepId);
+            let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.processStepId);
 
-            if (processData == null)
+            if (processStepRef.desiredProcessStep == null)
                 throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.processStepId}`;
 
 
             let processReferenceData: ProcessReferenceData = {
                 process: process,
-                currentProcessStep: processStep,
+                currentProcessStep: processStepRef.desiredProcessStep,
                 currentProcessData: processData,
-                isRootProcessStep: process.rootProcessStep == processStep
+                parentProcessStep: processStepRef.parentProcessStep
             }
 
             return processReferenceData
@@ -73,7 +73,7 @@ export class ProcessStore extends Store {
         createDraft: this.action((actionModel: ProcessActionModel) => {
             return this.processService.createDraftProcess(actionModel).then((process) => {
 
-                return null;
+                return process;
             })
         }),
         checkoutProcess: this.action((opmProcessId: GuidValue) => {
@@ -87,7 +87,7 @@ export class ProcessStore extends Store {
             return this.processService.checkinProcess(opmProcessId).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
 
-                return null;
+                return process;
             })
         }),
         discardChangeProcess: this.action((opmProcessId: GuidValue) => {
@@ -101,7 +101,7 @@ export class ProcessStore extends Store {
             return this.processService.saveCheckedOutProcess(actionModel).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
 
-                return null;
+                return process;
             })
         }),
         ensureProcessReferenceData: this.action((processReferences: Array<ProcessReference>) => {
@@ -213,15 +213,15 @@ export class ProcessStore extends Store {
     private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessDataWithAuditing> => {
         let promise: Promise<ProcessDataWithAuditing> = null;
 
-        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
+        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
 
-        if (processStep) {
-            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStep.id, processStep.processDataHash);
+        if (processStepRef.desiredProcessStep) {
+            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash);
 
             if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
                 resolvablePromise.resolving = true;
-                this.processService.getProcessData(processStep.id, processStep.processDataHash).then((processData) => {
-                    this.internalMutations.addOrUpdateProcessData(process.id, processStep, processData);
+                this.processService.getProcessData(processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash).then((processData) => {
+                    this.internalMutations.addOrUpdateProcessData(process.id, processStepRef.desiredProcessStep, processData);
                 }).catch((reason) => {
                     resolvablePromise.reject(reason);
                 });

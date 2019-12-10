@@ -1,27 +1,15 @@
-﻿import { ProcessStep, Process, ProcessReference } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference, RootProcessStep } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 
 export module OPMUtils {
-    export function getProcessStepInProcess(processStep: ProcessStep, processStepId: GuidValue): ProcessStep {
-        let desiredProcessStep: ProcessStep = null;
-        if (processStep.id.toString().toLowerCase() == processStepId.toString().toLowerCase()) {
-            desiredProcessStep = processStep;
-        }
-        else if (processStep.processSteps) {
-            for (let childProcessStep of processStep.processSteps) {
-                desiredProcessStep = getProcessStepInProcess(childProcessStep, processStepId);
-                if (desiredProcessStep) {
-                    break;
-                }
-            }
-        }
-        return desiredProcessStep;
+    export function getProcessStepInProcess(processStep: RootProcessStep, processStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+        return getProcessStepInProcessInternal(processStep, processStepId, null);
     }
 
     export function generateProcessReference(process: Process, processStepId: GuidValue): ProcessReference {
         let processReference: ProcessReference = null;
-        let processStep = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
-        if (processStep) {
+        let processStepRef = getProcessStepInProcess(process.rootProcessStep, processStepId);
+        if (processStepRef.desiredProcessStep) {
             processReference = {
                 opmProcessId: process.opmProcessId,
                 processId: process.id,
@@ -30,6 +18,28 @@ export module OPMUtils {
         }
         return processReference;
     }
+
+    function getProcessStepInProcessInternal(processStep: ProcessStep, processStepId: GuidValue, parentProcessStep?: ProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+        let desiredProcessStep: ProcessStep = null;
+        if (processStep.id.toString().toLowerCase() == processStepId.toString().toLowerCase()) {
+            desiredProcessStep = processStep;
+        }
+        else if (processStep.processSteps) {
+            for (let childProcessStep of processStep.processSteps) {
+                let result = getProcessStepInProcessInternal(childProcessStep, processStepId, processStep);
+                if (result.desiredProcessStep) {
+                    desiredProcessStep = result.desiredProcessStep;
+                    parentProcessStep = result.parentProcessStep;
+                    break;
+                }
+            }
+        }
+        return {
+            desiredProcessStep: desiredProcessStep,
+            parentProcessStep: parentProcessStep
+        }
+    }
+
 
     export function navigateToNewState(path) {
         path = path ? path : '';

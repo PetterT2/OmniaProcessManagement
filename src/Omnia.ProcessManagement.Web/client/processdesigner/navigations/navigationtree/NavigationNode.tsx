@@ -20,6 +20,8 @@ import { DisplayModes } from '../../../models/processdesigner';
 export interface NavigationNodeComponentProps {
     level: number;
     processStep: ProcessStep;
+    firstNode: boolean;
+    lastNode: boolean;
     expandState: { [id: string]: boolean }
 }
 
@@ -34,6 +36,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
     @Prop() private level: number;
     @Prop() private processStep: ProcessStep;
     @Prop() private expandState: { [id: string]: boolean };
+    @Prop() private firstNode: boolean;
+    @Prop() private lastNode: boolean;
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -49,11 +53,27 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         this.isExpanded = this.expandState[this.processStep.id.toString().toLowerCase()] || false;
     }
 
-    /**
-     * Evenhandler for header click events on the current node
-     * @param e
-     * @param navigateToNode
-     */
+    onMoveNavigation(e: Event, moveUp: boolean) {
+        e.stopPropagation();
+        let parentProcessStep = this.currentProcessStore.getters.referenceData().parentProcessStep
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep
+        let currentProcessStepIndex = parentProcessStep.processSteps.indexOf(currentProcessStep);
+
+        if (moveUp && !this.firstNode) {
+            let temp = parentProcessStep.processSteps[currentProcessStepIndex - 1];
+            parentProcessStep.processSteps[currentProcessStepIndex - 1] = currentProcessStep;
+            parentProcessStep.processSteps[currentProcessStepIndex] = temp;
+        }
+        else if (!moveUp && !this.lastNode) {
+            let temp = parentProcessStep.processSteps[currentProcessStepIndex + 1];
+            parentProcessStep.processSteps[currentProcessStepIndex + 1] = currentProcessStep;
+            parentProcessStep.processSteps[currentProcessStepIndex] = temp;
+        }
+
+        this.currentProcessStore.actions.saveState.dispatch(true);
+    }
+
+
     onHeaderClick(e: Event, navigateToNode: boolean, handleExpandNode: boolean) {
         e.stopPropagation();
         if (handleExpandNode) {
@@ -78,18 +98,20 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
     }
 
-    /**
-     * Renders the child nodes
-     * @param h
-     */
+
     renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.processStep.processSteps.forEach(childProcessStep => {
+        this.processStep.processSteps.forEach((childProcessStep, index) => {
+            let firstNode = index == 0;
+            let lastNode = index == this.processStep.processSteps.length - 1;
             result.push(
                 <NavigationNodeComponent
                     expandState={this.expandState}
                     level={this.level + 1}
-                    processStep={childProcessStep}>
+                    processStep={childProcessStep}
+                    firstNode={firstNode}
+                    lastNode={lastNode}
+                >
                 </NavigationNodeComponent>
             )
         });
@@ -114,7 +136,6 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep;
 
         let isSelectedNode = (currentProcessStep == this.processStep);
-
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
 
         return (
@@ -136,15 +157,28 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                     <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
                     <div class={[this.navigationNodeStyles.actionBar]} v-show={isSelectedNode}>
                         {
-                            //<ActionsMenuComponent
-                            //    v-show={!hideCreatePage || !hideCreateLink || !hideSetPermission || !hideEditNavigation}
-                            //    handleSetPermissions={hideSetPermission ? null : this.onSetPermissions}
-                            //    handleAddPageNode={hideCreatePage ? null : this.onAddPage}
-                            //    handleAddLinkNode={hideCreateLink ? null : this.onAddLinkNode}
-                            //    handleEditNavigation={hideEditNavigation ? null : this.onEditNavigation}
-                            //    handleMoveNode={hideMoveNode ? null : this.onMoveNode}>
-                            //</ActionsMenuComponent>
+                            !this.firstNode || !this.lastNode ? [
+                                <v-btn
+                                    icon
+                                    dark
+                                    small
+                                    class={["ml-0", "mr-0"]}
+                                    onClick={(e: Event) => { this.onMoveNavigation(e, true) }}
+                                    disabled={this.firstNode}>
+                                    <v-icon>arrow_drop_up</v-icon>
+                                </v-btn>,
+                                <v-btn
+                                    icon
+                                    dark
+                                    small
+                                    onClick={(e: Event) => { this.onMoveNavigation(e, false) }}
+                                    disabled={this.lastNode}
+                                    class={["ml-0", "mr-0"]}>
+                                    <v-icon>arrow_drop_down</v-icon>
+                                </v-btn>
+                            ] : null
                         }
+
                     </div>
                 </div>
                 {
