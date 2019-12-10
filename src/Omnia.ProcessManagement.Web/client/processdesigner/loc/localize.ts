@@ -23,7 +23,7 @@
         New: string;
         AddLink: string;
         NoProperties: string;
-        CreateNewProcessStep: string;
+        CreateProcessStep: string;
         MoveProcessStep: string;
     }
 }

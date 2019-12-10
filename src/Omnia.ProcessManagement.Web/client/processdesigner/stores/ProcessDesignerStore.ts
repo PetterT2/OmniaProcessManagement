@@ -198,12 +198,10 @@ export class ProcessDesignerStore extends Store {
         }),
         addProcessStep: this.action((processStepTitle: MultilingualString) => {
             return new Promise<ProcessStep>((resolve, reject) => {
-                var processStepTemplateId = this.editingProcessReference.state.processStep.processTemplateId;
                 var childProcessStep: ProcessStep = {
                     id: Guid.newGuid(),
                     title: processStepTitle,
                     processSteps: [],
-                    processTemplateId: processStepTemplateId,
                     processDataHash: ''
                 };
                 this.editingProcessReference.state.processStep.processSteps.push(childProcessStep);
