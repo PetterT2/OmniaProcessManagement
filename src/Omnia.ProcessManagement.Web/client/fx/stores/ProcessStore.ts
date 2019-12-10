@@ -14,6 +14,11 @@ interface ProcessDataDict {
     [processDataIdAndHash: string]: ProcessDataWithAuditing
 }
 
+interface ProcessStepIdAndProcessIdDict {
+    [processStepId: string]: string
+}
+
+
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
@@ -29,7 +34,7 @@ export class ProcessStore extends Store {
     private processLoadPromises: { [processLoadPromiseKey: string]: ResolvablePromise<null> } = {};
     private processDataLoadPromises: { [processDataLoadPromiseKey: string]: ResolvablePromise<null> } = {};
 
-
+    private processStepIdAndProcessIdDict: ProcessStepIdAndProcessIdDict = {};
 
     constructor() {
         super({
@@ -132,12 +137,29 @@ export class ProcessStore extends Store {
         }),
         loadProcessByProcessStepId: this.action((processStepId: GuidValue, versionType: ProcessVersionType) => {
             return new Promise<Process>((resolve, reject) => {
-                //TODO - apply loading promise handle ? or not
 
-                this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
-                    this.internalMutations.addOrUpdateProcess(process);
-                    resolve(process);
-                }).catch(reject);
+                let processId = this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()];
+                if (processId) {
+                    this.ensureProcess(processId).then(() => {
+                        let processCacheKey = this.getProcessCacheKey(processId);
+                        let process = this.processDict.state[processCacheKey];
+                        if (process.versionType === versionType) {
+                            resolve(process);
+                        }
+                        else {
+                            this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                                this.internalMutations.addOrUpdateProcess(process);
+                                resolve(process);
+                            }).catch(reject);
+                        }
+                    }).catch(reject)
+                }
+                else {
+                    this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                        this.internalMutations.addOrUpdateProcess(process);
+                        resolve(process);
+                    }).catch(reject);
+                }
             })
         }),
         deleteDraftProcess: this.action((process: Process) => {
@@ -156,6 +178,11 @@ export class ProcessStore extends Store {
             let key = this.getProcessCacheKey(process.id);
             let newState = Object.assign({}, currentState, { [key]: process });
             this.processDict.mutate(newState);
+
+            let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
+            for (let stepId of stepIds) {
+                this.processStepIdAndProcessIdDict[stepId.toString().toLowerCase()] = process.id.toString().toLowerCase()
+            }
 
             let resolvablePromise = this.getProcessLoadResolvablePromise(process.id);
             if (!resolvablePromise.resolved) {

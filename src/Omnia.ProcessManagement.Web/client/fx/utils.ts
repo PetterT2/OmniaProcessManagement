@@ -62,6 +62,20 @@ export module OPMUtils {
         }
     }
 
+    export function getAllProcessStepIds(processStep: ProcessStep) {
+        let ids: Array<string> = [];
+
+        ids.push(processStep.id.toString().toLowerCase());
+
+        if (processStep.processSteps) {
+            for (let childProcessStep of processStep.processSteps) {
+                let childIds = getAllProcessStepIds(childProcessStep);
+                ids = ids.concat(childIds);
+            }
+        }
+
+        return ids;
+    }
 
     export function navigateToNewState(path) {
         path = path ? path : '';
