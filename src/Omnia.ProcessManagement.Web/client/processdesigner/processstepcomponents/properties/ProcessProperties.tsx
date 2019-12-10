@@ -299,7 +299,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     renderProperty(h, field: ProcessPropertyInfo, taxonomyProperties: Array<ProcessPropertyInfo>) {
-        let label = field.required ? field.title + '*' : field.title;
+        let label = field.required ? field.title + ' *' : field.title;
         switch (field.type) {
             case PropertyIndexedType.Text:
                 return this.renderTextField(h, field as ProcessTextPropertyInfo, label);
