@@ -96,7 +96,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
         let actionButtons = new Array<JSX.Element>();
         let result = new Array<JSX.Element>();
         let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
-        let isSavingData = this.currentProcessStore.getters.isSavingData();
+        let hasDataChanged = this.processDesignerStore.getters.hasDataChanged();
 
         /* Action buttons in toolbar */
         if (this.processDesignerStore.tabs.selectedTab.state && currentProcessReferenceData && currentProcessReferenceData.process) {
@@ -110,12 +110,17 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             }
         }
 
-        result.push(<v-btn onClick={() => {
+        result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
             this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-        }}>{this.pdLoc.AddShape}</v-btn>);
+        }}>{this.pdLoc.AddShape}</v-btn></div>);
         result.push(<v-spacer></v-spacer>);
-        if (isSavingData) {
-            result.push(<div class="text-center"><v-progress-circular color="primary" indeterminate></v-progress-circular></div>);
+        if (hasDataChanged === true) {
+            result.push(<div class={[ActionToolbarStyles.statusButton]}>
+                <v-btn small text><v-icon>fal fa-pencil-alt</v-icon>{this.pdLoc.NewDataNotSaved}</v-btn></div>);
+        }
+        if (hasDataChanged === false) {
+            result.push(<div class={[ActionToolbarStyles.statusButton]}>
+                <v-btn small text color="success"><v-icon>fal fa-check</v-icon>{this.pdLoc.NewDataHasBeenSaved}</v-btn></div>);
         }
         result.push(
             <div class={[ActionToolbarStyles.actionButtons]}>

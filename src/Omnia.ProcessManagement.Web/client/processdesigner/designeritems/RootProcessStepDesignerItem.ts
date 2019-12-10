@@ -97,7 +97,7 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
     };
     protected propertiesTab: TabRegistration = {
         tabId: "786bdd1a-133f-4d45-9adc-8add66365762",
-        tabRenderer: new ProcessPropertiesTabRenderer(),
+        tabRenderer: new ProcessPropertiesTabRenderer(this.formValidator),
         tabName: this.opmCoreLoc.Process.Properties,
         active: false,
         actionToolbar: {

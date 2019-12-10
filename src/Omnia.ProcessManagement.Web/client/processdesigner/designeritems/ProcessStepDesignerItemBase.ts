@@ -2,37 +2,50 @@
 import { CurrentProcessStore, OPMRouter } from '../../fx';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerUtils } from '../../processdesigner/Utils';
+import { FormValidator } from '@omnia/fx/ux';
 
 export class ProcessStepDesignerItemBase {
     currentProcessStore: CurrentProcessStore;
     processDesignerStore: ProcessDesignerStore;
+    formValidator: FormValidator = null;
+
     constructor() {
         this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
         this.processDesignerStore = ServiceContainer.createInstance(ProcessDesignerStore);
+        this.formValidator = new FormValidator();
     }
 
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
     public onSaveAsDraft() {
-        this.currentProcessStore.actions.checkIn.dispatch().then(() => {
-            OPMRouter.clearRoute();
-            ProcessDesignerUtils.closeProcessDesigner();
-        });
-        return new Promise<any>(() => {
-        });
+        if (this.formValidator.validateAll()) {
+            this.currentProcessStore.actions.checkIn.dispatch().then(() => {
+                this.handleCloseDesinger();
+                ProcessDesignerUtils.closeProcessDesigner();
+            });
+            return new Promise<any>(() => {
+            });
+        }
     }
     public onDiscardChanges() {
+        this.formValidator.clearValidation();
         this.currentProcessStore.actions.discardChange.dispatch().then(() => {
-            OPMRouter.clearRoute();
+            this.handleCloseDesinger();
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
         });
     }
     public onClose() {
-        OPMRouter.clearRoute();
+        this.handleCloseDesinger();
+        this.formValidator.clearValidation();
         ProcessDesignerUtils.closeProcessDesigner();
         return new Promise<any>(() => {
         });
+    }
+
+    private handleCloseDesinger() {
+        this.processDesignerStore.mutations.setHasDataChangedState.commit(null);
+        OPMRouter.clearRoute();
     }
 }

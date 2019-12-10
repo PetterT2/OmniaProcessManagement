@@ -118,11 +118,11 @@ export class CurrentProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
     @Inject(OmniaContext) private omniaContext: OmniaContext;
 
-    private isSavingData = this.state<boolean>(false);
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
     private currentProcessDataJson = '';
+    private currentProcessPropertiesJson = '';
 
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
@@ -135,16 +135,14 @@ export class CurrentProcessStore extends Store {
     }
 
     public getters = {
-        referenceData: () => this.currentProcessReferenceData.state,
-        isSavingData: (): boolean => {
-            return this.isSavingData.state;
-        }
+        referenceData: () => this.currentProcessReferenceData.state
     }
 
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
             if (processReferenceToUse == null) {
                 this.currentProcessDataJson = '';
+                this.currentProcessPropertiesJson = '';
                 this.currentProcessReference.mutate(null);
                 this.currentProcessReferenceData.mutate(null);
                 this.transaction.clearState();
@@ -161,6 +159,7 @@ export class CurrentProcessStore extends Store {
                         this.currentProcessReferenceData.mutate(processReferenceData);
 
                         this.currentProcessDataJson = JSON.stringify(processReferenceData.currentProcessData)
+                        this.currentProcessPropertiesJson = JSON.stringify(processReferenceData.process.rootProcessStep.enterpriseProperties)
 
                         resolve();
                     }).catch((reason) => {
@@ -192,7 +191,6 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.checkInProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
-                        this.isSavingData.mutate(false);
                         let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);
@@ -256,17 +254,16 @@ export class CurrentProcessStore extends Store {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
-                    if (this.currentProcessDataJson != newProcessDataJson || forceAndRefresh) {
-                        this.isSavingData.mutate(true);
+                    let newProcessPropertiesJson = JSON.stringify(currentProcessReferenceData.process.rootProcessStep.enterpriseProperties);
+                    if (this.currentProcessDataJson != newProcessDataJson || forceAndRefresh || this.currentProcessPropertiesJson != newProcessPropertiesJson) {
                         let actionModel: ProcessActionModel = {
                             process: currentProcessReferenceData.process,
                             processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
                         }
 
                         this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
-                            this.isSavingData.mutate(false);
                             this.currentProcessDataJson = newProcessDataJson;
-
+                            this.currentProcessPropertiesJson = newProcessPropertiesJson;
                             let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.currentProcessStep.id);
                             resolve(processReferenceToUse);
                         }).catch(reject);
@@ -287,12 +284,10 @@ export class CurrentProcessStore extends Store {
         discardChange: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
-                    this.isSavingData.mutate(true);
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     this.processStore.actions.discardChangeProcess.dispatch(currentProcessReferenceData.process.opmProcessId).then((process) => {
-                        this.isSavingData.mutate(false);
                         let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReference.processStepId);
                         resolve(processReferenceToUse);
                     }).catch(reject);

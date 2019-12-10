@@ -38,6 +38,15 @@ export const ActionToolbarStyles = {
         display: "flex",
         alignItems: "center"
     }),
+    statusButton: style({
+        display: "flex",
+        alignItems: "center",
+        $nest: {
+            '.v-ripple__container': {
+                display: "none !important"
+            }
+        }
+    }),
     actionButtonsLeft: style({
         marginLeft: "20px",
         display: "flex",

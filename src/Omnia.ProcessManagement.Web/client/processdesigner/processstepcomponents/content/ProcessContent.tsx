@@ -9,6 +9,7 @@ import {
     OmniaTheming, VueComponentBase, RichTextEditorExtension
 } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
+import { ProcessDesignerStore } from '../../stores';
 
 export class ProcessContentTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -24,12 +25,10 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
 {
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private editContentTimeout = null;
-    private extensions: Array<RichTextEditorExtension> = [];
-    private isEditMode: boolean = false;
-    private content: string = "";
     private currentProcessReferenceData: ProcessReferenceData = null;
 
     created() {
@@ -47,12 +46,15 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
 
     onContentChanged(content) {
         this.currentProcessReferenceData.currentProcessData.content = content;
+        this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
         if (this.editContentTimeout) {
             window.clearTimeout(this.editContentTimeout);
         }
         this.editContentTimeout = window.setTimeout(() => {
-            this.currentProcessStore.actions.saveState.dispatch();
-        }, 1000);
+            this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
+            });
+        }, 1500);
     }
 
     /**
