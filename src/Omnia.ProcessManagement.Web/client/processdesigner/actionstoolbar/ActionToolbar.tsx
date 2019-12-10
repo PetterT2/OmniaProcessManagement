@@ -110,9 +110,9 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             }
         }
 
-        result.push(<v-btn onClick={() => {
+        result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
             this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-        }}>{this.pdLoc.AddShape}</v-btn>);
+        }}>{this.pdLoc.AddShape}</v-btn></div>);
         result.push(<v-spacer></v-spacer>);
         if (hasDataChanged === true) {
             result.push(<div class={[ActionToolbarStyles.statusButton]}>

@@ -20,7 +20,7 @@ export class ProcessStepDesignerItemBase {
     public onSaveAsDraft() {
         if (this.formValidator.validateAll()) {
             this.currentProcessStore.actions.checkIn.dispatch().then(() => {
-                OPMRouter.clearRoute();
+                this.handleCloseDesinger();
                 ProcessDesignerUtils.closeProcessDesigner();
             });
             return new Promise<any>(() => {
@@ -30,17 +30,22 @@ export class ProcessStepDesignerItemBase {
     public onDiscardChanges() {
         this.formValidator.clearValidation();
         this.currentProcessStore.actions.discardChange.dispatch().then(() => {
-            OPMRouter.clearRoute();
+            this.handleCloseDesinger();
             ProcessDesignerUtils.closeProcessDesigner();
         });
         return new Promise<any>(() => {
         });
     }
     public onClose() {
-        OPMRouter.clearRoute();
+        this.handleCloseDesinger();
         this.formValidator.clearValidation();
         ProcessDesignerUtils.closeProcessDesigner();
         return new Promise<any>(() => {
         });
+    }
+
+    private handleCloseDesinger() {
+        this.processDesignerStore.mutations.setHasDataChangedState.commit(null);
+        OPMRouter.clearRoute();
     }
 }
