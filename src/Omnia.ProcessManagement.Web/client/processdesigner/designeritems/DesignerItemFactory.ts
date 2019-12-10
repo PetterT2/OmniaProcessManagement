@@ -23,7 +23,7 @@ export class ProcessDesignerItemFactory implements IProcessDesignerItemFactory {
         let designerItem: IProcessDesignerItem = null;
         let currentProcessData = this.currentProcessStore.getters.referenceData();
         if (currentProcessData) {
-            if (currentProcessData.isRootProcessStep) {
+            if (!currentProcessData.parentProcessStep) {
                 designerItem = new RootProcessStepDesignerItem();
             }
             else {

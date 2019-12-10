@@ -23,6 +23,8 @@
         New: string;
         AddLink: string;
         NoProperties: string;
+        CreateProcessStep: string;
+        MoveProcessStep: string;
         NewDataNotSaved: string;
         NewDataHasBeenSaved: string;
     }

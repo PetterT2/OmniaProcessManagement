@@ -79,10 +79,14 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
             if (userLanguageSettings) this.lcid = userLanguageSettings.lcid;
         }
+        let regionalSettings = this.omniaContext.tenant.propertyBag.getModel(TenantRegionalSettings);
+        if (regionalSettings && regionalSettings.dateFormat) {
+            this.dateFormat = regionalSettings.dateFormat;
+        }
         this.isLoading = true;
 
         this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
-            this.init();
+            this.initProcesses();
         });
     }
 
@@ -133,13 +137,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             });
     }
 
-    private init() {
-        this.isLoading = true;
-        let regionalSettings = this.omniaContext.tenant.propertyBag.getModel(TenantRegionalSettings);
-        if (regionalSettings && regionalSettings.dateFormat) {
-            this.dateFormat = regionalSettings.dateFormat;
-        }
-
+    private initProcesses() {
+        this.isLoading = true;      
         this.request = {
             webUrl: this.spContext.pageContext.web.absoluteUrl,
             pageNum: 1,
@@ -249,8 +248,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 closeCallback={(hasUpdate: boolean) => {
                     this.openDeleteDialog = false;
                     if (hasUpdate) {
-                        this.request.pageNum = 1;
-                        this.applyFilterAndSort();
+                        this.initProcesses();
                     }
                 }}
                 opmProcessId={this.selectedProcess.opmProcessId}>
@@ -452,9 +450,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 closeCallback={(isUpdate: boolean) => {
                     this.openNewProcessDialog = false;
                     if (isUpdate) {
-                        this.request.pageNum = 1;
-                        this.request.filters = {};
-                        this.applyFilterAndSort();
+                        this.initProcesses();
                     }
                 }}
             ></opm-new-process-dialog>

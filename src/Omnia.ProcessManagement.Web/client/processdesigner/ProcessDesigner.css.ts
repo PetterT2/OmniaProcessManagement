@@ -99,14 +99,14 @@ export const ProcessDesignerStyles = {
         backgroundColor: 'transparent'
     }),
     canvasBackGround: style({
-            paddingTop : important("48px"),
-            zIndex: 1
+        paddingTop: important("48px"),
+        zIndex: 1
     }),
     panelToolbar: style({
         width: "100%"
     }),
-    title: (panelWidth: number) => {      
-        panelWidth = panelWidth/2 + 60;
+    title: (panelWidth: number) => {
+        panelWidth = panelWidth / 2 + 60;
         return style({
             overflow: important("hidden"),
             width: `calc(50% - ${panelWidth}px)`
@@ -146,7 +146,7 @@ export const ProcessDesignerStyles = {
             background: important(background.base),
             $nest: {
                 ".v-navigation-drawer__content": {
-                    overflowY:"hidden"
+                    overflowY: "hidden"
                 }
             }
         })
@@ -157,6 +157,9 @@ export const ProcessDesignerStyles = {
             $nest: {
                 '.v-list': {
                     background: important(background.base),
+                },
+                'button, input, select, textarea': {
+                    backgroundColor: important('transparent')
                 }
             }
         })

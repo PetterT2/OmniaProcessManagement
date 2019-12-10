@@ -10,5 +10,6 @@ namespace Omnia.ProcessManagement.Models.Processes
     {
         public Dictionary<string, JToken> EnterpriseProperties { get; set; }
         public Guid ProcessTypeId { get; set; }
+        public Guid ProcessTemplateId { get; set; }
     }
 }

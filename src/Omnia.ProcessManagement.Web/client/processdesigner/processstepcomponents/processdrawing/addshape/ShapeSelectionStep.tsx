@@ -44,7 +44,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
     }
 
     init() {
-        let processTemplateId = this.processDesignerStore.rootProcessReferenceData.currentProcessStep.processTemplateId;
+        let processTemplateId = this.processDesignerStore.rootProcessReferenceData.process.rootProcessStep.processTemplateId;
         this.processTemplateStore.actions.ensureLoadProcessTemplate.dispatch(processTemplateId).then((loadedProcessTemplate) => {
             this.availableShapeDefinitions = loadedProcessTemplate.settings.shapeDefinitions;
             if (this.availableShapeDefinitions) {

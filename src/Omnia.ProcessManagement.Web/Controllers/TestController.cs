@@ -98,7 +98,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 ProcessTemplateId = processTemplateId,
                 ProcessTypeId = processTypeId,
                 Title = new MultilingualString() { { LanguageTag.EnUs, title } },
-                ProcessSteps = CreateProcessSteps(title, processTemplateId, processDataDict, 1, "", treeLevel, numberOfChildInEachLevel)
+                ProcessSteps = CreateProcessSteps(title, processDataDict, 1, "", treeLevel, numberOfChildInEachLevel)
             };
 
             processDataDict[rootProcessStep.Id] = new ProcessData();
@@ -106,7 +106,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             return (rootProcessStep, processDataDict);
         }
 
-        private List<ProcessStep> CreateProcessSteps(string title, Guid processTemplateId, Dictionary<Guid, ProcessData> processDataDict, 
+        private List<ProcessStep> CreateProcessSteps(string title,  Dictionary<Guid, ProcessData> processDataDict, 
             int currentLevel, string titlePostfix, int treeLevel, int numberOfChildInEachLevel)
         {
             var processSteps = new List<ProcessStep>();
@@ -119,8 +119,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     var processStep = new ProcessStep()
                     {
                         Id = Guid.NewGuid(),
-                        ProcessTemplateId = processTemplateId,
-                        ProcessSteps = CreateProcessSteps(title, processTemplateId, processDataDict, 
+                        ProcessSteps = CreateProcessSteps(title, processDataDict, 
                         currentLevel + 1, titlePostfix + "-" + siblingsCount, treeLevel, numberOfChildInEachLevel),
                         Title = new MultilingualString() { { LanguageTag.EnUs, title + titlePostfix + "-" + siblingsCount } }
                     };
