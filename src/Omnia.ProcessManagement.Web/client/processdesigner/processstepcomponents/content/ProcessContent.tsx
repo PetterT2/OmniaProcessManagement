@@ -28,8 +28,8 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private editContentTimeout = null;
     private currentProcessReferenceData: ProcessReferenceData = null;
+    private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
     created() {
         this.init();
@@ -45,16 +45,16 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     }
 
     onContentChanged(content) {
-        this.currentProcessReferenceData.currentProcessData.content = content;
-        this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
-        if (this.editContentTimeout) {
-            window.clearTimeout(this.editContentTimeout);
+        var currentContent = JSON.stringify(this.currentProcessReferenceData.currentProcessData.content);
+        var newContent = JSON.stringify(content);
+        if (currentContent != newContent) {
+            this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
+            Utils.timewatch(this.contentChangedTimewatchId, () => {
+                this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                    this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
+                });
+            }, 1500)
         }
-        this.editContentTimeout = window.setTimeout(() => {
-            this.currentProcessStore.actions.saveState.dispatch().then(() => {
-                this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
-            });
-        }, 1500);
     }
 
     /**
