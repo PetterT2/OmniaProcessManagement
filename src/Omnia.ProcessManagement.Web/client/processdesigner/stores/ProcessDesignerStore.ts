@@ -35,6 +35,7 @@ export class ProcessDesignerStore extends Store {
     errorTabIndex = this.state<number>(-1);
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
+    private hasDataChanged = this.state<boolean>(null);
 
     public rootProcessReferenceData: ProcessReferenceData = null;
     private editedProcessReferences: {
@@ -64,6 +65,9 @@ export class ProcessDesignerStore extends Store {
     getters = {
         isEditMode: (): boolean => {
             return this.editmode.state;
+        },
+        hasDataChanged: (): boolean => {
+            return this.hasDataChanged.state;
         }
     }
 
@@ -71,6 +75,11 @@ export class ProcessDesignerStore extends Store {
      * Adds an item to the layout.
      */
     mutations = {
+        setHasDataChangedState: this.mutation((dataChanged: boolean) => {
+            this.hasDataChanged.mutate((hasDataChanged) => {
+                hasDataChanged.state = dataChanged;
+            })
+        }),
         setEditorLoadingState: this.mutation((isLoading: boolean) => {
             this.loadingInProgress.mutate((loadingProgress) => {
                 loadingProgress.state = isLoading;

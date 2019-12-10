@@ -23,5 +23,7 @@
         New: string;
         AddLink: string;
         NoProperties: string;
+        NewDataNotSaved: string;
+        NewDataHasBeenSaved: string;
     }
 }
