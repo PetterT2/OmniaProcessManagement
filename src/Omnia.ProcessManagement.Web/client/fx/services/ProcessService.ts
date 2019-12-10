@@ -1,11 +1,12 @@
-﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
+﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class ProcessService {
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+    @Inject(OmniaContext) private omniaContext: OmniaContext;
 
     @Inject<HttpClientConstructor>(HttpClient, {
         configPromise: HttpClient.createOmniaServiceRequestConfig(OPMService.Id.toString())
@@ -18,6 +19,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/createdraft', processActionModel).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -31,6 +33,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin/' + opmProcessId).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -44,6 +47,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/publish/' + opmProcessId).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -57,6 +61,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/savecheckedout', processActionModel).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -70,6 +75,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkout/' + opmProcessId).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -83,6 +89,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/discardchange/' + opmProcessId).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -96,6 +103,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/${processId}`).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -135,6 +143,7 @@ export class ProcessService {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/${versionType}`).then((response) => {
                 if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
                 }
                 else {
@@ -149,15 +158,35 @@ export class ProcessService {
             let params = { webUrl: webUrl };
             this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/drafts`, { params: params }).then((response) => {
                 if (response.data.success) {
-                    response.data.data.forEach(p => {
-                        p.rootProcessStep.multilingualTitle = this.multilingualStore.getters.stringValue(p.rootProcessStep.title);
-                    })
-                    resolve(response.data.data);
+                    let processes = response.data.data;
+                    this.generateClientSideData(processes);
+                    resolve(processes);
                 }
                 else {
                     reject(response.data.errorMessage);
                 }
             }).catch(reject);
         })
+    }
+
+    private generateClientSideData = (processes: Array<Process>) => {
+        return this.omniaContext.user.then((user) => {
+            let currentUserLoginName = user.loginName.toLowerCase();
+            for (let process of processes) {
+                //We want to keep this property as readonly. So we set the value by this way (only here)
+                (process as any).isCheckedOutByCurrentUser = process.checkedOutBy.toLowerCase() == currentUserLoginName
+
+                this.setProcessStepMultilingualTitle(process.rootProcessStep);
+            }
+        })
+    }
+
+    private setProcessStepMultilingualTitle = (processStep: ProcessStep) => {
+        processStep.multilingualTitle = this.multilingualStore.getters.stringValue(processStep.title);
+        if (processStep.processSteps) {
+            for (let childProcessStep of processStep.processSteps) {
+                this.setProcessStepMultilingualTitle(childProcessStep);
+            }
+        }
     }
 }

@@ -119,6 +119,8 @@ export class CurrentProcessStore extends Store {
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
+    private currentProcessDataJson = '';
+
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
     );
@@ -136,6 +138,7 @@ export class CurrentProcessStore extends Store {
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
             if (processReferenceToUse == null) {
+                this.currentProcessDataJson = '';
                 this.currentProcessReference.mutate(null);
                 this.currentProcessReferenceData.mutate(null);
                 this.transaction.clearState();
@@ -150,6 +153,8 @@ export class CurrentProcessStore extends Store {
 
                         this.currentProcessReference.mutate(processReferenceToUse);
                         this.currentProcessReferenceData.mutate(processReferenceData);
+
+                        this.currentProcessDataJson = JSON.stringify(processReferenceData.currentProcessData)
 
                         resolve();
                     }).catch((reason) => {
@@ -174,7 +179,7 @@ export class CurrentProcessStore extends Store {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
-        checkInProcess: this.action((): Promise<null> => {
+        checkIn: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
 
@@ -195,14 +200,22 @@ export class CurrentProcessStore extends Store {
                 return new Promise<null>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
-                    let actionModel: ProcessActionModel = {
-                        process: currentProcessReferenceData.process,
-                        processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
-                    }
+                    let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
+                    if (this.currentProcessDataJson != newProcessDataJson) {
+                        let actionModel: ProcessActionModel = {
+                            process: currentProcessReferenceData.process,
+                            processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
+                        }
 
-                    this.processService.saveCheckedOutProcess(actionModel).then(process => {
+                        this.processService.saveCheckedOutProcess(actionModel).then(process => {
+                            this.currentProcessDataJson = newProcessDataJson;
+
+                            resolve(null);
+                        }).catch(reject);
+                    }
+                    else {
                         resolve(null);
-                    }).catch(reject);
+                    }
                 })
             })
         }),
