@@ -2,8 +2,30 @@
 import { GuidValue } from '@omnia/fx-models';
 
 export module OPMUtils {
-    export function getProcessStepInProcess(processStep: RootProcessStep, processStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
-        return getProcessStepInProcessInternal(processStep, processStepId, null);
+    export function generateProcessStepExpandState(processStep: RootProcessStep, processStepId: GuidValue): { [processStepId: string]: true } {
+        let expandState: { [id: string]: true } = {}
+        generateProcessStepExpandStateInternal(processStep, processStepId.toString().toLowerCase(), expandState);
+        return expandState;
+    }
+
+    function generateProcessStepExpandStateInternal(processStep: ProcessStep, activeProcessStepId: string, expandState: { [processStepId: string]: true }) {
+        if (processStep.id.toString().toLowerCase() == activeProcessStepId) {
+            expandState[processStep.id.toString().toLowerCase()] = true;
+        }
+        else if (processStep.processSteps) {
+            for (let childProcessStep of processStep.processSteps) {
+                generateProcessStepExpandStateInternal(childProcessStep, activeProcessStepId, expandState);
+
+                if (expandState[childProcessStep.id.toString().toLowerCase()]) {
+                    expandState[processStep.id.toString().toLowerCase()] = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    export function getProcessStepInProcess(processStep: RootProcessStep, desiredProcessStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+        return getProcessStepInProcessInternal(processStep, desiredProcessStepId.toString().toLowerCase(), null);
     }
 
     export function generateProcessReference(process: Process, processStepId: GuidValue): ProcessReference {
@@ -19,14 +41,14 @@ export module OPMUtils {
         return processReference;
     }
 
-    function getProcessStepInProcessInternal(processStep: ProcessStep, processStepId: GuidValue, parentProcessStep?: ProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+    function getProcessStepInProcessInternal(processStep: ProcessStep, desiredProcessStepId: string, parentProcessStep?: ProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
         let desiredProcessStep: ProcessStep = null;
-        if (processStep.id.toString().toLowerCase() == processStepId.toString().toLowerCase()) {
+        if (processStep.id.toString().toLowerCase() == desiredProcessStepId) {
             desiredProcessStep = processStep;
         }
         else if (processStep.processSteps) {
             for (let childProcessStep of processStep.processSteps) {
-                let result = getProcessStepInProcessInternal(childProcessStep, processStepId, processStep);
+                let result = getProcessStepInProcessInternal(childProcessStep, desiredProcessStepId, processStep);
                 if (result.desiredProcessStep) {
                     desiredProcessStep = result.desiredProcessStep;
                     parentProcessStep = result.parentProcessStep;

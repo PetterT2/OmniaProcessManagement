@@ -1,9 +1,9 @@
 ﻿import { Store } from '@omnia/fx/store';
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
-import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
+import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep } from '../models';
 import { OPMUtils } from '../utils';
 import { setTimeout } from 'timers';
 
@@ -11,7 +11,7 @@ type EnsureActiveProcessInStoreFunc = () => boolean;
 
 class ProcessStateTransaction {
     private currentProcessId: GuidValue = '';
-    
+
     private pendingStateOperation: Promise<any> = null;
 
     private ensureActiveProcessInStore: EnsureActiveProcessInStoreFunc;
@@ -187,7 +187,7 @@ export class CurrentProcessStore extends Store {
         checkIn: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
-                    
+
                     let currentProcessReference = this.currentProcessReference.state;
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
@@ -199,6 +199,55 @@ export class CurrentProcessStore extends Store {
                 })
             }).then((processReferenceToUse) => {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+            })
+        }),
+        addProcessStep: this.action((title: MultilingualString) => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+
+                    let processStep: ProcessStep = {
+                        id: Guid.newGuid(),
+                        title: title,
+                        processDataHash: '',
+                        processSteps: []
+                    };
+
+                    let processData: ProcessData = {
+                        content: {} as MultilingualString,
+                        canvasDefinition: null,
+                        documents: null,
+                        links: null,
+                        tasks: null
+                    }
+
+                    if (!currentProcessReferenceData.currentProcessStep.processSteps) {
+                        currentProcessReferenceData.currentProcessStep.processSteps = [];
+                    }
+
+                    currentProcessReferenceData.currentProcessStep.processSteps.push(processStep);
+
+
+                    let actionModel: ProcessActionModel = {
+                        process: currentProcessReferenceData.process,
+                        processData: { [processStep.id.toString()]: processData }
+                    }
+
+                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
+                        resolve({
+                            process: process,
+                            processStep: processStepRef.desiredProcessStep
+                        });
+                    })
+                })
+            })
+        }),
+        moveProcessStep: this.action(() => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
+                    reject(`To do`);
+                })
             })
         }),
         saveState: this.action((forceAndRefresh?: boolean): Promise<null> => {
