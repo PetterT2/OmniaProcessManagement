@@ -29,5 +29,7 @@ export class OPMWebComponentManifests {
     public static get BlockProcessRenderer(): Guid { return new Guid('cce87e73-70bc-4ce1-a128-1cd674c2a278'); }
     public static get FreeFormDrawing(): Guid { return new Guid('598be0e6-25cc-4424-ba21-5ca18c2c61e7'); }
 
+    public static get ProcessStepPicker(): Guid { return new Guid('5a0c11c9-9691-47a1-9f7d-2aedfc8dbce7'); }
+
 }
 

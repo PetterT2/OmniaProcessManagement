@@ -1,5 +1,5 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { DrawingCanvasSettingsStyles } from '../../../fx/models/styles';
+import { DrawingCanvasSettingsStyles } from '../../../fx/models';
 import { important } from 'csx';
 
 StyleFlow.define(DrawingCanvasSettingsStyles, {

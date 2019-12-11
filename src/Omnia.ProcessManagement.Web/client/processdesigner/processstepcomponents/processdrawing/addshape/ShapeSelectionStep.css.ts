@@ -1,5 +1,5 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { ShapeSelectionStepStyles } from '../../../../fx/models/styles';
+import { ShapeSelectionStepStyles } from '../../../../fx/models';
 
 StyleFlow.define(ShapeSelectionStepStyles, {
     shapesWrapper: {

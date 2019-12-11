@@ -1,6 +1,6 @@
 ﻿import { important } from 'csx';
 import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
-import { ProcessStepDrawingStyles } from '../../../fx/models/styles';
+import { ProcessStepDrawingStyles } from '../../../fx/models';
 
 StyleFlow.define(ProcessStepDrawingStyles, {
     settingsPanel: (backgroundColor: string) => {
