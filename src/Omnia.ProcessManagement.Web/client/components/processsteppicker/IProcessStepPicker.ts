@@ -3,7 +3,7 @@ import { GuidValue } from '@omnia/fx-models';
 import { RootProcessStep, ProcessStep, IdDict } from '../../fx/models';
 
 export interface IProcessStepPickerAttributes {
-
+    header: string;
 }
 
 /*@WebComponentInterface("opm-process-step-picker")*/

@@ -85,6 +85,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     renderMoveProcessStepDialog(h) {
         return (
             <opm-process-step-picker
+                header={this.moveProcessStepDialogData.dialogTitle}
                 hiddenProcessStepIdsDict={this.moveProcessStepDialogData.hiddenProcessStepIdsDict}
                 disabledProcessStepIdsDict={this.moveProcessStepDialogData.disabledProcessStepIdsDict}
                 rootProcessStep={this.moveProcessStepDialogData.rootProcessStep}
