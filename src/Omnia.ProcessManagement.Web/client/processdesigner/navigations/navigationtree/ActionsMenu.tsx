@@ -94,7 +94,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     editTitle() {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
         currentReferenceData.current.processStep.title = this.title;
-
+        currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
         this.loading = true;
         this.currentProcessStore.actions.saveState.dispatch(true).then(() => {
             this.showEditTitleDialog = false;
