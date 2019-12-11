@@ -241,10 +241,32 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        moveProcessStep: this.action(() => {
+        moveProcessStep: this.action((newParentProcessStep: ProcessStep) => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
-                    reject(`To do`);
+
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+                    let parentProcessStep = currentProcessReferenceData.parentProcessStep;
+                    let currentProcessStep = currentProcessReferenceData.currentProcessStep;
+
+                    parentProcessStep.processSteps.splice(parentProcessStep.processSteps.indexOf(currentProcessStep), 1);
+
+                    if (!newParentProcessStep.processSteps)
+                        newParentProcessStep.processSteps = [];
+                    newParentProcessStep.processSteps.push(currentProcessStep);
+
+                    let actionModel: ProcessActionModel = {
+                        process: currentProcessReferenceData.process,
+                        processData: {}
+                    }
+
+                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessStep.id);
+                        resolve({
+                            process: process,
+                            processStep: processStepRef.desiredProcessStep
+                        });
+                    })
                 })
             })
         }),
