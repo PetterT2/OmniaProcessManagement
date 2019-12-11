@@ -2,10 +2,8 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessService } from '../services';
 import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessDataWithAuditing } from '../models';
 import { OPMUtils } from '../utils';
-import { setTimeout } from 'timers';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
@@ -256,36 +254,8 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        moveProcessStep: this.action((newParentProcessStep: ProcessStep) => {
-            return this.transaction.newProcessOperation(() => {
-                return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
-
-                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
-                    let parentProcessStep = currentProcessReferenceData.current.parentProcessStep;
-                    let currentProcessStep = currentProcessReferenceData.current.processStep;
-
-                    parentProcessStep.processSteps.splice(parentProcessStep.processSteps.indexOf(currentProcessStep), 1);
-
-                    if (!newParentProcessStep.processSteps)
-                        newParentProcessStep.processSteps = [];
-                    newParentProcessStep.processSteps.push(currentProcessStep);
-
-                    let actionModel: ProcessActionModel = {
-                        process: currentProcessReferenceData.process,
-                        processData: {}
-                    }
-
-                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
-                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, currentProcessStep.id);
-                        resolve({
-                            process: process,
-                            processStep: processStepRef.desiredProcessStep
-                        });
-                    })
-                })
-            })
-        }),
-        saveState: this.action(() => {
+        //refreshContentNavigation parameter is used for onDispatched
+        saveState: this.action((refreshContentNavigation?: boolean) => {
 
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
@@ -307,24 +277,21 @@ export class CurrentProcessStore extends Store {
                         shortcutProcessDataJson = JSON.stringify(shortcutProcessStepData);
                     }
 
-                    let changed =
-                        //Process changed
-                        currentProcessJson != this.currentProcessJson ||
-                        //Current Process Step data changed
-                        currentProcessStepDataJson != this.currentLoadedProcessDataJsonDict[currentProcessStepId] ||
-                        //Shortcut Process Step data changed
-                        (hasShortcut && shortcutProcessDataJson != this.currentLoadedProcessDataJsonDict[shortcutProcessStepId]);
+                    let processChanged = currentProcessJson != this.currentProcessJson;
+                    let currentProcessStepDataChanged = currentProcessStepDataJson != this.currentLoadedProcessDataJsonDict[currentProcessStepId];
+                    let shortcutProcessStepDataChanged = hasShortcut && shortcutProcessDataJson != this.currentLoadedProcessDataJsonDict[shortcutProcessStepId];
 
-
-                    if (changed) {
+                    if (processChanged || currentProcessStepDataChanged || shortcutProcessStepDataChanged) {
                         let actionModel: ProcessActionModel = {
                             process: currentProcess,
-                            processData: {
-                                [currentProcessStepId]: currentProcessStepData
-                            }
+                            processData: {}
                         }
 
-                        if (hasShortcut) {
+                        if (currentProcessStepDataChanged) {
+                            actionModel.processData[currentProcessStepId] = currentProcessStepData;
+                        }
+
+                        if (shortcutProcessStepDataChanged) {
                             actionModel.processData[shortcutProcessStepId] = shortcutProcessStepData
                         }
 

@@ -96,16 +96,24 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         currentReferenceData.current.processStep.title = this.title;
 
         this.loading = true;
-        this.currentProcessStore.actions.saveState.dispatch().then(() => {
+        this.currentProcessStore.actions.saveState.dispatch(true).then(() => {
             this.showEditTitleDialog = false;
         })
     }
 
     moveToProcessStep(newParentProcessStep: ProcessStep): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.currentProcessStore.actions.moveProcessStep.dispatch(newParentProcessStep).then((result) => {
-                resolve();
-            })
+            let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
+            let parentProcessStep = currentProcessReferenceData.current.parentProcessStep;
+            let currentProcessStep = currentProcessReferenceData.current.processStep;
+
+            parentProcessStep.processSteps.splice(parentProcessStep.processSteps.indexOf(currentProcessStep), 1);
+
+            if (!newParentProcessStep.processSteps)
+                newParentProcessStep.processSteps = [];
+            newParentProcessStep.processSteps.push(currentProcessStep);
+
+            this.currentProcessStore.actions.saveState.dispatch(true).then(resolve).catch(reject);
         })
     }
 
@@ -153,7 +161,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                                     loading={this.loading}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.showEditTitleDialog ? this.editTitle()  : this.addProcessStep() }}>
+                                    onClick={() => { this.showEditTitleDialog ? this.editTitle() : this.addProcessStep() }}>
                                     {this.showEditTitleDialog ? this.omniaLoc.Common.Buttons.Save : this.omniaLoc.Common.Buttons.Create}
                                 </v-btn>
                                 <v-btn
