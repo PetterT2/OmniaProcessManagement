@@ -181,6 +181,26 @@ export class CurrentProcessStore extends Store {
                 })
             });
         }),
+        ensureShortcut: this.action((shortcutProcessStepId: GuidValue) => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<ProcessReference>((resolve, reject) => {
+                    if (this.currentProcessReference.state) {
+                        let currentProcessReference: ProcessReference = {
+                            opmProcessId: this.currentProcessReference.state.opmProcessId,
+                            processId: this.currentProcessReference.state.processId,
+                            processStepId: this.currentProcessReference.state.processStepId,
+                            shortcutProcessStepId: shortcutProcessStepId
+                        }
+                        resolve(currentProcessReference);
+                    }
+                    else {
+                        reject('Active Process not found in store to process operation');
+                    }
+                })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+            })
+        }),
         checkOut: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
