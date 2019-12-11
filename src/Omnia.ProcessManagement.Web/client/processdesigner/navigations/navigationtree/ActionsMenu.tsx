@@ -74,9 +74,19 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         })
     }
 
-    moveToProcessStep(processStep: ProcessStep): Promise<void> {
+    moveToProcessStep(newParentProcessStep: ProcessStep): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            resolve();
+            let currentReferenceData = this.currentProcessStore.getters.referenceData();
+            let parentProcessStep = currentReferenceData.parentProcessStep;
+            let currentProcessStep = currentReferenceData.currentProcessStep;
+
+            parentProcessStep.processSteps.splice(parentProcessStep.processSteps.indexOf(currentProcessStep), 1);
+
+            if (!newParentProcessStep.processSteps)
+                newParentProcessStep.processSteps = [];
+            newParentProcessStep.processSteps.push(currentProcessStep);
+
+            this.currentProcessStore.actions.saveState.dispatch(true).then(resolve).catch(reject)
         })
     }
 

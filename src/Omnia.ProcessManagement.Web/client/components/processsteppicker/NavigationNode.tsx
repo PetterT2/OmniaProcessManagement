@@ -86,7 +86,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         let isSelectedNode = this.selectingProcessStep == this.processStep;
-        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
+        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.filter(child => !this.hiddenProcessStepIdsDict[child.id.toString().toLowerCase()]).length > 0;
         let id = this.processStep.id.toString().toLowerCase();
         let isHidden = this.hiddenProcessStepIdsDict[id];
         let disabled = this.disabledProcessStepIdsDict[id];
