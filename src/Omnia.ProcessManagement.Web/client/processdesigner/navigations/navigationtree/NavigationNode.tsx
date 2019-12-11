@@ -55,8 +55,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
     onMoveNavigation(e: Event, moveUp: boolean) {
         e.stopPropagation();
-        let parentProcessStep = this.currentProcessStore.getters.referenceData().parentProcessStep
-        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep
+        let parentProcessStep = this.currentProcessStore.getters.referenceData().current.parentProcessStep
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep
         let currentProcessStepIndex = parentProcessStep.processSteps.indexOf(currentProcessStep);
 
         if (moveUp && !this.firstNode) {
@@ -70,7 +70,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             parentProcessStep.processSteps[currentProcessStepIndex] = temp;
         }
 
-        this.currentProcessStore.actions.saveState.dispatch(true);
+        this.currentProcessStore.actions.saveState.dispatch();
     }
 
 
@@ -133,7 +133,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             collapsedStyle = this.navigationNodeStyles.contentHide;
         }
 
-        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep;
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep;
 
         let isSelectedNode = (currentProcessStep == this.processStep);
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;

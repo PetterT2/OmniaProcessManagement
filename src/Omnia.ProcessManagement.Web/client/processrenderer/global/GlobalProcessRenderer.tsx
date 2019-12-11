@@ -34,7 +34,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
         return (
             <div>
                 <v-btn style={{ float: 'right' }} icon onClick={() => { OPMRouter.clearRoute() }}><v-icon>close</v-icon></v-btn>
-                <p>Process Step: {currentReferenceData.currentProcessStep.title['en-us']}</p>
+                <p>Process Step: {currentReferenceData.current.processStep.title['en-us']}</p>
                 <div>{JSON.stringify(currentReferenceData)}</div>
             </div>
         )

@@ -168,20 +168,20 @@ export class ProcessDesignerStore extends Store {
         editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
-                if (!currentProcess.parentProcessStep) {
+                if (!currentProcess.current.processStep) {
                     this.rootProcessReferenceData = Utils.clone(currentProcess);
                 }
                 var editingProcessReference: {
                     processStep: ProcessStep,
                     processData: ProcessData
-                } = this.editedProcessReferences[currentProcess.currentProcessStep.id.toString()];
+                } = this.editedProcessReferences[currentProcess.current.processStep.id.toString()];
 
                 if (!editingProcessReference) {
                     editingProcessReference = {
-                        processStep: Utils.clone(currentProcess.currentProcessStep),
-                        processData: Utils.clone(currentProcess.currentProcessData)
+                        processStep: Utils.clone(currentProcess.current.processStep),
+                        processData: Utils.clone(currentProcess.current.processData)
                     };
-                    this.editedProcessReferences[currentProcess.currentProcessStep.id.toString()] = editingProcessReference;
+                    this.editedProcessReferences[currentProcess.current.processStep.id.toString()] = editingProcessReference;
                 }
                 if (!editingProcessReference.processData.canvasDefinition) {
                     editingProcessReference.processData.canvasDefinition = this.initDefaultCanvasDefinition();

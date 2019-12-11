@@ -4,9 +4,17 @@ import { Process, ProcessStep, ProcessData } from '..';
 export interface ProcessReferenceData {
     readonly process: Process;
 
-    //If null => root process step
-    readonly parentProcessStep?: ProcessStep;
+    //the process step that match to the current route
+    readonly current: {
+        parentProcessStep?: ProcessStep; //If null - root process step
+        processStep: ProcessStep;
+        processData: ProcessData;
+    }
 
-    readonly currentProcessStep: ProcessStep;
-    readonly currentProcessData: ProcessData;
+    //a shortcut to another process step
+    readonly shortcut?: {
+        parentProcessStep?: ProcessStep; //If null - root process step
+        processStep: ProcessStep;
+        processData: ProcessData;
+    }
 }
