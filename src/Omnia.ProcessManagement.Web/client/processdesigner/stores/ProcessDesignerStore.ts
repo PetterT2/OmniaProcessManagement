@@ -38,16 +38,16 @@ export class ProcessDesignerStore extends Store {
     private hasDataChanged = this.state<boolean>(null);
 
     public rootProcessReferenceData: ProcessReferenceData = null;
-    private editedProcessReferences: {
-        [processStepId: string]: {
-            processStep: ProcessStep,
-            processData: ProcessData
-        }
-    } = {};
-    public editingProcessReference = this.state<{
-        processStep: ProcessStep,
-        processData: ProcessData
-    }>(null);
+    //private editedProcessReferences: {
+    //    [processStepId: string]: {
+    //        processStep: ProcessStep,
+    //        processData: ProcessData
+    //    }
+    //} = {};
+    //public editingProcessReference = this.state<{
+    //    processStep: ProcessStep,
+    //    processData: ProcessData
+    //}>(null);
    
     constructor() {
         super({ id: "0c263d6c-4ab2-4345-b9f3-8b3919de1b5f" });
@@ -169,25 +169,11 @@ export class ProcessDesignerStore extends Store {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
                 if (!currentProcess.parentProcessStep) {
-                    this.rootProcessReferenceData = Utils.clone(currentProcess);
+                    this.rootProcessReferenceData = Utils.clone(currentProcess);//todo: check this?
                 }
-                var editingProcessReference: {
-                    processStep: ProcessStep,
-                    processData: ProcessData
-                } = this.editedProcessReferences[currentProcess.currentProcessStep.id.toString()];
-
-                if (!editingProcessReference) {
-                    editingProcessReference = {
-                        processStep: Utils.clone(currentProcess.currentProcessStep),
-                        processData: Utils.clone(currentProcess.currentProcessData)
-                    };
-                    this.editedProcessReferences[currentProcess.currentProcessStep.id.toString()] = editingProcessReference;
+                if (!currentProcess.currentProcessData.canvasDefinition) {
+                    currentProcess.currentProcessData.canvasDefinition = this.initDefaultCanvasDefinition();
                 }
-                if (!editingProcessReference.processData.canvasDefinition) {
-                    editingProcessReference.processData.canvasDefinition = this.initDefaultCanvasDefinition();
-                }
-
-                this.editingProcessReference.mutate(editingProcessReference);
 
                 let defaultShowContentNavigation: boolean = false;
                 if (this.editmode.state) {
@@ -213,7 +199,9 @@ export class ProcessDesignerStore extends Store {
                     processSteps: [],
                     processDataHash: ''
                 };
-                this.editingProcessReference.state.processStep.processSteps.push(childProcessStep);
+                let currentProcess = this.currentProcessStore.getters.referenceData();
+                currentProcess.currentProcessStep.processSteps.push(childProcessStep);
+                
                 //todo: handle add to navigations
                 resolve(childProcessStep);
             });

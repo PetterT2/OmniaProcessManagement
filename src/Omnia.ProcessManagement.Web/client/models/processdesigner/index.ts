@@ -8,3 +8,4 @@ export * from './DisplayBreakPoint';
 export * from './AddShapeStep';
 export * from './ShapeDefinitionSelection';
 export * from './AddShapeOptions';
+export * from './ProcessEditingLink';

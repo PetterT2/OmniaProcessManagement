@@ -22,10 +22,15 @@
         },
         New: string;
         AddLink: string;
+        EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
         MoveProcessStep: string;
         NewDataNotSaved: string;
         NewDataHasBeenSaved: string;
+        LinkObject: {
+            OpenNewWindow: string;
+        };
+        ChangeShape: string;
     }
 }

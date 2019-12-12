@@ -4,5 +4,5 @@ import { GuidValue } from '@omnia/fx-models';
 export interface ShapeDefinitionSelection extends ShapeDefinition {
     //id?: GuidValue;
     visible?: boolean;
-    isSelected?: boolean;
+    //isSelected?: boolean;
 }

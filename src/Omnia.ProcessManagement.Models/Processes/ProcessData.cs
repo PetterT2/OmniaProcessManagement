@@ -15,7 +15,7 @@ namespace Omnia.ProcessManagement.Models.Processes
         public CanvasDefinition CanvasDefinition { get; set; }
         public MultilingualString Content { get; set; }
         public object Documents { get; set; } //TODO
-        public object Links { get; set; } //TODO
+        public List<Link> Links { get; set; } //TODO
         public object Tasks { get; set; }// TODO
     }
 }
