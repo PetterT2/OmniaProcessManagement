@@ -52,12 +52,15 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
 
     subscribeEvents() {
         this.subscriptionHandler.add(
-            this.currentProcessStore.actions.addProcessStep.onDispatched((result) => {
-                this.refreshExpandState(result.process.rootProcessStep, result.processStep);
+            this.currentProcessStore.actions.saveState.onDispatched((result, refreshContentNavigation) => {
+                if (refreshContentNavigation) {
+                    let referenceData = this.currentProcessStore.getters.referenceData();
+                    this.refreshExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep);
+                }
             })
         )
         this.subscriptionHandler.add(
-            this.currentProcessStore.actions.moveProcessStep.onDispatched((result) => {
+            this.currentProcessStore.actions.addProcessStep.onDispatched((result) => {
                 this.refreshExpandState(result.process.rootProcessStep, result.processStep);
             })
         )

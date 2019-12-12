@@ -70,7 +70,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             parentProcessStep.processSteps[currentProcessStepIndex] = temp;
         }
 
-        this.currentProcessStore.actions.saveState.dispatch();
+        this.currentProcessStore.actions.saveState.dispatch(true);
     }
 
 
