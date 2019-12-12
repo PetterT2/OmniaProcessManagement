@@ -234,7 +234,7 @@ export class CurrentProcessStore extends Store {
         }),
         deleteProcessStep: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
-                return new Promise<ProcessReference>((resolve, reject) => {
+                return new Promise<null>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
 
                     currentProcessReferenceData.current.parentProcessStep.processSteps.splice(
@@ -246,12 +246,9 @@ export class CurrentProcessStore extends Store {
                     }
 
                     this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
-                        let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.current.parentProcessStep.id);
-                        resolve(processReferenceToUse);
-                    })
+                        resolve(null)
+                    }).catch(reject)
                 })
-            }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         }),
         addProcessStep: this.action((title: MultilingualString): Promise<{ process: Process, processStep: ProcessStep }> => {
