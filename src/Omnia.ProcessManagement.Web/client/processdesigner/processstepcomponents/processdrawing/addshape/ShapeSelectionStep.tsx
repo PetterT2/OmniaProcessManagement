@@ -266,6 +266,10 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
     render(h) {
         return <v-card flat>
             <v-card-content>
+                {
+                    (!this.recentShapeDefinitions || this.recentShapeDefinitions.length == 0) && !this.availableShapeDefinitions &&
+                    <v-container><span>{this.pdLoc.ProcessTemplateDoesNotHaveShapeDefinitions}</span></v-container>
+                }
                 {this.renderRecentShapeSelections(h)}
                 {this.renderShapeSelections(h)}
             </v-card-content>

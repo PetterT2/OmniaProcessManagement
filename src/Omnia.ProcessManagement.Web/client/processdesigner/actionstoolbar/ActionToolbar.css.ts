@@ -34,9 +34,10 @@ export const ActionToolbarStyles = {
         });
     },
     actionButtons: style({
-        marginRight: "20px",
+        marginRight: "10px",
         display: "flex",
-        alignItems: "center"
+        alignItems: "center",
+        marginLeft: "10px"
     }),
     statusButton: style({
         display: "flex",
@@ -44,6 +45,13 @@ export const ActionToolbarStyles = {
         $nest: {
             '.v-ripple__container': {
                 display: "none !important"
+            },
+            '.v-btn': {
+                $nest: {
+                    '&:hover': {
+                        cursor: "default"
+                    }
+                }
             }
         }
     }),

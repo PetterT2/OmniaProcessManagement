@@ -39,5 +39,6 @@
             OpenNewWindow: string;
         };
         ChangeShape: string;
+        ProcessTemplateDoesNotHaveShapeDefinitions: string;
     }
 }

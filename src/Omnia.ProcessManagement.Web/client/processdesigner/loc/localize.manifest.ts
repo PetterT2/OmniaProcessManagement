@@ -42,5 +42,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         LinkObject: {
             OpenNewWindow: "Open new window"
         },
-        ChangeShape: "Change Shape"
+        ChangeShape: "Change Shape",
+        ProcessTemplateDoesNotHaveShapeDefinitions: "The current process template doesn't have any Shape Definitions."
     });
