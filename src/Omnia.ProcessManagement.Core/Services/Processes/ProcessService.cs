@@ -91,9 +91,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             foreach (Guid id in processIds)
             {
                 Process findProcess = processes.FirstOrDefault(p => p.Id == id);
-                workingStatus.Add(findProcess != null ? findProcess.RootProcessStep.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
+                workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
             }
             return workingStatus;
+        }
+
+        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        {
+            var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+            return beingUsed;
         }
     }
 }

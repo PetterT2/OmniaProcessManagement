@@ -22,5 +22,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId);
         ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds);
+        ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds);
     }
 }

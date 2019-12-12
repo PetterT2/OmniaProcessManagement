@@ -193,6 +193,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<Guid>("OPMProcessId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte>("ProcessWorkingStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<Guid>("SiteId")
                         .HasColumnType("uniqueidentifier");
 
@@ -311,9 +314,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<byte>("CompletedType")
                         .HasColumnType("tinyint");
 
@@ -373,6 +373,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");

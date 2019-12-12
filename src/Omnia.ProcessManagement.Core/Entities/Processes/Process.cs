@@ -19,8 +19,8 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string CheckedOutBy { get; set; }
         public Guid SiteId { get; set; }
         public Guid WebId { get; set; }
+        public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
-
     }
 }

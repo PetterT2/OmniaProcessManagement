@@ -17,7 +17,6 @@ namespace Omnia.ProcessManagement.Core.Entities.Workflows
         public WorkflowType Type { get; set; }
         public WorkflowCompletedType CompletedType { get; set; }
         public DateTimeOffset? DueDate { get; set; }
-        public string Comment { get; set; }
         
         public Process Process { get; set; }
         public ICollection<WorkflowTask> WorkflowTasks { get; set; }

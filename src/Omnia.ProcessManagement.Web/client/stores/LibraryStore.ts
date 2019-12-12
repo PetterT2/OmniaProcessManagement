@@ -23,7 +23,7 @@ export class LibraryStore extends Store {
     getters = {
         processWorkingStatus: (processes: Array<Process>) => {
             processes.forEach(process => {
-                process.rootProcessStep.processWorkingStatus = this.processWorkingStatus[process.id.toString()] || (process.versionType == ProcessVersionType.Draft ? Enums.WorkflowEnums.ProcessWorkingStatus.Draft : Enums.WorkflowEnums.ProcessWorkingStatus.Published);
+                process.processWorkingStatus = this.processWorkingStatus[process.id.toString()] || (process.versionType == ProcessVersionType.Draft ? Enums.WorkflowEnums.ProcessWorkingStatus.Draft : Enums.WorkflowEnums.ProcessWorkingStatus.Published);
             })
         }
     }

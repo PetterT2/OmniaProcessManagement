@@ -299,8 +299,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     }
 
     renderStatusText(h, item: DraftProcess) {
-        let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[item.rootProcessStep.processWorkingStatus]];
-        switch (item.rootProcessStep.processWorkingStatus) {
+        let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[item.processWorkingStatus]];
+        switch (item.processWorkingStatus) {
             case Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval:
                 return <a onClick={() => { }}>{statusName}</a>;
             default:

@@ -167,8 +167,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             rootProcessStep.Edition = isRevision ? rootProcessStep.Edition : rootProcessStep.Edition + 1;
             rootProcessStep.Revision = isRevision ? rootProcessStep.Revision + 1 : 0;
             rootProcessStep.Comment = comment;
-            rootProcessStep.ProcessWorkingStatus = ProcessWorkingStatus.Published;
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
+            processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
@@ -256,7 +256,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 if (!usingProcessDataIdHashSet.Contains(existingProcessContent.Key))
                 {
-                    RemoveProcessData(processId, existingProcessContent.Key);
+                    RemoveProcessData(existingProcessContent.Key, processId);
                 }
             }
         }
@@ -399,6 +399,27 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                .ToListAsync();
             processesData.ForEach(p => processes.Add(MapEfToModel(p)));
             return processes;
+        }
+
+        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        {
+            var remaningReferenceProcessStepIds = await DbContext.ProcessData
+                .Where(p => p.ProcessId == processId && !deletingProcessStepIds.Contains(p.ProcessStepId))
+                .Select(p => p.ReferenceProcessStepIds)
+                .ToListAsync();
+
+            var remaningReferenceProcessStepIdsHashSet = new HashSet<Guid>();
+            foreach (var remaningReferenceProcessStepId in remaningReferenceProcessStepIds)
+            {
+                if (!string.IsNullOrWhiteSpace(remaningReferenceProcessStepId))
+                {
+                    remaningReferenceProcessStepId.Split(',').ToList().ForEach(id => remaningReferenceProcessStepIdsHashSet.Add(new Guid(id)));
+                }
+            }
+
+            var beingUsed = deletingProcessStepIds.Any(id => remaningReferenceProcessStepIdsHashSet.Contains(id));
+
+            return beingUsed;
         }
 
         public async ValueTask<Process> GetProcessByIdAsync(Guid processId)

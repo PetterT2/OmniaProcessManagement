@@ -136,6 +136,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep;
 
         let isSelectedNode = (currentProcessStep == this.processStep);
+        let isCheckedOutByCurrentUser = this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser;
+
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
 
         return (
@@ -156,7 +158,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                     </div>
                     <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
                     {
-                        isSelectedNode &&
+                        isSelectedNode && isCheckedOutByCurrentUser &&
                         <div class={[this.navigationNodeStyles.actionBar]}>
                             {
                                 !this.firstNode || !this.lastNode ? [
