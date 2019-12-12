@@ -41,7 +41,7 @@ export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelPr
     }
 
     init() {
-        this.processStepLinks = this.currentProcessStore.getters.referenceData().currentProcessData.links;
+        this.processStepLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
 
         if (this.processStepLinks) {
             var existedLink = this.processStepLinks.find((item) => item.id == this.linkId);
@@ -51,7 +51,7 @@ export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelPr
             }
         }
         else {
-            this.processStepLinks = this.currentProcessStore.getters.referenceData().currentProcessData.links = [];
+            this.processStepLinks = this.currentProcessStore.getters.referenceData().current.processData.links = [];
         }
         if (!this.editingLink) {
             this.editingLink = this.initDefaultLink();
@@ -133,7 +133,7 @@ export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelPr
                 </v-card-content>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                        <v-btn text color={this.omniaTheming.themes.primary.base} dark={true} onClick={this.saveLink}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
+                        <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.saveLink}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
                         <v-btn text onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
                 </v-card-actions>
                 </v-card>

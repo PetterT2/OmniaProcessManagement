@@ -1,14 +1,8 @@
 ﻿import { Store } from '@omnia/fx/store';
-import { Injectable, Inject, Topics, Utils, Localize } from '@omnia/fx';
-import { FormValidator, VueComponentBase } from '@omnia/fx/ux';
-import { InstanceLifetimes, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
-import { ProcessDesignerSettingsStore } from './ProcessDesignerSettingsStore';
-import { ProcessDesignerTabStore } from './ProcessDesignerTabStore';
-import { CurrentProcessStore } from '../../fx';
-import { IProcessDesignerItem, ActionItem, DisplayModes, AddShapeStep } from '../../models/processdesigner';
-import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
-import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition, ShapeDefinition } from '../../fx/models';
+import { Injectable, Localize } from '@omnia/fx';
+import { InstanceLifetimes } from '@omnia/fx-models';
+import { AddShapeStep } from '../../models/processdesigner';
+import { ShapeDefinition } from '../../fx/models';
 import { ProcessDesignerLocalization } from '../loc/localize';
 
 @Injectable({

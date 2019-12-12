@@ -37,7 +37,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
     }
 
     get editingCanvasDefinition() {
-        let result: CanvasDefinition = this.currentProcessStore.getters.referenceData().currentProcessData.canvasDefinition;
+        let result: CanvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition;
         return result;
     }
 

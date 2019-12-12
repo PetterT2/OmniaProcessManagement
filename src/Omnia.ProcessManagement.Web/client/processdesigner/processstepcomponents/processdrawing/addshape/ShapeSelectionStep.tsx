@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, IconSize } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants } from '../../../../fx';
+import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes } from '../../../../fx/models';
@@ -22,6 +22,7 @@ export interface ShapeSelectionStepProps {
 @Component
 export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelectionStepProps> implements IWebComponentInstance{
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
     @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore;
@@ -45,7 +46,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
     }
 
     init() {
-        let processTemplateId = this.processDesignerStore.rootProcessReferenceData.process.rootProcessStep.processTemplateId;
+        let processTemplateId = this.currentProcessStore.getters.referenceData().process.rootProcessStep.processTemplateId;
         this.processTemplateStore.actions.ensureLoadProcessTemplate.dispatch(processTemplateId).then((loadedProcessTemplate) => {
             this.availableShapeDefinitions = loadedProcessTemplate.settings.shapeDefinitions;
             if (this.availableShapeDefinitions) {
@@ -118,10 +119,6 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         }, 200);
     }
     private selectShape(shapeDefinition: ShapeDefinitionSelection, idPrefix: string) {
-        //this.availableShapeDefinitions.forEach((item) => {
-        //    item.isSelected = false;
-        //});
-        //shapeDefinition.isSelected = true;
         this.selectedShapeDefinition = shapeDefinition;
         this.selectedElementId = idPrefix + shapeDefinition.id;
     }
@@ -186,7 +183,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         let idPrefix = isRecent ? 'recent_' : '';
         let canvasId = idPrefix + shapeDefinition.id.toString();
         if (!this.drawingCanvas[canvasId]) {
-            let iconSize = 80;
+            let iconSize = 100;
             let shapeIconWidth = drawingShapeDefinition.width;
             let shapeIconHeight = drawingShapeDefinition.height;
             if (shapeIconWidth > shapeIconHeight) {
@@ -236,7 +233,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
             else
                 if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {
                     shapeDefinitionElement = <div>
-                        <i class="fal fa-photo-video"></i>
+                        <i class="fal fa-photo-video">Media</i>
                     </div>;
                 }
                 else {
@@ -258,7 +255,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
             <v-spacer></v-spacer>
             <v-btn text
                 color={this.omniaTheming.themes.primary.base}
-                dark={true}
+                dark={this.omniaTheming.promoted.body.dark}
                 disabled={!this.selectedShapeDefinition}
                 onClick={this.goToNext}>{this.omniaLoc.Common.Buttons.Next}</v-btn>
             <v-btn text

@@ -5,11 +5,11 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, HeadingStyles, DialogStyles } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTypeStore, ProcessTemplateStore, DrawingCanvas, IShape } from '../../../../fx';
+import { CurrentProcessStore,  ProcessTemplateStore, DrawingCanvas } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import './ShapeTypeStep.css';
-import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, ShapeDefinitionTypes, DrawingShape, DrawingProcessStepShape, Link } from '../../../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link } from '../../../../fx/models';
 import { ShapeDefinitionSelection, AddShapeOptions } from '../../../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -37,8 +37,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     shapeTypeStepStyles = StyleFlow.use(ShapeTypeStepStyles);
     private availableShapeDefinitions: Array<ShapeDefinitionSelection> = null;
     private drawingCanvas: DrawingCanvas = null;
-    private shapeFilterKeyword: string = '';
-    private toggleVisibleItemFlag: boolean = false;
     private filterShapeTimeout = null;//use this to avoid forceUpdate
     private selectedShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
     private selectedShapeType: Enums.ShapeTypes = Enums.ShapeTypes.ProcessStep;
@@ -92,6 +90,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
        
     init() {
         this.selectedShapeDefinition = Utils.clone(this.addShapeWizardStore.selectedShape.state);
+        this.shapeTitle = Utils.clone(this.selectedShapeDefinition.title);
     }
 
     beforeDestroy() {
@@ -123,9 +122,12 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 if (this.selectedShapeType == Enums.ShapeTypes.ProcessStep) {
                     drawingShapeType = DrawingShapeTypes.ProcessStep;
                     if (this.selectedProcessStepId == Guid.empty) {
-                        this.processDesignerStore.actions.addProcessStep.dispatch(this.displayShapeTitle).then((addedProcessStep) => {
-                            newProcessStepId = addedProcessStep.id;
-                        });
+                        this.currentProcessStore.actions.addProcessStep.dispatch(this.shapeTitle).then((result) => {
+
+                        })
+                        //this.processDesignerStore.actions.addProcessStep.dispatch(this.displayShapeTitle).then((addedProcessStep) => {
+                        //    newProcessStepId = addedProcessStep.id;
+                        //});
                     }
                     else {
                         newProcessStepId = this.selectedProcessStepId;
@@ -133,7 +135,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 }
                 else if (this.selectedShapeType == Enums.ShapeTypes.Link) {
                     drawingShapeType = DrawingShapeTypes.CustomLink;
-                    let customLinks = this.currentProcessStore.getters.referenceData().currentProcessData.links;
+                    let customLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
                     if (customLinks) {
                         let link = customLinks.find((item) => item.id == this.selectedCustomLinkId);
                         if (link) {
@@ -144,7 +146,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             let addShapeOptions: AddShapeOptions = {
                 shapeDefinition: this.selectedShapeDefinition,
                 shapeType: drawingShapeType,
-                title: this.displayShapeTitle,
+                title: this.shapeTitle,
                 processStepId: newProcessStepId,
                 customLink: customLinkUrl
             };
@@ -154,15 +156,40 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
         }
     }
 
+    private completedAddShape() {
+
+    }
+
     private onSelectedShapeType() {
         this.selectedProcessStepId = Guid.empty;
         this.selectedCustomLinkId = Guid.empty;
+        this.shapeTitle = null;
+    }
+    private onSelectedProcessChanged() {
+        let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
+        let selectedStep = childSteps.find(item => item.id == this.selectedProcessStepId);
+        if (selectedStep) {
+            this.shapeTitle = Utils.clone(selectedStep.title);
+        }
+        else
+            this.shapeTitle = null;
+    }
+    private onSelectedLinkChanged() {
+        let links = this.currentProcessStore.getters.referenceData().current.processData.links;
+        if (links) {
+            let selectedLink = links.find(item => item.id == this.selectedCustomLinkId);
+            if (selectedLink) {
+                this.shapeTitle = Utils.clone(selectedLink.title);
+            }
+            else
+                this.shapeTitle = null;
+        }        
     }
 
     renderShapePreview(h) {
         return <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>;
     }
-    get displayShapeTitle() {
+    private initShapeTitle() {
         let result = this.shapeTitle;
         let shapeTitleStringValue = this.multilingualStore.getters.stringValue(result);
         if (!shapeTitleStringValue || shapeTitleStringValue.length == 0) {
@@ -183,24 +210,23 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                         width: 200,//ToDo
                         height: 200
                     });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.selectedShapeDefinition as DrawingShapeDefinition), this.displayShapeTitle, false);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.selectedShapeDefinition as DrawingShapeDefinition), this.shapeTitle, false);
             }, 200);
         }
     }
     updateCanvasSize() {
         //redraw the canvas
-        //todo: handle parent canvas size?
         this.updateDrawedShape();
     }
     updateDrawedShape() {
         if (this.drawingCanvas) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.selectedShapeDefinition as DrawingShapeDefinition), this.displayShapeTitle, false);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.selectedShapeDefinition as DrawingShapeDefinition), this.shapeTitle, false);
         }
     }
 
     previewActivedShape() {
         if (this.drawingCanvas) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.selectedShapeDefinition as DrawingShapeDefinition), this.displayShapeTitle, true);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0], (this.selectedShapeDefinition as DrawingShapeDefinition), this.shapeTitle, true);
         }
     }
     private renderShapeTypeOptions(h) {
@@ -239,7 +265,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             id: Guid.empty,
             title: '[' + this.pdLoc.New + ']'
         }];
-        let childSteps = this.currentProcessStore.getters.referenceData().currentProcessStep.processSteps;
+        let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
         processStepOptions = processStepOptions.concat(childSteps.map(item => {
             return {
                 id: item.id,
@@ -248,7 +274,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
         }));
 
         return <div>
-            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId}></v-select>
+            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId} onChange={this.onSelectedProcessChanged}></v-select>
             <omfx-field-validation
                 useValidator={this.internalValidator}
                 checkValue={this.selectedProcessStepId}
@@ -261,7 +287,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             id: Guid.empty,
             title: '[' + this.pdLoc.New + ']'
         }];
-        let customLinks = this.currentProcessStore.getters.referenceData().currentProcessData.links;
+        let customLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
         if (customLinks) {
             customLinkOptions = customLinkOptions.concat(customLinks.map(item => {
                 return {
@@ -271,7 +297,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             }));
         }
         return <div>
-            <v-select item-value="id" item-text="title" items={customLinkOptions} v-model={this.selectedCustomLinkId}></v-select>
+            <v-select item-value="id" item-text="title" items={customLinkOptions} v-model={this.selectedCustomLinkId} onChange={this.onSelectedLinkChanged}></v-select>
             <omfx-field-validation
                 useValidator={this.internalValidator}
                 checkValue={this.selectedCustomLinkId}
@@ -432,12 +458,12 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
         return <v-card-actions>
             <v-btn text
                 color={this.omniaTheming.themes.primary.base}
-                dark={true}
-                onClick={this.changeShape}>{this.pdLoc.AddImage}</v-btn>
+                dark={this.omniaTheming.promoted.body.dark}
+                onClick={this.changeShape}>{this.pdLoc.ChangeShape}</v-btn>
             <v-spacer></v-spacer>
             <v-btn text
                 color={this.omniaTheming.themes.primary.base}
-                dark={true}
+                dark={this.omniaTheming.promoted.body.dark}
                 onClick={this.createShape}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
             <v-btn text
                 onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
