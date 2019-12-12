@@ -91,6 +91,11 @@ namespace Omnia.ProcessManagement.Core
                 public const string PageLayoutType = "PageLayoutType";
                 public const string PromotedState = "PromotedState";
                 public const string CanvasContent1 = "CanvasContent1";
+
+                public const string Fields_DueDate = "DueDate";
+                public const string Fields_StartDate = "StartDate";
+                public const string Fields_Assigned_To = "AssignedTo";
+
             }
         }
 
@@ -101,6 +106,9 @@ namespace Omnia.ProcessManagement.Core
             public const string SitePagesFeatureId = "b6917cb1-93a0-4b97-a84d-7cf49975d4ec";
             public const string ModernHomePage = "0x0101009D1CB255DA76424F860D91F20E6C4118";
             public const string SingleWebPartAppPageLayoutType = "SingleWebPartAppPage";
+
+            public const string ApprovalTaskUrl = "{0}/SitePages/Processes.aspx?displaytab=tasks&taskid={1}&viewtasktype=1";
+            public const string ProcessPreviewUrl = "{0}/SitePages/Processes.aspx?displaytab=drafts";//TODO:preview
         }
 
         public static class ModerPageTemplate
@@ -117,9 +125,41 @@ namespace Omnia.ProcessManagement.Core
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
         }
 
-        public static class ProcessColumns
+        public static class OPMContentTypeId
         {
-            public const string Title = "Title";
+            public const string CTApprovalTaskStringId = "0x010048629609aa6e4577b841268aa6afda0f";
         }
+
+        public static class EmailTemplates
+        {
+            public static string LinkHtmlTemplate = "<a href='{0}' target='_blank'>{1}</a>";
+
+            public static class SendForApprovalEmailTemplate
+            {
+                public static readonly string ApprovalTaskTitle = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.TaskTitle");
+                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.EmailSubjectTemplate");
+                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.EmailBodyTemplate");
+                public static readonly string ApprovalEditionCommentTemplateKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.ApprovalEditionCommentTemplate");
+                public static readonly string SubjectApprovalKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectApproval");
+                public static readonly string BodyApprovalKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyApproval");
+                public static readonly string BodyApprovalNoCommentKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyApprovalNoComment");
+                public static readonly string SubjectRejectKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectReject");
+                public static readonly string BodyRejectKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyReject");
+
+                public static class Tokens
+                {
+                    public static readonly string Name = "Name";
+                    public static readonly string Author = "Author";
+                    public static readonly string Approver = "Approver";
+                    public static readonly string DueDate = "DueDate";
+                    public static readonly string ProcessLink = "ProcessLink";
+                    public static readonly string TaskTitle = "TaskTitle";
+                    public static readonly string StartDate = "StartDate";
+                    public static readonly string Message = "Message";
+                    public static readonly string ApproverComment = "ApproverComment";
+                }
+            }
+        }
+
     }
 }

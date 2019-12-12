@@ -155,9 +155,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessWorkingStatus = (siteId: GuidValue, webId: GuidValue, processIds: Array<GuidValue>) => {
+    public getProcessWorkingStatus = (opmProcessIds: Array<GuidValue>, versionType: ProcessVersionType) => {
         return new Promise<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/workingstatus/${siteId}/${webId}`, processIds).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/workingstatus/${versionType}`, opmProcessIds).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

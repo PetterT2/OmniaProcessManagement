@@ -23,9 +23,20 @@ export class PublishProcessService {
         });
     }
 
-    public publishProcessWithApproval = (request: PublishProcessWithApprovalRequest): Promise<void> => {
+    public publishProcessWithApproval = (request: PublishProcessWithApprovalRequest): Promise<Process> => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/publish/withapproval', request).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public processingApprovalProcessAsync = (request: PublishProcessWithApprovalRequest): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/withapproval', request).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/processingapproval', request).then(response => {
                 if (response.data.success) {
                     resolve();
                 }

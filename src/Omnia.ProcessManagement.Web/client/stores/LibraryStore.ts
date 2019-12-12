@@ -23,22 +23,22 @@ export class LibraryStore extends Store {
     getters = {
         processWorkingStatus: (processes: Array<Process>) => {
             processes.forEach(process => {
-                process.processWorkingStatus = this.processWorkingStatus[process.id.toString()] || (process.versionType == ProcessVersionType.Draft ? Enums.WorkflowEnums.ProcessWorkingStatus.Draft : Enums.WorkflowEnums.ProcessWorkingStatus.Published);
+                process.processWorkingStatus = this.processWorkingStatus[process.opmProcessId.toString()] || (process.versionType == ProcessVersionType.Draft ? Enums.WorkflowEnums.ProcessWorkingStatus.Draft : Enums.WorkflowEnums.ProcessWorkingStatus.Published);
             })
         }
     }
 
     mutations = {
-        forceReloadProcessStatus: this.mutation(() => {
+        forceReloadProcessStatus: this.mutation((versionType: ProcessVersionType) => {
         }),
     }
 
     actions = {
-        ensureProcessWorkingStatus: this.action((siteId: GuidValue, webId: GuidValue, processIds: Array<GuidValue>) => {
-            return this.processService.getProcessWorkingStatus(siteId, webId, processIds)
+        ensureProcessWorkingStatus: this.action((opmProcessIds: Array<GuidValue>, versionType: ProcessVersionType) => {
+            return this.processService.getProcessWorkingStatus(opmProcessIds, versionType)
                 .then((workingStatus: Array<Enums.WorkflowEnums.ProcessWorkingStatus>) => {
-                    processIds.forEach((id, i) => {
-                        this.processWorkingStatus[id.toString()] = workingStatus[i];
+                    opmProcessIds.forEach((opmProcessId, i) => {
+                        this.processWorkingStatus[opmProcessId.toString()] = workingStatus[i];
                     });
                     return null;
                 });
