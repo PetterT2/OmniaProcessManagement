@@ -1,6 +1,7 @@
 ﻿using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,6 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
 {
     public interface IWorkflowService
     {
-       
+        ValueTask<Workflow> CreateAsync(Workflow workflow);
     }
 }

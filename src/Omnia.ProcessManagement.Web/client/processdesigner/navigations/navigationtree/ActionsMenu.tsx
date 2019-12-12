@@ -112,16 +112,13 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     }
 
     addProcessStep() {
-        this.currentProcessStore.actions.addProcessStep.dispatch(this.title).then((result) => {
-            OPMRouter.navigate(result.process, result.processStep)
-        })
+        this.loading = true;
+        this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true)
     }
 
     deleteProcessStep() {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        this.currentProcessStore.actions.deleteProcessStep.dispatch().then(() => {
-            OPMRouter.navigate(currentReferenceData.process, currentReferenceData.current.parentProcessStep)
-        })
+        this.loading = true;
+        this.currentProcessStore.actions.deleteProcessStep.dispatch()
     }
 
     editTitle() {

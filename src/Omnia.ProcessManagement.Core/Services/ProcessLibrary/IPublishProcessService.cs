@@ -13,6 +13,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     public interface IPublishProcessService
     {
         ValueTask PublishProcessAsync(PublishProcessWithoutApprovalRequest request);
-        ValueTask PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request);
+        ValueTask<Process> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request);
+        ValueTask ProcessingApprovalProcessAsync(PublishProcessWithApprovalRequest request);
+        
     }
 }

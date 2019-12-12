@@ -87,10 +87,6 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             {
                 option.Group = contentTypeGroupName;
             });
-            context.EnsureContentType<OPMReviewTask>().Configure((option) =>
-            {
-                option.Group = contentTypeGroupName;
-            });
         }
 
         private void EnsureFields(ISharePointEntityContext context, string fieldGroupName)
@@ -98,7 +94,9 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             context.EnsureField<OPMProcessId>().Configure((option) => { option.Group = fieldGroupName; });
             context.EnsureField<OPMEdition>().Configure((option) => { option.Group = fieldGroupName; });
             context.EnsureField<OPMRevision>().Configure((option) => { option.Group = fieldGroupName; });
-            context.EnsureField<OPMProperties>().Configure((option) => { option.Group = fieldGroupName; });        
+            context.EnsureField<OPMProperties>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMComment>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMTaskOutcome>().Configure((option) => { option.Group = fieldGroupName; });
         }
 
 

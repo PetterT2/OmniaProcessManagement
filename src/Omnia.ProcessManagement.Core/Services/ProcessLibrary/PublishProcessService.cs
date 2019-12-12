@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Omnia.Fx.Models.Language;
-using Omnia.Fx.MultilingualTexts;
+using Omnia.Fx.Localization;
 using Omnia.Fx.SharePoint.Client;
-using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Users;
-using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Services.Processes;
-using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.ProcessActions;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
 
@@ -20,16 +14,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     internal class PublishProcessService : IPublishProcessService
     {
         IProcessService ProcessService { get; }
-        private ISharePointClientContextProvider SharePointClientContextProvider { get; }
-        private IUserService UserService { get; }
+        IApprovalTaskService ApprovalTaskService { get; }
 
         public PublishProcessService(IProcessService processService,
-            ISharePointClientContextProvider sharePointClientContextProvider,
-            IUserService userService)
+            IApprovalTaskService approvalTaskService)
         {
             ProcessService = processService;
-            SharePointClientContextProvider = sharePointClientContextProvider;
-            UserService = userService;
+            ApprovalTaskService = approvalTaskService;
         }
 
         public async ValueTask PublishProcessAsync(PublishProcessWithoutApprovalRequest request)
@@ -37,10 +28,33 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing);
         }
 
-        public async ValueTask PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request)
+        public async ValueTask<Process> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request)
         {
-            var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing);
-
+            try
+            {
+                var process = await ProcessService.BeforeApprovalProcessAsync(request.OPMProcessId, ProcessWorkingStatus.SendingForApproval);
+                return process;
+            }
+            catch (Exception ex)
+            {
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
+                throw ex;
+            }
         }
+
+        public async ValueTask ProcessingApprovalProcessAsync(PublishProcessWithApprovalRequest request)
+        {
+            try
+            {
+                var process = await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.WaitingForApproval, Models.Enums.ProcessVersionType.Draft);
+                await ApprovalTaskService.AddApprovalTaskAndSendEmailAsync(request, process);
+            }
+            catch (Exception ex)
+            {
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
+                throw ex;
+            }
+        }
+
     }
 }

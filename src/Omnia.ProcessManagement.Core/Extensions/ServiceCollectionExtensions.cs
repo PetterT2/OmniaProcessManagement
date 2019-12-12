@@ -15,6 +15,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
 using Omnia.ProcessManagement.Core.Services.Settings;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,10 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ISettingsService, SettingsService>();
             services.AddScopedWithSingeltonRef<IPublishProcessService, PublishProcessService>();
             services.AddScopedWithSingeltonRef<IWorkflowService, WorkflowService>();
+            services.AddScopedWithSingeltonRef<IWorkflowTaskService, WorkflowTaskService>();
             services.AddScopedWithSingeltonRef<ProcessTypeValidation, ProcessTypeValidation>();
+            services.AddScopedWithSingeltonRef<IApprovalTaskService, ApprovalTaskService>();
+            services.AddScopedWithSingeltonRef<ISharePointListService, SharePointListService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
@@ -53,7 +57,8 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingRepository, ProcessTypeTermSynchronizationTrackingRepository>();
             services.AddScopedWithSingeltonRef<ISettingsRepository, SettingsRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
-
+            services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
+           
             services.AddAutoMapper();
             return services;
         }

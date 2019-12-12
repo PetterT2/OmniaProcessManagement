@@ -234,6 +234,48 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return process;
         }
 
+        public async ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus)
+        {
+            var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+            var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
+
+            if (draftProcessWithProcessDataIdHash == null)
+            {
+                throw new ProcessDraftVersionNotFoundException(opmProcessId);
+            }
+
+            Entities.Processes.Process processEf = null;
+            if (checkedOutProcessWithProcessDataIdHash != null)
+            {
+                if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+                {
+                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+                }
+                EnsureRemovingExistingProcess(draftProcessWithProcessDataIdHash);
+                processEf = checkedOutProcessWithProcessDataIdHash.Process;
+            }
+            else
+            {
+                processEf = draftProcessWithProcessDataIdHash.Process;
+            }
+            processEf.CheckedOutBy = "";
+            processEf.VersionType = ProcessVersionType.Draft;
+            processEf.ProcessWorkingStatus = processWorkingStatus;
+
+            await DbContext.SaveChangesAsync();
+            var process = MapEfToModel(processEf);
+            return process;
+        }
+
+        public async ValueTask<Process> UpdateProcessStatusAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus, ProcessVersionType versionType)
+        {
+            var processEf = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType).OrderByDescending(d => d.ClusteredId).FirstOrDefaultAsync();
+            processEf.ProcessWorkingStatus = processWorkingStatus;
+
+            await DbContext.SaveChangesAsync();
+            return MapEfToModel(processEf);
+        }
+
         private string GetReferenceProcessStepIds(ProcessData processData)
         {
             var referenceProcessStepIds = "";
@@ -484,13 +526,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesByIdsAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        public async ValueTask<List<Process>> GetProcessesByOPMProcessIdsAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
             List<Process> processes = new List<Process>();
             var processesData = await DbContext.Processes
-               .Where(p => p.SiteId == siteId && p.WebId == webId && processIds.Any(id => p.Id == id))
+               .Where(p => p.VersionType == versionType && opmProcessIds.Any(opmProcessId => p.OPMProcessId == opmProcessId))
                .ToListAsync();
-            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            processesData.OrderByDescending(p => p.ClusteredId).ToList().GroupBy(p => p.OPMProcessId)
+                .Select(p => p.FirstOrDefault()).ToList()
+                .ForEach(p => processes.Add(MapEfToModel(p)));
             return processes;
         }
 
@@ -635,6 +679,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.VersionType = processEf.VersionType;
             model.SiteId = processEf.SiteId;
             model.WebId = processEf.WebId;
+            model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
             return model;
         }
 

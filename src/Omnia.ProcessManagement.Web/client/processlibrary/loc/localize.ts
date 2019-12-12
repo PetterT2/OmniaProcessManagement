@@ -98,6 +98,21 @@
             Approver: string,
             ApprovalDueDate: string,
             Comment: string,
+        },
+        EmailTemplates: {           
+            SendForApproval: {
+                TaskTitle: string,
+                EmailSubjectTemplate: string,
+                EmailBodyTemplate: string,
+                ApprovalEditionCommentTemplate: string,
+                SubjectApproval: string,
+                BodyApproval: string,
+                BodyApprovalNoComment: string,
+                SubjectReject: string,
+                BodyReject: string,
+                CancelSubjectTemplate: string,
+                CancelBodyTemplate: string
+            }
         }
     }
 }

@@ -84,17 +84,28 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetDraftProcessesAsync(siteId, webId);
         }
 
-        public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
-            List<Process> processes = await ProcessRepository.GetProcessesByIdsAsync(siteId, webId, processIds);
+            List<Process> processes = await ProcessRepository.GetProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
-            foreach (Guid id in processIds)
+            foreach (Guid opmProcessId in opmProcessIds)
             {
-                Process findProcess = processes.FirstOrDefault(p => p.Id == id);
+                Process findProcess = processes.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
                 workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
             }
             return workingStatus;
         }
+
+        public async ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus)
+        {
+            return await ProcessRepository.BeforeApprovalProcessAsync(opmProcessId, processWorkingStatus);
+        }
+
+        public async ValueTask<Process> UpdateProcessStatusAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus, ProcessVersionType versionType)
+        {
+            return await ProcessRepository.UpdateProcessStatusAsync(opmProcessId, processWorkingStatus, versionType);
+        }
+
 
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
         {

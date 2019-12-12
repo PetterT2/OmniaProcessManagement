@@ -156,13 +156,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("workingstatus/{siteId:guid}/{webId:guid}")]
+        [HttpPost, Route("workingstatus/{versionType:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<ProcessWorkingStatus>>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        public async ValueTask<ApiResponse<List<ProcessWorkingStatus>>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
             try
             {
-                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(siteId, webId, processIds);
+                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(opmProcessIds, versionType);
                 return processWorkingStatus.AsApiResponse();
             }
             catch (Exception ex)

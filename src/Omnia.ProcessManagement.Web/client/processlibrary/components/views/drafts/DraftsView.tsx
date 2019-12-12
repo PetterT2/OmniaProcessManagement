@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions } from '../../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
@@ -12,14 +12,14 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { FilterDialog } from '../dialogs/FilterDialog';
 import { ProcessService, CurrentProcessStore, OPMRouter, OPMUtils } from '../../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat } from '../../../Constants';
-import { DeletedDialog } from '../dialogs/DeleteDialog';
+import { DeletedDialog } from './DeleteDialog';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { DisplayModes } from '../../../../models/processdesigner';
 import { FiltersAndSorting } from '../../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
-import { PublishDialog } from '../dialogs/PublishDialog';
+import { PublishDialog } from './PublishDialog';
 import { LibraryStore } from '../../../../stores';
 
 declare var moment;
@@ -98,8 +98,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 this.refreshStatus();
             }
         }, 5000);
-        this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited(() => {
-            if (!this.isRefeshingStatuses) {
+        this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
+            if (!this.isRefeshingStatuses && versionType == ProcessVersionType.Draft) {
                 this.refreshStatus();
             }
         });
@@ -119,8 +119,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     private refreshStatus() {
         if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes)) {
             this.isRefeshingStatuses = true;
-            let process = this.filterAndSortProcesses.processes[0];
-            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(process.siteId, process.webId, this.filterAndSortProcesses.processes.map(p => p.id))
+            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.filterAndSortProcesses.processes.map(p => p.opmProcessId), ProcessVersionType.Draft)
                 .then(() => {
                     this.libraryStore.getters.processWorkingStatus(this.filterAndSortProcesses.processes);
                     this.isRefeshingStatuses = false;
@@ -275,6 +274,18 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             })
     }
 
+    private isErrorStatus(status: Enums.WorkflowEnums.ProcessWorkingStatus) {
+        if (status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval ||
+            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval ||
+            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
     renderPublishDialog(h) {
         return (
             <PublishDialog
@@ -361,7 +372,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                     </td>
                                 );
                             case LibrarySystemFieldsConstants.Status:
-                                return (<td>{this.renderStatusText(h, item)}</td>)
+                                return (<td class={this.isErrorStatus(item.processWorkingStatus) ? 'red--text' : ''}>{this.renderStatusText(h, item)}</td>)
                             case LibrarySystemFieldsConstants.Title:
                                 return (
                                     <td>
