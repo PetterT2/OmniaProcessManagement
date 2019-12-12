@@ -16,5 +16,6 @@ namespace Omnia.ProcessManagement.Models.Processes
         public ProcessVersionType VersionType { get; set; }
         public Guid SiteId { get; set; }
         public Guid WebId { get; set; }
+        public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
     }
 }

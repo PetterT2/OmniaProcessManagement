@@ -8,6 +8,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 {
     public interface IWorkflowRepository
     {
-        ValueTask AddWorkflowAsync(Workflow workflow);
+        ValueTask<Workflow> CreateAsync(Workflow workflow);
     }
 }

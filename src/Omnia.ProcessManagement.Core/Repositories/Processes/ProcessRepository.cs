@@ -167,8 +167,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             rootProcessStep.Edition = isRevision ? rootProcessStep.Edition : rootProcessStep.Edition + 1;
             rootProcessStep.Revision = isRevision ? rootProcessStep.Revision + 1 : 0;
             rootProcessStep.Comment = comment;
-            rootProcessStep.ProcessWorkingStatus = ProcessWorkingStatus.Published;
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
+            processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);

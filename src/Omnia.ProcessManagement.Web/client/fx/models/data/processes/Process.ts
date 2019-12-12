@@ -1,6 +1,7 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
 import { RootProcessStep } from './RootProcessStep';
 import { ProcessVersionType } from '..';
+import { Enums } from '../../Enums';
 
 export interface Process {
     id: GuidValue;
@@ -10,6 +11,7 @@ export interface Process {
     versionType: ProcessVersionType;
     siteId: GuidValue;
     webId: GuidValue;
+    processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus;
 
     //client-side
     readonly isCheckedOutByCurrentUser: boolean;

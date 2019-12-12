@@ -23,13 +23,13 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTemplateId: null,
                 title: { "en-us": "Process A", isMultilingualString: true },
                 edition: 1,
-                revision: 0,
-                processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
+                revision: 0
             },
             isCheckedOutByCurrentUser: false,
             checkedOutBy: null,
             siteId: null,
-            webId: null
+            webId: null,
+            processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
         },
         {
             id: 'BF05E85B-0F51-4A0C-BADA-A63849EEEABC',
@@ -44,13 +44,13 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTemplateId: null,
                 title: { "en-us": "Process B", isMultilingualString: true },
                 edition: 1,
-                revision: 0,
-                processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
+                revision: 0
             },
             isCheckedOutByCurrentUser: false,
             checkedOutBy: null,
             siteId: null,
-            webId: null
+            webId: null,
+            processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
         }
     ]
 

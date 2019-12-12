@@ -8,5 +8,4 @@ export interface RootProcessStep extends ProcessStep {
     processTemplateId: GuidValue;
     edition: number;
     revision: number;
-    processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus;
 }

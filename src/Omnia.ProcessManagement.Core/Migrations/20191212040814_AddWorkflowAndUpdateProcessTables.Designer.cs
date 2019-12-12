@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191211113619_AddWorkflowAndUpdateProcessTables")]
+    [Migration("20191212040814_AddWorkflowAndUpdateProcessTables")]
     partial class AddWorkflowAndUpdateProcessTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -195,6 +195,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<Guid>("OPMProcessId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte>("ProcessWorkingStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<Guid>("SiteId")
                         .HasColumnType("uniqueidentifier");
 
@@ -312,9 +315,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("CompletedType")
                         .HasColumnType("tinyint");
