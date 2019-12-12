@@ -213,7 +213,7 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return null; // this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
         checkIn: this.action((): Promise<null> => {
