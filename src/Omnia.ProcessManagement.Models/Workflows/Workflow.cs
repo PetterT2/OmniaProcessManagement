@@ -22,7 +22,7 @@ namespace Omnia.ProcessManagement.Models.Workflows
         Cancelled = 3
     }
 
-    public class Workflow
+    public class Workflow : AuditingInformation
     {
         public Workflow()
         {

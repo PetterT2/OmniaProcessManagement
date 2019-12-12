@@ -20,7 +20,7 @@ namespace Omnia.ProcessManagement.Models.Workflows
         Rejected = 2
     }
 
-    public class WorkflowTask
+    public class WorkflowTask : AuditingInformation
     {
         public Guid Id { get; set; }
 

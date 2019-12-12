@@ -215,7 +215,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private isApprovalRequired(): boolean {
         return this.processTypeSettings && this.processTypeSettings.publishingApprovalSettings != null &&
             this.versionPublishingType != Enums.WorkflowEnums.VersionPublishingTypes.NewRevision
-            && this.process.rootProcessStep.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval;
+            && this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval;
     }
 
     private previewPublishedProcess() {
@@ -275,8 +275,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private readOnlyMode() {
-        return !(this.process.rootProcessStep.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval &&
-            this.process.rootProcessStep.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.SendingForApproval);
+        return !(this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval &&
+            this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.SendingForApproval);
     }
 
     private renderErrorForm(h) {

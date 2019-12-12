@@ -27,6 +27,5 @@ namespace Omnia.ProcessManagement.Models.Processes
         public int Edition { get; set; }
         public int Revision { get; set; }
         public string Comment { get; set; }
-        public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
     }
 }

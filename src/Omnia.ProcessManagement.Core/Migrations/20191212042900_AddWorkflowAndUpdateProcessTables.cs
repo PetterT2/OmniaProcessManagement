@@ -7,6 +7,12 @@ namespace Omnia.ProcessManagement.Core.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<byte>(
+                name: "ProcessWorkingStatus",
+                table: "Processes",
+                nullable: false,
+                defaultValue: (byte)0);
+
             migrationBuilder.CreateTable(
                 name: "Workflows",
                 columns: table => new
@@ -23,8 +29,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     JsonValue = table.Column<string>(nullable: true),
                     Type = table.Column<byte>(nullable: false),
                     CompletedType = table.Column<byte>(nullable: false),
-                    DueDate = table.Column<DateTimeOffset>(nullable: true),
-                    Comment = table.Column<string>(nullable: true)
+                    DueDate = table.Column<DateTimeOffset>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -46,6 +51,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     ModifiedBy = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
                     ClusteredId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     WorkflowId = table.Column<Guid>(nullable: false),
@@ -84,6 +90,10 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
             migrationBuilder.DropTable(
                 name: "Workflows");
+
+            migrationBuilder.DropColumn(
+                name: "ProcessWorkingStatus",
+                table: "Processes");
         }
     }
 }
