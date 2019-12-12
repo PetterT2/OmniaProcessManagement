@@ -4,10 +4,9 @@ import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions } from '../../../../fx/models';
 import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
-import { ProcessLibraryService } from '../../../services';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
-import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag } from '@omnia/fx-models';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { FilterDialog } from '../dialogs/FilterDialog';
@@ -20,6 +19,8 @@ import { ProcessDesignerItemFactory } from '../../../../processdesigner/designer
 import { DisplayModes } from '../../../../models/processdesigner';
 import { FiltersAndSorting } from '../../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
+import { PublishDialog } from '../dialogs/PublishDialog';
+import { LibraryStore } from '../../../../stores';
 
 declare var moment;
 
@@ -34,7 +35,6 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(ProcessLibraryService) processLibraryService: ProcessLibraryService;
     @Inject(ProcessService) processService: ProcessService;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaContext) omniaContext: OmniaContext;
@@ -45,15 +45,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Inject(TermStore) private termStore: TermStore;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(LibraryStore) libraryStore: LibraryStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
+
+    private messageBusReloadDocumentStatus: IMessageBusSubscriptionHandler = null;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
     openNewProcessDialog: boolean = false;
     selectedFilterColumn: EnterprisePropertyDefinition;
     filterOptions: Array<FilterOption> = [];
+
+    refreshStatusInterval: any;
+    isRefeshingStatuses: boolean = false;;
 
     isCurrentUserCanAddDoc: boolean = true;
     isLoadingContextMenu: boolean = false;
@@ -65,7 +71,10 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     disableButtonDelete: boolean = false;
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
+
     openDeleteDialog: boolean = false;
+    openPublishDialog: boolean = false;
+
     request: FilterAndSortInfo;
     filterAndSortProcesses: FilterAndSortResponse = { total: 0, processes: [] };
     allProcesses: Array<DraftProcess>;
@@ -84,7 +93,16 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             this.dateFormat = regionalSettings.dateFormat;
         }
         this.isLoading = true;
-
+        this.refreshStatusInterval = setInterval(() => {
+            if (!this.isRefeshingStatuses) {
+                this.refreshStatus();
+            }
+        }, 5000);
+        this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited(() => {
+            if (!this.isRefeshingStatuses) {
+                this.refreshStatus();
+            }
+        });
         this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
             this.initProcesses();
         });
@@ -95,7 +113,22 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     }
 
     beforeDestroy() {
+        clearInterval(this.refreshStatusInterval);
+    }
 
+    private refreshStatus() {
+        if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes)) {
+            this.isRefeshingStatuses = true;
+            let process = this.filterAndSortProcesses.processes[0];
+            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(process.siteId, process.webId, this.filterAndSortProcesses.processes.map(p => p.id))
+                .then(() => {
+                    this.libraryStore.getters.processWorkingStatus(this.filterAndSortProcesses.processes);
+                    this.isRefeshingStatuses = false;
+                })
+                .catch((errorMessage) => {
+                    this.isRefeshingStatuses = false;
+                });
+        }
     }
 
     private applyFilterAndSort() {
@@ -138,7 +171,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     }
 
     private initProcesses() {
-        this.isLoading = true;      
+        this.isLoading = true;
         this.request = {
             webUrl: this.spContext.pageContext.web.absoluteUrl,
             pageNum: 1,
@@ -242,6 +275,15 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             })
     }
 
+    renderPublishDialog(h) {
+        return (
+            <PublishDialog
+                closeCallback={() => { this.openPublishDialog = false; }}
+                process={this.selectedProcess}            >
+            </PublishDialog>
+        )
+    }
+
     renderDeleteDialog(h) {
         return (
             <DeletedDialog
@@ -254,6 +296,16 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 opmProcessId={this.selectedProcess.opmProcessId}>
             </DeletedDialog>
         )
+    }
+
+    renderStatusText(h, item: DraftProcess) {
+        let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[item.rootProcessStep.processWorkingStatus]];
+        switch (item.rootProcessStep.processWorkingStatus) {
+            case Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval:
+                return <a onClick={() => { }}>{statusName}</a>;
+            default:
+                return statusName;
+        }
     }
 
     renderItems(h, item: DraftProcess) {
@@ -290,7 +342,10 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                                 <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonSendForComments}>
                                                     <v-list-item-title>{this.loc.ProcessActions.SendForComments}</v-list-item-title>
                                                 </v-list-item>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonPublish}>
+                                                <v-list-item onClick={() => {
+                                                    this.selectedProcess = item;
+                                                    this.openPublishDialog = true;
+                                                }} disabled={this.isLoadingContextMenu || this.disableButtonPublish}>
                                                     <v-list-item-title>{this.loc.ProcessActions.Publish}</v-list-item-title>
                                                 </v-list-item>
                                                 <v-divider></v-divider>
@@ -305,6 +360,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                                         </v-menu>
                                     </td>
                                 );
+                            case LibrarySystemFieldsConstants.Status:
+                                return (<td>{this.renderStatusText(h, item)}</td>)
                             case LibrarySystemFieldsConstants.Title:
                                 return (
                                     <td>
@@ -371,7 +428,9 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         this.displaySettings.selectedFields.map(header => {
                             return header == LibrarySystemFieldsConstants.Menu ?
                                 <th class={this.listViewClasses.menuColumn}></th>
-                                : this.renderHeaderForOtherColumns(h, header);
+                                : header == LibrarySystemFieldsConstants.Status ?
+                                    <th class={'text-left font-weight-bold'}>{this.coreLoc.Columns.Status}</th>
+                                    : this.renderHeaderForOtherColumns(h, header);
                         })
                     }
                 </tr>
@@ -480,6 +539,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 {this.openFilterDialog && this.renderFilterDialog(h)}
                 {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
                 {this.openDeleteDialog && this.renderDeleteDialog(h)}
+                {this.openPublishDialog && this.renderPublishDialog(h)}
             </div>
         )
     }

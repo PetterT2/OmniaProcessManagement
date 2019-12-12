@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep, Enums } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -41,21 +41,7 @@ export class ProcessService {
                 }
             }).catch(reject);
         })
-    }
-
-    public publishProcess = (opmProcessId: GuidValue) => {
-        return new Promise<Process>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/publish/' + opmProcessId).then((response) => {
-                if (response.data.success) {
-                    this.generateClientSideData([response.data.data]);
-                    resolve(response.data.data);
-                }
-                else {
-                    reject(response.data.errorMessage);
-                }
-            }).catch(reject);
-        })
-    }
+    }    
 
     public saveCheckedOutProcess = (processActionModel: ProcessActionModel) => {
         return new Promise<Process>((resolve, reject) => {
@@ -169,6 +155,17 @@ export class ProcessService {
         })
     }
 
+    public getProcessWorkingStatus = (siteId: GuidValue, webId: GuidValue, processIds: Array<GuidValue>) => {
+        return new Promise<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/workingstatus/${siteId}/${webId}`, processIds).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
     private generateClientSideData = (processes: Array<Process>) => {
         return this.omniaContext.user.then((user) => {
             let currentUserLoginName = user.loginName.toLowerCase();
@@ -189,4 +186,5 @@ export class ProcessService {
             }
         }
     }
+
 }

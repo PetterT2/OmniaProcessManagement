@@ -136,7 +136,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
         {
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
             var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
@@ -163,6 +163,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             processEf.CheckedOutBy = "";
             processEf.VersionType = ProcessVersionType.Published;
+            RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            rootProcessStep.Edition = isRevision ? rootProcessStep.Edition : rootProcessStep.Edition + 1;
+            rootProcessStep.Revision = isRevision ? rootProcessStep.Revision + 1 : 0;
+            rootProcessStep.Comment = comment;
+            rootProcessStep.ProcessWorkingStatus = ProcessWorkingStatus.Published;
+            processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
+
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
             return process;
@@ -456,6 +463,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask<List<Process>> GetProcessesByIdsAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        {
+            List<Process> processes = new List<Process>();
+            var processesData = await DbContext.Processes
+               .Where(p => p.SiteId == siteId && p.WebId == webId && processIds.Any(id => p.Id == id))
+               .ToListAsync();
+            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            return processes;
+        }
+
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
         {
             using (var transaction = DbContext.Database.BeginTransaction())
@@ -595,6 +612,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             model.VersionType = processEf.VersionType;
+            model.SiteId = processEf.SiteId;
+            model.WebId = processEf.WebId;
             return model;
         }
 

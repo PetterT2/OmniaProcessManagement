@@ -1,5 +1,6 @@
 ﻿import { ProcessStep, Process, ProcessReference, RootProcessStep } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
+declare var moment: any;
 
 export module OPMUtils {
     export function generateProcessStepExpandState(processStep: RootProcessStep, processStepId: GuidValue): { [processStepId: string]: true } {
@@ -84,5 +85,11 @@ export module OPMUtils {
             hash = hash.split("?")[0];
         var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + path + hash;
         window.history.pushState({ path: newurl }, '', newurl);
+    }
+
+    export function correctDateOnlyValue(dateValue) {
+        var offset = new Date().getTimezoneOffset();
+        var correctDateValue: any = moment(dateValue).add('m', -offset);
+        return correctDateValue._d;
     }
 }

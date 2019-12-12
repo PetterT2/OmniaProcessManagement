@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -48,9 +49,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
         {
-            var process = await ProcessRepository.PublishProcessAsync(opmProcessId);
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision);
             return process;
         }
 
@@ -81,6 +82,18 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId)
         {
             return await ProcessRepository.GetDraftProcessesAsync(siteId, webId);
+        }
+
+        public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        {
+            List<Process> processes = await ProcessRepository.GetProcessesByIdsAsync(siteId, webId, processIds);
+            List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
+            foreach (Guid id in processIds)
+            {
+                Process findProcess = processes.FirstOrDefault(p => p.Id == id);
+                workingStatus.Add(findProcess != null ? findProcess.RootProcessStep.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
+            }
+            return workingStatus;
         }
     }
 }

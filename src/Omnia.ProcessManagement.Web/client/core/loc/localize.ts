@@ -14,6 +14,54 @@
                 Category: string,
                 Description: string,
                 Title: string
+            },
+            Lists: {
+                OPMTasks: {
+                    Name: string,
+                    Description: string
+                },
+                OPMPublished: {
+                    Name: string,
+                    Description: string
+                },
+            },
+            ContentTypes: {
+                GroupName: string,
+                OPMReviewTask: {
+                    Name: string,
+                    Description: string
+                },
+                OPMApprovalTask: {
+                    Name: string,
+                    Description: string
+                }
+            },
+            Fields: {
+                GroupName: string,
+                OPMProcessId: {
+                    Name: string,
+                    Description: string,
+                },
+                OPMEdition: {
+                    Name: string,
+                    Description: string,
+                },
+                OPMRevision: {
+                    Name: string,
+                    Description: string,
+                },
+                OPMProperties: {
+                    Name: string,
+                    Description: string,
+                },
+                OPMTaskOutcome: {
+                    Name: string,
+                    Description: string,
+                },
+                OPMComment: {
+                    Name: string,
+                    Description: string,
+                }               
             }
         },
         Blocks: {
@@ -31,7 +79,8 @@
         },
         Columns: {
             ProcessMenu: string,
-            Title: string
+            Title: string,
+            Status: string
         },
         Process: {
             Drawing: string,

@@ -9,6 +9,8 @@ using Omnia.Fx.Localization;
 using Omnia.Fx.Models.Features;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.Fx.SharePoint.Services.SharePointEntities;
+using Omnia.ProcessManagement.Core.Services.Features.Artifacts;
 
 namespace Omnia.ProcessManagement.Core.Services.Features
 {
@@ -17,16 +19,19 @@ namespace Omnia.ProcessManagement.Core.Services.Features
         private ILogger<ProcessLibraryFeatureService> Logger { get; }
         private ILocalizationProvider LocalizationProvider { get; }
         private ISharePointClientContextProvider SPClientContextProvider { get; }
+        private ISharePointEntityProvider SPEntityProvider { get; }
 
 
         public ProcessLibraryFeatureService(ILogger<ProcessLibraryFeatureService> logger,
             ILocalizationProvider localizationProvider,
-            ISharePointClientContextProvider spClientContextProvider
+            ISharePointClientContextProvider spClientContextProvider,
+            ISharePointEntityProvider spEntityProvider
         )
         {
             Logger = logger;
             LocalizationProvider = localizationProvider;
             SPClientContextProvider = spClientContextProvider;
+            SPEntityProvider = spEntityProvider;
         }
 
         public async ValueTask ActiveFeatureAsync(string spUrl, FeatureEventArg eventArg)
@@ -57,9 +62,45 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 w => w.Title);
             await ctx.ExecuteQueryAsync();
 
+            await ProvisionList(ctx, web);
             await EnsurePage(ctx, web);
             await ConfigQuickLaunch(ctx, web);
         }
+
+        private async ValueTask ProvisionList(PortableClientContext clientContext, Web web)
+        {
+            string contentTypeGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ContentTypeGroupName, web.Language);
+            string fieldGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.FieldGroupName, web.Language);
+            var context = SPEntityProvider.CreateContext(clientContext.Site, clientContext.Web);
+            EnsureFields(context, fieldGroupName);
+            EnsureContentTypes(context, contentTypeGroupName);
+            context.EnsureList<OPMPublished>();
+            context.EnsureList<OPMTasks>();
+            await context.ExecuteAsync();
+            Logger.Log(LogLevel.Information, "Ensured ContentTypes, Lists, Fields");
+
+        }
+
+        private void EnsureContentTypes(ISharePointEntityContext context, string contentTypeGroupName)
+        {
+            context.EnsureContentType<OPMApprovalTask>().Configure((option) =>
+            {
+                option.Group = contentTypeGroupName;
+            });
+            context.EnsureContentType<OPMReviewTask>().Configure((option) =>
+            {
+                option.Group = contentTypeGroupName;
+            });
+        }
+
+        private void EnsureFields(ISharePointEntityContext context, string fieldGroupName)
+        {
+            context.EnsureField<OPMProcessId>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMEdition>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMRevision>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMProperties>().Configure((option) => { option.Group = fieldGroupName; });        
+        }
+
 
         private async ValueTask ConfigQuickLaunch(PortableClientContext clientContext, Web web)
         {

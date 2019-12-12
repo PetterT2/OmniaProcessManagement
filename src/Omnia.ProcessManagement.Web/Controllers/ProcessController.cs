@@ -83,22 +83,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
-
-        [HttpPost, Route("publish/{opmProcessId:guid}")]
-        [Authorize]
-        public async ValueTask<ApiResponse<Process>> PublishProcessAsync(Guid opmProcessId)
-        {
-            try
-            {
-                var process = await ProcessService.PublishProcessAsync(opmProcessId);
-                return process.AsApiResponse();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<Process>(ex);
-            }
-        }
+        
 
         [HttpPost, Route("savecheckedout")]
         [Authorize]
@@ -168,6 +153,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<ProcessDataWithAuditing>(ex);
+            }
+        }
+
+        [HttpPost, Route("workingstatus/{siteId:guid}/{webId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<ProcessWorkingStatus>>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds)
+        {
+            try
+            {
+                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(siteId, webId, processIds);
+                return processWorkingStatus.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<List<ProcessWorkingStatus>>(ex);
             }
         }
 

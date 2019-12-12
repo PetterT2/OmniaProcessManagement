@@ -8,6 +8,7 @@ using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
 using Omnia.ProcessManagement.Core.Entities.Settings;
+using Omnia.ProcessManagement.Core.Entities.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,8 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCounts { get; set; }
         public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<Workflow> Workflows { get; set; }
+        public DbSet<WorkflowTask> WorkflowTasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

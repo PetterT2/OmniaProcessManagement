@@ -18,6 +18,54 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 Category: "Tenant",
                 Description: "",
                 Title: "Process Management"
+            },
+            Lists: {
+                OPMTasks: {
+                    Name: "Process Management - Tasks",
+                    Description: "System library created by Omnia to handle workflow tasks of process"
+                },
+                OPMPublished: {
+                    Name: "Process Management - Published",
+                    Description: "System library created by Omnia to handle published of process"
+                },
+            },
+            ContentTypes: {
+                GroupName: "Omnia Process Management",
+                OPMReviewTask: {
+                    Name: "Process - Review Task",
+                    Description: "System content type created by Omnia to handle review tasks of process"
+                },
+                OPMApprovalTask: {
+                    Name: "Process - Approval Task",
+                    Description: "System content type created by Omnia to handle approval tasks of process"
+                }
+            },
+            Fields: {
+                GroupName: "Omnia Process Management",
+                OPMProcessId: {
+                    Name: "Process Id",
+                    Description: "System column in Omnia Process Management for Process Id.",
+                },
+                OPMEdition: {
+                    Name: "Edition",
+                    Description: "System column in Omnia Process Management for Edition.",
+                },
+                OPMRevision: {
+                    Name: "Revision",
+                    Description: "System column in Omnia Process Management for Revision.",
+                },
+                OPMProperties: {
+                    Name: "Properties",
+                    Description: "System column in Omnia Process Management for Properties.",
+                },
+                OPMTaskOutcome: {
+                    Name: "TaskOutcome",
+                    Description: "System column in Omnia Process Management for TaskOutcome.",
+                },
+                OPMComment: {
+                    Name: "Comment",
+                    Description: "System column in Omnia Process Management for Comment.",
+                }
             }
         },
         Blocks: {
@@ -35,7 +83,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         },
         Columns: {
             ProcessMenu: "Process Menu",
-            Title: "Title"
+            Title: "Title",
+            Status: "Status"
         },
         Process: {
             Content: "Content",

@@ -7,3 +7,4 @@ export * from './processtypes';
 export * from './drawingdefinitions';
 export * from './MultilingualData';
 export * from './settings';
+export * from './workflows';

@@ -15,11 +15,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
-        ValueTask<Process> PublishProcessAsync(Guid opmProcessId);
+        ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision);
         ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId);
+        ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(Guid siteId, Guid webId, List<Guid> processIds);
     }
 }

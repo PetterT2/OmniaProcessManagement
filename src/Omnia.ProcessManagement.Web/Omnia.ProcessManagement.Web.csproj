@@ -131,6 +131,13 @@
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\PublishProcessWithApprovalRequest.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\PublishProcessWithoutApprovalRequest.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\Workflow.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowApprovalData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\ManifestIds.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\CanvasDefinition.ts" />
@@ -255,6 +262,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\GeneralTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\PublishDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\IListView.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.css.ts" />
@@ -268,7 +276,6 @@
     <TypeScriptCompile Remove="client\processlibrary\loc\localize.ts" />
     <TypeScriptCompile Remove="client\processlibrary\ProcessLibraryCore.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\index.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\services\ProcessLibraryService.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\DesignerItemFactory.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepDesignerItem.ts" />
@@ -298,6 +305,7 @@
     <TypeScriptCompile Remove="client\processdesigner\statemanager\SaveProcessStateManager.ts" />
     <TypeScriptCompile Remove="client\processdesigner\TempTestComponent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\Utils.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\services\PublishProcessService.ts" />
     <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
@@ -306,6 +314,7 @@
     <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
+    <TypeScriptCompile Remove="client\stores\LibraryStore.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -369,6 +378,24 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\PublishProcessWithApprovalRequest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\WorkflowData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\WorkflowApprovalData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\WorkflowTask.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\Workflow.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessNumberPropertyInfo.ts">
@@ -611,7 +638,7 @@
     <None Update="client\processlibrary\filtersandsorting\FiltersAndSorting.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\processlibrary\services\ProcessLibraryService.ts">
+    <None Update="client\processlibrary\services\PublishProcessService.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\services\index.ts">
