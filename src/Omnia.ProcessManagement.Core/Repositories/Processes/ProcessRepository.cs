@@ -256,7 +256,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 if (!usingProcessDataIdHashSet.Contains(existingProcessContent.Key))
                 {
-                    RemoveProcessData(processId, existingProcessContent.Key);
+                    RemoveProcessData(existingProcessContent.Key, processId);
                 }
             }
         }
