@@ -7,9 +7,8 @@ import { Utils } from "@omnia/fx";
 import './NavigationNode.css';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
 import { ProcessStep } from '../../../fx/models';
-import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { MultilingualStore } from '@omnia/fx/store';
-import { NavigationNodeStyles } from '../../../fx/models/styles';
+import { NavigationNodeStyles } from '../../../fx/models';
 import './NavigationNode.css';
 import { OPMRouter } from '../../../fx/routing';
 import { CurrentProcessStore } from '../../../fx';
@@ -56,8 +55,8 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
     onMoveNavigation(e: Event, moveUp: boolean) {
         e.stopPropagation();
-        let parentProcessStep = this.currentProcessStore.getters.referenceData().parentProcessStep
-        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep
+        let parentProcessStep = this.currentProcessStore.getters.referenceData().current.parentProcessStep
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep
         let currentProcessStepIndex = parentProcessStep.processSteps.indexOf(currentProcessStep);
 
         if (moveUp && !this.firstNode) {
@@ -134,7 +133,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             collapsedStyle = this.navigationNodeStyles.contentHide;
         }
 
-        let currentProcessStep = this.currentProcessStore.getters.referenceData().currentProcessStep;
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep;
 
         let isSelectedNode = (currentProcessStep == this.processStep);
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;

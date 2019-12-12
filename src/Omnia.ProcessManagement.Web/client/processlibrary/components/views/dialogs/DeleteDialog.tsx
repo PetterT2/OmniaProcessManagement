@@ -72,7 +72,7 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
                         <div data-omfx>
                             <v-container>
                                 <div v-show={Utils.isNullOrEmpty(this.errMessage)}>
-                                    {this.loc.Message.DeleteDraftProcessConfirmation}
+                                    {this.loc.Messages.DeleteDraftProcessConfirmation}
                                 </div>
                                 <span class={[this.classes.error, 'mt-3 mb-3']}>{this.errMessage}</span>
                             </v-container>

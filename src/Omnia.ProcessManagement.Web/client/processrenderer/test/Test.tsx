@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, ServiceContainer, OmniaContext } from "@omnia/fx";
 import { IOmniaContext } from '@omnia/fx-models';
 import { OPMRouter, CurrentProcessStore } from '../../fx';
-import { RouteOptions, Process, ProcessVersionType } from '../../fx/models';
+import { RouteOptions, Process, ProcessVersionType, Enums } from '../../fx/models';
 
 @Component
 export class TestComponent extends Vue implements IWebComponentInstance {
@@ -21,7 +21,10 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTypeId: null,
                 processSteps: [],
                 processTemplateId: null,
-                title: { "en-us": "Process A", isMultilingualString: true }
+                title: { "en-us": "Process A", isMultilingualString: true },
+                edition: 1,
+                revision: 0,
+                processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
             },
             isCheckedOutByCurrentUser: false,
             checkedOutBy: null,
@@ -39,7 +42,10 @@ export class TestComponent extends Vue implements IWebComponentInstance {
                 processTypeId: null,
                 processSteps: [],
                 processTemplateId: null,
-                title: { "en-us": "Process B", isMultilingualString: true }
+                title: { "en-us": "Process B", isMultilingualString: true },
+                edition: 1,
+                revision: 0,
+                processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus.Draft
             },
             isCheckedOutByCurrentUser: false,
             checkedOutBy: null,

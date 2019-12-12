@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, MediaPickerProvider, MediaPickerProviderMediaTypes, DialogPositions, MediaPickerImageTransformerProviderResult } from '@omnia/fx/ux';
-import { DrawingCanvasSettingsStyles } from '../../../fx/models/styles';
+import { DrawingCanvasSettingsStyles } from '../../../fx/models';
 import { TabRenderer } from '../../core';
 import { ProcessDesignerStore } from '../../stores';
 import { CurrentProcessStore } from '../../../fx';

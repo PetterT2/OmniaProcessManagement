@@ -4,7 +4,19 @@
         Common: {
             NoDraftItemToShow: string,
             Yes: string,
-            No: string
+            No: string,
+            Send: string
+        },
+        ProcessStatuses: {
+            Draft: string,
+            Published: string,
+            SendingForApproval: string,
+            WaitingForApproval: string,
+            Publishing: string,
+            CancellingApproval: string,
+            FailedSendingForApproval: string,
+            FailedCancellingApproval: string,
+            FailedPublishing: string
         },
         ProcessLibrarySettings: {
             Tabs: {
@@ -49,7 +61,8 @@
             SendForComments: string,
             Publish: string,
             WorkflowHistory: string,
-            DeleteDraft: string
+            DeleteDraft: string,
+            PreviewProcess: string
         },
         SortText: {
             Direction: string,
@@ -64,11 +77,27 @@
             DateFieldAscending: string,
             DateFieldDescending: string
         },
-        Message: {
+        Messages: {
             DeleteDraftProcessConfirmation: string,
-            NoProcessTemplateValidation: string
+            NoProcessTemplateValidation: string,
+            MessageNobodyCanApprove: string,
+            MessageUpdateProcessPropertiesBeforePublishing: string
         },
         ProcessType: string,
-        ProcessTemplate: string
+        ProcessTemplate: string,
+        Approval: {
+            Approved: string,
+            Rejected: string,
+            CancelApproval: string,
+            MessageCancelApproval: string,
+            VersionPublishingTypes: {
+                PublishNewEdition: string,
+                PublishNewRevision: string
+            },
+            BeSureToPublishProcess: string,
+            Approver: string,
+            ApprovalDueDate: string,
+            Comment: string,
+        }
     }
 }

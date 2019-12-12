@@ -41,7 +41,8 @@ export const ProcessLibraryConfigurationFactory = {
     getDefaultDraftDisplayFields() {
         return [
             LibrarySystemFieldsConstants.Title,
-            LibrarySystemFieldsConstants.Menu
+            LibrarySystemFieldsConstants.Menu,
+            LibrarySystemFieldsConstants.Status
         ]
     }
 }

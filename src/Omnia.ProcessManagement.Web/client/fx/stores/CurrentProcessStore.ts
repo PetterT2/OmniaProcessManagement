@@ -2,10 +2,8 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessDataWithAuditing } from '../models';
 import { OPMUtils } from '../utils';
-import { setTimeout } from 'timers';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
@@ -115,14 +113,15 @@ class ProcessStateTransaction {
 })
 export class CurrentProcessStore extends Store {
     @Inject(ProcessStore) private processStore: ProcessStore;
-    @Inject(ProcessService) private processService: ProcessService;
-    @Inject(OmniaContext) private omniaContext: OmniaContext;
+
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
-    private currentProcessDataJson = '';
-    private currentProcessPropertiesJson = '';
+    private currentLoadedProcessDataDict: IdDict<ProcessData> = {};
+
+    private currentProcessJson = '';
+    private currentLoadedProcessDataJsonDict: IdDict<string> = {};
 
     private transaction: ProcessStateTransaction = new ProcessStateTransaction(
         () => this.currentProcessReferenceData.state || this.currentProcessReference.state ? true : false
@@ -141,8 +140,10 @@ export class CurrentProcessStore extends Store {
     public actions = {
         setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
             if (processReferenceToUse == null) {
-                this.currentProcessDataJson = '';
-                this.currentProcessPropertiesJson = '';
+                this.currentLoadedProcessDataJsonDict = {};
+                this.currentLoadedProcessDataDict = {};
+                this.currentProcessJson = '';
+
                 this.currentProcessReference.mutate(null);
                 this.currentProcessReferenceData.mutate(null);
                 this.transaction.clearState();
@@ -150,6 +151,11 @@ export class CurrentProcessStore extends Store {
             }
 
             return this.transaction.newState(processReferenceToUse.processId, (newState) => {
+                if (newState) {
+                    this.currentLoadedProcessDataJsonDict = {};
+                    this.currentLoadedProcessDataDict = {};
+                    this.currentProcessJson = '';
+                }
 
                 return new Promise<null>((resolve, reject) => {
                     this.processStore.actions.ensureProcessReferenceData.dispatch([processReferenceToUse]).then(() => {
@@ -158,8 +164,15 @@ export class CurrentProcessStore extends Store {
                         this.currentProcessReference.mutate(processReferenceToUse);
                         this.currentProcessReferenceData.mutate(processReferenceData);
 
-                        this.currentProcessDataJson = JSON.stringify(processReferenceData.currentProcessData)
-                        this.currentProcessPropertiesJson = JSON.stringify(processReferenceData.process.rootProcessStep.enterpriseProperties)
+                        this.currentLoadedProcessDataDict[processReferenceData.current.processStep.id.toString().toLowerCase()] = processReferenceData.current.processData;
+
+                        this.currentProcessJson = JSON.stringify(processReferenceData.process);
+                        this.currentLoadedProcessDataJsonDict[processReferenceData.current.processStep.id.toString().toLowerCase()] = JSON.stringify(processReferenceData.current.processData);
+
+                        if (processReferenceData.shortcut) {
+                            this.currentLoadedProcessDataDict[processReferenceData.shortcut.processStep.id.toString().toLowerCase()] = processReferenceData.shortcut.processData;
+                            this.currentLoadedProcessDataJsonDict[processReferenceData.shortcut.processStep.id.toString().toLowerCase()] = JSON.stringify(processReferenceData.shortcut.processData);
+                        }
 
                         resolve();
                     }).catch((reason) => {
@@ -167,6 +180,26 @@ export class CurrentProcessStore extends Store {
                     });
                 })
             });
+        }),
+        ensureShortcut: this.action((shortcutProcessStepId: GuidValue) => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<ProcessReference>((resolve, reject) => {
+                    if (this.currentProcessReference.state) {
+                        let currentProcessReference: ProcessReference = {
+                            opmProcessId: this.currentProcessReference.state.opmProcessId,
+                            processId: this.currentProcessReference.state.processId,
+                            processStepId: this.currentProcessReference.state.processStepId,
+                            shortcutProcessStepId: shortcutProcessStepId
+                        }
+                        resolve(currentProcessReference);
+                    }
+                    else {
+                        reject('Active Process not found in store to process operation');
+                    }
+                })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+            })
         }),
         checkOut: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
@@ -219,11 +252,11 @@ export class CurrentProcessStore extends Store {
                         tasks: null
                     }
 
-                    if (!currentProcessReferenceData.currentProcessStep.processSteps) {
-                        currentProcessReferenceData.currentProcessStep.processSteps = [];
+                    if (!currentProcessReferenceData.current.processStep.processSteps) {
+                        currentProcessReferenceData.current.processStep.processSteps = [];
                     }
 
-                    currentProcessReferenceData.currentProcessStep.processSteps.push(processStep);
+                    currentProcessReferenceData.current.processStep.processSteps.push(processStep);
 
 
                     let actionModel: ProcessActionModel = {
@@ -241,44 +274,61 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        moveProcessStep: this.action(() => {
-            return this.transaction.newProcessOperation(() => {
-                return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
-                    reject(`To do`);
-                })
-            })
-        }),
-        saveState: this.action((forceAndRefresh?: boolean): Promise<null> => {
-            return this.transaction.newProcessOperation(() => {
-                return new Promise<ProcessReference>((resolve, reject) => {
-                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+        //refreshContentNavigation parameter is used for onDispatched
+        saveState: this.action((refreshContentNavigation?: boolean) => {
 
-                    let newProcessDataJson = JSON.stringify(currentProcessReferenceData.currentProcessData);
-                    let newProcessPropertiesJson = JSON.stringify(currentProcessReferenceData.process.rootProcessStep.enterpriseProperties);
-                    if (this.currentProcessDataJson != newProcessDataJson || forceAndRefresh || this.currentProcessPropertiesJson != newProcessPropertiesJson) {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<null>((resolve, reject) => {
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+                    let currentProcess = currentProcessReferenceData.process;
+                    let hasShortcut = currentProcessReferenceData.shortcut ? true : false;
+
+                    let currentProcessStepId = currentProcessReferenceData.current.processStep.id.toString().toLowerCase();
+                    let shortcutProcessStepId = hasShortcut ? currentProcessReferenceData.shortcut.processStep.id.toString() : '';
+
+                    let currentProcessStepData = currentProcessReferenceData.current.processData
+                    let shortcutProcessStepData = hasShortcut ? currentProcessReferenceData.shortcut.processData : null;
+
+                    let currentProcessJson = JSON.stringify(currentProcessReferenceData.process);
+                    let currentProcessStepDataJson = JSON.stringify(currentProcessStepData);
+
+                    let shortcutProcessDataJson = '';
+                    if (shortcutProcessStepData) {
+                        shortcutProcessDataJson = JSON.stringify(shortcutProcessStepData);
+                    }
+
+                    let processChanged = currentProcessJson != this.currentProcessJson;
+                    let currentProcessStepDataChanged = currentProcessStepDataJson != this.currentLoadedProcessDataJsonDict[currentProcessStepId];
+                    let shortcutProcessStepDataChanged = hasShortcut && shortcutProcessDataJson != this.currentLoadedProcessDataJsonDict[shortcutProcessStepId];
+
+                    if (processChanged || currentProcessStepDataChanged || shortcutProcessStepDataChanged) {
                         let actionModel: ProcessActionModel = {
-                            process: currentProcessReferenceData.process,
-                            processData: { [this.currentProcessReferenceData.state.currentProcessStep.id.toString()]: this.currentProcessReferenceData.state.currentProcessData }
+                            process: currentProcess,
+                            processData: {}
                         }
 
-                        this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
-                            this.currentProcessDataJson = newProcessDataJson;
-                            this.currentProcessPropertiesJson = newProcessPropertiesJson;
-                            let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.currentProcessStep.id);
-                            resolve(processReferenceToUse);
+                        if (currentProcessStepDataChanged) {
+                            actionModel.processData[currentProcessStepId] = currentProcessStepData;
+                        }
+
+                        if (shortcutProcessStepDataChanged) {
+                            actionModel.processData[shortcutProcessStepId] = shortcutProcessStepData
+                        }
+
+                        this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then(() => {
+                            this.currentProcessJson = currentProcessJson;
+                            this.currentLoadedProcessDataJsonDict[currentProcessStepId] = currentProcessStepDataJson;
+                            if (hasShortcut) {
+                                this.currentLoadedProcessDataJsonDict[shortcutProcessStepId] = shortcutProcessDataJson;
+                            }
+
+                            resolve(null);
                         }).catch(reject);
                     }
                     else {
                         resolve(null);
                     }
                 })
-            }).then((processReferenceToUse) => {
-                if (forceAndRefresh) {
-                    return this.actions.setProcessToShow.dispatch(processReferenceToUse);
-                }
-                else {
-                    return null;
-                }
             })
         }),
         discardChange: this.action((): Promise<null> => {

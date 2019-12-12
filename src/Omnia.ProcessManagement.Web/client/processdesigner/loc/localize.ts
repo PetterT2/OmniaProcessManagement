@@ -25,6 +25,7 @@
         EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
+        EditTitle: string;
         MoveProcessStep: string;
         NewDataNotSaved: string;
         NewDataHasBeenSaved: string;

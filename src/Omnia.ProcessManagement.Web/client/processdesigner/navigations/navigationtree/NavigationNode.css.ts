@@ -3,24 +3,11 @@ import { important } from 'csx';
 import colors from 'vuetify/es5/util/colors';
 import { OmniaTheming } from "@omnia/fx/ux"
 import { StyleFlow } from '@omnia/fx/ux';
-import { NavigationNodeStyles, IColor } from '../../../fx/models/styles';
-
-export const NavigationDialog = {
-    wrapper: style({
-        overflow: "hidden"
-    })
-
-}
-
+import { NavigationNodeStyles, IColor } from '../../../fx/models';
 
 StyleFlow.define(NavigationNodeStyles, {
     wrapper: {
         width: "100%"
-    },
-    extendedButtons: (theme: OmniaTheming) => {
-        return {
-            background: important(theme.chrome.secondary.base)
-        }
     },
     headerWrapper: (level: number, isRoutePath, theme: OmniaTheming) => {
         let padding = level * 10;
@@ -60,12 +47,6 @@ StyleFlow.define(NavigationNodeStyles, {
     leftIconExpanded: {
         transform: "rotate(-180deg)"
     },
-    leftIconWithoutButton: {
-        flex: "1 0 0px",
-        //paddingLeft: "7px",
-        marginTop: "-7px",
-        minWidth: "27px"
-    },
     title: (selected: boolean) => {
         let paddingRight = selected ? "90px" : "25px"
         return {
@@ -83,9 +64,6 @@ StyleFlow.define(NavigationNodeStyles, {
         position: "absolute",
         right: "0",
     },
-    actionBarExtended: {
-        display: "flex"
-    },
     content: {
         transition: "max-height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1)",
         overflow: "hidden"
@@ -93,18 +71,6 @@ StyleFlow.define(NavigationNodeStyles, {
     contentHide: {
         maxHeight: "0px",
         display: "none"
-    },
-    contentShow: (childNodes: number) => {
-        let maxHeight = childNodes * 50;
-        return {
-            maxHeight: maxHeight + "px"
-        }
-    },
-    dialogHeaderWrap: (background: IColor, text: IColor) => {
-        return {
-            background: background.base,
-            color: text.base
-        }
     }
 });
 

@@ -9,5 +9,6 @@ export const UrlParameters = {
 
 export const LibrarySystemFieldsConstants = {
     get Menu() { return "Menu" },
-    get Title() { return "Title" }
+    get Title() { return "Title" },
+    get Status() { return "Status" }
 }

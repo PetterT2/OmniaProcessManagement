@@ -45,7 +45,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     }
 
     onContentChanged(content) {
-        var currentContent = JSON.stringify(this.currentProcessReferenceData.currentProcessData.content);
+        var currentContent = JSON.stringify(this.currentProcessReferenceData.current.processData.content);
         var newContent = JSON.stringify(content);
         if (currentContent != newContent) {
             this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
@@ -67,7 +67,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
                 <omfx-multilingual-input
                     multipleLines={true}
                     richText={true}
-                    model={this.currentProcessReferenceData.currentProcessData.content}
+                    model={this.currentProcessReferenceData.current.processData.content}
                     onModelChange={(content) => { this.onContentChanged(content); }}
                     forceTenantLanguages></omfx-multilingual-input>
             </v-card-text>

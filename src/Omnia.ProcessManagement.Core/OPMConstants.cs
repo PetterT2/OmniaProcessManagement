@@ -66,9 +66,21 @@ namespace Omnia.ProcessManagement.Core
 
         public static class SharePoint
         {
+            public static class ListUrl
+            {
+                public const string PublishList = "OPMPublishedProcesss";
+                public const string TaskList = "OPMTasks";
+            }
+
             public static class OPMFields
             {
                 public const string Fields_ProcessType = "OPMProcessType";
+                public const string Fields_ProcessId = "OPMProcessId";
+                public const string Fields_Edition = "OPMEdition";
+                public const string Fields_Revision = "OPMRevision";
+                public const string Fields_Properties = "OPMProperties";
+                public const string Fields_TaskOutcome = "OPMTaskOutcome";
+                public const string Fields_Comment = "OPMComment";
             }
 
             public static class SharePointFields
@@ -101,6 +113,8 @@ namespace Omnia.ProcessManagement.Core
         public static class LocalizedTextKeys
         {
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
+            public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
+            public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
         }
 
         public static class ProcessColumns

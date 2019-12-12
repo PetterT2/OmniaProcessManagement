@@ -7,6 +7,7 @@ using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
 using Omnia.ProcessManagement.Core.Repositories.Settings;
+using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Core.Services.Features;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
@@ -14,6 +15,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
 using Omnia.ProcessManagement.Core.Services.Settings;
+using Omnia.ProcessManagement.Core.Services.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,6 +42,8 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessTypeService, ProcessTypeService>();
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingService, ProcessTypeTermSynchronizationTrackingService>();
             services.AddScopedWithSingeltonRef<ISettingsService, SettingsService>();
+            services.AddScopedWithSingeltonRef<IPublishProcessService, PublishProcessService>();
+            services.AddScopedWithSingeltonRef<IWorkflowService, WorkflowService>();
             services.AddScopedWithSingeltonRef<ProcessTypeValidation, ProcessTypeValidation>();
 
             //Repositories
@@ -48,6 +52,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessTypeRepository, ProcessTypeRepository>();
             services.AddScopedWithSingeltonRef<IProcessTypeTermSynchronizationTrackingRepository, ProcessTypeTermSynchronizationTrackingRepository>();
             services.AddScopedWithSingeltonRef<ISettingsRepository, SettingsRepository>();
+            services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
 
             services.AddAutoMapper();
             return services;

@@ -146,7 +146,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                 </div>
                 {
                     this.selectedTemplate == null ?
-                        <div class={[this.classes.error, 'mr-2 mb-3 ']}>{this.loc.Message.NoProcessTemplateValidation}</div>
+                        <div class={[this.classes.error, 'mr-2 mb-3 ']}>{this.loc.Messages.NoProcessTemplateValidation}</div>
                         : null
                 }
                 < div >

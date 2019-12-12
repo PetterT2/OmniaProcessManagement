@@ -7,7 +7,7 @@ import { CurrentProcessStore, DrawingCanvasEditor, ShapeTemplatesConstants, Draw
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, DialogModel } from '@omnia/fx/ux';
 import { DrawingShapeTypes, DrawingShapeDefinition, TextPosition, ProcessData, CanvasDefinition } from '../../../fx/models';
 import './ProcessStepDrawing.css';
-import { ProcessStepDrawingStyles } from '../../../fx/models/styles';
+import { ProcessStepDrawingStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { component } from 'vue-tsx-support';

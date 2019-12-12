@@ -6,7 +6,6 @@ import { SharePointContext } from '@omnia/fx-sp';
 import { OmniaUxLocalizationNamespace, OmniaUxLocalization, OmniaTheming } from '@omnia/fx/ux';
 import { PropertyIndexedType, EnterprisePropertyDefinition } from '@omnia/fx-models';
 import { ProcessLibraryBlockData, Enums, ProcessLibraryDisplaySettings } from '../../../fx/models';
-import { ProcessLibraryService } from '../../services';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessLibraryConfigurationFactory } from '../../factory/ProcessLibraryConfigurationFactory';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
@@ -25,7 +24,6 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     @Prop() isPublished: boolean;
 
     @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<ProcessLibraryBlockData>;
-    @Inject(ProcessLibraryService) private ProcessLibraryService: ProcessLibraryService;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
@@ -39,6 +37,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     private libraryDisplaySettings: ProcessLibraryDisplaySettings = null;
     private defaultFields: Array<string> = [];
     private enterpriseProperties: Array<EnterprisePropertyDefinition> = [];
+    private enterprisePropertiesSortable: Array<EnterprisePropertyDefinition> = [];
     private addingFieldName: string = "";
     private isLoadingSettings: boolean = false;
     private isLoadingProperties: boolean = false;
@@ -94,6 +93,17 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                     internalName: LibrarySystemFieldsConstants.Title,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Title)
                 } as EnterprisePropertyDefinition)
+            this.enterprisePropertiesSortable = Utils.clone(this.enterpriseProperties);
+
+            this.enterpriseProperties.push({
+                internalName: LibrarySystemFieldsConstants.Menu,
+                multilingualTitle: this.localizationService.get(this.coreLoc.Columns.ProcessMenu)
+            } as EnterprisePropertyDefinition);
+            this.enterpriseProperties.push({
+                internalName: LibrarySystemFieldsConstants.Status,
+                multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Status)
+            } as EnterprisePropertyDefinition);
+
             this.isLoadingProperties = false;
         });
 
@@ -122,6 +132,8 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
         switch (internalName) {
             case LibrarySystemFieldsConstants.Menu:
                 return this.coreLoc.Columns.ProcessMenu;
+            case LibrarySystemFieldsConstants.Status:
+                return this.coreLoc.Columns.Status;
             case LibrarySystemFieldsConstants.Title:
                 return this.coreLoc.Columns.Title;
             default:
@@ -142,7 +154,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                             <v-list-item>
                                 <v-list-item-content>{this.getFieldTitle(internalName)}</v-list-item-content>
                                 <v-list-item-action>
-                                    <v-btn icon onClick={() => { this.removeField(index); }}>
+                                    <v-btn icon v-show={internalName != LibrarySystemFieldsConstants.Menu && internalName != LibrarySystemFieldsConstants.Status} onClick={() => { this.removeField(index); }}>
                                         <v-icon size='14'>far fa-trash-alt</v-icon>
                                     </v-btn>
                                 </v-list-item-action>
@@ -177,13 +189,13 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                                     null
                             }
                             <v-select v-model={this.libraryDisplaySettings.defaultOrderingFieldName}
-                                items={this.enterpriseProperties} item-text="multilingualTitle" item-value="internalName"
+                                items={this.enterprisePropertiesSortable} item-text="multilingualTitle" item-value="internalName"
                                 label={this.loc.ProcessLibrarySettings.DefaultOrderingField} onInput={() => { this.updateBlockData(); }}></v-select>
                             {
                                 this.libraryDisplaySettings.defaultOrderingFieldName ?
                                     <v-select label={this.loc.SortText.Direction} items={this.sortBys} item-value="id" item-text="title" v-model={this.libraryDisplaySettings.orderDirection} onChange={() => { this.updateBlockData() }}></v-select> : null
                             }
-                           
+
                             <v-layout align-center>
                                 <v-select v-model={this.addingFieldName} loading={this.isLoadingProperties} items={this.enterpriseProperties} item-text="multilingualTitle" item-value="internalName"
                                     label={this.loc.ProcessLibrarySettings.Column} onInput={() => { }}></v-select>

@@ -1,5 +1,5 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { CenterFullHeightDialogStyles } from '../../fx/models/styles';
+import { CenterFullHeightDialogStyles } from '../../fx/models';
 import { important } from 'csx';
 
 StyleFlow.define(CenterFullHeightDialogStyles, {

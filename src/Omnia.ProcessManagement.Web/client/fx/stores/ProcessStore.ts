@@ -61,13 +61,44 @@ export class ProcessStore extends Store {
                 throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.processStepId}`;
 
 
-            let processReferenceData: ProcessReferenceData = {
-                process: process,
-                currentProcessStep: processStepRef.desiredProcessStep,
-                currentProcessData: processData,
-                parentProcessStep: processStepRef.parentProcessStep
-            }
+            let processReferenceData: ProcessReferenceData = null;
 
+            if (processReference.shortcutProcessStepId) {
+                let shortcutProcessDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.shortcutProcessStepId);
+                let shortcutProcessData = this.processDataDict.state[shortcutProcessDataCacheKey];
+
+                if (shortcutProcessData == null)
+                    throw `Process with id: ${processReference.processId} does not contains valid process data for process step id: ${processReference.shortcutProcessStepId}`;
+
+                let shortcutProcessStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.shortcutProcessStepId);
+
+                if (shortcutProcessStepRef.desiredProcessStep == null)
+                    throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.shortcutProcessStepId}`;
+
+                processReferenceData = {
+                    process: process,
+                    current: {
+                        processStep: processStepRef.desiredProcessStep,
+                        processData: processData,
+                        parentProcessStep: processStepRef.parentProcessStep
+                    },
+                    shortcut: {
+                        processStep: shortcutProcessStepRef.desiredProcessStep,
+                        processData: shortcutProcessData,
+                        parentProcessStep: shortcutProcessStepRef.parentProcessStep
+                    }
+                }
+            }
+            else {
+                processReferenceData = {
+                    process: process,
+                    current: {
+                        processStep: processStepRef.desiredProcessStep,
+                        processData: processData,
+                        parentProcessStep: processStepRef.parentProcessStep
+                    }
+                }
+            }
             return processReferenceData
         }
     }
@@ -120,9 +151,15 @@ export class ProcessStore extends Store {
                             let processCacheKey = this.getProcessCacheKey(processReference.processId);
                             let process = this.processDict.state[processCacheKey];
 
-                            this.ensureProcessData(process, processReference.processStepId).then(() => {
-                                resolve();
-                            })
+                            let promises: Array<Promise<ProcessDataWithAuditing>> = [];
+
+                            promises.push(this.ensureProcessData(process, processReference.processStepId));
+
+                            if (processReference.shortcutProcessStepId) {
+                                promises.push(this.ensureProcessData(process, processReference.shortcutProcessStepId));
+                            }
+
+                            Promise.all(promises).then(() => { resolve() }).catch(reject);
                         })
                     });
 

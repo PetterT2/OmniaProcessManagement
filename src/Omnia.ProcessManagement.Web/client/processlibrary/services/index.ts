@@ -1,1 +1,1 @@
-﻿export * from './ProcessLibraryService';
+﻿export * from './PublishProcessService';

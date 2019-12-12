@@ -8,7 +8,6 @@ import './ProcessLibrary.css';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../loc/localize';
 import { ProcessLibraryStyles } from '../../models';
-import { ProcessLibraryService } from '../services';
 import { ProcessLibraryBlockData } from '../../fx/models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ProcessLibraryConfigurationFactory } from '../factory/ProcessLibraryConfigurationFactory';
@@ -27,7 +26,6 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     // -------------------------------------------------------------------------
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ProcessLibraryBlockData>;
-    @Inject(ProcessLibraryService) processLibraryService: ProcessLibraryService;
     @Inject(OmniaContext) omniaContext: OmniaContext;
 
     // -------------------------------------------------------------------------

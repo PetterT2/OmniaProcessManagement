@@ -5,7 +5,10 @@ import 'vue-tsx-support/enable-check';
 import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { CurrentProcessStore, OPMRouter } from '../../../fx';
-import { MultilingualString, Guid } from '@omnia/fx-models';
+import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
+import { RootProcessStep, ProcessStep, IdDict } from '../../../fx/models';
+import { util } from 'fabric/fabric-impl';
+import { MultilingualStore } from '@omnia/fx/store';
 
 
 @Component
@@ -16,11 +19,23 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
     internalValidator: FormValidator = new FormValidator(this);
     title: MultilingualString = {} as MultilingualString;
 
+    showEditTitleDialog = false;
     showCreateProcessStepDialog = false;
+    showMoveProcessStepDialog = false;
+
+    loading: boolean = false;
+
+    moveProcessStepDialogData: {
+        dialogTitle: string,
+        hiddenProcessStepIdsDict: IdDict<boolean>,
+        disabledProcessStepIdsDict: IdDict<boolean>,
+        rootProcessStep: RootProcessStep
+    } = null
 
     menuModel = {
         showMenu: false
@@ -31,18 +46,43 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         e.stopPropagation();
         this.menuModel.showMenu = false;
 
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
+
+        this.moveProcessStepDialogData = {
+            dialogTitle: this.loc.MoveProcessStep + ": " + currentReferenceData.current.processStep.multilingualTitle,
+            hiddenProcessStepIdsDict: { [currentReferenceData.current.processStep.id.toString().toLowerCase()]: true },
+            disabledProcessStepIdsDict: { [currentReferenceData.current.processStep.id.toString().toLowerCase()]: true },
+            rootProcessStep: currentReferenceData.process.rootProcessStep
+        }
+
+        this.showMoveProcessStepDialog = true;
     }
 
     onClickCreateProcessStep(e: Event): any {
         e.stopPropagation();
         this.menuModel.showMenu = false;
 
+        this.title = {} as MultilingualString;
         this.showCreateProcessStepDialog = true;
+
+    }
+
+    onClickEditTitle(e: Event): any {
+        e.stopPropagation();
+        this.menuModel.showMenu = false;
+
+        this.title = Utils.clone(this.currentProcessStore.getters.referenceData().current.processStep.title);
+        this.showEditTitleDialog = true;
 
     }
 
     closeCreateProcessStepDialog() {
         this.showCreateProcessStepDialog = false;
+        this.showEditTitleDialog = false;
+    }
+
+    closeMoveProcessStepDialog() {
+        this.showMoveProcessStepDialog = false;
     }
 
     addProcessStep() {
@@ -51,19 +91,58 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         })
     }
 
-    renderCreateProcessStepDialog(h) {
+    editTitle() {
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
+        currentReferenceData.current.processStep.title = this.title;
+        currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
+        this.loading = true;
+        this.currentProcessStore.actions.saveState.dispatch(true).then(() => {
+            this.showEditTitleDialog = false;
+        })
+    }
+
+    moveToProcessStep(newParentProcessStep: ProcessStep): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
+            let parentProcessStep = currentProcessReferenceData.current.parentProcessStep;
+            let currentProcessStep = currentProcessReferenceData.current.processStep;
+
+            parentProcessStep.processSteps.splice(parentProcessStep.processSteps.indexOf(currentProcessStep), 1);
+
+            if (!newParentProcessStep.processSteps)
+                newParentProcessStep.processSteps = [];
+            newParentProcessStep.processSteps.push(currentProcessStep);
+
+            this.currentProcessStore.actions.saveState.dispatch(true).then(resolve).catch(reject);
+        })
+    }
+
+    renderMoveProcessStepDialog(h) {
+        return (
+            <opm-process-step-picker
+                header={this.moveProcessStepDialogData.dialogTitle}
+                hiddenProcessStepIdsDict={this.moveProcessStepDialogData.hiddenProcessStepIdsDict}
+                disabledProcessStepIdsDict={this.moveProcessStepDialogData.disabledProcessStepIdsDict}
+                rootProcessStep={this.moveProcessStepDialogData.rootProcessStep}
+                onSelected={this.moveToProcessStep}
+                onClose={this.closeMoveProcessStepDialog}>
+            </opm-process-step-picker>
+        )
+    }
+
+    renderProcessStepDialog(h) {
         return (
             <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
                 contentClass={this.omniaTheming.promoted.body.class}
                 onClose={() => { this.closeCreateProcessStepDialog(); }}
-                model={{ visible: this.showCreateProcessStepDialog }}
+                model={{ visible: true }}
                 hideCloseButton
                 width="800px"
                 position={DialogPositions.Center}>
                 <div>
                     <v-card>
                         <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.loc.CreateProcessStep}</v-toolbar-title>
+                            <v-toolbar-title>{this.showEditTitleDialog ? this.loc.EditTitle : this.loc.CreateProcessStep}</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-btn icon onClick={() => { this.closeCreateProcessStepDialog(); }}>
                                 <v-icon>close</v-icon>
@@ -79,10 +158,11 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                                 <v-spacer></v-spacer>
                                 <v-btn
                                     text
+                                    loading={this.loading}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.addProcessStep() }}>
-                                    {this.omniaLoc.Common.Buttons.Create}
+                                    onClick={() => { this.showEditTitleDialog ? this.editTitle() : this.addProcessStep() }}>
+                                    {this.showEditTitleDialog ? this.omniaLoc.Common.Buttons.Save : this.omniaLoc.Common.Buttons.Create}
                                 </v-btn>
                                 <v-btn
                                     text
@@ -99,8 +179,10 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     }
 
     renderDialogs(h) {
-        if (this.showCreateProcessStepDialog)
-            return this.renderCreateProcessStepDialog(h)
+        if (this.showCreateProcessStepDialog || this.showEditTitleDialog)
+            return this.renderProcessStepDialog(h)
+        if (this.showMoveProcessStepDialog)
+            return this.renderMoveProcessStepDialog(h)
 
         return null;
     }
@@ -108,7 +190,6 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     render(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
-
 
         return (
             <div>
@@ -140,8 +221,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                         class={this.omniaTheming.promoted.header.class}>
 
 
-                        <v-list-item
-                            dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickCreateProcessStep(e)}>
+                        <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickCreateProcessStep(e)}>
                             <v-list-item-avatar>
                                 <v-icon medium color={this.omniaTheming.promoted.header.text.base}>add</v-icon>
                             </v-list-item-avatar>
@@ -149,19 +229,26 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                                 <v-list-item-title>{this.loc.CreateProcessStep}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-
+                        <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickEditTitle(e)}>
+                            <v-list-item-avatar>
+                                <v-icon medium color={this.omniaTheming.promoted.header.text.base}>edit</v-icon>
+                            </v-list-item-avatar>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.loc.EditTitle}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
                         {
-                            !currentReferenceData.parentProcessStep &&
-                            <v-list-item
-                                dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickMoveProcessStep(e)}>
-                                <v-list-item-avatar>
-                                    <v-icon medium color={this.omniaTheming.promoted.header.text.base}>far fa-arrows-alt</v-icon>
-                                </v-list-item-avatar>
-                                <v-list-item-content class={"mr-2"}>
-                                    <v-list-item-title>{this.loc.MoveProcessStep}</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
+                            currentReferenceData.current.parentProcessStep ?
+                                <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickMoveProcessStep(e)}>
+                                    <v-list-item-avatar>
+                                        <v-icon medium color={this.omniaTheming.promoted.header.text.base}>far fa-arrows-alt</v-icon>
+                                    </v-list-item-avatar>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.loc.MoveProcessStep}</v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item> : null
                         }
+
                     </v-list>
                 </v-menu>
                 {
