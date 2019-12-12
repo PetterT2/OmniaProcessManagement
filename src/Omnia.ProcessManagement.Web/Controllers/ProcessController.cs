@@ -83,7 +83,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
-        
+
 
         [HttpPost, Route("savecheckedout")]
         [Authorize]
@@ -217,6 +217,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+            }
+        }
+
+        [HttpPost, Route("checkifdeletingprocessstepsarebeingused/{processId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<bool>> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        {
+            try
+            {
+                var beingUsed = await ProcessService.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+                return beingUsed.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<bool>(ex);
             }
         }
     }

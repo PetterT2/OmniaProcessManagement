@@ -138,7 +138,7 @@ export class CurrentProcessStore extends Store {
     }
 
     public actions = {
-        setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
+        setProcessToShow: this.action((processReferenceToUse: ProcessReference): Promise<null> => {
             if (processReferenceToUse == null) {
                 this.currentLoadedProcessDataJsonDict = {};
                 this.currentLoadedProcessDataDict = {};
@@ -181,7 +181,7 @@ export class CurrentProcessStore extends Store {
                 })
             });
         }),
-        ensureShortcut: this.action((shortcutProcessStepId: GuidValue) => {
+        ensureShortcut: this.action((shortcutProcessStepId: GuidValue): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
                     if (this.currentProcessReference.state) {
@@ -213,7 +213,7 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return null; // this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
         }),
         checkIn: this.action((): Promise<null> => {
@@ -229,10 +229,32 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         }),
-        addProcessStep: this.action((title: MultilingualString) => {
+        deleteProcessStep: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<ProcessReference>((resolve, reject) => {
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+
+                    currentProcessReferenceData.current.parentProcessStep.processSteps.splice(
+                        currentProcessReferenceData.current.parentProcessStep.processSteps.indexOf(currentProcessReferenceData.current.processStep), 1)
+
+                    let actionModel: ProcessActionModel = {
+                        process: currentProcessReferenceData.process,
+                        processData: {}
+                    }
+
+                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                        let processReferenceToUse = this.prepareProcessReferenceToUse(process, currentProcessReferenceData.current.parentProcessStep.id);
+                        resolve(processReferenceToUse);
+                    })
+                })
+            }).then((processReferenceToUse) => {
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
+            })
+        }),
+        addProcessStep: this.action((title: MultilingualString): Promise<{ process: Process, processStep: ProcessStep }> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -270,12 +292,12 @@ export class CurrentProcessStore extends Store {
                             process: process,
                             processStep: processStepRef.desiredProcessStep
                         });
-                    })
+                    }).catch(reject)
                 })
             })
         }),
         //refreshContentNavigation parameter is used for onDispatched
-        saveState: this.action((refreshContentNavigation?: boolean) => {
+        saveState: this.action((refreshContentNavigation?: boolean): Promise<null> => {
 
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
@@ -343,7 +365,7 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         })
     }

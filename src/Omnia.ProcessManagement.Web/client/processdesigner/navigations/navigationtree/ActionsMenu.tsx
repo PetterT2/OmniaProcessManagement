@@ -4,7 +4,7 @@ import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { CurrentProcessStore, OPMRouter } from '../../../fx';
+import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils } from '../../../fx';
 import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
 import { RootProcessStep, ProcessStep, IdDict } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
@@ -20,6 +20,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ProcessService) processService: ProcessService;
 
     internalValidator: FormValidator = new FormValidator(this);
     title: MultilingualString = {} as MultilingualString;
@@ -27,8 +28,12 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     showEditTitleDialog = false;
     showCreateProcessStepDialog = false;
     showMoveProcessStepDialog = false;
+    showDeleteProcessStepDialog = false;
 
     loading: boolean = false;
+    checkingDeletingProcessSteps: boolean = false;
+    deletingProcessStepBeingUsed: boolean = false;
+    deletingMultipleProcessSteps: boolean = false;
 
     moveProcessStepDialogData: {
         dialogTitle: string,
@@ -76,6 +81,27 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     }
 
+    onClickDeleteProcessStep(e: Event): any {
+        e.stopPropagation();
+        this.menuModel.showMenu = false;
+        this.deletingProcessStepBeingUsed = false;
+
+        this.showDeleteProcessStepDialog = true;
+
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        this.deletingMultipleProcessSteps = referenceData.current.processStep.processSteps && referenceData.current.processStep.processSteps.length > 0;
+        this.checkingDeletingProcessSteps = true;
+        this.processService.checkIfDeletingProcessStepsAreBeingUsed(referenceData.process.id, OPMUtils.getAllProcessStepIds(referenceData.current.processStep))
+            .then((beingUsed) => {
+                this.checkingDeletingProcessSteps = false;
+                this.deletingProcessStepBeingUsed = beingUsed;
+            })
+    }
+
+    closeDeleteProcessStepDialog() {
+        this.showDeleteProcessStepDialog = false;
+    }
+
     closeCreateProcessStepDialog() {
         this.showCreateProcessStepDialog = false;
         this.showEditTitleDialog = false;
@@ -88,6 +114,13 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     addProcessStep() {
         this.currentProcessStore.actions.addProcessStep.dispatch(this.title).then((result) => {
             OPMRouter.navigate(result.process, result.processStep)
+        })
+    }
+
+    deleteProcessStep() {
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
+        this.currentProcessStore.actions.deleteProcessStep.dispatch().then(() => {
+            OPMRouter.navigate(currentReferenceData.process, currentReferenceData.current.parentProcessStep)
         })
     }
 
@@ -129,6 +162,63 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
             </opm-process-step-picker>
         )
     }
+
+    renderDeleteProcessDialog(h) {
+        return (
+            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
+                contentClass={this.omniaTheming.promoted.body.class}
+                onClose={() => { this.closeDeleteProcessStepDialog(); }}
+                model={{ visible: true }}
+                hideCloseButton
+                width="800px"
+                position={DialogPositions.Center}>
+                <div>
+                    <v-card>
+                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
+                            <v-toolbar-title>{this.loc.DeleteProcessStep.Label}</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-btn icon onClick={() => { this.closeDeleteProcessStepDialog(); }}>
+                                <v-icon>close</v-icon>
+                            </v-btn>
+                        </v-toolbar>
+                        <v-divider></v-divider>
+                        <v-card-text class={this.omniaTheming.promoted.body.class}>
+                            {
+                                this.checkingDeletingProcessSteps ?
+                                    <v-progress-circular size="16" width="2" indeterminate></v-progress-circular> :
+                                    <div>
+                                        {this.loc.DeleteProcessStep.ConfirmationMessage}
+                                        <ul>
+                                            {this.deletingMultipleProcessSteps && <li>{this.loc.DeleteProcessStep.WarningMultipleDeletingProcessStepMessage}</li>}
+                                            {this.deletingProcessStepBeingUsed && <li>{this.loc.DeleteProcessStep.WarningReferenceProcessStepMessage}</li>}
+                                        </ul>
+                                    </div>
+                            }
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    text
+                                    disabled={this.checkingDeletingProcessSteps}
+                                    loading={this.loading}
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    color={this.omniaTheming.themes.primary.base}
+                                    onClick={() => { this.deleteProcessStep() }}>
+                                    {this.omniaLoc.Common.Buttons.Delete}
+                                </v-btn>
+                                <v-btn
+                                    text
+                                    light={!this.omniaTheming.promoted.body.dark}
+                                    onClick={() => { this.closeDeleteProcessStepDialog(); }}>
+                                    {this.omniaLoc.Common.Buttons.Cancel}
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card-text>
+                    </v-card>
+                </div>
+            </omfx-dialog>
+        )
+    }
+
 
     renderProcessStepDialog(h) {
         return (
@@ -183,7 +273,8 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
             return this.renderProcessStepDialog(h)
         if (this.showMoveProcessStepDialog)
             return this.renderMoveProcessStepDialog(h)
-
+        if (this.showDeleteProcessStepDialog)
+            return this.renderDeleteProcessDialog(h)
         return null;
     }
 
@@ -248,7 +339,17 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                                     </v-list-item-content>
                                 </v-list-item> : null
                         }
-
+                        {
+                            currentReferenceData.current.parentProcessStep ?
+                                <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickDeleteProcessStep(e)}>
+                                    <v-list-item-avatar>
+                                        <v-icon medium color={this.omniaTheming.promoted.header.text.base}>delete</v-icon>
+                                    </v-list-item-avatar>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.loc.DeleteProcessStep.Label}</v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item> : null
+                        }
                     </v-list>
                 </v-menu>
                 {

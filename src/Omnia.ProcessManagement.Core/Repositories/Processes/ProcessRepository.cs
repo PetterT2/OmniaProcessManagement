@@ -401,6 +401,27 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return processes;
         }
 
+        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        {
+            var remaningReferenceProcessStepIds = await DbContext.ProcessData
+                .Where(p => p.ProcessId == processId && !deletingProcessStepIds.Contains(p.ProcessStepId))
+                .Select(p => p.ReferenceProcessStepIds)
+                .ToListAsync();
+
+            var remaningReferenceProcessStepIdsHashSet = new HashSet<Guid>();
+            foreach (var remaningReferenceProcessStepId in remaningReferenceProcessStepIds)
+            {
+                if (!string.IsNullOrWhiteSpace(remaningReferenceProcessStepId))
+                {
+                    remaningReferenceProcessStepId.Split(',').ToList().ForEach(id => remaningReferenceProcessStepIdsHashSet.Add(new Guid(id)));
+                }
+            }
+
+            var beingUsed = deletingProcessStepIds.Any(id => remaningReferenceProcessStepIdsHashSet.Contains(id));
+
+            return beingUsed;
+        }
+
         public async ValueTask<Process> GetProcessByIdAsync(Guid processId)
         {
             var process = await DbContext.Processes
