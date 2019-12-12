@@ -1,11 +1,11 @@
-﻿import { Inject, Localize, WebComponentBootstrapper, vueCustomElement, Utils } from '@omnia/fx';
+﻿import { Inject, Localize, WebComponentBootstrapper, vueCustomElement, Utils, IWebComponentInstance } from '@omnia/fx';
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, IconSize } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { ProcessTemplateStore, DrawingCanvas } from '../../../../fx';
+import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes } from '../../../../fx/models';
@@ -20,8 +20,9 @@ export interface ShapeSelectionStepProps {
 }
 
 @Component
-export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelectionStepProps, {}, {}>{
+export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelectionStepProps> implements IWebComponentInstance{
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
     @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore;
@@ -37,6 +38,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
     private toggleVisibleItemFlag: boolean = false;
     private filterShapeTimeout = null;//use this to avoid forceUpdate
     private selectedShapeDefinition: ShapeDefinition = null;
+    private selectedElementId: string = '';
     shapeSelectionStepStyles = StyleFlow.use(ShapeSelectionStepStyles);
 
     created() {
@@ -44,7 +46,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
     }
 
     init() {
-        let processTemplateId = this.processDesignerStore.rootProcessReferenceData.process.rootProcessStep.processTemplateId;
+        let processTemplateId = this.currentProcessStore.getters.referenceData().process.rootProcessStep.processTemplateId;
         this.processTemplateStore.actions.ensureLoadProcessTemplate.dispatch(processTemplateId).then((loadedProcessTemplate) => {
             this.availableShapeDefinitions = loadedProcessTemplate.settings.shapeDefinitions;
             if (this.availableShapeDefinitions) {
@@ -64,9 +66,6 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
                         }
                     });
                 }
-                //test
-                this.recentShapeDefinitions = this.availableShapeDefinitions.map((item) => { return Utils.clone(item); });
-                console.log(this.availableShapeDefinitions);
                 this.startToDrawShape();
             }
         });
@@ -119,12 +118,9 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
             this.toggleVisibleItemFlag = !this.toggleVisibleItemFlag;
         }, 200);
     }
-    private selectShape(shapeDefinition: ShapeDefinitionSelection) {
-        this.availableShapeDefinitions.forEach((item) => {
-            item.isSelected = false;
-        });
-        shapeDefinition.isSelected = true;
+    private selectShape(shapeDefinition: ShapeDefinitionSelection, idPrefix: string) {
         this.selectedShapeDefinition = shapeDefinition;
+        this.selectedElementId = idPrefix + shapeDefinition.id;
     }
 
     private renderRecentShapeSelections(h) {
@@ -135,7 +131,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
             <div>{this.pdLoc.RecentShapes}</div>
             <div class={this.shapeSelectionStepStyles.shapesWrapper}>
                 {this.recentShapeDefinitions.map((df) => {
-                    return <div id={'recent_canvaswrapper_' + df.id.toString()} class={[df.isSelected ? 'selected' : '']} onClick={() => { this.selectShape(df) }}> <canvas id={"recent_" + df.id.toString()}></canvas></div>
+                    return this.renderShapeDefinitionIcon(h, df, true)
                 })}
             </div>
         </v-container>;
@@ -148,15 +144,15 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
        return <v-container>
            <div>{this.pdLoc.AllShapes}</div>
            <v-text-field filled type="text" label={this.pdLoc.Search} v-model={this.shapeFilterKeyword} onKeyup={this.onFilterShapeDefinition}></v-text-field>
-           {this.renderShapeCanvasElements(h)}
+           {this.renderAllShapes(h)}
        </v-container>;
     }
 
-    private renderShapeCanvasElements(h) {
+    private renderAllShapes(h) {
         return <div class={this.shapeSelectionStepStyles.shapesWrapper}>
             {
                 [this.availableShapeDefinitions.map((df) => {
-                    return <div id = { 'canvaswrapper_' + df.id.toString() } class= { [df.isSelected ? 'selected' : '']} style = {{ display: df.visible ? 'block' : 'none' }} onClick={() => { this.selectShape(df) }}> <canvas id={df.id.toString()}></canvas></div>
+                    return this.renderShapeDefinitionIcon(h, df, false)
                 }),
                     <div style={{display: 'none'}}>{this.toggleVisibleItemFlag}</div>
                 ]
@@ -168,47 +164,105 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         if (this.availableShapeDefinitions) {
             setTimeout(() => {
                 this.availableShapeDefinitions.forEach((df) => {
-                    if (!this.drawingCanvas[df.id.toString()]) {
-                        this.drawingCanvas[df.id.toString()] = new DrawingCanvas(df.id.toString(), {},
-                            {
-                                drawingShapes: [],
-                                width: 200,
-                                height: 200
-                            });
-                        this.drawingCanvas[df.id.toString()].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (df as DrawingShapeDefinition), null, false, 0, 0);
-                    }
+                    this.drawShapeAsIcon(df, false);
                 });
                 this.recentShapeDefinitions.forEach((df) => {
-                    var canvasId = "recent_" + df.id.toString();
-                    if (!this.drawingCanvas[canvasId]) {
-                        this.drawingCanvas[canvasId] = new DrawingCanvas(canvasId, {},
-                            {
-                                drawingShapes: [],
-                                width: 200,
-                                height: 200
-                            });
-                        this.drawingCanvas[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (df as DrawingShapeDefinition), null, false, 0, 0);
-                    }
+                    this.drawShapeAsIcon(df, true);
                 });
             }, 200);
         }
     }
 
+    private drawShapeAsIcon(shapeDefinition: ShapeDefinition, isRecent: boolean) {
+        if (shapeDefinition.type == ShapeDefinitionTypes.Heading)
+            return;
+        let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
+        if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform || drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {
+            return;
+        }
+        let idPrefix = isRecent ? 'recent_' : '';
+        let canvasId = idPrefix + shapeDefinition.id.toString();
+        if (!this.drawingCanvas[canvasId]) {
+            let iconSize = 100;
+            let shapeIconWidth = drawingShapeDefinition.width;
+            let shapeIconHeight = drawingShapeDefinition.height;
+            if (shapeIconWidth > shapeIconHeight) {
+                if (shapeIconWidth > iconSize) {
+                    shapeIconHeight = (shapeIconHeight / shapeIconWidth) * 100;
+                    shapeIconWidth = iconSize;
+                }                
+            }
+            else {
+                if (shapeIconHeight > iconSize) {
+                    shapeIconWidth = (shapeIconWidth / shapeIconHeight) * 100;
+                    shapeIconHeight = iconSize;
+                }  
+            }
+            let canvasPadding = 20;
+            let fontSize = 10;
+            this.drawingCanvas[canvasId] = new DrawingCanvas(canvasId, {},
+                {
+                    drawingShapes: [],
+                    width: iconSize + canvasPadding,
+                    height: iconSize + canvasPadding
+                });
+            let definitionToDraw: DrawingShapeDefinition = Utils.clone(drawingShapeDefinition);
+            definitionToDraw.width = shapeIconWidth;
+            definitionToDraw.height = shapeIconHeight;
+            definitionToDraw.fontSize = fontSize;
+
+            this.drawingCanvas[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, false, 0, 0);
+        }
+    }
+
+    private renderShapeDefinitionIcon(h, shapeDefinition: ShapeDefinitionSelection, isRecent: boolean = false) {
+        let shapeDefinitionElement: JSX.Element = null;
+        let idPrefix = isRecent ? 'recent_' : '';
+        let shapeId = idPrefix + shapeDefinition.id.toString();
+
+        if (shapeDefinition.type == ShapeDefinitionTypes.Heading) {
+            shapeDefinitionElement = <div>{this.multilingualStore.getters.stringValue(shapeDefinition.title)}</div>;
+        }
+        else {
+            let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
+            if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform) {
+                shapeDefinitionElement = <div>
+                    <i class="">Free form</i>
+                </div>;
+            }
+            else
+                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {
+                    shapeDefinitionElement = <div>
+                        <i class="fal fa-photo-video">Media</i>
+                    </div>;
+                }
+                else {
+                    shapeDefinitionElement = <canvas id={shapeId}></canvas>;                    
+                }
+        }
+        let retElement: JSX.Element = <div id={'shape_' + shapeId}
+            class={[this.shapeSelectionStepStyles.shapeDefinitionItem(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
+            style={{ display: shapeDefinition.visible ? 'block' : 'none' }}
+            onClick={() => { this.selectShape(shapeDefinition, idPrefix) }}>
+            {shapeDefinitionElement}
+        </div>;
+        return retElement;
+
+    }
+
     private renderActionButtons(h) {
         return <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
+            <v-btn text
                 color={this.omniaTheming.themes.primary.base}
-                dark={true}
+                dark={this.omniaTheming.promoted.body.dark}
+                disabled={!this.selectedShapeDefinition}
                 onClick={this.goToNext}>{this.omniaLoc.Common.Buttons.Next}</v-btn>
-            <v-btn 
+            <v-btn text
                 onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
         </v-card-actions>;
     }
-    /**
-        * Render 
-        * @param h
-        */
+
     render(h) {
         return <v-card flat>
             <v-card-content>
@@ -222,5 +276,5 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
 
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, ShapeSelectionStepComponent);
+    vueCustomElement(manifest.elementName, ShapeSelectionStepComponent, { destroyTimeout: 1500 });
 });

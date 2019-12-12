@@ -1,4 +1,4 @@
-﻿import { Store } from '@omnia/fx/store';
+﻿import { Store, MultilingualStore } from '@omnia/fx/store';
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
@@ -113,7 +113,7 @@ class ProcessStateTransaction {
 })
 export class CurrentProcessStore extends Store {
     @Inject(ProcessStore) private processStore: ProcessStore;
-
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
@@ -138,7 +138,7 @@ export class CurrentProcessStore extends Store {
     }
 
     public actions = {
-        setProcessToShow: this.action((processReferenceToUse: ProcessReference) => {
+        setProcessToShow: this.action((processReferenceToUse: ProcessReference): Promise<null> => {
             if (processReferenceToUse == null) {
                 this.currentLoadedProcessDataJsonDict = {};
                 this.currentLoadedProcessDataDict = {};
@@ -181,7 +181,7 @@ export class CurrentProcessStore extends Store {
                 })
             });
         }),
-        ensureShortcut: this.action((shortcutProcessStepId: GuidValue) => {
+        ensureShortcut: this.action((shortcutProcessStepId: GuidValue): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<ProcessReference>((resolve, reject) => {
                     if (this.currentProcessReference.state) {
@@ -229,10 +229,29 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         }),
-        addProcessStep: this.action((title: MultilingualString) => {
+        deleteProcessStep: this.action((): Promise<null> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<null>((resolve, reject) => {
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+
+                    currentProcessReferenceData.current.parentProcessStep.processSteps.splice(
+                        currentProcessReferenceData.current.parentProcessStep.processSteps.indexOf(currentProcessReferenceData.current.processStep), 1)
+
+                    let actionModel: ProcessActionModel = {
+                        process: currentProcessReferenceData.process,
+                        processData: {}
+                    }
+
+                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                        resolve(null)
+                    }).catch(reject)
+                })
+            })
+        }),
+        addProcessStep: this.action((title: MultilingualString, navigateTo?: boolean): Promise<{ process: Process, processStep: ProcessStep }> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -241,7 +260,8 @@ export class CurrentProcessStore extends Store {
                         id: Guid.newGuid(),
                         title: title,
                         processDataHash: '',
-                        processSteps: []
+                        processSteps: [],
+                        multilingualTitle: this.multilingualStore.getters.stringValue(title)
                     };
 
                     let processData: ProcessData = {
@@ -270,12 +290,12 @@ export class CurrentProcessStore extends Store {
                             process: process,
                             processStep: processStepRef.desiredProcessStep
                         });
-                    })
+                    }).catch(reject)
                 })
             })
         }),
         //refreshContentNavigation parameter is used for onDispatched
-        saveState: this.action((refreshContentNavigation?: boolean) => {
+        saveState: this.action((refreshContentNavigation?: boolean): Promise<null> => {
 
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {
@@ -321,8 +341,9 @@ export class CurrentProcessStore extends Store {
                             if (hasShortcut) {
                                 this.currentLoadedProcessDataJsonDict[shortcutProcessStepId] = shortcutProcessDataJson;
                             }
-
+                            
                             resolve(null);
+
                         }).catch(reject);
                     }
                     else {
@@ -343,7 +364,7 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
-                return this.actions.setProcessToShow.dispatch(processReferenceToUse)
+                return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         })
     }

@@ -1,6 +1,6 @@
 ﻿export module ProcessDesignerLocalization {
     export const namespace = "OPM.ProcessDesigner";
-    export interface locInterface {        
+    export interface locInterface {
         CanvasSettings: string;
         BackgroundImage: string;
         Size: string;
@@ -22,11 +22,22 @@
         },
         New: string;
         AddLink: string;
+        EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
         EditTitle: string;
+        DeleteProcessStep: {
+            Label: string;
+            ConfirmationMessage: string;
+            WarningReferenceProcessStepMessage: string;
+            WarningMultipleDeletingProcessStepMessage: string
+        };
         MoveProcessStep: string;
         NewDataNotSaved: string;
         NewDataHasBeenSaved: string;
+        LinkObject: {
+            OpenNewWindow: string;
+        };
+        ChangeShape: string;
     }
 }

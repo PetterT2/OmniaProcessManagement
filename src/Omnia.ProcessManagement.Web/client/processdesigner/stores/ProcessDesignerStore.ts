@@ -37,17 +37,17 @@ export class ProcessDesignerStore extends Store {
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     private hasDataChanged = this.state<boolean>(null);
 
-    public rootProcessReferenceData: ProcessReferenceData = null;
-    private editedProcessReferences: {
-        [processStepId: string]: {
-            processStep: ProcessStep,
-            processData: ProcessData
-        }
-    } = {};
-    public editingProcessReference = this.state<{
-        processStep: ProcessStep,
-        processData: ProcessData
-    }>(null);
+    //public rootProcessReferenceData: ProcessReferenceData = null;
+    //private editedProcessReferences: {
+    //    [processStepId: string]: {
+    //        processStep: ProcessStep,
+    //        processData: ProcessData
+    //    }
+    //} = {};
+    //public editingProcessReference = this.state<{
+    //    processStep: ProcessStep,
+    //    processData: ProcessData
+    //}>(null);
    
     constructor() {
         super({ id: "0c263d6c-4ab2-4345-b9f3-8b3919de1b5f" });
@@ -168,26 +168,13 @@ export class ProcessDesignerStore extends Store {
         editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
-                if (!currentProcess.current.processStep) {
-                    this.rootProcessReferenceData = Utils.clone(currentProcess);
+                //if (!currentProcess.current.processStep) {
+                //    this.rootProcessReferenceData = Utils.clone(currentProcess);
+                //}
+                if (!currentProcess.current.processData.canvasDefinition) {
+                    console.log('init current canvas');
+                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
                 }
-                var editingProcessReference: {
-                    processStep: ProcessStep,
-                    processData: ProcessData
-                } = this.editedProcessReferences[currentProcess.current.processStep.id.toString()];
-
-                if (!editingProcessReference) {
-                    editingProcessReference = {
-                        processStep: Utils.clone(currentProcess.current.processStep),
-                        processData: Utils.clone(currentProcess.current.processData)
-                    };
-                    this.editedProcessReferences[currentProcess.current.processStep.id.toString()] = editingProcessReference;
-                }
-                if (!editingProcessReference.processData.canvasDefinition) {
-                    editingProcessReference.processData.canvasDefinition = this.initDefaultCanvasDefinition();
-                }
-
-                this.editingProcessReference.mutate(editingProcessReference);
 
                 let defaultShowContentNavigation: boolean = false;
                 if (this.editmode.state) {
@@ -205,19 +192,21 @@ export class ProcessDesignerStore extends Store {
                 });
             })
         }),
-        addProcessStep: this.action((processStepTitle: MultilingualString) => {
-            return new Promise<ProcessStep>((resolve, reject) => {
-                var childProcessStep: ProcessStep = {
-                    id: Guid.newGuid(),
-                    title: processStepTitle,
-                    processSteps: [],
-                    processDataHash: ''
-                };
-                this.editingProcessReference.state.processStep.processSteps.push(childProcessStep);
-                //todo: handle add to navigations
-                resolve(childProcessStep);
-            });
-        }),
+        //addProcessStep: this.action((processStepTitle: MultilingualString) => {
+        //    return new Promise<ProcessStep>((resolve, reject) => {
+        //        var childProcessStep: ProcessStep = {
+        //            id: Guid.newGuid(),
+        //            title: processStepTitle,
+        //            processSteps: [],
+        //            processDataHash: ''
+        //        };
+        //        let currentProcess = this.currentProcessStore.getters.referenceData();
+        //        currentProcess.current.processStep.processSteps.push(childProcessStep);
+                
+        //        //todo: handle add to navigations
+        //        resolve(childProcessStep);
+        //    });
+        //}),
         addRecentShapeDefinitionSelection: this.action((shapeDefinition: ShapeDefinition) => {
             return new Promise<any>((resolve, reject) => {
                 var shapeDefinitions = this.recentShapeSelections.state.filter((item) => {

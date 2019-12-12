@@ -106,5 +106,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.UpdateProcessStatusAsync(opmProcessId, processWorkingStatus, versionType);
         }
 
+
+        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        {
+            var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+            return beingUsed;
+        }
     }
 }

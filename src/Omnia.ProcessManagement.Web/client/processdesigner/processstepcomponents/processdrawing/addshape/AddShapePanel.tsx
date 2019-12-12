@@ -1,4 +1,4 @@
-﻿import { Inject, Localize, Utils, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
+﻿import { Inject, Localize, Utils, WebComponentBootstrapper, vueCustomElement, IWebComponentInstance } from '@omnia/fx';
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
@@ -11,13 +11,15 @@ import { ProcessDesignerLocalization } from '../../../loc/localize';
 import './AddShape.css';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { AddShapeStep } from '../../../../models/processdesigner';
+import Vue from 'vue';
+import { ShapeSelectionStepComponent } from './ShapeSelectionStep';
 
 export interface AddShapePanelProps {
     
 }
 
 @Component
-export class AddShapePanelComponent extends VueComponentBase<AddShapePanelProps, {}, {}>{
+export class AddShapePanelComponent extends VueComponentBase implements IWebComponentInstance{
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     //@Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
@@ -26,7 +28,6 @@ export class AddShapePanelComponent extends VueComponentBase<AddShapePanelProps,
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private openedImageDialog: boolean = false;
     private headingStyle: typeof HeadingStyles = {
         wrapper: DialogStyles.heading
     };
@@ -52,12 +53,14 @@ export class AddShapePanelComponent extends VueComponentBase<AddShapePanelProps,
         this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(false);
     }
      
-    private renderSteps(h) {
+    private renderSteps() {
+        let h = this.$createElement;
+
         let wizardSteps: Array<AddShapeStep> = [];
         if (this.addShapeWizardStore.wizardSteps.state) {
             wizardSteps = this.addShapeWizardStore.wizardSteps.state;
         }
-       let stepsElement: JSX.Element = null;
+        let stepsElement: JSX.Element = null;
         if (wizardSteps.length > 0) {
             stepsElement =
                 <v-stepper value={this.addShapeWizardStore.currentStepIndex.state} class={[this.omniaTheming.promoted.body.class]}>
@@ -75,56 +78,29 @@ export class AddShapePanelComponent extends VueComponentBase<AddShapePanelProps,
                         h(stepItem.elementToRender) : null
                 }
             </v-stepper-content>
-        );
+        );        
     }
-    private renderStatisSteps(h) {
-        return <v-stepper value={this.addShapeWizardStore.currentStepIndex.state} class={[this.omniaTheming.promoted.body.class]}>
-            <v-stepper-content step={1}>
-                {this.addShapeWizardStore.currentStepIndex.state == 1 ? <opm-processdesigner-shapeselection-step></opm-processdesigner-shapeselection-step> : <div />}
-            </v-stepper-content>
-            <v-stepper-content step={2}>
-                {this.addShapeWizardStore.currentStepIndex.state == 2 ? <opm-processdesigner-shapetype-step></opm-processdesigner-shapetype-step> : <div />}
-            </v-stepper-content>
-        </v-stepper>
-    }
+
     get dialogTitle() {
         let result = '';
         result = this.addShapeWizardStore.wizardSteps.state[this.addShapeWizardStore.currentStepIndex.state - 1].title;
         return result;
     }
 
-
-    visible: boolean = true;
-    /**
-        * Render 
-        * @param h
-        */
-     render(h) {
-        return <omfx-dialog
-            onClose={this.onClose}
-            model={{ visible: true }}
-            maxWidth="800px"
-            dark={this.omniaTheming.promoted.header.dark}
-            contentClass={this.omniaTheming.promoted.body.class}
-            position={DialogPositions.Center}
-        >
-            <div style={{ height: '100%' }}>
-                <div>
-                    <div class={this.omniaTheming.promoted.header.class}>
-                        <omfx-heading styles={this.headingStyle} size={0}>{this.dialogTitle}</omfx-heading>
-                    </div>
-                    <v-container>
-                        {this.renderStatisSteps(h)}
-                        <div onClick={this.onClose}>Close</div>
-                    </v-container>
-                </div>
+    render(h) {
+        return <div>
+            <div class={this.omniaTheming.promoted.header.class}>
+                <omfx-heading styles={this.headingStyle} size={0}>{this.dialogTitle}</omfx-heading>
             </div>
-        </omfx-dialog>
+            <div>
+                {this.renderSteps()}
+           </div>
+        </div>;      
     }
 }
 
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, AddShapePanelComponent, { destroyTimeout: 1000 });
+    vueCustomElement(manifest.elementName, AddShapePanelComponent, { destroyTimeout: 2000});
 });
 

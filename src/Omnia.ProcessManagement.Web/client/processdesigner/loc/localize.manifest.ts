@@ -26,10 +26,21 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         },
         New: "New",
         AddLink: "Add Link",
+        EditLink: "Edit Link",
         NoProperties: "There are no properties to be edited.",
         CreateProcessStep: "Create Process Step",
         MoveProcessStep: "Move Process Step",
         EditTitle: "Edit Title",
+        DeleteProcessStep: {
+            Label: "Delete Process Step",
+            ConfirmationMessage: "Are you sure you want to delete this process step?",
+            WarningReferenceProcessStepMessage: "Warning: There is one or more other process steps referencing to the deleting process step(s)!",
+            WarningMultipleDeletingProcessStepMessage: "Warning: There are multiple process steps will be deleted!"
+        },
         NewDataNotSaved: "New data not saved",
         NewDataHasBeenSaved: "New data has been saved",
+        LinkObject: {
+            OpenNewWindow: "Open new window"
+        },
+        ChangeShape: "Change Shape"
     });

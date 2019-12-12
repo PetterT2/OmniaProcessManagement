@@ -166,6 +166,17 @@ export class ProcessService {
         });
     }
 
+    public checkIfDeletingProcessStepsAreBeingUsed = (processId: GuidValue, deletingProcessStepIds: Array<GuidValue>) => {
+        return new Promise<boolean>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<boolean>>(`/api/processes/checkifdeletingprocessstepsarebeingused/${processId}`, deletingProcessStepIds).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
     private generateClientSideData = (processes: Array<Process>) => {
         return this.omniaContext.user.then((user) => {
             let currentUserLoginName = user.loginName.toLowerCase();

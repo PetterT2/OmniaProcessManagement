@@ -8,7 +8,9 @@ Composer
         resourcePaths: [
             "./core/index.js",
             "./loc/**/*.js",
-            "./stores/**/*.js",
+            "./stores/ProcessDesignerStore.js",
+            "./stores/index.js",
+            "./stores/AddShapeWizardStore.js",
             "./RawStyles.css.js", ,
             "./ProcessDesigner.css.js",
             "./Utils.js"

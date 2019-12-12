@@ -23,6 +23,10 @@ export class ProcessDesignerPanelStore extends Store {
         show: false,
         visible: false
     });
+   //createLinkPanel: StoreState<IPanelState> = this.state<IPanelState>({
+   //     show: false,
+   //     visible: false
+   // });
 
     constructor() {
         super({
@@ -63,6 +67,12 @@ export class ProcessDesignerPanelStore extends Store {
                 visible: show
             });
         })
+        //createLinkPanel: this.mutation((show: boolean) => {
+        //    this.createLinkPanel.mutate({
+        //        show: show,
+        //        visible: show
+        //    });
+        //})
     }
 }
 
