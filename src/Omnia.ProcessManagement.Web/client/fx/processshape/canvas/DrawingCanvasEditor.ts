@@ -6,11 +6,14 @@ import { Utils } from '@omnia/fx';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     callback: (drawingShape: DrawingShape) => void;
+    onMoved: () => void;
     private editObject: fabric.Object;
+    private isMoving: boolean = false;
 
-    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => {}) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition); //ToDo: reason for clone definition: JSON stringify circular error
+    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => {}, onMoved?: () => void) {
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition);
         this.callback = callback;
+        this.onMoved = onMoved;
     }
 
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
@@ -41,7 +44,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         ctx.font = '900 0px "Font Awesome 5 Pro"';
         ctx.fillText("", 0, 0);
 
-        this.canvasObject.on('object:moving', (options) => {
+        this.canvasObject.on('object:moving', (options) => {            
             if (options.target.type != 'text') {
                 if (this.gridX)
                     options.target.set({
@@ -52,6 +55,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                         top: Math.round(options.target.top / this.gridY) * this.gridY
                     });
             }
+            this.isMoving = true;
         });
 
         this.canvasObject.on('mouse:up', (options) => {
@@ -79,6 +83,12 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     this.canvasObject.renderAll();
                 } else
                     this.editObject = null;
+            }
+            if (this.isMoving) {
+                this.isMoving = false;
+                if (this.onMoved) {
+                    this.onMoved();
+                }
             }
         });
     }

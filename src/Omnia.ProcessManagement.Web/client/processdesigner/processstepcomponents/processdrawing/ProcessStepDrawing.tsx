@@ -3,16 +3,14 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore, DrawingCanvasEditor, ShapeTemplatesConstants, DrawingCanvas } from '../../../fx';
-import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, DialogModel } from '@omnia/fx/ux';
-import { DrawingShapeTypes, DrawingShapeDefinition, TextPosition, ProcessData, CanvasDefinition } from '../../../fx/models';
+import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas } from '../../../fx';
+import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { CanvasDefinition } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
-import { component } from 'vue-tsx-support';
 import { setTimeout, setInterval } from 'timers';
-import { Watch } from 'vue-property-decorator';
 import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { AddShapeOptions } from '../../../models/processdesigner';
@@ -38,9 +36,11 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private tempInterval = null;
-
+    private canvasDefinition: CanvasDefinition = null;
+    
     created() {
         this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChange.subscribe(this.onCanvasDefinitionChanged);
+        this.initCanvasDefinition();
     }
 
     mounted() {
@@ -59,42 +59,48 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
     }
 
+    private initCanvasDefinition() {
+        this.canvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition;
+    }
+
     init() {
-        setTimeout(() => {
-            this.initDrawingCanvas();
-        }, 200);
+        this.initDrawingCanvas();
+
         this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
             this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
             
             setTimeout(() => {
-                this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
-                this.currentProcessStore.actions.saveState.dispatch();
+                this.saveState(true);
             }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
         });
-        this.tempInterval = setInterval(() => {
-            this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
-            this.currentProcessStore.actions.saveState.dispatch();
-        }, 1500); //ToDo: refactor to remove this timeout, reason: json.stringify circular issue
     }
 
     private onCanvasDefinitionChanged() {
+        this.saveState(false);
         if (this.drawingCanvas) {
             this.drawingCanvas.destroy();
         }
+        this.initCanvasDefinition();
         this.initDrawingCanvas();
     }
 
-    get editingProcessStepCanvasDefinition() {
-        let result: CanvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition;
-        return result;
+    private initDrawingCanvas() {     
+        setTimeout(() => {
+            this.drawingCanvas = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, null, this.onShapeChangeByUser);
+        }, 300);
+        //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
 
-    private initDrawingCanvas() {        
-        let canvasDefinition = this.editingProcessStepCanvasDefinition;
-        if (canvasDefinition) {
-            //note: need to render the canvas div element before init this DrawingCanvasEditor
-            this.drawingCanvas = new DrawingCanvasEditor(this.canvasId, {}, canvasDefinition);
+    private onShapeChangeByUser() {
+        this.saveState(true);
+    }
+
+    private saveState(isShapeChanged: boolean = false) {
+        if (isShapeChanged) {
+            this.canvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
         }
+
+        this.currentProcessStore.actions.saveState.dispatch();
     }
 
     private renderPanels(h) {
@@ -170,11 +176,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         * Render 
         * @param h
         */
-    render(h) {
-        let canvasDefinition = this.editingProcessStepCanvasDefinition;        
+    render(h) {     
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: canvasDefinition ? canvasDefinition.width + 'px' : 'auto' }}>
+                <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
                     <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
                         <canvas id={this.canvasId}></canvas>
                     </div>

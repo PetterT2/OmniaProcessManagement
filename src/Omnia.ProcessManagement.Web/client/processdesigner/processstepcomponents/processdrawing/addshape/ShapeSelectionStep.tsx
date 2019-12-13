@@ -188,13 +188,13 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
             let shapeIconHeight = drawingShapeDefinition.height;
             if (shapeIconWidth > shapeIconHeight) {
                 if (shapeIconWidth > iconSize) {
-                    shapeIconHeight = (shapeIconHeight / shapeIconWidth) * 100;
+                    shapeIconHeight = (shapeIconHeight / shapeIconWidth) * iconSize;
                     shapeIconWidth = iconSize;
                 }                
             }
             else {
                 if (shapeIconHeight > iconSize) {
-                    shapeIconWidth = (shapeIconWidth / shapeIconHeight) * 100;
+                    shapeIconWidth = (shapeIconWidth / shapeIconHeight) * iconSize;
                     shapeIconHeight = iconSize;
                 }  
             }
@@ -231,7 +231,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
                 </div>;
             }
             else
-                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {
+                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {                    
                     shapeDefinitionElement = <div>
                         <i class="fal fa-photo-video">Media</i>
                     </div>;

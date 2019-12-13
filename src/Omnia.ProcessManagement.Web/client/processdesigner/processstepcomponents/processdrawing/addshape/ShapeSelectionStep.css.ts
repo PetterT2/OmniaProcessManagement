@@ -10,7 +10,8 @@ StyleFlow.define(ShapeSelectionStepStyles, {
     shapeDefinitionItem: (theme: OmniaTheming) => {
         return {
             cursor: 'pointer',
-            padding: '10px',
+            padding: '2px',
+            margin: '10px',
             $nest: {
                 '&.selected': {
                     boxShadow: "inset 2px 2px 0px 0px " + theme.promoted.body.primary.base + "," + "inset -2px -2px 0px 0px " + theme.promoted.body.primary.base
