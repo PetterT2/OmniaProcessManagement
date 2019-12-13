@@ -28,15 +28,9 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private currentProcessReferenceData: ProcessReferenceData = null;
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
     created() {
-        this.init();
-    }
-
-    init() {
-        this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
     }
 
     beforeDestroy() {
@@ -45,9 +39,11 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     }
 
     onContentChanged(content) {
-        var currentContent = JSON.stringify(this.currentProcessReferenceData.current.processData.content);
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        var currentContent = JSON.stringify(referenceData.current.processData.content);
         var newContent = JSON.stringify(content);
         if (currentContent != newContent) {
+            referenceData.current.processData.content = content;
             this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
             Utils.timewatch(this.contentChangedTimewatchId, () => {
                 this.currentProcessStore.actions.saveState.dispatch().then(() => {
@@ -62,12 +58,13 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
         * @param h
         */
     render(h) {
+        let referenceData = this.currentProcessStore.getters.referenceData();
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 <omfx-multilingual-input
                     multipleLines={true}
                     richText={true}
-                    model={this.currentProcessReferenceData.current.processData.content}
+                    model={referenceData.current.processData.content}
                     onModelChange={(content) => { this.onContentChanged(content); }}
                     forceTenantLanguages></omfx-multilingual-input>
             </v-card-text>
