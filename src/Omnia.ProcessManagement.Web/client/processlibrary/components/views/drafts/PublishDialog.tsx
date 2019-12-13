@@ -12,13 +12,11 @@ import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, Proces
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, PropertyIndexedType, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid } from '@omnia/fx-models';
-import { DefaultDateFormat } from '../../../Constants';
+import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid } from '@omnia/fx-models';
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessTypeStore, OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
 import { LibraryStore } from '../../../../stores';
-declare var moment;
 
 interface PublishDialogProps {
     process: Process;
@@ -37,7 +35,6 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     @Inject(UserService) private omniaUserService: UserService;
     @Inject(PublishProcessService) private publishProcessService: PublishProcessService;
     @Inject(OmniaContext) omniaCtx: OmniaContext;
-    @Inject(SharePointContext) sharePointContext: SharePointContext;
     @Inject(EnterprisePropertySetStore) enterprisePropertySetStore: EnterprisePropertySetStore;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
@@ -59,8 +56,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private needToUpdateProcessProperties: boolean = false;
     private isCommentRequired: boolean = false;
     private unlimitedApprover: boolean = false;
-    private isPreviewingPublishedProcess: boolean = false;
-
+   
     private processTypeSettings: ProcessTypeItemSettings = null;
     private validator: FormValidator = null;
     private selectedApproverPicker: Array<UserIdentity> = [];
@@ -218,10 +214,6 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
             && this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval;
     }
 
-    private previewPublishedProcess() {
-
-    }
-
     private publishProcess() {
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
@@ -253,10 +245,11 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         let request: PublishProcessWithApprovalRequest = this.generateRequest() as PublishProcessWithApprovalRequest;
         request.approver = this.unlimitedApprover ? this.selectedApproverPicker[0] : this.selectedApprover;
         request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
-
-        this.publishProcessService.publishProcessWithApproval(request).then((processId) => {
+       
+        this.publishProcessService.publishProcessWithApproval(request).then((result) => {
+            request.processId = result.id;
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingApprovalProcessAsync(request)
+            this.publishProcessService.processingApprovalProcess(request)
                 .then(() => {
                     this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
                 })
@@ -285,7 +278,6 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         return !(this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval &&
             this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.SendingForApproval);
     }
-
     private renderErrorForm(h) {
         return (
             <div class="px-3 py-3">
@@ -418,19 +410,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     renderFooter(h) {
         return (
-            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
-                {
-                    !this.readOnlyMode() &&
-                    <v-btn
-                        light={!this.omniaTheming.promoted.body.dark}
-                        dark={this.omniaTheming.promoted.body.dark}
-                        disabled={this.isCheckingPublishingRules || this.needToUpdateProcessProperties || this.isPublishingOrSending}
-                        text
-                        loading={this.isPreviewingPublishedProcess}
-                        onClick={this.previewPublishedProcess}>
-                        {this.loc.ProcessActions.PreviewProcess}
-                    </v-btn>
-                }
+            <v-card-actions class={this.processLibraryClasses.dialogFooter}>                
                 <v-spacer></v-spacer>
                 {
                     this.readOnlyMode() ?

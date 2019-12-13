@@ -84,7 +84,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         Columns: {
             ProcessMenu: "Process Menu",
             Title: "Title",
-            Status: "Status"
+            Status: "Status",
+            DueDate: "Due Date",
+            Approver: "Approver",
+            Name: "Name",
+            Email: "Email",
         },
         Process: {
             Content: "Content",

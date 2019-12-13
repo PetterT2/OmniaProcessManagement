@@ -21,6 +21,7 @@ import { FiltersAndSorting } from '../../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { PublishDialog } from './PublishDialog';
 import { LibraryStore } from '../../../../stores';
+import { ApprovalPublishDialog } from './ApprovalPublishDialog';
 
 declare var moment;
 
@@ -73,7 +74,8 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     isLoading: boolean = false;
 
     openDeleteDialog: boolean = false;
-    openPublishDialog: boolean = false;
+    openPublishDialog: boolean = false
+    openApprovalPublishDialog: boolean = false;
 
     request: FilterAndSortInfo;
     filterAndSortProcesses: FilterAndSortResponse = { total: 0, processes: [] };
@@ -277,7 +279,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     private isErrorStatus(status: Enums.WorkflowEnums.ProcessWorkingStatus) {
         if (status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval ||
             status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval ||
-            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing ) {
+            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing) {
             return true;
         }
         else {
@@ -285,13 +287,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         }
     }
 
-
     renderPublishDialog(h) {
         return (
             <PublishDialog
                 closeCallback={() => { this.openPublishDialog = false; }}
                 process={this.selectedProcess}            >
             </PublishDialog>
+        )
+    }
+
+    renderApprovalPublishDialog(h) {
+        return (
+            <ApprovalPublishDialog
+                closeCallback={() => { this.openApprovalPublishDialog = false; }}
+                process={this.selectedProcess}            >
+            </ApprovalPublishDialog>
         )
     }
 
@@ -313,7 +323,10 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[item.processWorkingStatus]];
         switch (item.processWorkingStatus) {
             case Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval:
-                return <a onClick={() => { }}>{statusName}</a>;
+                return <a onClick={() => {
+                    this.selectedProcess = item;
+                    this.openApprovalPublishDialog = true;
+                }}>{statusName}</a>;
             default:
                 return statusName;
         }
@@ -551,6 +564,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                 {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
                 {this.openDeleteDialog && this.renderDeleteDialog(h)}
                 {this.openPublishDialog && this.renderPublishDialog(h)}
+                {this.openApprovalPublishDialog && this.renderApprovalPublishDialog(h)}
             </div>
         )
     }

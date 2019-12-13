@@ -12,5 +12,6 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
     public interface IWorkflowService
     {
         ValueTask<Workflow> CreateAsync(Workflow workflow);
+        ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, string webUrl);
     }
 }

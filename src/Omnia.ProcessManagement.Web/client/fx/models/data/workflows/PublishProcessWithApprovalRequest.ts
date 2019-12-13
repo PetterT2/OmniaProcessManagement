@@ -4,4 +4,5 @@ import { PublishProcessWithoutApprovalRequest } from './PublishProcessWithoutApp
 export interface PublishProcessWithApprovalRequest extends PublishProcessWithoutApprovalRequest {
     approver: UserIdentity,
     dueDate: Date,
+    processId: GuidValue
 }

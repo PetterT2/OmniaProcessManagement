@@ -1,7 +1,7 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Utils as omniaUtils, Utils, Injectable } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
 import { AxiosRequestConfig } from 'axios';
-import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest } from '../../fx/models';
+import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow } from '../../fx/models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class PublishProcessService {
@@ -34,11 +34,47 @@ export class PublishProcessService {
         });
     }
 
-    public processingApprovalProcessAsync = (request: PublishProcessWithApprovalRequest): Promise<void> => {
+    public processingApprovalProcess = (request: PublishProcessWithApprovalRequest): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/processingapproval', request).then(response => {
                 if (response.data.success) {
                     resolve();
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public getWorkflow = (opmProcessId: GuidValue, webUrl: string): Promise<Workflow> => {
+        return new Promise<Workflow>((resolve, reject) => {
+            let params = {
+                webUrl: webUrl
+            }
+            this.httpClient.get<IHttpApiOperationResult<Workflow>>(`/api/publish/workflow/${opmProcessId}`, { params: params }).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public cancelWorkflow = (opmProcessId: GuidValue): Promise<Workflow> => {
+        return new Promise<Workflow>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Workflow>>(`/api/publish/cancelworkflow/${opmProcessId}`).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public processingCancelWorkflow = (opmProcessId: GuidValue): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/processingcancelworkflow/${opmProcessId}`).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
                 }
                 else reject(response.data.errorMessage)
             });

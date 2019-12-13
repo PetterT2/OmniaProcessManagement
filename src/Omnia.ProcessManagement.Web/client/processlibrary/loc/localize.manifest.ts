@@ -86,7 +86,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             NoProcessTemplateValidation: "This process is not based on any existing process template.",
             MessageNobodyCanApprove: "There are no available approver for this process.",
             MessageUpdateProcessPropertiesBeforePublishing: "You need to fill in all required properties to be able to publish a process.",
-
+            MessageNoItem: "There are no items to show in this view.",
         },
         ProcessType: "Process Type",
         ProcessTemplate: "Process Template",

@@ -81,7 +81,8 @@
             DeleteDraftProcessConfirmation: string,
             NoProcessTemplateValidation: string,
             MessageNobodyCanApprove: string,
-            MessageUpdateProcessPropertiesBeforePublishing: string
+            MessageUpdateProcessPropertiesBeforePublishing: string,
+            MessageNoItem: string
         },
         ProcessType: string,
         ProcessTemplate: string,
@@ -99,7 +100,7 @@
             ApprovalDueDate: string,
             Comment: string,
         },
-        EmailTemplates: {           
+        EmailTemplates: {
             SendForApproval: {
                 TaskTitle: string,
                 EmailSubjectTemplate: string,

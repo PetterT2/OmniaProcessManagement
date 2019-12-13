@@ -19,6 +19,7 @@ namespace Omnia.ProcessManagement.Models.ProcessLibrary
 
     public class PublishProcessWithApprovalRequest : PublishProcessWithoutApprovalRequest
     {
+        public Guid ProcessId { get; set; }
         public DateTime DueDate { get; set; }
         public UserIdentity Approver { get; set; }
     }

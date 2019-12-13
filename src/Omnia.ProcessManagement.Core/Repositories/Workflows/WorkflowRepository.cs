@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             return model;
         }
 
-        private Workflow MapEfToModel(Entities.Workflows.Workflow entity)
+        public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId)
+        {
+            var existingEntity = await _dbSet.Where(x => x.Process.OPMProcessId == opmProcessId && x.Process.ProcessWorkingStatus == Models.Processes.ProcessWorkingStatus.WaitingForApproval)
+                .OrderByDescending(p => p.ClusteredId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
+            var model = MapEfToModel(existingEntity, true);
+            return model;
+        }
+
+        private Workflow MapEfToModel(Entities.Workflows.Workflow entity, bool loadWorkflowTask = false)
         {
             Workflow model = null;
             if (entity != null)
@@ -45,6 +54,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model.ModifiedBy = entity.ModifiedBy;
                 model.CreatedAt = entity.CreatedAt;
                 model.ModifiedAt = entity.ModifiedAt;
+                if (loadWorkflowTask)
+                {
+                    model.WorkflowTasks = entity.WorkflowTasks.ToList().Select(task => ParseWorkflowTaskEfToModel(task)).ToList();
+                }
             }
 
             return model;
@@ -60,6 +73,27 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             entity.Type = model.WorkflowData.Type;
             entity.JsonValue = JsonConvert.SerializeObject(model.WorkflowData);
             return entity;
+        }
+
+        private WorkflowTask ParseWorkflowTaskEfToModel(Entities.Workflows.WorkflowTask entity)
+        {
+            WorkflowTask model = null;
+            if (entity != null)
+            {
+                model = new WorkflowTask();
+                model.Id = entity.Id;
+                model.WorkflowId = entity.WorkflowId;
+                model.AssignedUser = entity.AssignedUser;
+                model.CreatedBy = entity.CreatedBy;
+                model.ModifiedBy = entity.ModifiedBy;
+                model.CreatedAt = entity.CreatedAt;
+                model.ModifiedAt = entity.ModifiedAt;
+                model.IsCompleted = entity.IsCompleted;
+                model.Comment = entity.Comment;
+                model.SPTaskId = entity.SPTaskId;
+            }
+
+            return model;
         }
     }
 }

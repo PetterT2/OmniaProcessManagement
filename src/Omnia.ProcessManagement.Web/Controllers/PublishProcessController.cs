@@ -12,10 +12,12 @@ using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
+using Omnia.ProcessManagement.Models.Workflows;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -26,13 +28,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         ILogger<ProcessController> Logger { get; }
         IPublishProcessService PublishProcessService { get; }
         IProcessService ProcessService { get; }
+        IWorkflowService WorkflowService { get; }
 
         public PublishProcessController(ILogger<ProcessController> logger,
             IPublishProcessService publishProcessService,
+            IWorkflowService workflowService,
             IProcessService processService)
         {
             PublishProcessService = publishProcessService;
             ProcessService = processService;
+            WorkflowService = workflowService;
             Logger = logger;
         }
 
@@ -82,6 +87,55 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
+        [HttpGet, Route("workflow/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Workflow>> GetWorkflowAsync(Guid opmProcessId, string webUrl)
+        {
+            try
+            {
+                var workflow = await WorkflowService.GetByProcessAsync(opmProcessId, webUrl);
+                return workflow.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Workflow>(ex);
+            }
+        }
+
+        [HttpPost, Route("cancelworkflow/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse> CancelWorkflowAsync(Guid opmProcessId)
+        {
+            try
+            {
+                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.CancellingApproval, ProcessVersionType.Draft);
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
+        [HttpPost, Route("processingcancelworkflow/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId)
+        {
+            try
+            {
+                await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId);
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }

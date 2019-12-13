@@ -46,12 +46,24 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         {
             try
             {
-                var process = await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.WaitingForApproval, Models.Enums.ProcessVersionType.Draft);
+                var process = await ProcessService.GetProcessByIdAsync(request.ProcessId);
                 await ApprovalTaskService.AddApprovalTaskAndSendEmailAsync(request, process);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.WaitingForApproval, Models.Enums.ProcessVersionType.Draft);
             }
             catch (Exception ex)
             {
                 await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
+                throw ex;
+            }
+        }
+
+        public async ValueTask ProcessingCancelWorkflowAsync(Guid workflowId)
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }

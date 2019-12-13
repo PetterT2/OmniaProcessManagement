@@ -1,5 +1,6 @@
 ﻿import { ProcessStep, Process, ProcessReference, RootProcessStep } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
+import { Utils } from '@omnia/fx';
 declare var moment: any;
 
 export module OPMUtils {
@@ -91,5 +92,12 @@ export module OPMUtils {
         var offset = new Date().getTimezoneOffset();
         var correctDateValue: any = moment(dateValue).add('m', -offset);
         return correctDateValue._d;
+    }
+
+    export function getUserPrincipleName(loginName: string) {
+        if (Utils.isNullOrEmpty(loginName))
+            return "";
+        let arr = loginName.split('|');
+        return arr.length > 1 ? arr[arr.length - 1] : loginName;
     }
 }

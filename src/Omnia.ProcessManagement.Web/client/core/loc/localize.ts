@@ -61,7 +61,7 @@
                 OPMComment: {
                     Name: string,
                     Description: string,
-                }               
+                }
             }
         },
         Blocks: {
@@ -80,7 +80,11 @@
         Columns: {
             ProcessMenu: string,
             Title: string,
-            Status: string
+            Status: string,
+            DueDate: string,
+            Approver: string,
+            Name: string,
+            Email: string
         },
         Process: {
             Drawing: string,
