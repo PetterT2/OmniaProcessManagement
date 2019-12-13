@@ -30,7 +30,7 @@ export class CircleShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable }, textNode.properties || {}), title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}), title));
             }
         }
         else if (this.definition) {
@@ -50,7 +50,7 @@ export class CircleShape extends ShapeExtension implements Shape {
                     break;
             }
             this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false }, title));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

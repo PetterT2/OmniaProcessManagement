@@ -16,7 +16,6 @@ export class ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
         this.definition = definition;
-        this.definition.height = this.definition.width;
         this.nodes = nodes;
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };

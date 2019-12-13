@@ -76,7 +76,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     protected renderGridView(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
-        options = Object.assign({ selection: this.selectable }, options || {});
+        options = Object.assign({ selection: false }, options || {});
         this.canvasObject = new fabric.Canvas(elementId, options);
         if (definition) {
             this.correctCanvasDefinition(definition);

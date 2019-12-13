@@ -23,6 +23,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             this.properties["textAlign"] = 'center';
             this.properties["fontFamily"] = 'Roboto,Arial,sans-serif';
         }
+        this.properties["hoverCursor"] = "default";
         let text = "Sample Text";
         let languageSetting = this.multilingualStore.getters.languageSetting(MultilingualScopes.BusinessProfile);
         if (languageSetting && title) {
