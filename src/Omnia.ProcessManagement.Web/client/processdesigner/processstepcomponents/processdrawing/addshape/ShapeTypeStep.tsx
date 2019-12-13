@@ -266,12 +266,14 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             title: '[' + this.pdLoc.New + ']'
         }];
         let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
-        processStepOptions = processStepOptions.concat(childSteps.map(item => {
-            return {
-                id: item.id,
-                title: this.multilingualStore.getters.stringValue(item.title)
-            }
-        }));
+        if (childSteps) {
+            processStepOptions = processStepOptions.concat(childSteps.map(item => {
+                return {
+                    id: item.id,
+                    title: this.multilingualStore.getters.stringValue(item.title)
+                }
+            }));
+        }
 
         return <div>
             <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId} onChange={this.onSelectedProcessChanged}></v-select>

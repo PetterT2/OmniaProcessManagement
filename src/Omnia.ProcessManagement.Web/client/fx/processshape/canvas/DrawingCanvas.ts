@@ -30,7 +30,7 @@ export class DrawingCanvas implements CanvasDefinition {
         let shapes: DrawingShape[] = [];
         this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
         shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
-
+        console.log(shapes);
         return {
             imageBackgroundUrl: this.imageBackgroundUrl,
             width: this.width,
