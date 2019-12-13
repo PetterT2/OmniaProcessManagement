@@ -123,10 +123,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             }
             this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(editingProcessTemplate);
 
-            this.journey().travelBackToFirstBlade();
-            this.$nextTick(() => {
-                this.journey().travelToNext(ProcessTemplatesJourneyBladeIds.processTemplateSettingsDefault);
-            })
+            this.journey().travelBack();
         }
     }
 

@@ -23,21 +23,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
             {
                 if (set.Settings.Items != null)
                 {
-                    var alternativeInternalNameDict = new Dictionary<string, bool>();
                     var keys = processTypeItemSettings.PropertySetItemSettings.Keys.ToList();
                     foreach (var key in keys)
                     {
                         var propertySetItemSettings = processTypeItemSettings.PropertySetItemSettings[key];
                         var propertySetItem = set.Settings.Items.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == key);
                         var appProperty = properties.FirstOrDefault(p => p.Id == propertySetItemSettings.DefaultValueFromAppPropertyDefinitionId);
-
-                        if (!string.IsNullOrWhiteSpace(propertySetItemSettings.AlternativeInternalName))
-                        {
-                            propertySetItemSettings.AlternativeInternalName = propertySetItemSettings.AlternativeInternalName.Trim();
-                            if (alternativeInternalNameDict.ContainsKey(propertySetItemSettings.AlternativeInternalName))
-                                throw new Exception("ProcessTypeItemSettings.AlternativeInternalName is invalid, there are duplicated alternative internal names");
-                            alternativeInternalNameDict.Add(propertySetItemSettings.AlternativeInternalName, true);
-                        }
 
                         propertySetItemSettings = ValidateSetItemSettings(propertySetItem, propertySetItemSettings, appProperty);
                         processTypeItemSettings.PropertySetItemSettings[key] = propertySetItemSettings;

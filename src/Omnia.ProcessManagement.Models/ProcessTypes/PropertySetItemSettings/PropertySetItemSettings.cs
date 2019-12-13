@@ -12,10 +12,6 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes.PropertySetItemSettings
         /// </summary>
         public virtual PropertyIndexedType Type { get; set; }
 
-        /// <summary>
-        /// Alternative enterprise property definition internal name with lower priority when process token
-        /// </summary>
-        public string AlternativeInternalName { get; set; }
         public Guid? DefaultValueFromAppPropertyDefinitionId { get; set; }
 
     }

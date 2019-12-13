@@ -255,7 +255,6 @@ export module ProcessTypeHelper {
                 let property = _setPropertyDictInSelectedSet.propertydict[key];
                 let propertySettings: PropertySetItemSettings = {
                     type: property.enterprisePropertyDataType.indexedType,
-                    alternativeInternalName: '',
                     defaultValueFromAppPropertyDefinitionId: null
                 }
                 let acceptedType = ensurePropertySetItemDefaultValue(propertySettings);
