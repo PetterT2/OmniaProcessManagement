@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Omnia.ProcessManagement.Core.Repositories.Workflows
+namespace Omnia.ProcessManagement.Core.Services.Workflows
 {
-   public interface  IWorkflowTaskRepository
+    public interface IWorkflowTaskService
     {
         ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId);
-
-        ValueTask SetCompletedTask(Guid id, string comment, TaskOutcome taskOutCome);
     }
 }

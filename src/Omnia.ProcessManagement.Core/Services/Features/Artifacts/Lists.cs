@@ -16,7 +16,6 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
                Description = "$Localize:OPM.Core.Features.Lists.OPMTasks.Description;")]
     public class OPMTasks : ListBase, IListBase
     {
-        [ContentTypeRef(typeof(OPMReviewTask))]
         [ContentTypeRef(typeof(OPMApprovalTask))]
         public IEnumerable<ContentTypeBase> ContentTypes
         {

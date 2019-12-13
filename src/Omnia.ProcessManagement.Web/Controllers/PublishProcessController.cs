@@ -25,14 +25,17 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ProcessController> Logger { get; }
         IPublishProcessService PublishProcessService { get; }
-       
+        IProcessService ProcessService { get; }
+
         public PublishProcessController(ILogger<ProcessController> logger,
-            IPublishProcessService publishProcessService)
+            IPublishProcessService publishProcessService,
+            IProcessService processService)
         {
             PublishProcessService = publishProcessService;
+            ProcessService = processService;
             Logger = logger;
         }
-        
+
 
         [HttpPost, Route("withoutapproval")]
         [Authorize]
@@ -46,17 +49,34 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
 
         [HttpPost, Route("withapproval")]
         [Authorize]
-        public async ValueTask<ApiResponse> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request)
+        public async ValueTask<ApiResponse<Process>> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request)
         {
             try
             {
-                await PublishProcessService.PublishProcessWithApprovalAsync(request);
+                var process = await PublishProcessService.PublishProcessWithApprovalAsync(request);
+                return ApiUtils.CreateSuccessResponse(process);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
+        [HttpPost, Route("processingapproval")]
+        [Authorize]
+        public async ValueTask<ApiResponse> ProcessingApprovalProcessAsync(PublishProcessWithApprovalRequest request)
+        {
+            try
+            {
+                await PublishProcessService.ProcessingApprovalProcessAsync(request);
                 return ApiUtils.CreateSuccessResponse();
             }
             catch (Exception ex)

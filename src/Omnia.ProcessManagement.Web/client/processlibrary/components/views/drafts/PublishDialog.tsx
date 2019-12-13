@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext, TermStore, TermData } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
@@ -226,12 +226,12 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit();
+            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
             this.isPublishingOrSending = false;
             this.closeCallback();
         }).catch(msg => {
             this.errorHandler(msg);
-        });      
+        });
     }
 
     private generateRequest(): PublishProcessWithoutApprovalRequest {
@@ -254,8 +254,15 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         request.approver = this.unlimitedApprover ? this.selectedApproverPicker[0] : this.selectedApprover;
         request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
 
-        this.publishProcessService.publishProcessWithApproval(request).then(() => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit();
+        this.publishProcessService.publishProcessWithApproval(request).then((processId) => {
+            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+            this.publishProcessService.processingApprovalProcessAsync(request)
+                .then(() => {
+                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+                })
+                .catch(() => {
+                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+                })
             this.isPublishingOrSending = false;
             this.closeCallback();
         }).catch(msg => {

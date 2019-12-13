@@ -100,7 +100,7 @@ export const ProcessDesignerStyles = {
     }),
     canvasBackGround: style({
         paddingTop: important("48px"),
-        zIndex: 1
+        zIndex: important('auto')
     }),
     panelToolbar: style({
         width: "100%"
@@ -142,7 +142,8 @@ export const ProcessDesignerStyles = {
     },
     contentnavigation: (background: IColor) => {
         return style({
-            zIndex: ProcessDesignerStyleSettings.layerIndex.contentNavigation + "!important" as any,
+            //zIndex: ProcessDesignerStyleSettings.layerIndex.contentNavigation + "!important" as any,
+            zIndex: important('auto'),
             background: important(background.base),
             $nest: {
                 ".v-navigation-drawer__content": {

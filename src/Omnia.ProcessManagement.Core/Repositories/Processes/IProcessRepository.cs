@@ -22,7 +22,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetDraftProcessesAsync(Guid siteId, Guid webId);
-        ValueTask<List<Process>> GetProcessesByIdsAsync(Guid siteId, Guid webId, List<Guid> processIds);
+        ValueTask<List<Process>> GetProcessesByOPMProcessIdsAsync(List<Guid> processIds, ProcessVersionType versionType);
+        ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus);
+        ValueTask<Process> UpdateProcessStatusAsync(Guid processId, ProcessWorkingStatus processWorkingStatus, ProcessVersionType versionType);
         ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds);
     }
 }

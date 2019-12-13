@@ -157,6 +157,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
 export const OPMRouter: InternalOPMRouter = ServiceContainer.createInstance(InternalOPMRouter);
 
+const currentProcessStore: CurrentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
+
 OPMRouter.onNavigate.subscribe(ctx => {
     if (ctx.route && ctx.stateData) {
         OPMRouter.navigateWithCurrentRoute(ctx.stateData.versionType);
@@ -170,3 +172,14 @@ if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) 
     let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.previewDraft ? ProcessVersionType.Draft : ProcessVersionType.Published;
     OPMRouter.navigateWithCurrentRoute(versionType);
 }
+
+currentProcessStore.actions.addProcessStep.onDispatched((result, title, navigateTo) => {
+    if (navigateTo) {
+        OPMRouter.navigate(result.process, result.processStep);
+    }
+})
+
+currentProcessStore.actions.deleteProcessStep.onDispatched(() => {
+    let currentReference = currentProcessStore.getters.referenceData();
+    OPMRouter.navigate(currentReference.process, currentReference.current.parentProcessStep);
+})

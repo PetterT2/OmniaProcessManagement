@@ -1,4 +1,4 @@
-﻿import { Store } from '@omnia/fx/store';
+﻿import { Store, MultilingualStore } from '@omnia/fx/store';
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
@@ -113,7 +113,7 @@ class ProcessStateTransaction {
 })
 export class CurrentProcessStore extends Store {
     @Inject(ProcessStore) private processStore: ProcessStore;
-
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
@@ -251,7 +251,7 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        addProcessStep: this.action((title: MultilingualString): Promise<{ process: Process, processStep: ProcessStep }> => {
+        addProcessStep: this.action((title: MultilingualString, navigateTo?: boolean): Promise<{ process: Process, processStep: ProcessStep }> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -260,7 +260,8 @@ export class CurrentProcessStore extends Store {
                         id: Guid.newGuid(),
                         title: title,
                         processDataHash: '',
-                        processSteps: []
+                        processSteps: [],
+                        multilingualTitle: this.multilingualStore.getters.stringValue(title)
                     };
 
                     let processData: ProcessData = {
@@ -340,8 +341,9 @@ export class CurrentProcessStore extends Store {
                             if (hasShortcut) {
                                 this.currentLoadedProcessDataJsonDict[shortcutProcessStepId] = shortcutProcessDataJson;
                             }
-
+                            
                             resolve(null);
+
                         }).catch(reject);
                     }
                     else {

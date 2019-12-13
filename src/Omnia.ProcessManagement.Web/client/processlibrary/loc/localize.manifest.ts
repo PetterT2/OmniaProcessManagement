@@ -103,5 +103,20 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Approver: "Approver",
             ApprovalDueDate: "Approval Due Date",
             Comment: "Comment",
+        },
+        EmailTemplates: {
+            SendForApproval: {
+                TaskTitle: "Approval of process: {0}",
+                EmailSubjectTemplate: "Approve or reject the publishing of the process {{Name}}",
+                EmailBodyTemplate: "Dear {{Approver}}, <br/><br/>You have been assigned to a task by {{Author}} to approve or reject the publishing of the process {{Name}}, that is due {{DueDate}}<br/><br/>1. Open the process {{ProcessLink}}<br/> 2. Review the contents of the process.<br/>  3. Open the task {{TaskTitle}}.<br/>   4. Add a comment to the task and select Approve or Reject.<br/><br/>{{Author}} will be notified once your task has been completed.<br/><br/>",
+                ApprovalEditionCommentTemplate: "{{Author}} {{StartDate}}:<br/> &quot;{{Message}}&quot;",
+                SubjectApproval: "The process {{Name}} has been approved for publishing",
+                BodyApproval: "Dear {{Author}},<br/><br/>The process {{Name}} has been approved for publishing by {{Approver}} with the following comment:<br/><br/> &quot;{{ApproverComment}}&quot;",
+                BodyApprovalNoComment: "Dear {{Author}},<br/><br/>The process {{Name}} has been approved for publishing by {{Approver}}.",
+                SubjectReject: "The process {{Name}} has been rejected for publishing",
+                BodyReject: "Dear {{Author}},<br/><br/>The process {{Name}} has been rejected for publishing by {{Approver}} with the following comment:<br/><br/> &quot;{{ApproverComment}}&quot;",
+                CancelSubjectTemplate: "Approval of the process {{Name}} cancelled",
+                CancelBodyTemplate: "Dear {{Approver}}, <br/>The approval of the process {{Name}} has been cancelled."
+            }
         }
     });

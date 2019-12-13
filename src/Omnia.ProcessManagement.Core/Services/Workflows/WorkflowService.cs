@@ -7,6 +7,7 @@ using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.Workflows;
 
 namespace Omnia.ProcessManagement.Core.Services.Workflows
 {
@@ -19,5 +20,9 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
             WorkflowRepository = workflowRepository;
         }
 
+        public async ValueTask<Workflow> CreateAsync(Workflow workflow)
+        {
+            return await WorkflowRepository.CreateAsync(workflow);
+        }
     }
 }
