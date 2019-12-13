@@ -2,13 +2,14 @@
 import { DrawingCanvas } from './DrawingCanvas';
 import { Shape } from '../shapes';
 import { CanvasDefinition, DrawingShape } from '../../models/data/drawingdefinitions';
+import { Utils } from '@omnia/fx';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     callback: (drawingShape: DrawingShape) => void;
     private editObject: fabric.Object;
 
     constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => {}) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition);
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition); //ToDo: reason for clone definition: JSON stringify circular error
         this.callback = callback;
     }
 

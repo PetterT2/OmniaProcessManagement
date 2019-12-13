@@ -60,12 +60,15 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }, 200);
         this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
             this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
-            this.editingProcessStepCanvasDefinition.drawingShapes = this.drawingCanvas.drawingShapes;
+            
             setTimeout(() => {
                 this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
                 this.currentProcessStore.actions.saveState.dispatch();
             }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
         });
+        setTimeout(() => {
+            this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
+        }, 200); //ToDo: refactor to remove this timeout, reason: json.stringify circular issue
     }
 
     private onCanvasDefinitionChanged() {

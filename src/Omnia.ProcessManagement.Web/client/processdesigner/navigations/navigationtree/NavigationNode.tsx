@@ -6,12 +6,12 @@ import 'vue-tsx-support/enable-check';
 import { Utils } from "@omnia/fx";
 import './NavigationNode.css';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { ProcessStep } from '../../../fx/models';
+import { ProcessStep, DrawingShape } from '../../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { NavigationNodeStyles } from '../../../fx/models';
 import './NavigationNode.css';
 import { OPMRouter } from '../../../fx/routing';
-import { CurrentProcessStore } from '../../../fx';
+import { CurrentProcessStore, Shape } from '../../../fx';
 import { ProcessDesignerStore } from '../../stores';
 import { ProcessDesignerItemFactory } from '../../designeritems';
 import { DisplayModes } from '../../../models/processdesigner';
@@ -83,6 +83,21 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
         if (navigateToNode) {
             if (this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser) {
+                ////ToDo: Refactor the code to build CanvasDefinition JSON
+                //let currentProcessData = this.currentProcessStore.getters.referenceData().current.processData;
+                //let shapes: DrawingShape[] = [];
+                //currentProcessData.canvasDefinition.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
+                //shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
+                //currentProcessData.canvasDefinition = {
+                //    imageBackgroundUrl: currentProcessData.canvasDefinition.imageBackgroundUrl,
+                //    width: currentProcessData.canvasDefinition.width,
+                //    height: currentProcessData.canvasDefinition.height,
+                //    gridX: currentProcessData.canvasDefinition.gridX,
+                //    gridY: currentProcessData.canvasDefinition.gridY,
+                //    drawingShapes: shapes
+                //}
+                //console.log('new nav');
+
                 //Ensure savestate before navigating to another process step
                 this.currentProcessStore.actions.saveState.dispatch().then(() => {
                     OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {

@@ -168,11 +168,7 @@ export class ProcessDesignerStore extends Store {
         editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
-                //if (!currentProcess.current.processStep) {
-                //    this.rootProcessReferenceData = Utils.clone(currentProcess);
-                //}
                 if (!currentProcess.current.processData.canvasDefinition) {
-                    console.log('init current canvas');
                     currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
                 }
 

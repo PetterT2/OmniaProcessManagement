@@ -78,6 +78,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     private headingStyle: typeof HeadingStyles = { //todo: refactor dialog
         wrapper: DialogStyles.heading
     };
+    private isCreatingChildStep: boolean = false;
 
     created() {
         this.init();
@@ -114,50 +115,54 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             let drawingShapeType: DrawingShapeTypes = DrawingShapeTypes.Undefined;
 
             let newShape: DrawingShape = null;
-            let newProcessStepId: GuidValue = null;
+            let shapeProcessStepId: GuidValue = null;
             let customLinkUrl: string = null;
-            if (this.selectedShapeType == Enums.ShapeTypes.None) {
-            }
-            else
-                if (this.selectedShapeType == Enums.ShapeTypes.ProcessStep) {
-                    drawingShapeType = DrawingShapeTypes.ProcessStep;
-                    if (this.selectedProcessStepId == Guid.empty) {
-                        this.currentProcessStore.actions.addProcessStep.dispatch(this.shapeTitle).then((result) => {
+            let readyToDrawShape: boolean = true;
+            if (this.selectedShapeType == Enums.ShapeTypes.ProcessStep) {
+                drawingShapeType = DrawingShapeTypes.ProcessStep;
+                if (this.selectedProcessStepId == Guid.empty) {
+                    this.isCreatingChildStep = true;
+                    readyToDrawShape = false;
 
-                        })
-                        //this.processDesignerStore.actions.addProcessStep.dispatch(this.displayShapeTitle).then((addedProcessStep) => {
-                        //    newProcessStepId = addedProcessStep.id;
-                        //});
-                    }
-                    else {
-                        newProcessStepId = this.selectedProcessStepId;
+                    this.currentProcessStore.actions.addProcessStep.dispatch(this.shapeTitle).then((result) => {
+                        shapeProcessStepId = result.processStep.id;
+                        this.isCreatingChildStep = false;
+                        this.completedAddShape(drawingShapeType, shapeProcessStepId, customLinkUrl);
+                    }).catch(() => {
+                        this.isCreatingChildStep = false;
+                    });
+                }
+                else {
+                    shapeProcessStepId = this.selectedProcessStepId;
+                }
+            }
+            else if (this.selectedShapeType == Enums.ShapeTypes.Link) {
+                drawingShapeType = DrawingShapeTypes.CustomLink;
+                let customLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
+                if (customLinks) {
+                    let link = customLinks.find((item) => item.id == this.selectedCustomLinkId);
+                    if (link) {
+                        customLinkUrl = link.url;
                     }
                 }
-                else if (this.selectedShapeType == Enums.ShapeTypes.Link) {
-                    drawingShapeType = DrawingShapeTypes.CustomLink;
-                    let customLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
-                    if (customLinks) {
-                        let link = customLinks.find((item) => item.id == this.selectedCustomLinkId);
-                        if (link) {
-                            customLinkUrl = link.url;
-                        }
-                    }
-                }
-            let addShapeOptions: AddShapeOptions = {
-                shapeDefinition: this.selectedShapeDefinition,
-                shapeType: drawingShapeType,
-                title: this.shapeTitle,
-                processStepId: newProcessStepId,
-                customLink: customLinkUrl
-            };
-            this.processDesignerStore.mutations.addShapeToDrawing.commit(addShapeOptions);
-            this.processDesignerStore.actions.addRecentShapeDefinitionSelection.dispatch(this.addShapeWizardStore.selectedShape.state);
-            this.onClose();
+            }
+            if (readyToDrawShape) {
+                this.completedAddShape(drawingShapeType, shapeProcessStepId, customLinkUrl);
+            }
         }
     }
 
-    private completedAddShape() {
-
+    private completedAddShape(drawingShapeType: DrawingShapeTypes, shapeProcessStepId?: GuidValue, customLinkUrl?: string) {
+        let addShapeOptions: AddShapeOptions = {
+            shapeDefinition: this.selectedShapeDefinition,
+            shapeType: drawingShapeType,
+            title: this.shapeTitle,
+            processStepId: shapeProcessStepId,
+            customLink: customLinkUrl
+        };
+        this.processDesignerStore.mutations.addShapeToDrawing.commit(addShapeOptions);
+        this.processDesignerStore.actions.addRecentShapeDefinitionSelection.dispatch(this.addShapeWizardStore.selectedShape.state);
+        this.onClose();
     }
 
     private onSelectedShapeType() {
@@ -466,6 +471,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             <v-btn text
                 color={this.omniaTheming.themes.primary.base}
                 dark={this.omniaTheming.promoted.body.dark}
+                loading={this.isCreatingChildStep}
                 onClick={this.createShape}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
             <v-btn text
                 onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
