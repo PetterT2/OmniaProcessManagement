@@ -30,7 +30,7 @@ export class CircleShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricEllipseShape(this.definition, isActive, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}), title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ originX: 'center', selectable: false }, textNode.properties || {}), title));
             }
         }
         else if (this.definition) {

@@ -23,7 +23,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
             if (polygontNode)
                 this.fabricShapes.push(new FabricPolygonShape(this.definition, isActive, Object.assign({ selectable: selectable }, polygontNode.properties || {})));
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ originX: 'center', selectable: false }, textNode.properties) || {}, title));
         }
         else if (this.definition) {
             left = left || 0; top = top || 0;

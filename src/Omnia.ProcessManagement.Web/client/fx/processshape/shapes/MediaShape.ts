@@ -42,7 +42,7 @@ export class MediaShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricImageShape(this.definition, isActive, Object.assign({ selectable: selectable }, imageNode.properties || {})));
             }
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, isActive, Object.assign({ originX: 'center', selectable: false }, textNode.properties) || {}, title));
         }
         else if (this.definition) {
             left = left || 0; top = top || 0;
