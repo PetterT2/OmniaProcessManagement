@@ -198,7 +198,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
                     shapeIconHeight = iconSize;
                 }  
             }
-            let canvasPadding = 20;
+            let canvasPadding = 0;
             let fontSize = 10;
             this.drawingCanvas[canvasId] = new DrawingCanvas(canvasId, {},
                 {

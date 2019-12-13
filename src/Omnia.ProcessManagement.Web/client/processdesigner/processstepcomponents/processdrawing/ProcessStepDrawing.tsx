@@ -11,7 +11,7 @@ import { ProcessStepDrawingStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { component } from 'vue-tsx-support';
-import { setTimeout } from 'timers';
+import { setTimeout, setInterval } from 'timers';
 import { Watch } from 'vue-property-decorator';
 import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import { ProcessDesignerLocalization } from '../../loc/localize';
@@ -37,6 +37,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private drawingCanvas: DrawingCanvas = null;
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
+    private tempInterval = null;
 
     created() {
         this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChange.subscribe(this.onCanvasDefinitionChanged);
@@ -49,6 +50,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
+
+        if (this.tempInterval) {
+            clearInterval(this.tempInterval);
+        }
         if (this.drawingCanvas) {
             this.drawingCanvas.destroy();
         }
@@ -66,9 +71,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 this.currentProcessStore.actions.saveState.dispatch();
             }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
         });
-        setTimeout(() => {
+        this.tempInterval = setInterval(() => {
             this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
-        }, 200); //ToDo: refactor to remove this timeout, reason: json.stringify circular issue
+            this.currentProcessStore.actions.saveState.dispatch();
+        }, 1500); //ToDo: refactor to remove this timeout, reason: json.stringify circular issue
     }
 
     private onCanvasDefinitionChanged() {
@@ -165,7 +171,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         * @param h
         */
     render(h) {
-        let canvasDefinition = this.editingProcessStepCanvasDefinition;
+        let canvasDefinition = this.editingProcessStepCanvasDefinition;        
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: canvasDefinition ? canvasDefinition.width + 'px' : 'auto' }}>

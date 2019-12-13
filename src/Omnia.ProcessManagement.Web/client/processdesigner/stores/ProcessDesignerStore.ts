@@ -169,7 +169,7 @@ export class ProcessDesignerStore extends Store {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
                 if (!currentProcess.current.processData.canvasDefinition) {
-                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
+                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();                    
                 }
 
                 let defaultShowContentNavigation: boolean = false;
@@ -181,28 +181,12 @@ export class ProcessDesignerStore extends Store {
                     let designerItem: IProcessDesignerItem = processDesignerItemFactory.createDesignerItem() as IProcessDesignerItem;
                     this.mutations.setActiveItemInDesigner.commit(designerItem);
 
-                   //todo: Handle checkedout checking later
                     this.settings.showContentNavigation.mutate(true);
                     this.mutations.setEditorLoadingState.commit(false);
                     resolve();
                 });
             })
         }),
-        //addProcessStep: this.action((processStepTitle: MultilingualString) => {
-        //    return new Promise<ProcessStep>((resolve, reject) => {
-        //        var childProcessStep: ProcessStep = {
-        //            id: Guid.newGuid(),
-        //            title: processStepTitle,
-        //            processSteps: [],
-        //            processDataHash: ''
-        //        };
-        //        let currentProcess = this.currentProcessStore.getters.referenceData();
-        //        currentProcess.current.processStep.processSteps.push(childProcessStep);
-                
-        //        //todo: handle add to navigations
-        //        resolve(childProcessStep);
-        //    });
-        //}),
         addRecentShapeDefinitionSelection: this.action((shapeDefinition: ShapeDefinition) => {
             return new Promise<any>((resolve, reject) => {
                 var shapeDefinitions = this.recentShapeSelections.state.filter((item) => {
@@ -222,10 +206,10 @@ export class ProcessDesignerStore extends Store {
     private initDefaultCanvasDefinition() {
         return {
             drawingShapes: [],
-            width: 400,
-            height: 300,
-            gridX: 100,
-            gridY: 100,
+            width: 700,
+            height: 500,
+            gridX: 50,
+            gridY: 50,
             imageBackgroundUrl: ''
         };
 

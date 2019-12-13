@@ -30,7 +30,7 @@ export class DrawingCanvas implements CanvasDefinition {
         let shapes: DrawingShape[] = [];
         this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
         shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
-        console.log(shapes);
+        
         return {
             imageBackgroundUrl: this.imageBackgroundUrl,
             width: this.width,
@@ -109,7 +109,7 @@ export class DrawingCanvas implements CanvasDefinition {
         definition.width = definition.width ? parseFloat(definition.width.toString()) : 0;
         definition.height = definition.height ? parseFloat(definition.height.toString()) : 0;
         definition.fontSize = definition.fontSize ? parseFloat(definition.fontSize.toString()) : 0;
-        if (!left && !top) {
+        if (left == undefined || top == undefined || left == null || top == null) {
             left = (this.width - definition.width) / 2;
             if (left + definition.width > this.width)
                 left = left - (left + definition.width - this.width);
@@ -161,6 +161,7 @@ export class DrawingCanvas implements CanvasDefinition {
                 this.drawingShapes.splice(oldShapeIndex, 1);
                 (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
             }
+            oldDrawingShape.title = title;
         }
         else
             oldDrawingShape = {
