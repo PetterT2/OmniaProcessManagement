@@ -55,11 +55,20 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     init() {
-        this.initDrawingCanvas();
+        setTimeout(() => {
+            this.initDrawingCanvas();
+        }, 200);
         this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
             this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
-            //this.currentProcessStore.actions.saveState.dispatch();
+            
+            setTimeout(() => {
+                this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
+                this.currentProcessStore.actions.saveState.dispatch();
+            }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
         });
+        setTimeout(() => {
+            this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
+        }, 200); //ToDo: refactor to remove this timeout, reason: json.stringify circular issue
     }
 
     private onCanvasDefinitionChanged() {
@@ -79,23 +88,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (canvasDefinition) {
             //note: need to render the canvas div element before init this DrawingCanvasEditor
             this.drawingCanvas = new DrawingCanvasEditor(this.canvasId, {}, canvasDefinition);
-
-            console.log('render canvas area');
-
-            var myfirstShape: DrawingShapeDefinition = {
-                activeBackgroundColor: 'red',
-                backgroundColor: 'blue',
-                borderColor: '',
-                fontSize: 15,
-                textColor: 'white',
-                width: 100,
-                height: 100,
-                textPosition: TextPosition.Center,
-            } as DrawingShapeDefinition;
-
-            myfirstShape.shapeTemplate = ShapeTemplatesConstants.Circle;
-
-            //this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, myfirstShape, { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }, false, 100, 100);
         }
     }
 

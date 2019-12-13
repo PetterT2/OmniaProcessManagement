@@ -9,4 +9,6 @@ export interface ProcessData {
     documents: any; //TODO
     links: Array<Link>; //TODO
     tasks: any; //TODO
+
+    canvasDefinitionJSON?: string;
 }
