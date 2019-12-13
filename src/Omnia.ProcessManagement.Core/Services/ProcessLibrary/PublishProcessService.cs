@@ -15,12 +15,15 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     {
         IProcessService ProcessService { get; }
         IApprovalTaskService ApprovalTaskService { get; }
+        IWorkflowService WorkflowService { get; }
 
         public PublishProcessService(IProcessService processService,
-            IApprovalTaskService approvalTaskService)
+            IApprovalTaskService approvalTaskService,
+            IWorkflowService workflowService)
         {
             ProcessService = processService;
             ApprovalTaskService = approvalTaskService;
+            WorkflowService = workflowService;
         }
 
         public async ValueTask PublishProcessAsync(PublishProcessWithoutApprovalRequest request)
@@ -57,13 +60,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        public async ValueTask ProcessingCancelWorkflowAsync(Guid workflowId)
+        public async ValueTask ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, string webUrl)
         {
             try
             {
+                var workflow = await WorkflowService.GetAsync(workflowId);
+                var process = await ProcessService.GetProcessByIdAsync(workflow.ProcessId);
+                await ApprovalTaskService.CancelApprovalTaskAndSendEmailAsync(workflow, process, webUrl);
+                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.Draft, Models.Enums.ProcessVersionType.Draft);
             }
             catch (Exception ex)
             {
+                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, Models.Enums.ProcessVersionType.Draft);
                 throw ex;
             }
         }

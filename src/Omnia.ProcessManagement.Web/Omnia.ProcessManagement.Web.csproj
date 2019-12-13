@@ -137,6 +137,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\workflows\PublishProcessWithoutApprovalRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\Workflow.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowApprovalData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowApprovalTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
@@ -275,6 +276,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ApprovalTask.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
     <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting - Copy.ts" />
     <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting.ts" />
@@ -313,6 +315,7 @@
     <TypeScriptCompile Remove="client\processdesigner\TempTestComponent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\Utils.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\PublishProcessService.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\services\TaskService.ts" />
     <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
@@ -345,7 +348,6 @@
 
   <ItemGroup>
     <Folder Include="client\processlibrary\components\views\published\" />
-    <Folder Include="client\processlibrary\components\views\tasks\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -397,6 +399,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\workflows\WorkflowApprovalData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\workflows\WorkflowApprovalTask.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\workflows\WorkflowTask.ts">
@@ -643,6 +648,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\filtersandsorting\FiltersAndSorting.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processlibrary\services\TaskService.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\services\PublishProcessService.ts">

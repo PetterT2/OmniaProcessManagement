@@ -15,7 +15,7 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
     internal class WorkflowService : IWorkflowService
     {
         IWorkflowRepository WorkflowRepository { get; }
-        private IOmniaContext OmniaContext { get; }
+        IOmniaContext OmniaContext { get; }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IOmniaContext omniaContext)
@@ -27,6 +27,16 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
         public async ValueTask<Workflow> CreateAsync(Workflow workflow)
         {
             return await WorkflowRepository.CreateAsync(workflow);
+        }
+
+        public async ValueTask<Workflow> GetAsync(Guid workflowId)
+        {
+            return await WorkflowRepository.GetAsync(workflowId);
+        }
+
+        public async ValueTask CompleteAsync(Guid id, WorkflowCompletedType completedType)
+        {
+            await WorkflowRepository.CompleteAsync(id, completedType);
         }
 
         public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, string webUrl)

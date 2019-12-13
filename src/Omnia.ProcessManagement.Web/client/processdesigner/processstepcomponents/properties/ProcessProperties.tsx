@@ -9,6 +9,7 @@ import { TabRenderer } from '../../core';
 import { ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, PropertySetPersonItemSettings, ProcessTaxonomyPropertyInfo, ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData } from '../../../fx/models';
 import { EnterprisePropertyStore, EnterprisePropertySetStore, MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerLocalization } from '../../loc/localize';
+import { ProcessDesignerStore } from '../../stores';
 
 export class ProcessPropertiesTabRenderer extends TabRenderer {
     useValidator: IValidator;
@@ -38,25 +39,28 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
     @Inject(OmniaContext) private omniaContext: OmniaContext;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     @Localize(ProcessDesignerLocalization.namespace) loc: ProcessDesignerLocalization.locInterface;
 
-    private currentProcessReferenceData: ProcessReferenceData = null;
-    private editContentTimeout = null;
     private isLoading: boolean = false;
     private taxonomyComponentKey: { [propertyId: string]: string } = {};
     private processProperties: Array<ProcessPropertyInfo> = [];
     private formatter: IDatetimePickerFormatter;
     private lcid: number = 1033;
+    private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
     created() {
         this.init();
     }
 
+    get referenceData(): ProcessReferenceData {
+        return this.currentProcessStore.getters.referenceData();
+    }
+
     init() {
         this.useValidator.register(this);
         this.isLoading = true;
-        this.currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
         let regionalSettings = this.omniaContext.tenant.propertyBag.getModel(TenantRegionalSettings);
         this.formatter =
         {
@@ -87,49 +91,54 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         this.useValidator.clearValidation();
     }
 
-    onPropertiesChanged() {
-        this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties = {};
-        this.processProperties.forEach(propertyInfo => {
-            switch (propertyInfo.type) {
-                case PropertyIndexedType.Text:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessTextPropertyInfo).value;
-                    break;
-                case PropertyIndexedType.Boolean:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessBooleanPropertyInfo).value;
-                    break;
-                case PropertyIndexedType.Person:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessPersonPropertyInfo).identities || [];
-                    break;
-                case PropertyIndexedType.Taxonomy:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessTaxonomyPropertyInfo).termIds;
-                    break;
-                case PropertyIndexedType.DateTime:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessDatetimePropertyInfo).value;
-                    break;
-                case PropertyIndexedType.Number:
-                    this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = (propertyInfo as ProcessNumberPropertyInfo).value;
-                    break;
-            }
-        });
-        if (this.editContentTimeout) {
-            window.clearTimeout(this.editContentTimeout);
+    getValue(propertyInfo: ProcessPropertyInfo) {
+        let value = null;
+        switch (propertyInfo.type) {
+            case PropertyIndexedType.Text:
+                value = (propertyInfo as ProcessTextPropertyInfo).value;
+                break;
+            case PropertyIndexedType.Boolean:
+                value = (propertyInfo as ProcessBooleanPropertyInfo).value;
+                break;
+            case PropertyIndexedType.Person:
+                value = (propertyInfo as ProcessPersonPropertyInfo).identities || [];
+                break;
+            case PropertyIndexedType.Taxonomy:
+                value = (propertyInfo as ProcessTaxonomyPropertyInfo).termIds;
+                break;
+            case PropertyIndexedType.DateTime:
+                value = (propertyInfo as ProcessDatetimePropertyInfo).value;
+                break;
+            case PropertyIndexedType.Number:
+                value = (propertyInfo as ProcessNumberPropertyInfo).value;
+                break;
         }
-        this.editContentTimeout = window.setTimeout(() => {
-            if (this.currentProcessStore.getters.referenceData())
-                this.currentProcessStore.actions.saveState.dispatch();
-        }, 1000);
+        return value;
+    }
+
+    onPropertiesChanged(propertyInfo: ProcessPropertyInfo) {
+        let value = this.getValue(propertyInfo);
+        if (this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] != value) {
+            this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = value;
+            this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
+            Utils.timewatch(this.contentChangedTimewatchId, () => {
+                this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                    this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
+                });
+            }, 1500)
+        }
     }
 
     private loadProcessTypeData() {
         let promises: Array<Promise<any>> = [
             this.propertyStore.actions.ensureLoadData.dispatch(),
             this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
-            this.processTypeStore.actions.ensureProcessTypes.dispatch([this.currentProcessReferenceData.process.rootProcessStep.processTypeId])
+            this.processTypeStore.actions.ensureProcessTypes.dispatch([this.referenceData.process.rootProcessStep.processTypeId])
         ];
 
         Promise.all(promises).then(() => {
             this.processProperties = [];
-            let processType = this.processTypeStore.getters.byId(this.currentProcessReferenceData.process.rootProcessStep.processTypeId);
+            let processType = this.processTypeStore.getters.byId(this.referenceData.process.rootProcessStep.processTypeId);
             if (processType) {
                 let enterprisePropertySetId = (processType.settings as ProcessTypeItemSettings).enterprisePropertySetId;
                 let propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == enterprisePropertySetId)
@@ -144,7 +153,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                             required: item.required,
                             type: property.enterprisePropertyDataType.indexedType
                         };
-                        let value = this.currentProcessReferenceData.process.rootProcessStep.enterpriseProperties[property.internalName];
+                        let value = this.referenceData.process.rootProcessStep.enterpriseProperties[property.internalName];
                         switch (propertyInfo.type) {
                             case PropertyIndexedType.Text:
                                 (propertyInfo as ProcessTextPropertyInfo).value = value;
@@ -199,7 +208,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     renderTextField(h, field: ProcessTextPropertyInfo, label: string) {
         return [
             <v-text-field filled={true} dark={this.omniaTheming.promoted.body.dark} label={label} v-model={field.value}
-                rules={new FieldValueValidation().IsRequired(field.required).getRules()} onChange={this.onPropertiesChanged}>
+                rules={new FieldValueValidation().IsRequired(field.required).getRules()} onChange={() => { this.onPropertiesChanged(field); }}>
             </v-text-field>
         ]
     }
@@ -208,7 +217,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
 
         return [
             <v-text-field filled={true} type="number" dark={this.omniaTheming.promoted.body.dark} label={label} v-model={field.value}
-                rules={new FieldValueValidation().IsRequired(field.required).getRules()} onChange={this.onPropertiesChanged}>
+                rules={new FieldValueValidation().IsRequired(field.required).getRules()} onChange={() => { this.onPropertiesChanged(field); }}>
             </v-text-field>
         ]
     }
@@ -219,7 +228,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         return (
             <v-checkbox dark={this.omniaTheming.promoted.body.dark}
                 label={field.title}
-                input-value={field.value} onChange={(val) => { field.value = val; this.onPropertiesChanged(); }}></v-checkbox>
+                input-value={field.value} onChange={(val) => { field.value = val; this.onPropertiesChanged(field); }}></v-checkbox>
         )
     }
 
@@ -234,7 +243,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 validator={this.useValidator}
                 label={field.title}
                 model={field.identities}
-                onModelChange={val => { field.identities = val; this.onPropertiesChanged(); }}>
+                onModelChange={val => { field.identities = val; this.onPropertiesChanged(field); }}>
             </omfx-people-picker>
         )
     }
@@ -269,7 +278,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 onTermsSelected={(model) => {
                     field.termIds = model;
                     this.resetChildTermPickers(field, fields);
-                    this.onPropertiesChanged();
+                    this.onPropertiesChanged(field);
                 }} ></omfx-term-picker>,
             field.required &&
             <omfx-field-validation
@@ -292,7 +301,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 validator={this.useValidator}
                 onModelChange={(newVal) => {
                     field.value = newVal ? new Date(newVal) : null;
-                    this.onPropertiesChanged();
+                    this.onPropertiesChanged(field);
                 }}>
             </omfx-date-time-picker>
         ]

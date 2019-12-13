@@ -89,6 +89,9 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Approver: "Approver",
             Name: "Name",
             Email: "Email",
+            AssignedTo: "Assigned To",
+            CreatedBy: "Created By",
+            Comment: "Comment",
         },
         Process: {
             Content: "Content",

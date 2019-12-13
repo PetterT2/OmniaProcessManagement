@@ -94,8 +94,9 @@ namespace Omnia.ProcessManagement.Core
 
                 public const string Fields_DueDate = "DueDate";
                 public const string Fields_StartDate = "StartDate";
+                public const string Fields_Status = "Status";
                 public const string Fields_Assigned_To = "AssignedTo";
-
+                public const string Fields_PercentComplete = "PercentComplete";
             }
         }
 
@@ -159,6 +160,19 @@ namespace Omnia.ProcessManagement.Core
                     public static readonly string ApproverComment = "ApproverComment";
                 }
             }
+
+            public static class CancelApprovalEmailTemplate
+            {
+                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.CancelSubjectTemplate");
+                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.CancelBodyTemplate");
+
+                public static class Tokens
+                {
+                    public static readonly string Approver = "Approver";
+                    public static readonly string Name = "Name";
+                }
+            }
+
         }
 
     }
