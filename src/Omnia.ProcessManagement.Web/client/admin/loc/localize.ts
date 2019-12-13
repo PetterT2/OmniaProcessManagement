@@ -63,7 +63,6 @@
                     FixedValue: string,
                     FromSiteProperty: string
                 },
-                AlternativeInternalName: string,
                 DefaultValue: string,
                 InheritParentSettings: string,
                 NoApproverFound: string,

@@ -6,10 +6,5 @@ export interface PropertySetItemSettings {
      * */
     type: PropertyIndexedType;
 
-    /**
-     * Alternative enterprise property definition internal name with lower priority when process token
-     * */
-    alternativeInternalName: string;
-
     defaultValueFromAppPropertyDefinitionId?: GuidValue;
 }

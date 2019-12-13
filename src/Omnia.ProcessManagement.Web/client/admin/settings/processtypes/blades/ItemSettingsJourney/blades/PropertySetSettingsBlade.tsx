@@ -43,10 +43,6 @@ export default class PropertySetSettingsBlade extends VueComponentBase<PropertyS
             sortable: false
         },
         {
-            text: this.loc.ProcessTypes.Settings.AlternativeInternalName,
-            sortable: false
-        },
-        {
             text: this.loc.ProcessTypes.Settings.DefaultValue,
             sortable: false
         },
@@ -264,13 +260,6 @@ export default class PropertySetSettingsBlade extends VueComponentBase<PropertyS
                         <tr onClick={() => { this.selectingPropertyId = props.item.id }}>
                             <td>
                                 {props.item.multilingualTitle}
-                            </td>
-                            <td>
-                                {
-                                    this.selectingPropertyId == props.item.id ?
-                                        <v-text-field persistent-hint hint={props.item.internalName} v-model={settings[this.selectingPropertyId.toString()].alternativeInternalName}></v-text-field> :
-                                        settings[props.item.id.toString()].alternativeInternalName
-                                }
                             </td>
                             <td>
                                 {
