@@ -9,7 +9,7 @@ import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
 import { RootProcessStep, ProcessStep, IdDict } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
 import { MultilingualStore } from '@omnia/fx/store';
-
+import { ProcessDesignerStore } from '../../stores';
 
 @Component
 export class ActionsMenuComponent extends VueComponentBase<{}>
@@ -19,9 +19,11 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
     @Inject(ProcessService) processService: ProcessService;
 
+    private actionMenuChangedTimewatchId: string = "processstep_actionmenuchanged_" + Utils.generateGuid();
     internalValidator: FormValidator = new FormValidator(this);
     title: MultilingualString = {} as MultilingualString;
 
@@ -126,7 +128,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         currentReferenceData.current.processStep.title = this.title;
         currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
         this.loading = true;
-        this.currentProcessStore.actions.saveState.dispatch(true).then(() => {
+        this.processDesignerStore.actions.saveState.dispatch(this.actionMenuChangedTimewatchId).then(() => {
             this.showEditTitleDialog = false;
         })
     }
@@ -143,7 +145,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                 newParentProcessStep.processSteps = [];
             newParentProcessStep.processSteps.push(currentProcessStep);
 
-            this.currentProcessStore.actions.saveState.dispatch(true).then(resolve).catch(reject);
+            this.processDesignerStore.actions.saveState.dispatch(this.actionMenuChangedTimewatchId, true).then(resolve).catch(reject);
         })
     }
 

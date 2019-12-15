@@ -200,6 +200,17 @@ export class ProcessDesignerStore extends Store {
                 }
                 this.recentShapeSelections.mutate(recentShapeDefinitions);
             });
+        }),
+        saveState: this.action((timeWatchId: string, refreshContentNavigation?: boolean): Promise<null> => {
+            return new Promise<null>((resolve, reject) => {
+                this.mutations.setHasDataChangedState.commit(true);
+                Utils.timewatch(timeWatchId, () => {
+                    this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                        this.mutations.setHasDataChangedState.commit(false);
+                        resolve();
+                    }).catch(reject);
+                }, 2000);
+            })
         })
     }
 

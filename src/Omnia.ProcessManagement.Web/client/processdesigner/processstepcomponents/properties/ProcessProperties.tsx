@@ -48,7 +48,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     private processProperties: Array<ProcessPropertyInfo> = [];
     private formatter: IDatetimePickerFormatter;
     private lcid: number = 1033;
-    private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
+    private propertiesChangedTimewatchId: string = "processstep_propertieschanged_" + Utils.generateGuid();
 
     created() {
         this.init();
@@ -120,12 +120,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
         let value = this.getValue(propertyInfo);
         if (this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] != value) {
             this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = value;
-            this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
-            Utils.timewatch(this.contentChangedTimewatchId, () => {
-                this.currentProcessStore.actions.saveState.dispatch().then(() => {
-                    this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
-                });
-            }, 1500)
+            this.processDesignerStore.actions.saveState.dispatch(this.propertiesChangedTimewatchId);
         }
     }
 

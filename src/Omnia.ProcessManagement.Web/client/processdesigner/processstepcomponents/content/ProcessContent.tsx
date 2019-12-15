@@ -43,13 +43,8 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
         var currentContent = JSON.stringify(referenceData.current.processData.content);
         var newContent = JSON.stringify(content);
         if (currentContent != newContent) {
-            referenceData.current.processData.content = content;
-            this.processDesignerStore.mutations.setHasDataChangedState.commit(true);
-            Utils.timewatch(this.contentChangedTimewatchId, () => {
-                this.currentProcessStore.actions.saveState.dispatch().then(() => {
-                    this.processDesignerStore.mutations.setHasDataChangedState.commit(false);
-                });
-            }, 1500)
+            referenceData.current.processData.content = JSON.parse(JSON.stringify(content));
+            this.processDesignerStore.actions.saveState.dispatch(this.contentChangedTimewatchId);
         }
     }
 
