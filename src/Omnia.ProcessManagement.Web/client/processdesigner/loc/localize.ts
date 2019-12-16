@@ -40,5 +40,7 @@
         };
         ChangeShape: string;
         ProcessTemplateDoesNotHaveShapeDefinitions: string;
+        Media: string;
+        FreeForm: string;
     }
 }

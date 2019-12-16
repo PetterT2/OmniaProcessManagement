@@ -91,6 +91,13 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 }
             }
         });
+                
+        this.canvasObject.on('object:scaled', (options) => {
+            if (this.onMoved) {
+                this.onMoved();
+            }
+
+        });
     }
 
 }

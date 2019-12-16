@@ -177,7 +177,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         if (shapeDefinition.type == ShapeDefinitionTypes.Heading)
             return;
         let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-        if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform || drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {
+        if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id || drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id) {            
             return;
         }
         let idPrefix = isRecent ? 'recent_' : '';
@@ -219,21 +219,55 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         let shapeDefinitionElement: JSX.Element = null;
         let idPrefix = isRecent ? 'recent_' : '';
         let shapeId = idPrefix + shapeDefinition.id.toString();
+        let isIcon: boolean = false;
 
         if (shapeDefinition.type == ShapeDefinitionTypes.Heading) {
             shapeDefinitionElement = <div>{this.multilingualStore.getters.stringValue(shapeDefinition.title)}</div>;
         }
         else {
+
             let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-            if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform) {
-                shapeDefinitionElement = <div>
-                    <i class="">Free form</i>
+            if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id) {
+                isIcon = true;
+
+                shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>
+                    <v-tooltip bottom {
+                        ...this.transformVSlot({
+                            activator: (ref) => {
+                                const toSpread = {
+                                    on: ref.on
+                                }
+                                return [
+                                    <v-btn {...toSpread} class={["mx-2"]} fab large>
+                                        <v-icon>fa fa-draw-polygon</v-icon>
+                                    </v-btn>
+                                ]
+                            }
+                        })}>
+                        <span>{this.pdLoc.FreeForm}</span>
+                    </v-tooltip>
                 </div>;
             }
             else
-                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media) {                    
-                    shapeDefinitionElement = <div>
-                        <i class="fal fa-photo-video">Media</i>
+                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id) {
+                    isIcon = true;
+
+                    shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>
+                        <v-tooltip bottom {
+                            ...this.transformVSlot({
+                                activator: (ref) => {
+                                    const toSpread = {
+                                        on: ref.on
+                                    }
+                                    return [
+                                        <v-btn {...toSpread} class={["mx-2"]} fab large>
+                                            <v-icon>fa fa-photo-video</v-icon>
+                                        </v-btn>
+                                    ]
+                                }
+                            })}>
+                            <span>{this.pdLoc.Media}</span>
+                        </v-tooltip>
                     </div>;
                 }
                 else {
@@ -241,7 +275,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
                 }
         }
         let retElement: JSX.Element = <div id={'shape_' + shapeId}
-            class={[this.shapeSelectionStepStyles.shapeDefinitionItem(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
+            class={[this.shapeSelectionStepStyles.shapeDefinitionItem(100), isIcon ? '' : this.shapeSelectionStepStyles.canvasWrapper(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
             style={{ display: shapeDefinition.visible ? 'block' : 'none' }}
             onClick={() => { this.selectShape(shapeDefinition, idPrefix) }}>
             {shapeDefinitionElement}

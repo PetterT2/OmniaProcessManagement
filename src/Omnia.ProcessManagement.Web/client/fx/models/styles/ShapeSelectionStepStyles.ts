@@ -3,5 +3,7 @@ import { OmniaTheming } from '@omnia/fx/ux';
 
 export const ShapeSelectionStepStyles = {} as {
     shapesWrapper?: types.NestedCSSProperties;
-    shapeDefinitionItem?: (theme: OmniaTheming) => types.NestedCSSProperties;
+    shapeDefinitionItem?: (size: number) => types.NestedCSSProperties;
+    canvasWrapper?: (theme: OmniaTheming, size: number) => types.NestedCSSProperties;
+    iconWrapper?: types.NestedCSSProperties;
 };
