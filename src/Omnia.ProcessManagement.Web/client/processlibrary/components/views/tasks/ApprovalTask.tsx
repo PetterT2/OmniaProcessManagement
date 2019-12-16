@@ -36,7 +36,6 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
-    private listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     private task: WorkflowApprovalTask = null;
     private taskId: string = "";
     private completedTaskDescription: string;
@@ -49,7 +48,6 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     private isRejecting: boolean = false;
     private hasError: boolean = false;
     private emptyCommentError: boolean = false;
-    private isDeleting: boolean = false;
 
     created() {
         this.init();
@@ -113,33 +111,27 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private completeApprovalTask() {
-        //this.approvalTaskService.completeApprovalTask(this.task)
-        //    .then(() => {
-        //        this.approvalTaskService.processCompletingApprovalTask(this.task).catch((errorMessage: string) => {
-        //            this.hasError = true;
-        //            this.errorMessage = errorMessage;
-        //        });
-        //        this.hasError = false;
-        //        this.task.status = TaskStatusText.Completed;
-        //        this.isApproving = false;
-        //        this.isRejecting = false;
-        //        this.setTaskDescription();
-        //    })
-        //    .catch((errorMessage: string) => {
-        //        this.hasError = true;
-        //        this.errorMessage = errorMessage;
-        //        this.isApproving = false;
-        //    });
+        this.publishProcessService.completeApprovalTask(this.task)
+            .then(() => {
+                this.publishProcessService.processingCompleteApprovalTask(this.task).catch((errorMessage: string) => {
+                    this.hasError = true;
+                    this.errorMessage = errorMessage;
+                });
+                this.hasError = false;
+                this.isApproving = false;
+                this.isRejecting = false;
+                this.task.isCompleted = true;
+                this.setTaskDescription();
+            })
+            .catch((errorMessage: string) => {
+                this.hasError = true;
+                this.errorMessage = errorMessage;
+                this.isApproving = false;
+            });
     }
 
     private checkTaskIsInApprovalStatus(): boolean {
-        return this.task && this.task.process && this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval;
-    }
-
-    private checkAllowToDeleteTask(): boolean {
-        return (this.task && (this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing ||
-            this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval ||
-            this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval));
+        return this.task && this.task.process && this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval && this.task.responsible && !this.task.isCompleted;
     }
 
     private checkValidToShowTaskContent(): boolean {
@@ -159,20 +151,6 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
             this.resolveTaskErrorMessage = this.loc.Messages.MessageTaskHasBeenCompletedOrCanceled;
             return false;
         }
-    }
-
-    private delete() {
-        this.$confirm.open().then(res => {
-            if (res == ConfirmDialogResponse.Ok) {
-                //this.isDeleting = true;
-                //this.taskService.deleteTask(this.spContext.pageContext.web.absoluteUrl, this.task.id).then(() => {
-                //    this.isDeleting = false;
-                //    this.close();
-                //}).catch(msg => {
-                //    this.isDeleting = false;
-                //})
-            }
-        })
     }
 
     private allowToApproval() {
@@ -211,8 +189,9 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                             {
                                 this.checkValidToShowTaskContent() ?
                                     <div>
+                                        <div><p>{this.task.process.rootProcessStep.multilingualTitle}</p></div>
                                         <p><span domProps-innerHTML={this.loc.Messages.MessageApprovalTaskEditingDescription}></span></p>
-                                        <p>{this.task.createdBy + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
+                                        <p>{this.task.author.displayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
                                         {Utils.isNullOrEmpty(this.task.workflow.comment) ? null : <p> {"\"" + this.task.workflow.comment + "\""}</p>}
 
                                         <v-textarea
@@ -244,11 +223,12 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     renderTaskInfoForm(h) {
         return (
             <div>
+                <div><p>{this.task.process.rootProcessStep.multilingualTitle}</p></div>
                 <p>
                     <b>{this.coreLoc.Columns.AssignedTo + ": "}</b>{this.task.assignedTo.displayName}
                 </p>
                 <p>
-                    <b>{this.coreLoc.Columns.CreatedBy + ": "}</b>{this.task.createdBy}
+                    <b>{this.coreLoc.Columns.CreatedBy + ": "}</b>{this.task.author.displayName}
                 </p>
                 <p>
                     <b>{this.coreLoc.Columns.Status + ": "}</b>{this.loc.TaskStatus.NotStarted}
@@ -271,6 +251,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                         this.checkTaskIsInApprovalStatus() ?
                             [
                                 <v-btn
+                                    class="mr-2"
                                     dark={!this.isRejecting}
                                     color={this.omniaTheming.themes.primary.base}
                                     disabled={this.isRejecting}
@@ -278,6 +259,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                                     v-show={this.allowToApproval}
                                     onClick={this.approve}>{this.omniaUxLoc.Common.Buttons.Approve}</v-btn>,
                                 <v-btn
+                                    class="mr-2"
                                     dark={!this.isApproving}
                                     color={this.omniaTheming.themes.primary.base}
                                     disabled={this.isApproving}
@@ -285,13 +267,6 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                                     v-show={this.allowToApproval}
                                     onClick={this.reject}>{this.omniaUxLoc.Common.Buttons.Reject}</v-btn>
                             ]
-                            : null
-                    }
-                    {
-                        this.checkAllowToDeleteTask() ?
-                            <v-btn
-                                loading={this.isDeleting}
-                                onClick={this.delete} text>{this.omniaUxLoc.Common.Buttons.Delete}</v-btn>
                             : null
                     }
                     {

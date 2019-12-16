@@ -10,5 +10,6 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
     {
         ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId);
         ValueTask<WorkflowTask> GetAsync(int spItemId, Guid siteId, Guid webId);
+        ValueTask CompletedTask(Guid id, string comment, TaskOutcome taskOutCome);
     }
 }

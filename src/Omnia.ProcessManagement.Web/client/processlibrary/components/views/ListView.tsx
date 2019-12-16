@@ -11,6 +11,7 @@ import { DraftsView } from './drafts/DraftsView';
 import { IListViewComponent } from './IListView';
 import { OPMUtils } from '../../../fx';
 import { UrlParameters } from '../../Constants';
+import { TasksView } from './tasks/TasksView';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
@@ -120,7 +121,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                             <DraftsView displaySettings={this.viewSettings.draftTabDisplaySettings} ></DraftsView> : null}
                     </v-tab-item>
                     <v-tab-item id="tab-tasks" v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
-                        {this.selectingTab == "tab-tasks" ? <div>Not implemented yet</div> : null}
+                        {this.selectingTab == "tab-tasks" ? <TasksView></TasksView> : null}
                     </v-tab-item>
                     <v-tab-item id="tab-published">
                         {this.selectingTab == "tab-published" ?

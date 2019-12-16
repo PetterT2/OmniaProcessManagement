@@ -277,6 +277,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ApprovalTask.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\TasksView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
     <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting - Copy.ts" />
     <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting.ts" />
