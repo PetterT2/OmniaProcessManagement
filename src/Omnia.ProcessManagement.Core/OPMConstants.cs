@@ -124,6 +124,8 @@ namespace Omnia.ProcessManagement.Core
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
+            public static readonly string ApprovedText = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.Approval.Approved");
+            public static readonly string RejectText = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.Approval.Rejected");
         }
 
         public static class OPMContentTypeId

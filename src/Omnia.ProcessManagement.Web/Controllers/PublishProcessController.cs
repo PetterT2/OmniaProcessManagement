@@ -71,6 +71,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
@@ -87,6 +88,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
@@ -136,6 +138,40 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, ProcessVersionType.Draft);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
+        [HttpPost, Route("completeworkflow")]
+        [Authorize]
+        public async ValueTask<ApiResponse> CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
+        {
+            try
+            {
+                await PublishProcessService.CompleteWorkflowAsync(approvalTask);
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
+        [HttpPost, Route("processingcompleteworkflow")]
+        [Authorize]
+        public async ValueTask<ApiResponse> ProcessingCompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
+        {
+            try
+            {
+                await PublishProcessService.ProcessingCompleteWorkflowAsync(approvalTask);
+                return ApiUtils.CreateSuccessResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
