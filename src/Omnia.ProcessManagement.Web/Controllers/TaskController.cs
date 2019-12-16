@@ -14,6 +14,7 @@ using Omnia.Fx.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -28,7 +29,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ProcessController> Logger { get; }
         IWorkflowTaskService WorkflowTaskService { get; }
-        IProcessLibraryService ProcessLibraryService { get; }
+        ISharePointSiteService SharePointSiteService { get; }
         IProcessService ProcessService { get; }
         IOmniaContext OmniaContext { get; }
         IUserService UserService { get; }
@@ -36,12 +37,12 @@ namespace Omnia.ProcessManagement.Web.Controllers
         public TaskController(ILogger<ProcessController> logger,
             IWorkflowTaskService workflowTaskService,
             IProcessService processService,
-            IProcessLibraryService processLibraryService,
+            ISharePointSiteService sharePointSiteService,
             IUserService userService,
             IOmniaContext omniaContext)
         {
             WorkflowTaskService = workflowTaskService;
-            ProcessLibraryService = processLibraryService;
+            SharePointSiteService = sharePointSiteService;
             ProcessService = processService;
             OmniaContext = omniaContext;
             UserService = userService;
@@ -55,8 +56,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var site = await ProcessLibraryService.GetProcessSiteInfo(webUrl);
-                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, site.Item1, site.Item2);
+                var (siteId, webId) = await SharePointSiteService.GetSiteIdentityAsync(webUrl);
+                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, siteId, webId);
                 var workflowApprovalTask = new WorkflowApprovalTask(workflowTask);
                 workflowApprovalTask.Process = await ProcessService.GetProcessByIdAsync(workflowTask.Workflow.ProcessId);
                 workflowApprovalTask.Responsible = workflowTask.AssignedUser.Equals(OmniaContext.Identity.LoginName);

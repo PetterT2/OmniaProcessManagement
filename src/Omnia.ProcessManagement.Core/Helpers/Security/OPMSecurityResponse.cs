@@ -1,0 +1,232 @@
+﻿using Omnia.Fx.Contexts;
+using Omnia.Fx.Contexts.Scoped;
+using Omnia.Fx.Models.Security;
+using Omnia.Fx.Models.Shared;
+using Omnia.Fx.Security;
+using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Repositories.Processes;
+using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Processes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Omnia.ProcessManagement.Core.Helpers.Security
+{
+    public interface IOPMSecurityResponse
+    {
+        IOPMSecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes);
+    }
+
+    public interface IOPMSecurityResponseHandler
+    {
+        IOPMSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
+        IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
+        ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
+        ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
+    }
+
+    internal class OPMSecurityResponse : IOPMSecurityResponse, IOPMSecurityResponseHandler
+    {
+        private List<Guid> RequiredRoles { get; }
+        private Process Process { get; set; }
+        private HashSet<ProcessVersionType> AlternativeVersionTypes { get; set; }
+        private Guid SiteId { get; set; }
+        private Guid WebId { get; set; }
+        private IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
+        private ISecurityProvider SecurityProvider { get; }
+        private IOmniaContext OmniaContext { get; }
+        private bool AuthorOnly { get; }
+        public OPMSecurityResponse(
+            Process process,
+            IDynamicScopedContextProvider dynamicScopedContextProvider,
+            ISecurityProvider securityProvider,
+            IOmniaContext omniaContext,
+            List<ProcessVersionType> alternativeVersionTypes = null)
+        {
+            RequiredRoles = new List<Guid>();
+            DynamicScopedContextProvider = dynamicScopedContextProvider;
+            SecurityProvider = securityProvider;
+            OmniaContext = omniaContext;
+            Process = process;
+            AlternativeVersionTypes = alternativeVersionTypes != null ? alternativeVersionTypes.ToHashSet() : new HashSet<ProcessVersionType>();
+        }
+
+        public OPMSecurityResponse(
+            Guid siteId,
+            Guid webId,
+            IDynamicScopedContextProvider dynamicScopedContextProvider,
+            ISecurityProvider securityProvider,
+            IOmniaContext omniaContext)
+        {
+            RequiredRoles = new List<Guid>();
+            DynamicScopedContextProvider = dynamicScopedContextProvider;
+            SecurityProvider = securityProvider;
+            OmniaContext = omniaContext;
+            SiteId = siteId;
+            WebId = webId;
+            AuthorOnly = true;
+        }
+
+        public IOPMSecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Author, versionTypes);
+            return this;
+        }
+
+        public IOPMSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes)
+        {
+            return RequireAuthor(versionTypes);
+        }
+
+        public IOPMSecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Approver, versionTypes);
+            return this;
+        }
+
+        public IOPMSecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes)
+        {
+            return RequireApprover(versionTypes);
+        }
+
+        public IOPMSecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Reviewer, versionTypes);
+            return this;
+        }
+
+        public IOPMSecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes)
+        {
+            return RequireApprover(versionTypes);
+        }
+
+        public IOPMSecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Reader, versionTypes);
+            return this;
+        }
+
+        public IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes)
+        {
+            return RequireApprover(versionTypes);
+        }
+
+        public async ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse<T>();
+            }
+
+            return await action();
+        }
+
+        public async ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse();
+            }
+
+            return await action();
+        }
+
+        private async ValueTask<bool> ValidateAuthorized()
+        {
+
+            var isAuthorized = true;
+            if (RequiredRoles.Count > 0)
+            {
+                EnsureContextParamsAsync();
+
+                var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
+                var identityRoles = identityRolesResult.Values
+                    .Where(r => r.HasPermission == true)
+                    .Select(r => r.RoleId)
+                    .ToList();
+                isAuthorized = identityRoles.Any(
+                    roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
+            }
+            return isAuthorized;
+        }
+
+        private void EnsureRole(string roleIdString, params ProcessVersionType[] versionTypes)
+        {
+            if(AuthorOnly && roleIdString != OPMConstants.Security.Roles.Author)
+            {
+                return;
+            }
+
+            if (!CheckVersionTypesInEnsuringRole(versionTypes))
+            {
+                return;
+            }
+
+            var role = new Guid(roleIdString);
+            if (!RequiredRoles.Contains(role))
+            {
+                RequiredRoles.Add(role);
+            }
+        }
+
+        private bool CheckVersionTypesInEnsuringRole(params ProcessVersionType[] versionTypes)
+        {
+            var isValid = false;
+            if (versionTypes != null && versionTypes.Length > 0)
+            {
+                foreach (var versionType in versionTypes)
+                {
+                    if (Process.VersionType == versionType || AlternativeVersionTypes.Contains(versionType))
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                isValid = true;
+            }
+
+            return isValid || true; //TODO - remove true here when finish
+        }
+
+
+        private void EnsureContextParamsAsync()
+        {
+            if (AuthorOnly)
+            {
+                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SiteId, SiteId.ToString());
+                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.WebId, WebId.ToString());
+            }
+            else
+            {
+                if (Process.VersionType == ProcessVersionType.Published)
+                {
+                    DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SecurityResourceId, Process.SecurityResourceId);
+                }
+                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SiteId, Process.SiteId.ToString());
+                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.WebId, Process.WebId.ToString());
+                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.OPMProcessId, Process.OPMProcessId.ToString());
+            }
+            
+        }
+    }
+}

@@ -86,11 +86,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
-            List<Process> processes = await ProcessRepository.GetProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
+            var internalProcesses = await ProcessRepository.GetInternalProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
             foreach (Guid opmProcessId in opmProcessIds)
             {
-                Process findProcess = processes.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
+                Process findProcess = internalProcesses.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
                 workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
             }
             return workingStatus;

@@ -12,6 +12,8 @@ using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.Security;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -23,14 +25,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
     public class ProcessController : ControllerBase
     {
         ILogger<ProcessController> Logger { get; }
-        IProcessLibraryService ProcessLibraryService { get; }
+        ISharePointSiteService SharePointSiteService { get; }
         IProcessService ProcessService { get; }
+        IProcessSecurityService ProcessSecurityService { get; }
 
         public ProcessController(IProcessService processService, ILogger<ProcessController> logger,
-            IProcessLibraryService processLibraryService)
+            ISharePointSiteService sharePointSiteService, IProcessSecurityService processSecurityService)
         {
             ProcessService = processService;
-            ProcessLibraryService = processLibraryService;
+            SharePointSiteService = sharePointSiteService;
+            ProcessSecurityService = processSecurityService;
             Logger = logger;
         }
 
@@ -40,10 +44,15 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                LanguageTag language;
-                (actionModel.Process.SiteId, actionModel.Process.WebId, language) = await ProcessLibraryService.GetProcessSiteInfo(actionModel.WebUrl);
-                var process = await ProcessService.CreateDraftProcessAsync(actionModel);
-                return process.AsApiResponse();
+                (actionModel.Process.SiteId, actionModel.Process.WebId) = await SharePointSiteService.GetSiteIdentityAsync(actionModel.WebUrl);
+
+                return await ProcessSecurityService.InitSecurityResponseBySiteIdAndWebId(actionModel.Process.SiteId, actionModel.Process.WebId)
+                    .RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.CreateDraftProcessAsync(actionModel);
+                        return process.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -58,8 +67,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await ProcessService.DeleteDraftProcessAsync(opmProcessId);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse.RequireAuthor().DoAsync(async () =>
+                {
+                    await ProcessService.DeleteDraftProcessAsync(opmProcessId);
+                    return ApiUtils.CreateSuccessResponse();
+                });
             }
             catch (Exception ex)
             {
@@ -74,8 +88,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await ProcessService.CheckInProcessAsync(opmProcessId);
-                return process.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.CheckedOut);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer()
+                    .DoAsync(async () =>
+                {
+                    var process = await ProcessService.CheckInProcessAsync(opmProcessId);
+                    return process.AsApiResponse();
+                });
             }
             catch (Exception ex)
             {
@@ -91,8 +113,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await ProcessService.SaveCheckedOutProcessAsync(actionModel);
-                return process.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(actionModel.Process.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.SaveCheckedOutProcessAsync(actionModel);
+                        return process.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -107,8 +137,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await ProcessService.CheckOutProcessAsync(opmProcessId);
-                return process.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.CheckOutProcessAsync(opmProcessId);
+                        return process.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -123,8 +161,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await ProcessService.DiscardChangeProcessAsync(opmProcessId);
-                return process.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.CheckedOut);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.DiscardChangeProcessAsync(opmProcessId);
+                        return process.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -139,15 +185,25 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
 
-                //Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
-                //{
-                //    Public = true,
-                //    MaxAge = TimeSpan.FromDays(31536000)
-                //};
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireReader(ProcessVersionType.Published)
+                    .DoAsync(async () =>
+                    {
+                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
-                return processData.AsApiResponse();
+                        Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                        {
+                            Public = true,
+                            MaxAge = TimeSpan.FromDays(31536000)
+                        };
+
+                        return processData.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -178,8 +234,18 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
-                return processData.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, versionType);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireReader(ProcessVersionType.Published)
+                    .DoAsync(async () =>
+                    {
+                        var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
+                        return processData.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -194,8 +260,18 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await ProcessService.GetProcessByIdAsync(processId);
-                return process.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireReader(ProcessVersionType.Published)
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.GetProcessByIdAsync(processId);
+                        return process.AsApiResponse();
+                    });
             }
             catch (Exception ex)
             {
@@ -210,8 +286,19 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var processesData = await ProcessLibraryService.GetDraftProcessesDataAsync(webUrl);
-                return processesData.AsApiResponse();
+                var (siteId, webId) = await SharePointSiteService.GetSiteIdentityAsync(webUrl);
+                var securityResponse = ProcessSecurityService.InitSecurityResponseBySiteIdAndWebId(siteId, webId);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                   .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                   .OrRequireReader(ProcessVersionType.Published)
+                   .DoAsync(async () =>
+                   {
+                       var processesData = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
+                       return processesData.AsApiResponse();
+                   });
             }
             catch (Exception ex)
             {
@@ -226,8 +313,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var beingUsed = await ProcessService.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
-                return beingUsed.AsApiResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireReviewer(ProcessVersionType.CheckedOut)
+                   .DoAsync(async () =>
+                   {
+                       var beingUsed = await ProcessService.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+                       return beingUsed.AsApiResponse();
+                   });
             }
             catch (Exception ex)
             {
