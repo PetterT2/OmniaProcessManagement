@@ -8,6 +8,7 @@ namespace Omnia.ProcessManagement.Models.Enums
     {
         Draft = 0,
         CheckedOut = 1,
-        Published = 2
+        Published = 2,
+        LatestPublished = 3
     }
 }

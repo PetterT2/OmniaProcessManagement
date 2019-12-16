@@ -50,10 +50,10 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash)
+        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
-            var (process, vertionTypes) = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, hash);
-            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext, vertionTypes);
+            var process = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, hash, versionType);
+            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId)

@@ -12,7 +12,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
     {
         IOPMSecurityResponse InitSecurityResponseBySiteIdAndWebId(Guid siteId, Guid webId);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
-        ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash);
+        ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
     }

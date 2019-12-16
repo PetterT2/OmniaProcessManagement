@@ -179,28 +179,32 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{processStepId:guid}/{hash}")]
+        [HttpGet, Route("processdata/{processStepId:guid}/{hash}/{versionType:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash, versionType);
 
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
-                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
+                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash, versionType);
 
+
+                        //For published version, we can cache the value like forever
+                        //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time
                         Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                         {
                             Public = true,
-                            MaxAge = TimeSpan.FromDays(31536000)
+                            MaxAge = versionType == ProcessVersionType.LatestPublished || versionType == ProcessVersionType.Published ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
                         };
+
 
                         return processData.AsApiResponse();
                     });
@@ -287,18 +291,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var (siteId, webId) = await SharePointSiteService.GetSiteIdentityAsync(webUrl);
-                var securityResponse = ProcessSecurityService.InitSecurityResponseBySiteIdAndWebId(siteId, webId);
-
-                return await securityResponse
-                   .RequireAuthor()
-                   .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                   .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                   .OrRequireReader(ProcessVersionType.Published)
-                   .DoAsync(async () =>
-                   {
-                       var processesData = await ProcessService.GetDraftProcessesDataAsync(siteId, webId);
-                       return processesData.AsApiResponse();
-                   });
+                var processesData = await ProcessService.GetProcessesAsync(siteId, webId, versionType);
+                return processesData.AsApiResponse();
             }
             catch (Exception ex)
             {

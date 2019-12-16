@@ -99,9 +99,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessData = (processStepId: GuidValue, hash: string) => {
+    public getProcessData = (processStepId: GuidValue, hash: string, versionType: ProcessVersionType) => {
         return new Promise<ProcessDataWithAuditing>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}/${versionType}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

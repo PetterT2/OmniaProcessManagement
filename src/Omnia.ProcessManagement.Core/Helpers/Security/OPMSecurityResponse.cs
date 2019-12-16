@@ -38,7 +38,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     {
         private List<Guid> RequiredRoles { get; }
         private Process Process { get; set; }
-        private HashSet<ProcessVersionType> AlternativeVersionTypes { get; set; }
         private Guid SiteId { get; set; }
         private Guid WebId { get; set; }
         private IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
@@ -49,15 +48,13 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             Process process,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
-            IOmniaContext omniaContext,
-            List<ProcessVersionType> alternativeVersionTypes = null)
+            IOmniaContext omniaContext)
         {
             RequiredRoles = new List<Guid>();
             DynamicScopedContextProvider = dynamicScopedContextProvider;
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
             Process = process;
-            AlternativeVersionTypes = alternativeVersionTypes != null ? alternativeVersionTypes.ToHashSet() : new HashSet<ProcessVersionType>();
         }
 
         public OPMSecurityResponse(
@@ -164,12 +161,12 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 isAuthorized = identityRoles.Any(
                     roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
             }
-            return isAuthorized;
+            return isAuthorized || true; //TODO - remove true here when finish;
         }
 
         private void EnsureRole(string roleIdString, params ProcessVersionType[] versionTypes)
         {
-            if(AuthorOnly && roleIdString != OPMConstants.Security.Roles.Author)
+            if (AuthorOnly && roleIdString != OPMConstants.Security.Roles.Author)
             {
                 return;
             }
@@ -188,24 +185,13 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         private bool CheckVersionTypesInEnsuringRole(params ProcessVersionType[] versionTypes)
         {
-            var isValid = false;
+            var isValid = true;
             if (versionTypes != null && versionTypes.Length > 0)
             {
-                foreach (var versionType in versionTypes)
-                {
-                    if (Process.VersionType == versionType || AlternativeVersionTypes.Contains(versionType))
-                    {
-                        isValid = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                isValid = true;
+                isValid = versionTypes.Contains(Process.VersionType);
             }
 
-            return isValid || true; //TODO - remove true here when finish
+            return isValid;
         }
 
 
@@ -226,7 +212,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.WebId, Process.WebId.ToString());
                 DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.OPMProcessId, Process.OPMProcessId.ToString());
             }
-            
+
         }
     }
 }

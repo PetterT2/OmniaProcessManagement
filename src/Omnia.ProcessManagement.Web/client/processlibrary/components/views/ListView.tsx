@@ -136,7 +136,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab-item>
                     <v-tab-item id="tab-published">
                         {this.selectingTab == "tab-published" ?
-                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
+                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.LatestPublished} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                 </v-tabs>

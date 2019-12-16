@@ -200,6 +200,5 @@ namespace Omnia.ProcessManagement.Core
                 public const string Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa";
             }
         }
-
     }
 }
