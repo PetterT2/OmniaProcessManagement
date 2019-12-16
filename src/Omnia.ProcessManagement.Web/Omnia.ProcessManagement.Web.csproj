@@ -7,16 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="client\NewFolder\**" />
-    <Content Remove="client\NewFolder\**" />
-    <EmbeddedResource Remove="client\NewFolder\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
-    <None Remove="client\NewFolder\**" />
     <None Remove="wwwroot\omnia\**" />
-    <TypeScriptCompile Remove="client\NewFolder\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -320,6 +315,7 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
+    <TypeScriptCompile Remove="client\security\security.manifest.ts" />
     <TypeScriptCompile Remove="client\stores\index.ts" />
     <TypeScriptCompile Remove="client\stores\LibraryStore.ts" />
     <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />

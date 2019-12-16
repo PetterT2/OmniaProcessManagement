@@ -161,5 +161,30 @@ namespace Omnia.ProcessManagement.Core
             }
         }
 
+
+        public static class Security
+        {
+            public static class Parameters
+            {
+                public const string SecurityResourceId = "SecurityResourceId";
+                public const string SiteId = "SiteId";
+                public const string WebId = "WebId";
+            }
+
+            public static class Resources
+            {
+                public const string SiteIdentityResourcePrefix = "siteidentity_";
+                public const string SecurityResourceIdResourcePrefix = "securityresourceid_";
+            }
+
+            public static class Roles
+            {
+                public const string Author = "f412d0be-16e8-4fc2-80cf-dca39a265a08";
+                public const string Reader = "38c86dbf-44a2-45c4-b370-2c1cabea954c";
+                public const string Approver = "22672fb9-e62f-470c-a68d-77ae03a5115d";
+                public const string Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa";
+            }
+        }
+
     }
 }
