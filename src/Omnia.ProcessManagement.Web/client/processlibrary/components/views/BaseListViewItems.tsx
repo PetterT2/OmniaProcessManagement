@@ -2,38 +2,34 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType } from '../../../../fx/models';
-import { ProcessLibraryListViewStyles, DraftProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../../models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey } from '../../../fx/models';
+import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
 import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { ProcessLibraryLocalization } from '../../../loc/localize';
-import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { FilterDialog } from '../dialogs/FilterDialog';
-import { ProcessService, CurrentProcessStore, OPMRouter, OPMUtils } from '../../../../fx';
-import { LibrarySystemFieldsConstants, DefaultDateFormat } from '../../../Constants';
-import { DeletedDialog } from './DeleteDialog';
-import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
-import { ProcessDesignerStore } from '../../../../processdesigner/stores';
-import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
-import { DisplayModes } from '../../../../models/processdesigner';
-import { FiltersAndSorting } from '../../../filtersandsorting';
+import { ProcessLibraryLocalization } from '../../loc/localize';
+import { OPMCoreLocalization } from '../../../core/loc/localize';
+import { ProcessService } from '../../../fx';
+import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields } from '../../Constants';
+import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
-import { PublishDialog } from './PublishDialog';
-import { LibraryStore } from '../../../../stores';
-import { ApprovalPublishDialog } from './ApprovalPublishDialog';
-
+import { FilterDialog } from './dialogs/FilterDialog';
+import { LibraryStore } from '../../stores';
 declare var moment;
 
-interface DraftsViewProps {
+interface BaseListViewItemsProps {
     displaySettings: ProcessLibraryDisplaySettings;
+    versionType: ProcessVersionType;
+    processListViewComponentKey: ProcessListViewComponentKey;
 }
 
 @Component
-export class DraftsView extends VueComponentBase<DraftsViewProps>
+export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
+    @Prop() versionType: ProcessVersionType;
+    @Prop() processListViewComponentKey: ProcessListViewComponentKey;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
@@ -44,8 +40,6 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     @Inject(UserStore) private userStore: UserStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     @Inject(TermStore) private termStore: TermStore;
-    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
-    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(LibraryStore) libraryStore: LibraryStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
@@ -55,31 +49,18 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
-    openNewProcessDialog: boolean = false;
     selectedFilterColumn: EnterprisePropertyDefinition;
     filterOptions: Array<FilterOption> = [];
 
     refreshStatusInterval: any;
     isRefeshingStatuses: boolean = false;;
 
-    isCurrentUserCanAddDoc: boolean = true;
-    isLoadingContextMenu: boolean = false;
-    disableButtonEdit: boolean = false;
-    disableButtonPreview: boolean = false;
-    disableButtonSendForComments: boolean = false;
-    disableButtonPublish: boolean = false;
-    disableButtonWorkflowHistory: boolean = false;
-    disableButtonDelete: boolean = false;
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
 
-    openDeleteDialog: boolean = false;
-    openPublishDialog: boolean = false
-    openApprovalPublishDialog: boolean = false;
-
     request: FilterAndSortInfo;
     filterAndSortProcesses: FilterAndSortResponse = { total: 0, processes: [] };
-    allProcesses: Array<DraftProcess>;
+    allProcesses: Array<DisplayProcess>;
     selectedProcess: Process;
     pageTotal: number = 1;
     lcid: number = 1033;
@@ -101,7 +82,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
             }
         }, 5000);
         this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
-            if (!this.isRefeshingStatuses && versionType == ProcessVersionType.Draft) {
+            if (!this.isRefeshingStatuses && versionType == this.versionType) {
                 this.refreshStatus();
             }
         });
@@ -121,7 +102,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     private refreshStatus() {
         if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes)) {
             this.isRefeshingStatuses = true;
-            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.filterAndSortProcesses.processes.map(p => p.opmProcessId), ProcessVersionType.Draft)
+            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.filterAndSortProcesses.processes.map(p => p.opmProcessId), this.versionType)
                 .then(() => {
                     this.libraryStore.getters.processWorkingStatus(this.filterAndSortProcesses.processes);
                     this.isRefeshingStatuses = false;
@@ -139,9 +120,9 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
     }
 
     private loadProcesses() {
-        this.processService.getProcessesBySite(this.request.webUrl)
+        this.processService.getProcessesBySite(this.request.webUrl, this.versionType)
             .then((processes) => {
-                this.allProcesses = processes as Array<DraftProcess>;
+                this.allProcesses = processes as Array<DisplayProcess>;
                 this.allProcesses.forEach(p => p.sortValues = {});
                 let personFields = [];
                 let termSetIds = [];
@@ -240,11 +221,6 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     }
 
-    private openDeleteDraft(item: Process) {
-        this.selectedProcess = item;
-        this.openDeleteDialog = true;
-    }
-
     private isFilter(internalName: string) {
         return this.request.filters && this.request.filters[internalName] != null;
     }
@@ -256,24 +232,43 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
 
     private getEnterpriseProperty(internalName: string) {
         let field: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
-        if (internalName == LibrarySystemFieldsConstants.Title)
-            field = {
-                multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
-                    indexedType: PropertyIndexedType.Text
-                },
-                internalName: LibrarySystemFieldsConstants.Title
-            } as EnterprisePropertyDefinition;
+        if (field == null) {
+            switch (internalName) {
+                case LibrarySystemFieldsConstants.Title:
+                    field = {
+                        multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
+                            indexedType: PropertyIndexedType.Text
+                        },
+                        internalName: LibrarySystemFieldsConstants.Title
+                    } as EnterprisePropertyDefinition;
+                    break;
+                case ProcessLibraryFields.Edition:
+                    field = {
+                        multilingualTitle: this.coreLoc.Columns.Edition, enterprisePropertyDataType: {
+                            indexedType: PropertyIndexedType.Number
+                        },
+                        internalName: ProcessLibraryFields.Edition
+                    } as EnterprisePropertyDefinition;
+                    break;
+                case ProcessLibraryFields.Revision:
+                    field = {
+                        multilingualTitle: this.coreLoc.Columns.Revision, enterprisePropertyDataType: {
+                            indexedType: PropertyIndexedType.Number
+                        },
+                        internalName: ProcessLibraryFields.Revision
+                    } as EnterprisePropertyDefinition;
+                    break;
+                case ProcessLibraryFields.Published:
+                    field = {
+                        multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
+                            indexedType: PropertyIndexedType.DateTime
+                        },
+                        internalName: ProcessLibraryFields.Published
+                    } as EnterprisePropertyDefinition;
+                    break;
+            }
+        }
         return field;
-    }
-
-    private editProcess(process: DraftProcess) {
-        OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.normal)
-            .then(() => {
-                this.currentProcessStore.actions.checkOut.dispatch().then(() => {
-                    ProcessDesignerUtils.openProcessDesigner();
-                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-                })
-            })
     }
 
     private isErrorStatus(status: Enums.WorkflowEnums.ProcessWorkingStatus) {
@@ -287,52 +282,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         }
     }
 
-    renderPublishDialog(h) {
-        return (
-            <PublishDialog
-                closeCallback={() => { this.openPublishDialog = false; }}
-                process={this.selectedProcess}            >
-            </PublishDialog>
-        )
-    }
-
-    renderApprovalPublishDialog(h) {
-        return (
-            <ApprovalPublishDialog
-                closeCallback={() => { this.openApprovalPublishDialog = false; }}
-                process={this.selectedProcess}            >
-            </ApprovalPublishDialog>
-        )
-    }
-
-    renderDeleteDialog(h) {
-        return (
-            <DeletedDialog
-                closeCallback={(hasUpdate: boolean) => {
-                    this.openDeleteDialog = false;
-                    if (hasUpdate) {
-                        this.initProcesses();
-                    }
-                }}
-                opmProcessId={this.selectedProcess.opmProcessId}>
-            </DeletedDialog>
-        )
-    }
-
-    renderStatusText(h, item: DraftProcess) {
-        let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[item.processWorkingStatus]];
-        switch (item.processWorkingStatus) {
-            case Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval:
-                return <a onClick={() => {
-                    this.selectedProcess = item;
-                    this.openApprovalPublishDialog = true;
-                }}>{statusName}</a>;
-            default:
-                return statusName;
-        }
-    }
-
-    renderItems(h, item: DraftProcess) {
+    renderItems(h, item: DisplayProcess) {
         return (
             <tr onMouseover={() => { item.isMouseOver = true; this.$forceUpdate(); }} onMouseout={() => { item.isMouseOver = false; this.$forceUpdate(); }}>
                 {
@@ -341,51 +291,23 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                             case LibrarySystemFieldsConstants.Menu:
                                 return (
                                     <td class={this.listViewClasses.menuColumn}>
-                                        <v-menu close-delay="50"
-                                            {
-                                            ...this.transformVSlot({
-                                                activator: (ref) => {
-                                                    const toSpread = {
-                                                        on: ref.on
-                                                    }
-                                                    return [
-                                                        <v-button {...toSpread} icon class={this.listViewClasses.menuHeader} v-show={item.isMouseOver} onClick={() => {
-
-                                                        }}><v-icon>more_vert</v-icon></v-button>
-                                                    ]
-                                                }
-                                            })}>
-                                            <v-list>
-                                                <v-list-item onClick={() => { this.editProcess(item); }} disabled={this.isLoadingContextMenu || this.disableButtonEdit}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.Edit}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonPreview}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.Preview}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-divider></v-divider>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonSendForComments}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.SendForComments}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-list-item onClick={() => {
-                                                    this.selectedProcess = item;
-                                                    this.openPublishDialog = true;
-                                                }} disabled={this.isLoadingContextMenu || this.disableButtonPublish}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.Publish}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-divider></v-divider>
-                                                <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonWorkflowHistory}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-divider></v-divider>
-                                                <v-list-item onClick={() => { this.openDeleteDraft(item); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
-                                                    <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-menu>
+                                        {h(this.processListViewComponentKey.processMenuComponent, {
+                                            domProps: {
+                                                closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
+                                                process: item
+                                            }
+                                        })}
                                     </td>
                                 );
                             case LibrarySystemFieldsConstants.Status:
-                                return (<td class={this.isErrorStatus(item.processWorkingStatus) ? 'red--text' : ''}>{this.renderStatusText(h, item)}</td>)
+                                return (<td class={this.isErrorStatus(item.processWorkingStatus) ? 'red--text' : ''}>
+                                    {h(this.processListViewComponentKey.processingStatusComponent, {
+                                        domProps: {
+                                            closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
+                                            process: item
+                                        }
+                                    })}
+                                </td>)
                             case LibrarySystemFieldsConstants.Title:
                                 return (
                                     <td>
@@ -407,7 +329,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         let field = this.getEnterpriseProperty(internalName);
 
         return (
-            <th class={'text-left font-weight-bold'}    >
+            <th class={'text-left font-weight-bold'}>
                 <v-icon v-show={this.isFilter(internalName)} size='16' class="mr-1">fal fa-filter</v-icon>
                 <v-icon small v-show={this.request.sortBy == internalName && this.request.sortAsc == true}>arrow_upward</v-icon>
                 <v-icon small v-show={this.request.sortBy == internalName && this.request.sortAsc != true}>arrow_downward</v-icon>
@@ -486,7 +408,7 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         header: p => this.renderHeaders(h)
                     }}>
                     <div slot="no-data">
-                        {this.loc.Common.NoDraftItemToShow}
+                        {this.loc.ProcessNoItem[this.versionType]}
                     </div>
                 </v-data-table>
                 {
@@ -527,33 +449,21 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
         )
     }
 
-    renderNewProcessDialog(h) {
-        return (
-            <opm-new-process-dialog
-                closeCallback={(isUpdate: boolean) => {
-                    this.openNewProcessDialog = false;
-                    if (isUpdate) {
-                        this.initProcesses();
-                    }
-                }}
-            ></opm-new-process-dialog>
-        )
-    }
-
     render(h) {
         return (
             <div>
                 <v-toolbar flat color="white">
-                    <v-card-actions>
-                        {
-                            this.isCurrentUserCanAddDoc ?
-                                <v-btn text class="ml-2"
-                                    color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { this.openNewProcessDialog = true; }}>
-                                    {this.loc.Buttons.NewProcess}
-                                </v-btn> :
-                                null
-                        }
-                    </v-card-actions>
+                    {
+                        !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+                            <v-card-actions>
+                                {h(this.processListViewComponentKey.actionButtonComponent, {
+                                    domProps: {
+                                        closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); }
+                                    }
+                                })}
+                            </v-card-actions>
+                            : null
+                    }
                 </v-toolbar>
                 {
                     this.isLoading ?
@@ -561,10 +471,6 @@ export class DraftsView extends VueComponentBase<DraftsViewProps>
                         this.renderProcesses(h)
                 }
                 {this.openFilterDialog && this.renderFilterDialog(h)}
-                {this.openNewProcessDialog && this.renderNewProcessDialog(h)}
-                {this.openDeleteDialog && this.renderDeleteDialog(h)}
-                {this.openPublishDialog && this.renderPublishDialog(h)}
-                {this.openApprovalPublishDialog && this.renderApprovalPublishDialog(h)}
             </div>
         )
     }

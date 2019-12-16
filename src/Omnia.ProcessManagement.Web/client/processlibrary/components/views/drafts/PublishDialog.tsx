@@ -16,7 +16,7 @@ import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterpriseProper
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessTypeStore, OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
-import { LibraryStore } from '../../../../stores';
+import { LibraryStore } from '../../../stores';
 
 interface PublishDialogProps {
     process: Process;

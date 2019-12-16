@@ -100,6 +100,7 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibrarySettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
@@ -181,7 +182,7 @@
     <TypeScriptCompile Remove="client\fx\stores\ProcessTemplateStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
-    <TypeScriptCompile Remove="client\models\filters\DraftProcess.ts" />
+    <TypeScriptCompile Remove="client\models\filters\DisplayProcess.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterAndSortInfo.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterAndSortResponse.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterOption.ts" />
@@ -267,15 +268,22 @@
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayFileldTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\GeneralTab.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\BaseListViewItems.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\PublishDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\ApprovalPublishDialog.tsx" />
-    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsActionButtons.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsMenuActions.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsProcessingStatus.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\drafts\DraftsView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\IListView.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedMenuActions.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedProcessingStatus.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ApprovalTask.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\TasksView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
@@ -324,9 +332,9 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
-    <TypeScriptCompile Remove="client\stores\index.ts" />
-    <TypeScriptCompile Remove="client\stores\LibraryStore.ts" />
-    <TypeScriptCompile Remove="client\stores\ProcessDesignerStore.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\stores\index.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\stores\LibraryStore.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricImageShape.ts" />
@@ -348,7 +356,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\processlibrary\components\views\published\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -642,7 +649,7 @@
     <None Update="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\models\filters\DraftProcess.ts">
+    <None Update="client\models\filters\DisplayProcess.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\filtersandsorting\index.ts">

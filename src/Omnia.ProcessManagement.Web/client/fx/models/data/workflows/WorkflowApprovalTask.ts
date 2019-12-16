@@ -7,5 +7,5 @@ export interface WorkflowApprovalTask extends WorkflowTask {
     process: Process,
     responsible: boolean,
     assignedTo: User,
-    author: User,
+    author: User
 }

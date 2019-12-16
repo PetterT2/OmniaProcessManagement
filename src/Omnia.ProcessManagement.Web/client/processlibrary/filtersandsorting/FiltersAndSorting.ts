@@ -5,7 +5,7 @@ import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { LibrarySystemFieldsConstants } from '../Constants';
 import { TermStore } from '@omnia/fx-sp';
 import { ProcessLibraryLocalization } from '../loc/localize';
-import { FilterOption, DraftProcess, FilterAndSortInfo, FilterAndSortResponse } from '../../models';
+import { FilterOption, DisplayProcess, FilterAndSortInfo, FilterAndSortResponse } from '../../models';
 declare var moment;
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -87,7 +87,7 @@ export class FiltersAndSorting {
         return allTerms;
     }
 
-    public applyFiltersAndSort(processes: Array<DraftProcess>, request: FilterAndSortInfo, pageSize: number): FilterAndSortResponse {
+    public applyFiltersAndSort(processes: Array<DisplayProcess>, request: FilterAndSortInfo, pageSize: number): FilterAndSortResponse {
         let result: FilterAndSortResponse = {
             total: processes.length,
             processes: Utils.clone(processes)
@@ -107,8 +107,8 @@ export class FiltersAndSorting {
         return result;
     }
 
-    public getFilterOptions(processes: Array<DraftProcess>, internalName: string, filters: { [key: string]: Array<string> }) {
-        let tempProcesses: Array<DraftProcess> = Utils.clone(processes);
+    public getFilterOptions(processes: Array<DisplayProcess>, internalName: string, filters: { [key: string]: Array<string> }) {
+        let tempProcesses: Array<DisplayProcess> = Utils.clone(processes);
         tempProcesses = this.applySorting(tempProcesses, internalName, true);
         let filterOptions: Array<FilterOption> = [];
         let hasEmpty: boolean = false;
@@ -139,7 +139,7 @@ export class FiltersAndSorting {
         return filterOptions;
     }
 
-    private applySorting(processes: Array<DraftProcess>, sortBy: string, sortAsc: boolean) {
+    private applySorting(processes: Array<DisplayProcess>, sortBy: string, sortAsc: boolean) {
         if (!Utils.isNullOrEmpty(sortBy) && !Utils.isNullOrEmpty(sortAsc)) {
             if (sortBy == LibrarySystemFieldsConstants.Title) {
                 processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.multilingualTitle);

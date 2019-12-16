@@ -139,10 +139,13 @@ export class ProcessService {
         })
     }
 
-    public getProcessesBySite = (webUrl: string) => {
+    public getProcessesBySite = (webUrl: string, versionType: ProcessVersionType) => {
         return new Promise<Array<Process>>((resolve, reject) => {
-            let params = { webUrl: webUrl };
-            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/drafts`, { params: params }).then((response) => {
+            let params = {
+                webUrl: webUrl,
+                versionType: versionType
+            };
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/all`, { params: params }).then((response) => {
                 if (response.data.success) {
                     let processes = response.data.data;
                     this.generateClientSideData(processes);
