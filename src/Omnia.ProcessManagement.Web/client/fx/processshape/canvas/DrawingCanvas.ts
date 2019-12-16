@@ -3,6 +3,7 @@ import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFacto
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition } from '../../models';
+import { Utils } from '@omnia/fx';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -180,10 +181,12 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[drawingShape.shape.definition.shapeTemplate.name], drawingShape.shape.definition, drawingShape.shape.nodes, isActive, drawingShape.title, this.selectable, left, top);
+        let readyDrawingShape = Utils.clone(drawingShape);
+
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, isActive, readyDrawingShape.title, this.selectable, left, top);
         newShape.ready().then((result) => {
             if (result)
-                this.addShapeToCanvas(drawingShape, newShape);
+                this.addShapeToCanvas(readyDrawingShape, newShape);
         })
     }
 

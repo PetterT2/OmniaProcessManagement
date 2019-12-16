@@ -13,7 +13,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
     {
         public WorkflowRepository(OmniaPMDbContext databaseContext) : base(databaseContext) { }
 
-        public async ValueTask CompleteAsync(Guid id, Models.Workflows.TaskStatus status, WorkflowCompletedType completedType)
+        public async ValueTask CompleteAsync(Guid id, WorkflowCompletedType completedType)
         {
             var existingEntity = await _dbSet.AsTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -33,10 +33,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 
         public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId)
         {
-            var existingEntity = await _dbSet.Where(x => x.Process.OPMProcessId == opmProcessId && x.Process.ProcessWorkingStatus == Models.Processes.ProcessWorkingStatus.WaitingForApproval)
+            var existingEntity = await _dbSet.Where(x => x.DeletedAt == null && x.Process.OPMProcessId == opmProcessId && x.Process.ProcessWorkingStatus == Models.Processes.ProcessWorkingStatus.WaitingForApproval)
                 .OrderByDescending(p => p.ClusteredId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
             var model = MapEfToModel(existingEntity, true);
             return model;
+        }
+
+        public async ValueTask<Workflow> GetAsync(Guid workflowId)
+        {
+            var entity = await _dbSet.Where(w => w.Id == workflowId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
+            return MapEfToModel(entity, true);
         }
 
         private Workflow MapEfToModel(Entities.Workflows.Workflow entity, bool loadWorkflowTask = false)

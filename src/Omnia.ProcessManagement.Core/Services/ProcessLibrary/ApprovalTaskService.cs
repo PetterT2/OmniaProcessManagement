@@ -13,6 +13,7 @@ using Omnia.ProcessManagement.Models.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Omnia.Fx.Emails.HttpContract;
@@ -88,6 +89,22 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         }
 
+        public async ValueTask CancelApprovalTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl)
+        {
+            PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(webUrl);
+            List taskList = await SharePointListService.GetListByUrlAsync(userContext, OPMConstants.SharePoint.ListUrl.TaskList);
+            ListItem taskListItem = taskList.GetItemById(workflow.WorkflowTasks.FirstOrDefault().SPTaskId);
+            userContext.Load(taskListItem);
+            await userContext.ExecuteQueryAsync();
+            taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_Status] = Models.Workflows.TaskStatus.Cancel.ToString();
+            taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] = 1;
+            taskListItem.Update();
+            await userContext.ExecuteQueryAsync();
+
+            await SendCancellWorkflowEmail(userContext, workflow, process);
+            await WorkflowService.CompleteAsync(workflow.Id, WorkflowCompletedType.Cancelled);
+        }
+
         private async ValueTask SendForApprovalEmailAsync(PublishProcessWithApprovalRequest request, User approverUser, Fx.Models.Users.User currentUser, string processTitle, Dictionary<string, dynamic> keyValuePairs, int taskListItemId, uint lcid)
         {
             if (!string.IsNullOrEmpty(approverUser.Email))
@@ -122,6 +139,39 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 emailInfo.To = new List<string> { approverUser.Email };
                 emailInfo.LocalizationSetting.ApplyUserSetting(approverUser.Email);
                 await EmailService.SendEmailAsync(emailInfo);
+            }
+        }
+
+        private async ValueTask SendCancellWorkflowEmail(PortableClientContext context, Workflow workflow, Process process)
+        {
+            var currentUser = await UserService.GetCurrentUserAsync();
+            var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
+            lcid = lcid == null ? context.Web.Language : lcid;
+            LanguageTag language = currentUser.PreferredLanguage.HasValue ? currentUser.PreferredLanguage.Value : LanguageTag.EnUs;
+            string processTitle = process.RootProcessStep.Title[language] != null ? process.RootProcessStep.Title[language] : process.RootProcessStep.Title[LanguageTag.EnUs];
+
+            List<Fx.Models.Users.User> userApprovers = await UserService.GetByPrincipalNamesAsync(workflow.WorkflowTasks.Select(d => d.AssignedUser).ToList());
+            foreach (WorkflowTask WorkflowTask in workflow.WorkflowTasks)
+            {
+                Fx.Models.Users.User fxUser = userApprovers.FirstOrDefault(r => WorkflowTask.AssignedUser.ToLower().Equals(r.UserPrincipalName.ToLower()));
+
+                if (!string.IsNullOrEmpty(fxUser.Mail))
+                {
+                    var emailInfo = new EmailInfo();
+                    emailInfo.IsUsingUserPermision = true;
+                    emailInfo.Subject = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.SubjectLocalizedKey, lcid);
+                    string emailBody = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.BodyLocalizedKey, lcid);
+                    emailInfo.Body.Add(emailBody);
+
+                    emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
+                            { OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.Tokens.Approver,  string.Join(", ", userApprovers.Select(r => r.DisplayName)) },
+                            { OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.Tokens.Name,  processTitle }
+                        });
+
+                    emailInfo.To = new List<string> { fxUser.Mail };
+                    emailInfo.LocalizationSetting.ApplyUserSetting(fxUser.Mail);
+                    await EmailService.SendEmailAsync(emailInfo);
+                }
             }
         }
     }

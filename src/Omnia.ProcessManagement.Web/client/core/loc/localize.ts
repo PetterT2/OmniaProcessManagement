@@ -84,7 +84,10 @@
             DueDate: string,
             Approver: string,
             Name: string,
-            Email: string
+            Email: string,
+            AssignedTo: string,
+            CreatedBy: string,
+            Comment: string
         },
         Process: {
             Drawing: string,

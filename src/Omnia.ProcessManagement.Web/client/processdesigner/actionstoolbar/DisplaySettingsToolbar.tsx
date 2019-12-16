@@ -66,9 +66,9 @@ export class DisplaySettingsToolbarComponent extends tsx.Component<DisplaySettin
     }
 
     public render(h) {
-        if (!this.processDesignerStore.settings.itemIsCheckOut.state) {
-            return <div />
-        }
+        //if (!this.processDesignerStore.settings.itemIsCheckOut.state) {
+        //    return <div />
+        //}
 
         let compensateDrawerLeftCss = ""
         let compensateDrawerRightCss = ""

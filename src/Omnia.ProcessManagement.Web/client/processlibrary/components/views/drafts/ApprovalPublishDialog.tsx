@@ -10,12 +10,12 @@ import { UserService } from '@omnia/fx/services';
 import { SharePointContext } from '@omnia/fx-sp';
 import { Process, Workflow, WorkflowTask, Enums, ProcessVersionType } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
-import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { DefaultDateFormat } from '../../../Constants';
 import { OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
 import { LibraryStore } from '../../../../stores';
+import { ProcessLibraryStyles } from '../../../../models';
 declare var moment;
 
 interface PublishDialogProps {
@@ -50,7 +50,6 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
-    private listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles);
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
     private dialogModel: DialogModel = { visible: false };
     private headingStyle: typeof HeadingStyles = {
@@ -125,7 +124,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
         this.isCancelling = true;
         this.publishProcessService.cancelWorkflow(this.process.opmProcessId).then(() => {
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingCancelWorkflow(this.process.opmProcessId)
+            this.publishProcessService.processingCancelWorkflow(this.process.opmProcessId, this.currentApproval.id, this.spContext.pageContext.web.absoluteUrl)
                 .then(() => {
                     this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
                 })

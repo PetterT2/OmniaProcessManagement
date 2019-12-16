@@ -158,7 +158,7 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
         return (
             <v-app id="omnia-pm"
                 v-show={this.editorModel.visible}>
-                {(this.processDesignerStore.settings.displayMode.state === DisplayModes.contentPreview && this.processDesignerStore.settings.itemIsCheckOut.state)
+                {this.processDesignerStore.settings.displayMode.state === DisplayModes.contentPreview
                     ?
                     this.renderPreviewMode(h)
                     :

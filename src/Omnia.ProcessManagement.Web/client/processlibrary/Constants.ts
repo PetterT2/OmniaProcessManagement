@@ -4,7 +4,8 @@ export const UrlParameters = {
     get DisplayTab() { return "displaytab" },
     get Drafts() { return "drafts" },
     get Tasks() { return "tasks" },
-    get Published() { return "published" }   
+    get Published() { return "published" },
+    get TaskId() { return "taskid" }
 }
 
 export const LibrarySystemFieldsConstants = {

@@ -9,9 +9,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
     public interface IWorkflowRepository
     {
         ValueTask<Workflow> CreateAsync(Workflow workflow);
-
-        ValueTask CompleteAsync(Guid id, Models.Workflows.TaskStatus status, WorkflowCompletedType completedType);
-
+        ValueTask<Workflow> GetAsync(Guid workflowId);
+        ValueTask CompleteAsync(Guid id, WorkflowCompletedType completedType);
         ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId);
     }
 }

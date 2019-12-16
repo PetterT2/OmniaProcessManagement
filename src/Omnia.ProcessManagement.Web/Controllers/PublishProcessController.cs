@@ -123,13 +123,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("processingcancelworkflow/{opmProcessId:guid}")]
+        [HttpGet, Route("processingcancelworkflow/{opmProcessId}/{workflowId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId)
+        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, string webUrl)
         {
             try
             {
-                await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId);
+                await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId, workflowId, webUrl);
                 return ApiUtils.CreateSuccessResponse();
             }
             catch (Exception ex)

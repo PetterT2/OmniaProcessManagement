@@ -18,6 +18,11 @@
             FailedCancellingApproval: string,
             FailedPublishing: string
         },
+        TaskStatus: {
+            Cancel: string,
+            Completed: string,
+            NotStarted: string
+        },
         ProcessLibrarySettings: {
             Tabs: {
                 General: string,
@@ -82,7 +87,17 @@
             NoProcessTemplateValidation: string,
             MessageNobodyCanApprove: string,
             MessageUpdateProcessPropertiesBeforePublishing: string,
-            MessageNoItem: string
+            MessageNoItem: string,
+            MessageApprovalTaskEditingCompletedTask: string,
+            MessageApprovalTaskEditingCompletedTaskNoComment: string,
+            MessageRequireRejectComment: string,
+            MessageProcessOfTaskFailedToSendForApproval: string,
+            MessageFailedToCancelTask: string,
+            MessageTaskHasBeenCompletedOrCanceled: string,
+            TaskIsInProcessingStatus: string,
+            MessageTaskCancelledBySystem: string,
+            MessageApprovalTaskEditingDescription: string
+
         },
         ProcessType: string,
         ProcessTemplate: string,

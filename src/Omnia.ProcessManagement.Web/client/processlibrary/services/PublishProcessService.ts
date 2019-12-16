@@ -70,11 +70,12 @@ export class PublishProcessService {
         });
     }
 
-    public processingCancelWorkflow = (opmProcessId: GuidValue): Promise<void> => {
+    public processingCancelWorkflow = (opmProcessId: GuidValue, workflowId: GuidValue, webUrl: string): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/processingcancelworkflow/${opmProcessId}`).then(response => {
+            let params = { webUrl: webUrl };
+            this.httpClient.get<IHttpApiOperationResult<void>>(`/api/publish/processingcancelworkflow/${opmProcessId}/${workflowId}`, { params: params }).then(response => {
                 if (response.data.success) {
-                    resolve(response.data.data);
+                    resolve();
                 }
                 else reject(response.data.errorMessage)
             });

@@ -345,53 +345,27 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     private renderShapeSettings(h) {
         return <v-container>           
-            <v-row>
+            <v-row dense>
                 <v-col cols="6">
-                    <v-row>
-                        <v-col cols="12">
-                            <v-text-field filled v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
-                                onChange={this.updateCanvasSize} type="number" suffix="px"></v-text-field>
-                            <omfx-field-validation
-                                useValidator={this.internalValidator}
-                                checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).width}
-                                rules={new FieldValueValidation().IsRequired().getRules()}>
-                            </omfx-field-validation>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field filled v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
-                                onChange={this.updateCanvasSize} type="number" suffix="px"></v-text-field>
-                            <omfx-field-validation
-                                useValidator={this.internalValidator}
-                                checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).height}
-                                rules={new FieldValueValidation().IsRequired().getRules()}>
-                            </omfx-field-validation>
-                        </v-col>
-                    </v-row>
+                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
+                        onChange={this.updateDrawedShape} v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).textPosition}></v-select>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).textPosition}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
                 </v-col>
                 <v-col cols="6">
-                    <v-row>
-                        <v-col cols="12">
-                            <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                                onChange={this.updateDrawedShape} v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).textPosition}></v-select>
-                            <omfx-field-validation
-                                useValidator={this.internalValidator}
-                                checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).textPosition}
-                                rules={new FieldValueValidation().IsRequired().getRules()}>
-                            </omfx-field-validation>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                onChange={this.updateDrawedShape} type="number" suffix="px"></v-text-field>
-                            <omfx-field-validation
-                                useValidator={this.internalValidator}
-                                checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).fontSize}
-                                rules={new FieldValueValidation().IsRequired().getRules()}>
-                            </omfx-field-validation>
-                        </v-col>
-                    </v-row>
+                    <v-text-field v-model={(this.selectedShapeDefinition as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
+                        onChange={this.updateDrawedShape} type="number" suffix="px"></v-text-field>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.selectedShapeDefinition as DrawingShapeDefinition).fontSize}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
                 </v-col>
             </v-row>
-            <v-row>
+            <v-row dense>
                 <v-col cols="6">
                     <v-row>
                         <v-col cols="12">

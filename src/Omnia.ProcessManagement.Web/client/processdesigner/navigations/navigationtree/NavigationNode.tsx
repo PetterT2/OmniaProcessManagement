@@ -46,7 +46,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     private navigationNodeStyles = StyleFlow.use(NavigationNodeStyles);
-
+    private navigationNodeChangedTimewatchId: string = "processstep_navigationnodechanged_" + Utils.generateGuid();
     private isExpanded: boolean = false;
 
     created() {
@@ -70,7 +70,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             parentProcessStep.processSteps[currentProcessStepIndex] = temp;
         }
 
-        this.currentProcessStore.actions.saveState.dispatch(true);
+        this.processDesignerStore.actions.saveState.dispatch(this.navigationNodeChangedTimewatchId, true);
     }
 
 
@@ -99,7 +99,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                 //console.log('new nav');
 
                 //Ensure savestate before navigating to another process step
-                this.currentProcessStore.actions.saveState.dispatch().then(() => {
+                this.processDesignerStore.actions.saveState.dispatch(this.navigationNodeChangedTimewatchId).then(() => {
                     OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
                         this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                     });

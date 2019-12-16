@@ -8,7 +8,6 @@ export interface Workflow {
     processId: GuidValue,
     comment: string,
     dueDate: Date,
-    isCompleted: boolean,
     completedType: Enums.WorkflowEnums.WorkflowCompletedType,
     workflowTasks: Array<WorkflowTask>,
     canCancelByUser: boolean,

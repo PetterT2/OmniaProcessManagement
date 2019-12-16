@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Omnia.ProcessManagement.Models.Processes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,7 +14,6 @@ namespace Omnia.ProcessManagement.Models.Workflows
         WaitingOnSomeoneElse = 5,
         Cancel = 6
     }
-
     public enum TaskOutcome : byte
     {
         Approved = 1,
@@ -22,6 +22,22 @@ namespace Omnia.ProcessManagement.Models.Workflows
 
     public class WorkflowTask : AuditingInformation
     {
+        public WorkflowTask()
+        {
+        }
+        
+        public WorkflowTask(WorkflowTask workflowTask)
+        {
+            Id = workflowTask.Id;
+            WorkflowId = workflowTask.WorkflowId;
+            IsCompleted = workflowTask.IsCompleted;
+            Comment = workflowTask.Comment;
+            AssignedUser = workflowTask.AssignedUser;
+            SPTaskId = workflowTask.SPTaskId;
+            TaskOutcome = workflowTask.TaskOutcome;
+            Workflow = workflowTask.Workflow;
+        }
+
         public Guid Id { get; set; }
 
         public Guid WorkflowId { get; set; }
@@ -35,5 +51,7 @@ namespace Omnia.ProcessManagement.Models.Workflows
         public int SPTaskId { get; set; }
 
         public TaskOutcome TaskOutcome { get; set; }
+
+        public Workflow Workflow { get; set; }
     }
 }
