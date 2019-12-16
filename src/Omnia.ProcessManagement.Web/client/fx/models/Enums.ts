@@ -87,7 +87,7 @@
             SiteId = "SiteId",
             WebId = "WebId",
             OPMProcessId = "OPMProcessId",
-            SecurityResourceId = "SecurityResourceId"
+            SecurityResourceId = "ProcessSecurityResourceId"
         }
     }
 }
