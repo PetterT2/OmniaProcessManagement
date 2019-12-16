@@ -51,6 +51,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var workflow = await WorkflowService.GetAsync(workflowId);
             var process = await ProcessService.GetProcessByIdAsync(workflow.ProcessId);
             await ApprovalTaskService.CancelApprovalTaskAndSendEmailAsync(workflow, process, webUrl);
+            await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.Draft, Models.Enums.ProcessVersionType.Draft);
         }
 
         public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)

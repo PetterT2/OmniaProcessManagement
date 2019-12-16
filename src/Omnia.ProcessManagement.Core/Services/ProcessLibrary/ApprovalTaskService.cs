@@ -85,7 +85,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var addedWorkflow = await WorkflowService.CreateAsync(workflow);
             var workflowTask = await WorkflowTaskService.CreateAsync(addedWorkflow.Id, request.Approver.Uid, taskListItem.Id);
 
-            await SendForApprovalEmailAsync(request, approverUser, currentUser, processTitle, keyValuePairs, taskListItem.Id, lcid.Value);
+            await SendForApprovalEmailAsync(request, approverUser, currentUser, processTitle, keyValuePairs, taskListItem.Id);
 
         }
 
@@ -94,8 +94,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(webUrl);
             List taskList = await SharePointListService.GetListByUrlAsync(userContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = taskList.GetItemById(workflow.WorkflowTasks.FirstOrDefault().SPTaskId);
-            userContext.Load(taskListItem);
-            await userContext.ExecuteQueryAsync();
             taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_Status] = Models.Workflows.TaskStatus.Cancel.ToString();
             taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] = 1;
             taskListItem.Update();
@@ -117,19 +115,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 it => it[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete],
                 it => it[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome]);
             await userContext.ExecuteQueryAsync();
-
-            string taskOutcomeText = "";
-            var currentUser = await UserService.GetCurrentUserAsync();
-            var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
-            lcid = lcid == null ? userContext.Web.Language : lcid;
-            if (approvalTask.TaskOutcome == TaskOutcome.Approved)
-                taskOutcomeText = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ApprovedText, lcid);
-            else taskOutcomeText = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ApprovedText, lcid);
-
+           
             taskItem[OPMConstants.SharePoint.SharePointFields.Fields_Status] = Models.Workflows.TaskStatus.Completed.ToString();
             taskItem[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] = 1;
             taskItem[OPMConstants.SharePoint.OPMFields.Fields_Comment] = approvalTask.Comment;
-            taskItem[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome] = taskOutcomeText;
+            taskItem[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome] = approvalTask.TaskOutcome;
             taskItem.Update();
             await userContext.ExecuteQueryAsync();
         }
@@ -143,21 +133,21 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         }
 
         #region Utils
-        private async ValueTask SendForApprovalEmailAsync(PublishProcessWithApprovalRequest request, User approverUser, Fx.Models.Users.User currentUser, string processTitle, Dictionary<string, dynamic> keyValuePairs, int taskListItemId, uint lcid)
+        private async ValueTask SendForApprovalEmailAsync(PublishProcessWithApprovalRequest request, User approverUser, Fx.Models.Users.User currentUser, string processTitle, Dictionary<string, dynamic> keyValuePairs, int taskListItemId)
         {
             if (!string.IsNullOrEmpty(approverUser.Email))
             {
                 string taskUrl = string.Format(OPMConstants.OPMPages.ApprovalTaskUrl, request.WebUrl, taskListItemId);
-                string emailTemplate = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyLocalizedKey, lcid);
+                string emailTemplate = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyLocalizedKey;
                 string previewProcessLink = string.Format(OPMConstants.EmailTemplates.LinkHtmlTemplate, string.Format(OPMConstants.OPMPages.ProcessPreviewUrl, request.WebUrl), processTitle);
 
                 if (!string.IsNullOrEmpty(request.Comment))
                 {
-                    emailTemplate += await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.ApprovalEditionCommentTemplateKey, lcid);
+                    emailTemplate += OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.ApprovalEditionCommentTemplateKey;
                 }
                 var emailInfo = new EmailInfo();
                 emailInfo.IsUsingUserPermision = true;
-                emailInfo.Subject = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectLocalizedKey, lcid);
+                emailInfo.Subject = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectLocalizedKey;
                 emailInfo.Body.Add(emailTemplate);
 
                 emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
@@ -183,8 +173,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         private async ValueTask SendCancellWorkflowEmail(PortableClientContext context, Workflow workflow, Process process)
         {
             var currentUser = await UserService.GetCurrentUserAsync();
-            var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
-            lcid = lcid == null ? context.Web.Language : lcid;
             LanguageTag language = currentUser.PreferredLanguage.HasValue ? currentUser.PreferredLanguage.Value : LanguageTag.EnUs;
             string processTitle = process.RootProcessStep.Title[language] != null ? process.RootProcessStep.Title[language] : process.RootProcessStep.Title[LanguageTag.EnUs];
 
@@ -197,8 +185,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 {
                     var emailInfo = new EmailInfo();
                     emailInfo.IsUsingUserPermision = true;
-                    emailInfo.Subject = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.SubjectLocalizedKey, lcid);
-                    string emailBody = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.BodyLocalizedKey, lcid);
+                    emailInfo.Subject = OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.SubjectLocalizedKey;
+                    string emailBody = OPMConstants.EmailTemplates.CancelApprovalEmailTemplate.BodyLocalizedKey;
                     emailInfo.Body.Add(emailBody);
 
                     emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
@@ -216,8 +204,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         private async ValueTask SendCompletedEmailAsync(PortableClientContext context, WorkflowApprovalTask task)
         {
             var currentUser = await UserService.GetCurrentUserAsync();
-            var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
-            lcid = lcid == null ? context.Web.Language : lcid;
             LanguageTag language = currentUser.PreferredLanguage.HasValue ? currentUser.PreferredLanguage.Value : LanguageTag.EnUs;
             string processTitle = task.Process.RootProcessStep.Title[language] != null ? task.Process.RootProcessStep.Title[language] : task.Process.RootProcessStep.Title[LanguageTag.EnUs];
             string emailTemplate = string.Empty;
@@ -226,18 +212,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 if (!string.IsNullOrEmpty(task.Comment))
                 {
-                    emailTemplate = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyApprovalKey, lcid);
+                    emailTemplate = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyApprovalKey;
                 }
                 else
                 {
-                    emailTemplate = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyApprovalNoCommentKey, lcid);
+                    emailTemplate = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyApprovalNoCommentKey;
                 }
-                emailTitle = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectApprovalKey, lcid);
+                emailTitle = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectApprovalKey;
             }
             else
             {
-                emailTemplate = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyRejectKey, lcid);
-                emailTitle = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectRejectKey, lcid);
+                emailTemplate = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyRejectKey;
+                emailTitle = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectRejectKey;
             }
 
             if (task.Author != null && !string.IsNullOrEmpty(task.Author.Mail))
