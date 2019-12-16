@@ -10,5 +10,6 @@ Composer
             './filtersandsorting/**/*.js',
             './loc/**/*.js',
             './factory/**/*.js',
+            './stores/**/*.js',
         ]
     })

@@ -24,6 +24,11 @@ export class OPMWebComponentManifests {
     public static get ProcessLibrarySettings(): Guid { return new Guid('0eae69fb-381a-445a-9593-69ad5176e1ca'); }
     public static get ProcessLibraryListView(): Guid { return new Guid('b507c023-ddd4-40e2-bffc-2ed4c80c9557'); }
     public static get NewProcessDialog(): Guid { return new Guid('b466768f-c8b7-4bfd-ab56-4b16ca9b9fcd'); }
+    public static get DraftActionButtons(): Guid { return new Guid('71c66827-46b0-4fc1-b30f-593b7c88f7e3'); }
+    public static get DraftMenuActions(): Guid { return new Guid('1682ae90-f19f-4440-adc0-134746eee6c1'); }
+    public static get DraftProcessingStatus(): Guid { return new Guid('cde5a81e-7ca7-4a30-9d2d-9084499ec68e'); }
+    public static get PublishedMenuActions(): Guid { return new Guid('54023b5d-2ce5-4e68-89cf-defc4ff6a327'); }
+    public static get PublishedProcessingStatus(): Guid { return new Guid('bdfb6a67-ca86-481c-a7a0-a3caaf9f685e'); }
 
 
     public static get GlobalProcessRenderer(): Guid { return new Guid('a7b2e5ed-a754-41ca-afae-f32325abb91e'); }

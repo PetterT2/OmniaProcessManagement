@@ -2,10 +2,13 @@
     export const namespace = "OPM.ProcessLibrary";
     export interface locInterface {
         Common: {
-            NoDraftItemToShow: string,
             Yes: string,
             No: string,
             Send: string
+        },
+        ProcessNoItem: {
+            Draft: string,
+            Published: string
         },
         ProcessStatuses: {
             Draft: string,
@@ -67,7 +70,13 @@
             Publish: string,
             WorkflowHistory: string,
             DeleteDraft: string,
-            PreviewProcess: string
+            PreviewProcess: string,
+            CreateDraft: string,
+            ViewProcess: string,
+            ExportProcess: string,
+            ProcessHistory: string,
+            MoveProcess: string,
+            UnpublishProcess: string
         },
         SortText: {
             Direction: string,
@@ -96,7 +105,7 @@
             MessageTaskHasBeenCompletedOrCanceled: string,
             TaskIsInProcessingStatus: string,
             MessageTaskCancelledBySystem: string,
-            MessageApprovalTaskEditingDescription: string
+            MessageApprovalTaskEditingDescription: string,
 
         },
         ProcessType: string,

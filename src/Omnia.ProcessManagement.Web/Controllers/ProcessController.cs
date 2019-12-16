@@ -280,9 +280,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("drafts")]
+        [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetDraftProcessesDataAsync(string webUrl)
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
         {
             try
             {

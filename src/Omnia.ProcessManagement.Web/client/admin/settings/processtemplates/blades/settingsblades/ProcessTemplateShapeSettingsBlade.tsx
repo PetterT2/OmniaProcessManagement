@@ -79,7 +79,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     height: 230,
                     drawingShapes: []
                 });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, 50, 50);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false);
             }
         }, 500)
     }

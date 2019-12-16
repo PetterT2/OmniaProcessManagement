@@ -79,9 +79,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId)
+        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
         {
-            return await ProcessRepository.GetDraftProcessesAsync(siteId, webId);
+            return await ProcessRepository.GetProcessesDataAsync(siteId, webId, versionType);
         }
 
         public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)

@@ -28,9 +28,11 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
+    private isLoading = false;
 
     created() {
+        this.isLoading = true
+        setTimeout(() => { this.isLoading = false; }, 100)
     }
 
     beforeDestroy() {
@@ -44,7 +46,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
         var newContent = JSON.stringify(content);
         if (currentContent != newContent) {
             referenceData.current.processData.content = JSON.parse(JSON.stringify(content));
-            this.processDesignerStore.actions.saveState.dispatch(this.contentChangedTimewatchId);
+            this.processDesignerStore.actions.saveState.dispatch();
         }
     }
 
@@ -56,12 +58,15 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
         let referenceData = this.currentProcessStore.getters.referenceData();
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                <omfx-multilingual-input
-                    multipleLines={true}
-                    richText={true}
-                    model={referenceData.current.processData.content}
-                    onModelChange={(content) => { this.onContentChanged(content); }}
-                    forceTenantLanguages></omfx-multilingual-input>
+                {
+                    this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="paragraph"></v-skeleton-loader> :
+                        <omfx-multilingual-input
+                            multipleLines={true}
+                            richText={true}
+                            model={referenceData.current.processData.content}
+                            onModelChange={(content) => { this.onContentChanged(content); }}
+                            forceTenantLanguages></omfx-multilingual-input>
+                }
             </v-card-text>
         </v-card>)
     }

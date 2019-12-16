@@ -1,6 +1,6 @@
-﻿import { DraftProcess } from './DraftProcess';
+﻿import { DisplayProcess } from './DisplayProcess';
 
 export interface FilterAndSortResponse {
     total: number,
-    processes: Array<DraftProcess>
+    processes: Array<DisplayProcess>
 }

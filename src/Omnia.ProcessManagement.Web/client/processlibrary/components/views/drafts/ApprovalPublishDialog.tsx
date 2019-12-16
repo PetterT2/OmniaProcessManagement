@@ -14,7 +14,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { DefaultDateFormat } from '../../../Constants';
 import { OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
-import { LibraryStore } from '../../../../stores';
+import { LibraryStore } from '../../../stores';
 import { ProcessLibraryStyles } from '../../../../models';
 declare var moment;
 

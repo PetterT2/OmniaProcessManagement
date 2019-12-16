@@ -36,6 +36,7 @@ export class ProcessDesignerStore extends Store {
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     private hasDataChanged = this.state<boolean>(null);
+    private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
     //public rootProcessReferenceData: ProcessReferenceData = null;
     //private editedProcessReferences: {
@@ -201,15 +202,16 @@ export class ProcessDesignerStore extends Store {
                 this.recentShapeSelections.mutate(recentShapeDefinitions);
             });
         }),
-        saveState: this.action((timeWatchId: string, refreshContentNavigation?: boolean): Promise<null> => {
+        saveState: this.action((timewatch: boolean = true, refreshContentNavigation?: boolean): Promise<null> => {
             return new Promise<null>((resolve, reject) => {
+                let timewatchDuration = timewatch ? 2000 : 0;
                 this.mutations.setHasDataChangedState.commit(true);
-                Utils.timewatch(timeWatchId, () => {
+                Utils.timewatch(this.contentChangedTimewatchId, () => {
                     this.currentProcessStore.actions.saveState.dispatch().then(() => {
                         this.mutations.setHasDataChangedState.commit(false);
                         resolve();
                     }).catch(reject);
-                }, 2000);
+                }, timewatchDuration);
             })
         })
     }
