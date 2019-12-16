@@ -25,5 +25,10 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
         {
             return await WorkflowTaskRepository.GetAsync(spItemId, siteId, webId);
         }
+
+        public async ValueTask CompletedTask(Guid id, string comment, TaskOutcome taskOutCome)
+        {
+            await WorkflowTaskRepository.SetCompletedTask(id, comment, taskOutCome);
+        }
     }
 }

@@ -10,6 +10,7 @@ using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Models.Users;
+using Omnia.Fx.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
@@ -30,17 +31,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
         IProcessLibraryService ProcessLibraryService { get; }
         IProcessService ProcessService { get; }
         IOmniaContext OmniaContext { get; }
+        IUserService UserService { get; }
 
         public TaskController(ILogger<ProcessController> logger,
             IWorkflowTaskService workflowTaskService,
             IProcessService processService,
             IProcessLibraryService processLibraryService,
+            IUserService userService,
             IOmniaContext omniaContext)
         {
             WorkflowTaskService = workflowTaskService;
             ProcessLibraryService = processLibraryService;
             ProcessService = processService;
             OmniaContext = omniaContext;
+            UserService = userService;
             Logger = logger;
         }
 
@@ -55,7 +59,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var workflowTask = await WorkflowTaskService.GetAsync(spItemId, site.Item1, site.Item2);
                 var workflowApprovalTask = new WorkflowApprovalTask(workflowTask);
                 workflowApprovalTask.Process = await ProcessService.GetProcessByIdAsync(workflowTask.Workflow.ProcessId);
-                workflowApprovalTask.Responsible = workflowTask.Workflow.CreatedBy.Equals(OmniaContext.Identity.LoginName);
+                workflowApprovalTask.Responsible = workflowTask.AssignedUser.Equals(OmniaContext.Identity.LoginName);
+                var users = await UserService.GetByPrincipalNamesAsync(new List<string> { workflowTask.AssignedUser, workflowTask.CreatedBy });
+                workflowApprovalTask.AssignedTo = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.AssignedUser);
+                workflowApprovalTask.Author = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.CreatedBy);
+                workflowApprovalTask.WebUrl = webUrl;
                 return workflowApprovalTask.AsApiResponse();
             }
             catch (Exception ex)
