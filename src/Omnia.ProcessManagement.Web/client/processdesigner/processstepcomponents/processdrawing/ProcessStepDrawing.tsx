@@ -37,7 +37,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private tempInterval = null;
     private canvasDefinition: CanvasDefinition = null;
-    private drawingChangedTimewatchId: string = "processstep_drawingchanged_" + Utils.generateGuid();
     
     created() {
         this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChange.subscribe(this.onCanvasDefinitionChanged);
@@ -100,7 +99,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (isShapeChanged) {
             this.canvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
         }
-        this.processDesignerStore.actions.saveState.dispatch(this.drawingChangedTimewatchId);
+        this.processDesignerStore.actions.saveState.dispatch();
     }
 
     private renderPanels(h) {
