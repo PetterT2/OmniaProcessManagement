@@ -75,12 +75,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 var process = await ProcessService.GetProcessByIdAsync(request.ProcessId);
                 await ProcessSecurityService.AddOrUpdateOPMApproverPermissionAsync(request.OPMProcessId, request.Approver.Uid);
                 await ApprovalTaskService.AddApprovalTaskAndSendEmailAsync(request, process);
-                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.WaitingForApproval, Models.Enums.ProcessVersionType.Draft);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.WaitingForApproval, ProcessVersionType.Draft);
             }
             catch (Exception ex)
             {
                 await ProcessSecurityService.RemoveOPMApproverPermissionAsync(request.OPMProcessId);
-                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, ProcessVersionType.Draft);
                 throw;
             }
         }
@@ -113,6 +113,14 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             try
             {
                 var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(approvalTask.Process.TeamAppId);
+
+                //TODO : Update to be more secure
+                //Should NOT based on the value send from the client-side. 
+                //i.e. this WorkflowTask could not belongs to the current user
+                //i.e. this WorkflowTask could not be a Approval Workflow task
+                //===> We should get the data directly from dbs with correct query
+
+
                 await ApprovalTaskService.CompleteWorkflowAsync(approvalTask, webUrl);
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
@@ -131,16 +139,23 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             try
             {
                 var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(approvalTask.Process.TeamAppId);
+
+                //TODO : Update to be more secure
+                //Should NOT based on the value send from the client-side. 
+                //i.e. the approver could change IsLimitedAccess, LimitedUsers settings => no secure
+                //===> We should get the data directly from dbs with correct query
+
+
                 await ApprovalTaskService.CompletedApprovalTaskAndSendEmail(approvalTask, webUrl);
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
-                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Published, Models.Enums.ProcessVersionType.Draft);
+                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Published, ProcessVersionType.Draft);
                     var approvalData = approvalTask.Workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
                     var securityResourceId = await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(approvalTask.Process.TeamAppId, approvalTask.Process.OPMProcessId, GetLimitedUsers(approvalData.IsLimitedAccess, approvalData.LimitedUsers));
                     await ProcessService.PublishProcessAsync(approvalTask.Process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
                 }
                 else
-                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Draft, Models.Enums.ProcessVersionType.Draft);
+                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Draft, ProcessVersionType.Draft);
             }
             catch (Exception ex)
             {
