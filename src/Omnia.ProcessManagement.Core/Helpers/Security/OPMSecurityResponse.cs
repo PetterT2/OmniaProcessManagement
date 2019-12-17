@@ -220,7 +220,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 isAuthorized = identityRoles.Any(
                     roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
             }
-            return isAuthorized || true; //TODO - remove true here when finish;
+            return isAuthorized;// || true; //TODO - remove true here when finish;
         }
 
         private void EnsureRole(string roleIdString, params ProcessVersionType[] versionTypes)
@@ -245,7 +245,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         private bool CheckVersionTypesInEnsuringRole(params ProcessVersionType[] versionTypes)
         {
             var isValid = true;
-            if (versionTypes != null && versionTypes.Length > 0)
+            if (versionTypes.Length > 0)
             {
                 isValid = versionTypes.Contains(Process.VersionType);
             }

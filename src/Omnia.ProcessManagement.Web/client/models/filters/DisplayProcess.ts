@@ -1,6 +1,6 @@
-﻿import { ProcessWithAuditing } from '../../fx/models';
+﻿import { Process } from '../../fx/models';
 
-export interface DisplayProcess extends ProcessWithAuditing {
+export interface DisplayProcess extends Process {
     sortValues: { [key: string]: any };
     isMouseOver?: boolean;
 }

@@ -17,5 +17,9 @@ namespace Omnia.ProcessManagement.Models.Processes
         public Guid TeamAppId { get; set; }
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public string SecurityResourceId { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset ModifiedAt { get; set; }
     }
 }

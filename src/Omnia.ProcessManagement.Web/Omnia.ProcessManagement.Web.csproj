@@ -116,9 +116,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\Link.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
@@ -410,9 +408,6 @@
     <None Update="client\fx\models\components\index.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\processes\ProcessWithAuditing.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\data\workflows\index.ts">
       <SubType>Code</SubType>
     </None>
@@ -492,9 +487,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processactions\ProcessActionModel.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processes\ProcessDataWithAuditing.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\RootProcessStep.ts">

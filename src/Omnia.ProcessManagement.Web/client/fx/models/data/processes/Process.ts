@@ -12,7 +12,10 @@ export interface Process {
     teamAppId: GuidValue;
     webId: GuidValue;
     processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus;
-
+    createdBy: string;
+    modifiedBy: string;
+    createAt: Date;
+    modifiedAt: Date;
     //client-side
     readonly isCheckedOutByCurrentUser: boolean;
 }

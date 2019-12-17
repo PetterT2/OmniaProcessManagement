@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep, Enums, ProcessWithAuditing } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -100,8 +100,8 @@ export class ProcessService {
     }
 
     public getProcessData = (processStepId: GuidValue, hash: string, versionType: ProcessVersionType) => {
-        return new Promise<ProcessDataWithAuditing>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}/${versionType}`).then((response) => {
+        return new Promise<ProcessData>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessData>>(`/api/processes/processdata/${processStepId}/${hash}/${versionType}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -139,13 +139,30 @@ export class ProcessService {
         })
     }
 
-    public getProcessesBySite = (teamAppId: GuidValue, versionType: ProcessVersionType) => {
-        return new Promise<Array<ProcessWithAuditing>>((resolve, reject) => {
+    public getDraftProcessesBySite = (teamAppId: GuidValue) => {
+        return new Promise<Array<Process>>((resolve, reject) => {
             let params = {
-                teamAppId: teamAppId,
-                versionType: versionType
+                teamAppId: teamAppId
             };
-            this.httpClient.get<IHttpApiOperationResult<Array<ProcessWithAuditing>>>(`/api/processes/all`, { params: params }).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/drafts`, { params: params }).then((response) => {
+                if (response.data.success) {
+                    let processes = response.data.data;
+                    this.generateClientSideData(processes);
+                    resolve(processes);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public getLatestPublishedProcessesBySite = (teamAppId: GuidValue) => {
+        return new Promise<Array<Process>>((resolve, reject) => {
+            let params = {
+                teamAppId: teamAppId
+            };
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/latestpublished`, { params: params }).then((response) => {
                 if (response.data.success) {
                     let processes = response.data.data;
                     this.generateClientSideData(processes);

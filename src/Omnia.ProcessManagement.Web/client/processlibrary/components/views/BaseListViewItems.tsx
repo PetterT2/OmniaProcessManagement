@@ -121,36 +121,39 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadProcesses() {
-        this.processService.getProcessesBySite(this.request.teamAppId, this.versionType)
-            .then((processes) => {
-                this.allProcesses = processes as Array<DisplayProcess>;
-                this.allProcesses.forEach(p => p.sortValues = {});
-                let personFields = [];
-                let termSetIds = [];
-                this.displaySettings.selectedFields.forEach(f => {
-                    let field = this.getEnterpriseProperty(f);
-                    if (field) {
-                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
-                            personFields.push(f);
-                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
-                            termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
-                    }
-                })
-                let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
-                let promises: Array<Promise<any>> = [
-                    this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
-                ];
-                termSetIds.forEach(t => {
-                    promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
-                })
+        let getProcesses = () => this.versionType == ProcessVersionType.Draft ?
+            this.processService.getDraftProcessesBySite(this.request.teamAppId) :
+            this.processService.getLatestPublishedProcessesBySite(this.request.teamAppId)
 
-                Promise.all(promises).then((result) => {
-                    this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
-                    this.applyFilterAndSort();
-                });
-            }).catch(() => {
-                this.isLoading = false;
+        getProcesses().then((processes) => {
+            this.allProcesses = processes as Array<DisplayProcess>;
+            this.allProcesses.forEach(p => p.sortValues = {});
+            let personFields = [];
+            let termSetIds = [];
+            this.displaySettings.selectedFields.forEach(f => {
+                let field = this.getEnterpriseProperty(f);
+                if (field) {
+                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
+                        personFields.push(f);
+                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
+                        termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
+                }
+            })
+            let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
+            let promises: Array<Promise<any>> = [
+                this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
+            ];
+            termSetIds.forEach(t => {
+                promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
+            })
+
+            Promise.all(promises).then((result) => {
+                this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
+                this.applyFilterAndSort();
             });
+        }).catch(() => {
+            this.isLoading = false;
+        });
     }
 
     private initProcesses() {

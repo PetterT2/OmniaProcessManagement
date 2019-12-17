@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessDataWithAuditing, ProcessReference, ProcessReferenceData } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData } from '../models';
 import { OPMUtils } from '../utils';
 
 
@@ -11,7 +11,7 @@ interface ProcessDict {
 }
 
 interface ProcessDataDict {
-    [processDataIdAndHash: string]: ProcessDataWithAuditing
+    [processDataIdAndHash: string]: ProcessData
 }
 
 interface ProcessStepIdAndProcessIdDict {
@@ -151,7 +151,7 @@ export class ProcessStore extends Store {
                             let processCacheKey = this.getProcessCacheKey(processReference.processId);
                             let process = this.processDict.state[processCacheKey];
 
-                            let promises: Array<Promise<ProcessDataWithAuditing>> = [];
+                            let promises: Array<Promise<ProcessData>> = [];
 
                             promises.push(this.ensureProcessData(process, processReference.processStepId));
 
@@ -226,7 +226,7 @@ export class ProcessStore extends Store {
                 resolvablePromise.resolve(null);
             }
         },
-        addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessDataWithAuditing) => {
+        addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessData) => {
             let currentState = this.processDataDict.state;
             let newKey = this.getProcessDataCacheKey(processId, processStep.id);
             let newState = Object.assign({}, currentState, { [newKey]: processData });
@@ -274,8 +274,8 @@ export class ProcessStore extends Store {
         return resolvablePromise.promise;
     }
 
-    private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessDataWithAuditing> => {
-        let promise: Promise<ProcessDataWithAuditing> = null;
+    private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessData> => {
+        let promise: Promise<ProcessData> = null;
 
         let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
 

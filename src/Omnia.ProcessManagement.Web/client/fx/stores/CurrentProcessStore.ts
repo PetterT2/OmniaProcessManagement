@@ -2,7 +2,7 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessDataWithAuditing } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict } from '../models';
 import { OPMUtils } from '../utils';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
@@ -270,7 +270,7 @@ export class CurrentProcessStore extends Store {
                         documents: null,
                         links: null,
                         tasks: null
-                    }
+                    } as ProcessData
 
                     if (!currentProcessReferenceData.current.processStep.processSteps) {
                         currentProcessReferenceData.current.processStep.processSteps = [];

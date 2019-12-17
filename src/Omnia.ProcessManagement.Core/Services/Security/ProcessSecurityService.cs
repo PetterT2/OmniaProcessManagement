@@ -1,4 +1,6 @@
-﻿using Omnia.Fx.Contexts;
+﻿using Omnia.Fx.Apps.Helpers;
+using Omnia.Fx.Caching;
+using Omnia.Fx.Contexts;
 using Omnia.Fx.Contexts.Scoped;
 using Omnia.Fx.Models.Security;
 using Omnia.Fx.Models.Users;
@@ -10,6 +12,7 @@ using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,24 +23,28 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     internal class ProcessSecurityService : IProcessSecurityService
     {
+        private const string UserAuthorizedResources = "UserAuthorizedResources";
+
         IRoleService RoleService { get; }
         ISecurityProvider SecurityProvider { get; }
         IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
         IOmniaContext OmniaContext { get; }
         IProcessRepository ProcessRepository { get; }
-
+        IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
         public ProcessSecurityService(
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
             IOmniaContext omniaContext,
             IProcessRepository processRepository,
-            IRoleService roleService)
+            IRoleService roleService,
+            IOmniaMemoryDependencyCache omniaMemoryDependencyCache)
         {
             DynamicScopedContextProvider = dynamicScopedContextProvider;
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
             ProcessRepository = processRepository;
             RoleService = roleService;
+            CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
         public IOPMSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)
@@ -67,6 +74,25 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         {
             var process = await ProcessRepository.GetInternalProcessByProcessIdAsync(processId);
             return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+        }
+
+        public async ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync()
+        {
+            var identity = OmniaContext.Identity.LoginName.ToLower();
+            var cacheKey = CacheHelper.CreateKey(UserAuthorizedResources, identity.ToLower());
+            var result = await CacheHelper.Instance.GetOrSetDependencyCacheAsync(cacheKey, async (cacheEntry) =>
+            {
+                var permissionBindingsCache = await SecurityProvider.EnsurePermissionBindingsByRolesCacheAsync(identity, SecurityTrimmingHelper.Roles());
+
+                cacheEntry.Dependencies.Add(permissionBindingsCache);
+
+                var resources = permissionBindingsCache.Value
+                    .GroupBy(b => b.RoleId)
+                    .ToDictionary(group => group.Key, items => items.Select(b => b.Resource).Distinct().ToList());
+                return GetUserAuthorizedResource(resources);
+            });
+            
+            return result.Value;
         }
 
         public async ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null)
@@ -135,6 +161,50 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             readerHandler.AddUsers(userLoginNames);
 
             await RoleService.UpdatePermissionBindingsForCurrentExtensionAsync(permissionBindingsUpdateInput);
+        }
+
+        private UserAuthorizedResource GetUserAuthorizedResource(IDictionary<Guid, List<string>> resources)
+        {
+            var result = new UserAuthorizedResource();
+            if (resources != null)
+            {
+                foreach (var roleId in resources.Keys)
+                {
+                    var roleIdAsString = roleId.ToString().ToLower();
+                    switch (roleIdAsString)
+                    {
+                        case OPMConstants.Security.Roles.Reader:
+                            result.LatestPublishedSecurityResourceIds.AddRange(SecurityResourceIdResourceHelper.ParseSecurityResourceIds(resources[roleId]));
+                            break;
+                        case OPMConstants.Security.Roles.Approver:
+                            result.ApproveOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
+                            break;
+                        case OPMConstants.Security.Roles.Reviewer:
+                            result.ReviewOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
+                            break;
+                        case OPMConstants.Security.Roles.Author:
+                            result.AuthorTeamAppIds.AddRange(ParseTeamAppIds(resources[roleId]));
+                            break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        private List<Guid> ParseTeamAppIds(List<string> resources)
+        {
+            var result = new List<Guid>();
+            foreach (var resource in resources)
+            {
+                if (AppInstanceResourceHelper.TryParseAppInstanceId(resource, out Guid publishingAppId))
+                {
+                    result.Add(publishingAppId);
+                }
+            }
+
+            result = result.Distinct().ToList();
+            
+            return result;
         }
     }
 }

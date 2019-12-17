@@ -2,6 +2,7 @@
 using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.Security;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,8 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
+
+        ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
 
         /// <summary>
         /// 

@@ -11,6 +11,8 @@ using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
+using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
@@ -179,7 +181,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("processdata/{processStepId:guid}/{hash}/{versionType:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessDataWithAuditing>> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             try
             {
@@ -188,7 +190,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.Draft)
                     .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
@@ -210,7 +212,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<ProcessDataWithAuditing>(ex);
+                return ApiUtils.CreateErrorResponse<ProcessData>(ex);
             }
         }
 
@@ -282,19 +284,41 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("all")]
+        [HttpGet, Route("drafts")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<ProcessWithAuditing>>> GetProcessesAsync(ProcessVersionType versionType, Guid teamAppId)
+        public async ValueTask<ApiResponse<List<Process>>> GetDraftProcessesAsync(Guid teamAppId)
         {
             try
             {
-                var processesData = await ProcessService.GetProcessesAsync(teamAppId, versionType);
+                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
+                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.Draft, authorizedResource);
+                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                var processesData = await ProcessService.GetProcessesAsync(teamAppId, authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<ProcessWithAuditing>>(ex);
+                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+            }
+        }
+
+        [HttpGet, Route("latestpublished")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<Process>>> GetLatestPublishedProcessesAsync(Guid teamAppId)
+        {
+            try
+            {
+                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
+                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.LatestPublished, authorizedResource);
+                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                var processesData = await ProcessService.GetProcessesAsync(teamAppId, authorizedProcessQuery);
+                return processesData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
             }
         }
 
