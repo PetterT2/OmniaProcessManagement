@@ -7,16 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Omnia.WebContentManagement.Web.Security.ResourceEvaluators
+namespace Omnia.ProcessManagement.Web.Security.ResourceEvaluators
 {
-    public interface IOPMProcessIdResourceEvaluatorResourceEvaluator : IRoleResourceEvaluator
+    public interface IOPMProcessIdResourceEvaluator : IRoleResourceEvaluator
     {
     }
 
-    internal class OPMProcessIdResourceEvaluatorResourceEvaluator : BaseResourceEvaluator, IOPMProcessIdResourceEvaluatorResourceEvaluator
+    internal class OPMProcessIdResourceEvaluator : BaseResourceEvaluator, IOPMProcessIdResourceEvaluator
     {
 
-        public OPMProcessIdResourceEvaluatorResourceEvaluator(IScopedContextResolver scopedContextResolver)
+        public OPMProcessIdResourceEvaluator(IScopedContextResolver scopedContextResolver)
             : base(scopedContextResolver)
         {
         }

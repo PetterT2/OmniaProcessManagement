@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Omnia.ProcessManagement.Core.Extensions;
+using Omnia.ProcessManagement.Web.Security.ResourceEvaluators;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Omnia.ProcessManagement.Web
@@ -21,6 +22,9 @@ namespace Omnia.ProcessManagement.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOmniaPMSqlDB();
+
+            services.AddScopedWithSingeltonRef<ISecurityResourceIdResourceEvaluator, SecurityResourceIdResourceEvaluator>();
+            services.AddScopedWithSingeltonRef<IOPMProcessIdResourceEvaluator, OPMProcessIdResourceEvaluator>();
 
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -56,7 +60,8 @@ namespace Omnia.ProcessManagement.Web
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnia API V1");
             });
 
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
             });
 

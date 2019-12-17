@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Omnia.WebContentManagement.Web.Security.ResourceEvaluators
+namespace Omnia.ProcessManagement.Web.Security.ResourceEvaluators
 {
     public interface ISecurityResourceIdResourceEvaluator : IRoleResourceEvaluator
     {

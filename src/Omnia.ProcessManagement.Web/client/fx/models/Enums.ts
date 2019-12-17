@@ -84,8 +84,8 @@
         }
 
         export enum Parameters {
-            OPMProcessId = "OPMProcessId",
-            SecurityResourceId = "SecurityResourceId"
+            OPMProcessId = "opmProcessId",
+            SecurityResourceId = "opmSecurityResourceId"
         }
     }
 }

@@ -183,14 +183,14 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class Parameters
             {
-                public const string OPMProcessId = "OPMProcessId";
-                public const string SecurityResourceId = "SecurityResourceId";
+                public const string OPMProcessId = "opmProcessId";
+                public const string SecurityResourceId = "opmSecurityResourceId";
             }
 
             public static class Resources
             {
                 public const string OPMProcessIdResourcePrefix = "opmprocessid_";
-                public const string SecurityResourceIdResourcePrefix = "securityresourceid_";
+                public const string SecurityResourceIdResourcePrefix = "opmsecurityresourceid_";
             }
 
             public static class Roles
