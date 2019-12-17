@@ -69,7 +69,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var users = await UserService.GetByPrincipalNamesAsync(new List<string> { workflowTask.AssignedUser, workflowTask.CreatedBy });
                 workflowApprovalTask.AssignedTo = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.AssignedUser);
                 workflowApprovalTask.Author = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.CreatedBy);
-                workflowApprovalTask.WebUrl = webUrl;
                 return workflowApprovalTask.AsApiResponse();
             }
             catch (Exception ex)

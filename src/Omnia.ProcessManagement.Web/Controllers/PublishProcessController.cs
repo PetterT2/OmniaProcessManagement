@@ -161,7 +161,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("processingcancelworkflow/{opmProcessId}/{workflowId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, string webUrl)
+        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId)
         {
             try
             {
@@ -169,9 +169,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .DoAsync(async () =>
+                    .DoAsync(async (teamAppId) =>
                     {
-                        await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId, workflowId, webUrl);
+                        await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId, workflowId, teamAppId);
                         return ApiUtils.CreateSuccessResponse();
                     });
             }
@@ -192,8 +192,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireApprover()
-                    .DoAsync(async () =>
+                    .DoAsync(async (teamAppId) =>
                     {
+                        if (approvalTask.Process.TeamAppId != teamAppId)
+                        {
+                            throw new Exception(""); //TODO
+                        }
+
                         await PublishProcessService.CompleteWorkflowAsync(approvalTask);
                         return ApiUtils.CreateSuccessResponse();
                     });
@@ -215,8 +220,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireApprover()
-                    .DoAsync(async () =>
+                    .DoAsync(async (teamAppId) =>
                     {
+                        if (approvalTask.Process.TeamAppId != teamAppId)
+                        {
+                            throw new Exception(""); //TODO
+                        }
+
                         await PublishProcessService.ProcessingCompleteWorkflowAsync(approvalTask);
                         return ApiUtils.CreateSuccessResponse();
                     });

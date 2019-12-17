@@ -105,9 +105,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await WorkflowService.CompleteAsync(workflow.Id, WorkflowCompletedType.Cancelled);
         }
 
-        public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
+        public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask, string webUrl)
         {
-            PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(approvalTask.WebUrl);
+            PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(webUrl);
             List taskList = await SharePointListService.GetListByUrlAsync(userContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskItem = taskList.GetItemById(approvalTask.SPTaskId);
             userContext.Load(taskItem,
@@ -126,11 +126,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await userContext.ExecuteQueryAsync();
         }
 
-        public async ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask)
+        public async ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask, string webUrl)
         {
             await WorkflowService.CompleteAsync(approvalTask.Workflow.Id, WorkflowCompletedType.AllTasksDone);
             await WorkflowTaskService.CompletedTask(approvalTask.Id, approvalTask.Comment, approvalTask.TaskOutcome);
-            PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(approvalTask.WebUrl);
+            PortableClientContext userContext = SharePointClientContextProvider.CreateClientContext(webUrl);
             await SendCompletedEmailAsync(userContext, approvalTask);
         }
 

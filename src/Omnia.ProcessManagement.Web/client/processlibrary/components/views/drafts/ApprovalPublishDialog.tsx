@@ -124,7 +124,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
         this.isCancelling = true;
         this.publishProcessService.cancelWorkflow(this.process.opmProcessId).then(() => {
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingCancelWorkflow(this.process.opmProcessId, this.currentApproval.id, this.spContext.pageContext.web.absoluteUrl)
+            this.publishProcessService.processingCancelWorkflow(this.process.opmProcessId, this.currentApproval.id)
                 .then(() => {
                     this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
                 })

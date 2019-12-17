@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Omnia.Fx.Localization;
 using Omnia.Fx.Models.Extensions;
+using Omnia.Fx.Models.Users;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -22,22 +25,26 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         IWorkflowService WorkflowService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
 
+        ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
+
         public PublishProcessService(IProcessService processService,
             IApprovalTaskService approvalTaskService,
             IWorkflowService workflowService,
-            IProcessSecurityService processSecurityService)
+            IProcessSecurityService processSecurityService,
+            ITeamCollaborationAppsService teamCollaborationAppsService)
         {
             ProcessService = processService;
             ApprovalTaskService = approvalTaskService;
             WorkflowService = workflowService;
             ProcessSecurityService = processSecurityService;
+            TeamCollaborationAppsService = teamCollaborationAppsService;
         }
 
         public async ValueTask PublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request)
         {
             try
             {
-                var securityResourceId = await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(teamAppId, request.OPMProcessId, request.GetLimitedUsers());
+                var securityResourceId = await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(teamAppId, request.OPMProcessId, GetLimitedUsers(request.IsLimitedAccess, request.LimitedUsers));
                 var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
             }
             catch (Exception ex)
@@ -78,10 +85,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        public async ValueTask ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, string webUrl)
+        public async ValueTask ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, Guid teamAppId)
         {
             try
             {
+                var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(teamAppId);
                 var workflow = await WorkflowService.GetAsync(workflowId);
                 var process = await ProcessService.GetProcessByIdAsync(workflow.ProcessId);
                 if (process.OPMProcessId != opmProcessId)
@@ -91,9 +99,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
                 await ProcessSecurityService.RemoveOPMApproverPermissionAsync(opmProcessId);
                 await ApprovalTaskService.CancelApprovalTaskAndSendEmailAsync(workflow, process, webUrl);
-                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.Draft, Models.Enums.ProcessVersionType.Draft);
+                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.Draft, ProcessVersionType.Draft);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, ProcessVersionType.Draft);
                 throw;
@@ -104,10 +112,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         {
             try
             {
-                await ApprovalTaskService.CompleteWorkflowAsync(approvalTask);
+                var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(approvalTask.Process.TeamAppId);
+                await ApprovalTaskService.CompleteWorkflowAsync(approvalTask, webUrl);
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
-                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Publishing, Models.Enums.ProcessVersionType.Draft);
+                    await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Publishing, ProcessVersionType.Draft);
                 }
             }
             catch (Exception ex)
@@ -121,12 +130,14 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         {
             try
             {
-                await ApprovalTaskService.CompletedApprovalTaskAndSendEmail(approvalTask);
+                var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(approvalTask.Process.TeamAppId);
+                await ApprovalTaskService.CompletedApprovalTaskAndSendEmail(approvalTask, webUrl);
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
                     await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Published, Models.Enums.ProcessVersionType.Draft);
                     var approvalData = approvalTask.Workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
-                    await ProcessService.PublishProcessAsync(approvalTask.Process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing);
+                    var securityResourceId = await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(approvalTask.Process.TeamAppId, approvalTask.Process.OPMProcessId, GetLimitedUsers(approvalData.IsLimitedAccess, approvalData.LimitedUsers));
+                    await ProcessService.PublishProcessAsync(approvalTask.Process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
                 }
                 else
                     await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.Draft, Models.Enums.ProcessVersionType.Draft);
@@ -139,5 +150,15 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
+
+        private List<UserIdentity> GetLimitedUsers(bool isLimitedAccess, List<UserIdentity> limitedUsers)
+        {
+            if (isLimitedAccess)
+            {
+                if (limitedUsers != null) return limitedUsers;
+                return new List<UserIdentity>();
+            }
+            return null;
+        }
     }
 }
