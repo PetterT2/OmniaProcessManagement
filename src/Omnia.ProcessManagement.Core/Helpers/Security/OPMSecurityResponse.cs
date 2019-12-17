@@ -4,6 +4,7 @@ using Omnia.Fx.Models.Security;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Security;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -32,19 +33,23 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
         ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
         ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
+        ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, ValueTask<ApiResponse<T>>> action);
+        ValueTask<ApiResponse> DoAsync(Func<Guid, ValueTask<ApiResponse>> action);
+        internal ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action);
+        internal ValueTask<ApiResponse> DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action);
     }
 
     internal class OPMSecurityResponse : IOPMSecurityResponse, IOPMSecurityResponseHandler
     {
         private List<Guid> RequiredRoles { get; }
-        private Process Process { get; set; }
+        private InternalProcess Process { get; set; }
         private Guid TeamAppId { get; set; }
         private IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
         private ISecurityProvider SecurityProvider { get; }
         private IOmniaContext OmniaContext { get; }
         private bool AuthorOnly { get; }
         public OPMSecurityResponse(
-            Process process,
+            InternalProcess process,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
             IOmniaContext omniaContext)
@@ -54,6 +59,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
             Process = process;
+            TeamAppId = Process.TeamAppId;
         }
 
         public OPMSecurityResponse(
@@ -112,6 +118,62 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         public IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes)
         {
             return RequireApprover(versionTypes);
+        }
+
+        async ValueTask<ApiResponse<T>> IOPMSecurityResponseHandler.DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse<T>();
+            }
+
+            return await action(TeamAppId, Process);
+        }
+
+        async ValueTask<ApiResponse> IOPMSecurityResponseHandler.DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse();
+            }
+
+            return await action(TeamAppId, Process);
+        }
+
+        public async ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, ValueTask<ApiResponse<T>>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse<T>();
+            }
+
+            return await action(TeamAppId);
+        }
+
+        public async ValueTask<ApiResponse> DoAsync(Func<Guid, ValueTask<ApiResponse>> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException();
+
+            var isAuthorized = await ValidateAuthorized();
+            if (!isAuthorized)
+            {
+                return ApiUtils.CreateUnauthorizedResponse();
+            }
+
+            return await action(TeamAppId);
         }
 
         public async ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action)

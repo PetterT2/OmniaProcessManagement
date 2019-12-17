@@ -66,7 +66,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
 
-                return await securityResponse.RequireAuthor().DoAsync(async () =>
+                return await securityResponse.RequireAuthor()
+                    .DoAsync(async () =>
                 {
                     await ProcessService.DeleteDraftProcessAsync(opmProcessId);
                     return ApiUtils.CreateSuccessResponse();

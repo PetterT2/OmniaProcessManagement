@@ -42,7 +42,7 @@ namespace Omnia.WebContentManagement.Web.Security.ResourceEvaluators
             if (context.ContainsKey(opmProcessIdParamKey) && Guid.TryParse(context[opmProcessIdParamKey], out Guid opmProcessId))
             {
 
-                result = OPMProcessIdResourceResourceHelper.GenerateResource(opmProcessId);
+                result = OPMProcessIdResourceHelper.GenerateResource(opmProcessId);
 
             }
             return new ValueTask<string>(result);

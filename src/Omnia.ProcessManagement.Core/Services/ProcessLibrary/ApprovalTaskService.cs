@@ -64,7 +64,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 {
                     Type = WorkflowType.PublishWorkflow,
                     Comment = request.Comment,
-                    IsRevisionPublishing = request.IsRevisionPublishing
+                    IsRevisionPublishing = request.IsRevisionPublishing,
+                    IsLimitedAccess = request.IsLimitedAccess,
+                    LimitedUsers = request.LimitedUsers
                 }
             };
 

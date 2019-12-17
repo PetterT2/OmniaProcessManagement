@@ -136,7 +136,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
         {
             var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
@@ -176,6 +176,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
             processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
 
+            if (securityResourceId.HasValue)
+            {
+                processEf.SecurityResourceId = securityResourceId.Value;
+            }
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);

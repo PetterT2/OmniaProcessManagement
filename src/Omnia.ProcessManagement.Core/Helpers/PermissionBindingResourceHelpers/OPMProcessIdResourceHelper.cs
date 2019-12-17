@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers
 {
-    public class OPMProcessIdResourceResourceHelper
+    public class OPMProcessIdResourceHelper
     {
         private static Regex Regex = new Regex($"^{OPMConstants.Security.Resources.OPMProcessIdResourcePrefix}[0-9a-fA-F]{{8}}-[0-9a-fA-F]{{4}}-[0-9a-fA-F]{{4}}-[0-9a-fA-F]{{4}}-[0-9a-fA-F]{{12}}$", RegexOptions.IgnoreCase);
         public static string GenerateResource(Guid opmProcessId)

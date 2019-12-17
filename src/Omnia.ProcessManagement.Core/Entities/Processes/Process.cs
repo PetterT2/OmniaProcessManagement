@@ -18,6 +18,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string EnterpriseProperties { get; set; }
         public string CheckedOutBy { get; set; }
         public Guid TeamAppId { get; set; }
+        public Guid SecurityResourceId { get; set; }
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
