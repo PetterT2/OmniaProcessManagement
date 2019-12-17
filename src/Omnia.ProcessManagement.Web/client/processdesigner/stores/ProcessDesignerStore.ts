@@ -11,7 +11,7 @@ import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
 import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition, DrawingShape, ShapeDefinition } from '../../fx/models';
 
 @Injectable({
-    onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
+    onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
 })
 
 export class ProcessDesignerStore extends Store {
@@ -37,18 +37,6 @@ export class ProcessDesignerStore extends Store {
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
-
-    //public rootProcessReferenceData: ProcessReferenceData = null;
-    //private editedProcessReferences: {
-    //    [processStepId: string]: {
-    //        processStep: ProcessStep,
-    //        processData: ProcessData
-    //    }
-    //} = {};
-    //public editingProcessReference = this.state<{
-    //    processStep: ProcessStep,
-    //    processData: ProcessData
-    //}>(null);
    
     constructor() {
         super({ id: "0c263d6c-4ab2-4345-b9f3-8b3919de1b5f" });
@@ -200,6 +188,11 @@ export class ProcessDesignerStore extends Store {
                     recentShapeDefinitions = recentShapeDefinitions.slice(0, 5);
                 }
                 this.recentShapeSelections.mutate(recentShapeDefinitions);
+            });
+        }),
+        clearRecentShapeDefinitionSelection: this.action(() => {
+            return new Promise<any>((resolve, reject) => {
+                this.recentShapeSelections.mutate([]);
             });
         }),
         saveState: this.action((timewatch: boolean = true, refreshContentNavigation?: boolean): Promise<null> => {

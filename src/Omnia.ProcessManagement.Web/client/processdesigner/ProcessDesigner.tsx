@@ -38,6 +38,7 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
 
 
     created() {
+        this.processDesignerStore.actions.clearRecentShapeDefinitionSelection.dispatch();
     }
 
     mounted() {

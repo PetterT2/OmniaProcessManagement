@@ -40,6 +40,7 @@
         };
         ChangeShape: string;
         ProcessTemplateDoesNotHaveShapeDefinitions: string;
+        FilterShapeDefinitionNoResult: string;
         Media: string;
         FreeForm: string;
     }
