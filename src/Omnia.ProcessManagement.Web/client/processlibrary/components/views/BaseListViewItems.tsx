@@ -316,6 +316,24 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                         <a onClick={() => { this.openProcess(item); }}>{item.rootProcessStep.multilingualTitle}</a>
                                     </td>
                                 );
+                            case ProcessLibraryFields.Edition:
+                                return (
+                                    <td>
+                                        {item.rootProcessStep.edition}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.Revision:
+                                return (
+                                    <td>
+                                        {item.rootProcessStep.revision}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.Published:
+                                return (
+                                    <td>
+                                        {moment(item.modifiedAt).format(this.dateFormat)}
+                                    </td>
+                                );
                             default:
                                 return (
                                     <td>{Utils.isNullOrEmpty(item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(item, internalName) : item.sortValues[internalName]}</td>
@@ -453,10 +471,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     render(h) {
         return (
-            <div>
-                <v-toolbar flat color="white">
-                    {
-                        !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+            <div class={Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ? "mt-3" : ""}>
+                {
+                    !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+                        <v-toolbar flat color="white">
                             <v-card-actions>
                                 {h(this.processListViewComponentKey.actionButtonComponent, {
                                     domProps: {
@@ -464,9 +482,9 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     }
                                 })}
                             </v-card-actions>
-                            : null
-                    }
-                </v-toolbar>
+                        </v-toolbar>
+                        : null
+                }
                 {
                     this.isLoading ?
                         <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :

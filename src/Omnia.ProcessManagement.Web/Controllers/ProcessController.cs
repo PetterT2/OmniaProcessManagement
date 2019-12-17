@@ -284,7 +284,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetProcessesAsync(ProcessVersionType versionType, Guid teamAppId)
+        public async ValueTask<ApiResponse<List<ProcessWithAuditing>>> GetProcessesAsync(ProcessVersionType versionType, Guid teamAppId)
         {
             try
             {
@@ -294,7 +294,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+                return ApiUtils.CreateErrorResponse<List<ProcessWithAuditing>>(ex);
             }
         }
 

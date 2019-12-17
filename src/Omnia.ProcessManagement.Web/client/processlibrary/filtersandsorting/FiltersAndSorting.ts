@@ -2,7 +2,7 @@
 import { Utils, Injectable, Inject, Localize } from '@omnia/fx';
 import { InstanceLifetimes, PropertyIndexedType, EnterprisePropertyDefinition, User, TaxonomyPropertySettings } from '@omnia/fx-models';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
-import { LibrarySystemFieldsConstants } from '../Constants';
+import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../Constants';
 import { TermStore } from '@omnia/fx-sp';
 import { ProcessLibraryLocalization } from '../loc/localize';
 import { FilterOption, DisplayProcess, FilterAndSortInfo, FilterAndSortResponse } from '../../models';
@@ -145,6 +145,27 @@ export class FiltersAndSorting {
                 processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.multilingualTitle);
                 return processes.sort((a, b) => {
                     var comparer = a.rootProcessStep.multilingualTitle.localeCompare(b.rootProcessStep.multilingualTitle);
+                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
+                });
+            }
+            if (sortBy == ProcessLibraryFields.Edition) {
+                processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.edition);
+                return processes.sort((a, b) => {
+                    var comparer = a.rootProcessStep.edition < b.rootProcessStep.edition ? -1 : a.rootProcessStep.edition > b.rootProcessStep.edition ? 1 : 0;
+                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
+                });
+            }
+            if (sortBy == ProcessLibraryFields.Revision) {
+                processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.revision);
+                return processes.sort((a, b) => {
+                    var comparer = a.rootProcessStep.revision < b.rootProcessStep.revision ? -1 : a.rootProcessStep.revision > b.rootProcessStep.revision ? 1 : 0;
+                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
+                });
+            }
+            if (sortBy == ProcessLibraryFields.Published) {
+                processes.forEach(p => p.sortValues[sortBy] = moment(p.modifiedAt).format(this.dateFormat));
+                return processes.sort((a, b) => {
+                    var comparer = this.dateComparer(a.modifiedAt, b.modifiedAt);
                     return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
                 });
             }

@@ -20,7 +20,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
-        ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, ProcessVersionType versionType);
+        ValueTask<List<ProcessWithAuditing>> GetProcessesAsync(Guid teamAppId, ProcessVersionType versionType);
         ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType);
         ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus);
         ValueTask<Process> UpdateProcessStatusAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus, ProcessVersionType versionType);

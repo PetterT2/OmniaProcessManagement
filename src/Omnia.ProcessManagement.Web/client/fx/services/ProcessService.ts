@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep, Enums } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessDataWithAuditing, ProcessVersionType, ProcessStep, Enums, ProcessWithAuditing } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -140,12 +140,12 @@ export class ProcessService {
     }
 
     public getProcessesBySite = (teamAppId: GuidValue, versionType: ProcessVersionType) => {
-        return new Promise<Array<Process>>((resolve, reject) => {
+        return new Promise<Array<ProcessWithAuditing>>((resolve, reject) => {
             let params = {
                 teamAppId: teamAppId,
                 versionType: versionType
             };
-            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/all`, { params: params }).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<ProcessWithAuditing>>>(`/api/processes/all`, { params: params }).then((response) => {
                 if (response.data.success) {
                     let processes = response.data.data;
                     this.generateClientSideData(processes);
