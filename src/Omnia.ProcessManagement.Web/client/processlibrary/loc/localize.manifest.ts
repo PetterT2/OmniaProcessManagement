@@ -6,10 +6,13 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
     .namespace(ProcessLibraryLocalization.namespace)
     .add<ProcessLibraryLocalization.locInterface>({
         Common: {
-            NoDraftItemToShow: "There are no draft processes to show",
             Yes: "Yes",
             No: "No",
             Send: "Send"
+        },
+        ProcessNoItem: {
+            Draft: "There are no draft processes to show",
+            Published: "There are no published processes to show"
         },
         ProcessStatuses: {
             Draft: "Draft",
@@ -71,7 +74,13 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Publish: "Publish",
             WorkflowHistory: "Workflow History",
             DeleteDraft: "Delete Draft",
-            PreviewProcess: "Preview"
+            PreviewProcess: "Preview",
+            CreateDraft: "Create Draft",
+            ViewProcess: "View Process",
+            ExportProcess: "Export Process",
+            ProcessHistory: "Process History",
+            MoveProcess: "Move Process",
+            UnpublishProcess: "Unpublish Process"
         },
         SortText: {
             Direction: "Sort Direction",

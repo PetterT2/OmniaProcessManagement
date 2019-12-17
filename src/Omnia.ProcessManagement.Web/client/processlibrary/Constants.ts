@@ -11,5 +11,11 @@ export const UrlParameters = {
 export const LibrarySystemFieldsConstants = {
     get Menu() { return "Menu" },
     get Title() { return "Title" },
-    get Status() { return "Status" }
+    get Status() { return "Status" },    
+}
+
+export const ProcessLibraryFields = {
+    get Edition() { return "Edition" },
+    get Revision() { return "Revision" },
+    get Published() { return "Published" }
 }

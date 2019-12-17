@@ -1,16 +1,17 @@
 ﻿import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, WebUtils } from "@omnia/fx";
-import { ProcessLibraryViewSettings, Enums } from '../../../fx/models';
+import { ProcessLibraryViewSettings, Enums, ProcessVersionType, ProcessListViewComponentKey } from '../../../fx/models';
 import { SpacingSetting, LanguageTag } from '@omnia/fx-models';
 import { ProcessLibraryListViewStyles } from '../../../models';
 import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import './ListView.css';
-import { DraftsView } from './drafts/DraftsView';
 import { IListViewComponent } from './IListView';
 import { OPMUtils } from '../../../fx';
 import { UrlParameters } from '../../Constants';
+import { TasksView } from './tasks/TasksView';
+import { BaseListViewItems } from './BaseListViewItems';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
@@ -24,6 +25,16 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     private selectingTab = 'tab-drafts';
     private tabPrefix = 'tab-';
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
+    draftsViewComponentKey: ProcessListViewComponentKey = {
+        actionButtonComponent: "opm-process-library-drafts-buttons",
+        processMenuComponent: "opm-process-library-drafts-menu",
+        processingStatusComponent: "opm-process-library-drafts-processingstatus"
+    };
+    publishedViewComponentKey: ProcessListViewComponentKey = {
+        actionButtonComponent: "",
+        processMenuComponent: "opm-process-library-published-menu",
+        processingStatusComponent: "opm-process-library-published-processingstatus"
+    };
 
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
@@ -117,14 +128,16 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab>
                     <v-tab-item id="tab-drafts">
                         {this.selectingTab == "tab-drafts" ?
-                            <DraftsView displaySettings={this.viewSettings.draftTabDisplaySettings} ></DraftsView> : null}
+                            <BaseListViewItems displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
+                            : null}
                     </v-tab-item>
                     <v-tab-item id="tab-tasks" v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
-                        {this.selectingTab == "tab-tasks" ? <div>Not implemented yet</div> : null}
+                        {this.selectingTab == "tab-tasks" ? <TasksView></TasksView> : null}
                     </v-tab-item>
                     <v-tab-item id="tab-published">
                         {this.selectingTab == "tab-published" ?
-                            <div>Not implemented yet</div> : null}
+                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.LatestPublished} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
+                            : null}
                     </v-tab-item>
                 </v-tabs>
             </div>

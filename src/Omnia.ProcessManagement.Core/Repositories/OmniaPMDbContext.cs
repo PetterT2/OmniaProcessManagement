@@ -82,7 +82,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
                 .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
             SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
 
-            modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCount)).HasNoKey();
+            SetClusteredIndex<Workflow>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
+
+            modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCounts)).HasNoKey();
         }
 
         /// <summary>

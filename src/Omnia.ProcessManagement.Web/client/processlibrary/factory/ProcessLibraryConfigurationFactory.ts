@@ -1,5 +1,5 @@
 ﻿import { Enums, ProcessLibraryBlockData } from '../../fx/models';
-import { LibrarySystemFieldsConstants } from '../Constants';
+import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../Constants';
 
 export const ProcessLibraryConfigurationFactory = {
     create(): ProcessLibraryBlockData {
@@ -20,10 +20,10 @@ export const ProcessLibraryConfigurationFactory = {
                         showSearchBox: true
                     },
                     publishedTabDisplaySettings: {
-                        pagingType: Enums.ProcessViewEnums.PagingType.Classic,
-                        itemLimit: 30,
+                        pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
+                        itemLimit: 0,
                         orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
-                        defaultOrderingFieldName: "",
+                        defaultOrderingFieldName: ProcessLibraryFields.Published,
                         selectedFields: ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields(),
                         showSearchBox: true
                     },
@@ -35,7 +35,11 @@ export const ProcessLibraryConfigurationFactory = {
     },
     getDefaultPublishedDisplayFields() {
         return [
-
+            LibrarySystemFieldsConstants.Title,
+            LibrarySystemFieldsConstants.Menu,
+            ProcessLibraryFields.Edition,
+            ProcessLibraryFields.Revision,
+            ProcessLibraryFields.Published
         ]
     },
     getDefaultDraftDisplayFields() {

@@ -23,7 +23,6 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
     @Inject(ProcessService) processService: ProcessService;
 
-    private actionMenuChangedTimewatchId: string = "processstep_actionmenuchanged_" + Utils.generateGuid();
     internalValidator: FormValidator = new FormValidator(this);
     title: MultilingualString = {} as MultilingualString;
 
@@ -128,7 +127,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         currentReferenceData.current.processStep.title = this.title;
         currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
         this.loading = true;
-        this.processDesignerStore.actions.saveState.dispatch(this.actionMenuChangedTimewatchId).then(() => {
+        this.processDesignerStore.actions.saveState.dispatch().then(() => {
             this.showEditTitleDialog = false;
         })
     }
@@ -145,7 +144,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                 newParentProcessStep.processSteps = [];
             newParentProcessStep.processSteps.push(currentProcessStep);
 
-            this.processDesignerStore.actions.saveState.dispatch(this.actionMenuChangedTimewatchId, true).then(resolve).catch(reject);
+            this.processDesignerStore.actions.saveState.dispatch(true, true).then(resolve).catch(reject);
         })
     }
 

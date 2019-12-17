@@ -1,7 +1,7 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Utils as omniaUtils, Utils, Injectable } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
 import { AxiosRequestConfig } from 'axios';
-import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow } from '../../fx/models';
+import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow, WorkflowApprovalTask } from '../../fx/models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class PublishProcessService {
@@ -74,6 +74,28 @@ export class PublishProcessService {
         return new Promise<void>((resolve, reject) => {
             let params = { webUrl: webUrl };
             this.httpClient.get<IHttpApiOperationResult<void>>(`/api/publish/processingcancelworkflow/${opmProcessId}/${workflowId}`, { params: params }).then(response => {
+                if (response.data.success) {
+                    resolve();
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public completeApprovalTask = (workflowTask: WorkflowApprovalTask): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/completeworkflow`, workflowTask).then(response => {
+                if (response.data.success) {
+                    resolve();
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public processingCompleteApprovalTask = (workflowTask: WorkflowApprovalTask): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/processingcompleteworkflow`, workflowTask).then(response => {
                 if (response.data.success) {
                     resolve();
                 }

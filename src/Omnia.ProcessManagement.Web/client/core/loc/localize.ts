@@ -87,7 +87,10 @@
             Email: string,
             AssignedTo: string,
             CreatedBy: string,
-            Comment: string
+            Comment: string,
+            Edition: string,
+            Revision: string,
+            Published: string
         },
         Process: {
             Drawing: string,

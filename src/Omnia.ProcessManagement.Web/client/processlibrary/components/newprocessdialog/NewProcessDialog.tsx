@@ -5,12 +5,13 @@ import { Localize, Inject, IWebComponentInstance, WebComponentBootstrapper, vueC
 import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation, DialogModel, IValidator } from '@omnia/fx/ux';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryStyles } from '../../../models';
-import { ProcessService, ProcessTemplateStore, ProcessTypeStore } from '../../../fx';
+import { ProcessService, ProcessTemplateStore, ProcessTypeStore, ProcessStore } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings } from '../../../fx/models';
 import { Guid, GuidValue } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
+import { OPMContext } from '../../../fx/contexts';
 
 @Component
 export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IWebComponentInstance, INewProcessDialog {
@@ -18,11 +19,12 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     @Prop() closeCallback: (isUpdate: boolean) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(ProcessService) processService: ProcessService;
+    @Inject(ProcessStore) processStore: ProcessStore;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
+    @Inject(OPMContext) opmContext: OPMContext;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -101,16 +103,16 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
         this.errMessage = "";
         if (this.validator.validateAll()) {
             this.isSaving = true;
+            this.process.teamAppId = this.opmContext.teamAppId;
             this.process.rootProcessStep.processTypeId = this.selectedProcessType.id;
             this.process.rootProcessStep.processTemplateId = this.selectedTemplate.id;
             let processData: { [processStepId: string]: ProcessData } = {};
             processData[this.process.id.toString()] = {} as ProcessData;
             let model: ProcessActionModel = {
-                webUrl: this.spContext.pageContext.web.absoluteUrl,
                 process: this.process,
                 processData: processData
             };
-            this.processService.createDraftProcess(model).then(() => {
+            this.processStore.actions.createDraft.dispatch(model).then(() => {
                 this.isSaving = false;
                 this.closeCallback(true);
             }).catch((err) => {

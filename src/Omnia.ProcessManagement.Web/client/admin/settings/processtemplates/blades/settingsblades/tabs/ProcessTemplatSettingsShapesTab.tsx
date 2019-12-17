@@ -25,11 +25,9 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
 
-    private shapes: Array<ShapeDefinition> = []
 
     created() {
         var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
-        this.shapes = (editingProcessTemplate.settings && editingProcessTemplate.settings.shapeDefinitions) ? editingProcessTemplate.settings.shapeDefinitions : [];
     }
 
     openShapeSettingBlade(shape?: ShapeDefinition, index: number = -1) {
@@ -50,20 +48,13 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
         this.openShapeSettingBlade(shape);
     }
 
-    updateShapes() {
-        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
-        editingProcessTemplate.settings.shapeDefinitions = this.shapes;
-        this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(editingProcessTemplate);
-    }
-
     removeShape(index: number) {
-        this.shapes.splice(index, 1);
-        this.updateShapes();
+        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+        editingProcessTemplate.settings.shapeDefinitions.splice(index, 1);
     }
 
     render(h) {
-        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
-        this.shapes = (editingProcessTemplate.settings && editingProcessTemplate.settings.shapeDefinitions) ? editingProcessTemplate.settings.shapeDefinitions : [];
+        let editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
 
         return (
             <div>
@@ -72,14 +63,13 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                     <v-btn dark={this.omniaTheming.promoted.body.dark} text onClick={() => { this.travelToAddShape() }}>{this.loc.ProcessTemplates.AddShape}</v-btn>
                 </div>
                 {
-                    this.shapes && this.shapes.length > 0 ?
+                    editingProcessTemplate.settings && editingProcessTemplate.settings.shapeDefinitions && editingProcessTemplate.settings.shapeDefinitions.length > 0 ?
                         <draggable
                             options={{ handle: ".drag-handle", animation: "100" }}
                             element="v-list"
-                            v-model={this.shapes}
-                            onChange={this.updateShapes}>
+                            v-model={editingProcessTemplate.settings.shapeDefinitions}>
                             {
-                                this.shapes.map((shape, index) => {
+                                editingProcessTemplate.settings.shapeDefinitions.map((shape, index) => {
 
                                     return (
                                         <v-list-item>

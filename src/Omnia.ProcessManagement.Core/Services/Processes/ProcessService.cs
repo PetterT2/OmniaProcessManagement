@@ -55,9 +55,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
-            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash);
+            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash, versionType);
             return processData;
         }
 
@@ -79,18 +79,18 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetDraftProcessesDataAsync(Guid siteId, Guid webId)
+        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppInstanceId, ProcessVersionType versionType)
         {
-            return await ProcessRepository.GetDraftProcessesAsync(siteId, webId);
+            return await ProcessRepository.GetProcessesAsync(teamAppInstanceId, versionType);
         }
 
         public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
-            List<Process> processes = await ProcessRepository.GetProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
+            var internalProcesses = await ProcessRepository.GetInternalProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
             foreach (Guid opmProcessId in opmProcessIds)
             {
-                Process findProcess = processes.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
+                Process findProcess = internalProcesses.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
                 workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
             }
             return workingStatus;

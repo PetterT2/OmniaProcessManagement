@@ -25,8 +25,8 @@ namespace Omnia.ProcessManagement.Models.Workflows
         public WorkflowTask()
         {
         }
-        
-        public WorkflowTask(WorkflowTask workflowTask)
+
+        public WorkflowTask(WorkflowTask workflowTask) : base(workflowTask)
         {
             Id = workflowTask.Id;
             WorkflowId = workflowTask.WorkflowId;

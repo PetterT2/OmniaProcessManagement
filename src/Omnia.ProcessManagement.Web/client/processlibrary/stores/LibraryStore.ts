@@ -2,8 +2,8 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { SharePointContext } from '@omnia/fx-sp';
-import { Enums, Process, ProcessVersionType } from '../fx/models';
-import { ProcessService } from '../fx';
+import { ProcessService } from '../../fx';
+import { Process, ProcessVersionType, Enums } from '../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
