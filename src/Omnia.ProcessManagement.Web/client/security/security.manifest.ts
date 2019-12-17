@@ -1,32 +1,28 @@
 ﻿import { Composer } from "@omnia/tooling/composers";
-import { Guid, ParamTypes, OmniaRoleTypes, RoleDefinitions } from '@omnia/fx/models';
+import { Guid, ParamTypes, OmniaRoleTypes, RoleDefinitions, ResourceEvaluators, Parameters } from '@omnia/fx/models';
 import { Enums } from '../fx/models';
 
 Composer
     .registerManifest(new Guid(Enums.Security.OPMRoleDefinitions.Author)).registerRoleDefinition({
         name: "OPM.Author",
         roleType: OmniaRoleTypes.Custom,
-        resourceEvaluatorType: Enums.Security.OPMResourceEvaluators.SiteIdentityResource,
+        resourceEvaluatorType: ResourceEvaluators.AppInstance,
         parameters:
             [
                 {
-                    name: Enums.Security.Parameters.SiteId,
-                    type: ParamTypes.Guid,
-                },
-                {
-                    name: Enums.Security.Parameters.WebId,
+                    name: Parameters.AppInstanceId,
                     type: ParamTypes.Guid,
                 }
             ],
         parentRole: null,
-        editableRoles: [new Guid(RoleDefinitions.AppInstanceAdmin)],
+        editableRoles: [new Guid(RoleDefinitions.AppInstanceAdmin), new Guid(Enums.Security.OPMRoleDefinitions.Author)],
     });
 
 Composer
     .registerManifest(new Guid(Enums.Security.OPMRoleDefinitions.Approver)).registerRoleDefinition({
         name: "OPM.Approver",
         roleType: OmniaRoleTypes.Custom,
-        resourceEvaluatorType: Enums.Security.OPMResourceEvaluators.SecurityResourceIdResource,
+        resourceEvaluatorType: Enums.Security.OPMResourceEvaluators.OPMProcessIdResource,
         parameters:
             [
                 {
@@ -42,7 +38,7 @@ Composer
     .registerManifest(new Guid(Enums.Security.OPMRoleDefinitions.Reviewer)).registerRoleDefinition({
         name: "OPM.Reviewer",
         roleType: OmniaRoleTypes.Custom,
-        resourceEvaluatorType: Enums.Security.OPMResourceEvaluators.SecurityResourceIdResource,
+        resourceEvaluatorType: Enums.Security.OPMResourceEvaluators.OPMProcessIdResource,
         parameters:
             [
                 {

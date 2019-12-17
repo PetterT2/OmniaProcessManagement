@@ -17,6 +17,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ProcessTypeValidation, ProcessTypeValidation>();
             services.AddScopedWithSingeltonRef<IApprovalTaskService, ApprovalTaskService>();
             services.AddScopedWithSingeltonRef<ISharePointListService, SharePointListService>();
+            services.AddScopedWithSingeltonRef<ITeamCollaborationAppsService, TeamCollaborationAppsService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();

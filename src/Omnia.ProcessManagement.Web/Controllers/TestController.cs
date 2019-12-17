@@ -39,22 +39,17 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("createsampleprocess")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
-        public async ValueTask<ApiResponse> CreateSampleProcesses(string webUrl,
+        public async ValueTask<ApiResponse> CreateSampleProcesses(Guid teamAppInstanceId,
             Guid processTemplateId, Guid processTypeId,
             int numberOfProcessToCreate, int treeLevel, int numberOfChildInEachLevel)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(webUrl))
-                    throw new Exception("web url is missing");
-
                 //Saft amount of data to create 
                 if ((Math.Pow(numberOfChildInEachLevel, treeLevel + 1) - 1) * numberOfProcessToCreate > 2500)
                 {
                     throw new Exception("this amount of data to create is toooo big. it could hang your web server =))");
                 }
-
-                var (siteId, webId) = await SharePointSiteService.GetSiteIdentityAsync(webUrl);
 
                 while (numberOfProcessToCreate > 0)
                 {
@@ -66,8 +61,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     {
                         Id = Guid.NewGuid(),
                         OPMProcessId = Guid.NewGuid(),
-                        SiteId = siteId,
-                        WebId = webId,
+                        TeamAppId = teamAppInstanceId,
                         RootProcessStep = rootProcessStep
                     };
 

@@ -80,14 +80,12 @@
 
         export enum OPMResourceEvaluators {
             SecurityResourceIdResource = "Omnia.ProcessManagement.Web.Security.ResourceEvaluators.ISecurityResourceIdResourceEvaluator",
-            SiteIdentityResource = "Omnia.ProcessManagement.Web.Security.ResourceEvaluators.ISiteIdentityResourceEvaluator",
+            OPMProcessIdResource = "Omnia.ProcessManagement.Web.Security.ResourceEvaluators.IOPMProcessIdResourceEvaluator",
         }
 
         export enum Parameters {
-            SiteId = "SiteId",
-            WebId = "WebId",
             OPMProcessId = "OPMProcessId",
-            SecurityResourceId = "ProcessSecurityResourceId"
+            SecurityResourceId = "SecurityResourceId"
         }
     }
 }

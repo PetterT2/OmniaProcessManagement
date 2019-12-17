@@ -15,9 +15,9 @@ export class TaskService {
     constructor() {
     }
 
-    public getById = (spItemId: number, webUrl: string): Promise<WorkflowApprovalTask> => {
+    public getById = (spItemId: number, teamAppId: GuidValue): Promise<WorkflowApprovalTask> => {
         return new Promise<WorkflowApprovalTask>((resolve, reject) => {
-            let params = { webUrl: webUrl };
+            let params = { teamAppId: teamAppId };
             this.httpClient.get<IHttpApiOperationResult<WorkflowApprovalTask>>(`/api/task/${spItemId}`, { params: params }).then(response => {
                 if (response.data.success) {
                     response.data.data.process.rootProcessStep.multilingualTitle = this.multilingualStore.getters.stringValue(response.data.data.process.rootProcessStep.title);

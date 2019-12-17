@@ -10,7 +10,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     public interface IProcessSecurityService
     {
-        IOPMSecurityResponse InitSecurityResponseBySiteIdAndWebId(Guid siteId, Guid webId);
+        IOPMSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppInstanceId);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);

@@ -66,8 +66,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
-            process.WebId = actionModel.Process.WebId;
-            process.SiteId = actionModel.Process.SiteId;
+            process.TeamAppId = actionModel.Process.TeamAppId;
 
             await DatabaseContext.SaveChangesAsync();
 
@@ -432,11 +431,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
+        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppInstanceId, ProcessVersionType versionType)
         {
             List<Process> processes = new List<Process>();
             var processesData = await DbContext.Processes
-               .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == versionType)
+               .Where(p => p.TeamAppId == teamAppInstanceId && p.VersionType == versionType)
                .ToListAsync();
             processesData.ForEach(p => processes.Add(MapEfToModel(p)));
             return processes;
@@ -541,8 +540,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
-                   SiteId = p.SiteId,
-                   WebId = p.WebId
+                   TeamAppId = p.TeamAppId
                })
                .ToListAsync();
 
@@ -565,8 +563,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
-                   SiteId = p.SiteId,
-                   WebId = p.WebId
+                   TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
 
@@ -601,8 +598,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
-                   SiteId = p.SiteId,
-                   WebId = p.WebId
+                   TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
 
@@ -626,8 +622,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                  CheckedOutBy = p.CheckedOutBy,
                  OPMProcessId = p.OPMProcessId,
                  ProcessWorkingStatus = p.ProcessWorkingStatus,
-                 SiteId = p.SiteId,
-                 WebId = p.WebId
+                 TeamAppId = p.TeamAppId
              })
              .FirstOrDefaultAsync();
 
@@ -650,8 +645,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
-                   SiteId = p.SiteId,
-                   WebId = p.WebId
+                   TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
 
@@ -696,8 +690,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             checkedOutProcess.Id = Guid.NewGuid();
             checkedOutProcess.OPMProcessId = processWithProcessDataIdHash.Process.OPMProcessId;
             checkedOutProcess.EnterpriseProperties = processWithProcessDataIdHash.Process.EnterpriseProperties;
-            checkedOutProcess.WebId = processWithProcessDataIdHash.Process.WebId;
-            checkedOutProcess.SiteId = processWithProcessDataIdHash.Process.SiteId;
+            checkedOutProcess.TeamAppId = processWithProcessDataIdHash.Process.TeamAppId;
             checkedOutProcess.VersionType = versionType;
             checkedOutProcess.CreatedAt = processWithProcessDataIdHash.Process.CreatedAt;
             checkedOutProcess.CreatedBy = processWithProcessDataIdHash.Process.CreatedBy;
@@ -803,8 +796,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             model.VersionType = processEf.VersionType;
-            model.SiteId = processEf.SiteId;
-            model.WebId = processEf.WebId;
+            model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
             return model;
         }

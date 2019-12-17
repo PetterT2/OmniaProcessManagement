@@ -33,9 +33,9 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             ProcessRepository = processRepository;
         }
 
-        public IOPMSecurityResponse InitSecurityResponseBySiteIdAndWebId(Guid siteId, Guid webId)
+        public IOPMSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)
         {
-            return new OPMSecurityResponse(siteId, webId, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new OPMSecurityResponse(teamAppId, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType)

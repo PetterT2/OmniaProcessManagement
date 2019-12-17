@@ -9,7 +9,7 @@ export interface Process {
     rootProcessStep: RootProcessStep;
     checkedOutBy: string;
     versionType: ProcessVersionType;
-    siteId: GuidValue;
+    teamAppId: GuidValue;
     webId: GuidValue;
     processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus;
 

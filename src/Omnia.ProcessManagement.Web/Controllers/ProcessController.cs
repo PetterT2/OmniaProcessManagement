@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Omnia.Fx.Apps;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Models.Users;
@@ -14,6 +15,7 @@ using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -29,12 +31,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         IProcessService ProcessService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
 
+        ITeamCollaborationAppsService TeamCollaborationAppService { get; }
+
         public ProcessController(IProcessService processService, ILogger<ProcessController> logger,
-            ISharePointSiteService sharePointSiteService, IProcessSecurityService processSecurityService)
+            ISharePointSiteService sharePointSiteService, IProcessSecurityService processSecurityService,
+            ITeamCollaborationAppsService teamCollaborationAppService)
         {
             ProcessService = processService;
             SharePointSiteService = sharePointSiteService;
             ProcessSecurityService = processSecurityService;
+            TeamCollaborationAppService = teamCollaborationAppService;
             Logger = logger;
         }
 
@@ -44,9 +50,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                (actionModel.Process.SiteId, actionModel.Process.WebId) = await SharePointSiteService.GetSiteIdentityAsync(actionModel.WebUrl);
-
-                return await ProcessSecurityService.InitSecurityResponseBySiteIdAndWebId(actionModel.Process.SiteId, actionModel.Process.WebId)
+                return await ProcessSecurityService.InitSecurityResponseByTeamAppId(actionModel.Process.TeamAppId)
                     .RequireAuthor()
                     .DoAsync(async () =>
                     {
@@ -286,12 +290,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessesDataAsync(ProcessVersionType versionType, Guid appInstanceId)
         {
             try
             {
-                var (siteId, webId) = await SharePointSiteService.GetSiteIdentityAsync(webUrl);
-                var processesData = await ProcessService.GetProcessesAsync(siteId, webId, versionType);
+                var processesData = await ProcessService.GetProcessesAsync(appInstanceId, versionType);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
@@ -323,6 +326,12 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<bool>(ex);
             }
+        }
+
+        private async ValueTask<string> GetSharePointSiteUrl(Guid appInstanceId)
+        {
+            var spUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(appInstanceId);
+            return spUrl;
         }
     }
 }

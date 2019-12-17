@@ -38,8 +38,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     {
         private List<Guid> RequiredRoles { get; }
         private Process Process { get; set; }
-        private Guid SiteId { get; set; }
-        private Guid WebId { get; set; }
+        private Guid TeamAppId { get; set; }
         private IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
         private ISecurityProvider SecurityProvider { get; }
         private IOmniaContext OmniaContext { get; }
@@ -58,8 +57,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         }
 
         public OPMSecurityResponse(
-            Guid siteId,
-            Guid webId,
+            Guid teamAppId,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
             IOmniaContext omniaContext)
@@ -68,8 +66,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             DynamicScopedContextProvider = dynamicScopedContextProvider;
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
-            SiteId = siteId;
-            WebId = webId;
+            TeamAppId = teamAppId;
             AuthorOnly = true;
         }
 
@@ -199,17 +196,16 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         {
             if (AuthorOnly)
             {
-                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SiteId, SiteId.ToString());
-                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.WebId, WebId.ToString());
+                DynamicScopedContextProvider.SetParameter(Omnia.Fx.Constants.Parameters.Apps.AppInstanceId, TeamAppId.ToString());
             }
             else
             {
-                if (Process.VersionType == ProcessVersionType.Published)
+                if (Process.VersionType == ProcessVersionType.Published || Process.VersionType == ProcessVersionType.LatestPublished)
                 {
                     DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SecurityResourceId, Process.SecurityResourceId);
                 }
-                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SiteId, Process.SiteId.ToString());
-                DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.WebId, Process.WebId.ToString());
+
+                DynamicScopedContextProvider.SetParameter(Omnia.Fx.Constants.Parameters.Apps.AppInstanceId, TeamAppId.ToString());
                 DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.OPMProcessId, Process.OPMProcessId.ToString());
             }
 
