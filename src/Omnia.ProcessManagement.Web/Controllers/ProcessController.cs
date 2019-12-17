@@ -27,20 +27,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
     public class ProcessController : ControllerBase
     {
         ILogger<ProcessController> Logger { get; }
-        ISharePointSiteService SharePointSiteService { get; }
         IProcessService ProcessService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
 
-        ITeamCollaborationAppsService TeamCollaborationAppService { get; }
-
-        public ProcessController(IProcessService processService, ILogger<ProcessController> logger,
-            ISharePointSiteService sharePointSiteService, IProcessSecurityService processSecurityService,
-            ITeamCollaborationAppsService teamCollaborationAppService)
+        public ProcessController(IProcessService processService, ILogger<ProcessController> logger, IProcessSecurityService processSecurityService)
         {
             ProcessService = processService;
-            SharePointSiteService = sharePointSiteService;
             ProcessSecurityService = processSecurityService;
-            TeamCollaborationAppService = teamCollaborationAppService;
             Logger = logger;
         }
 
@@ -290,7 +283,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetProcessesDataAsync(ProcessVersionType versionType, Guid appInstanceId)
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessesAsync(ProcessVersionType versionType, Guid appInstanceId)
         {
             try
             {
@@ -326,12 +319,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<bool>(ex);
             }
-        }
-
-        private async ValueTask<string> GetSharePointSiteUrl(Guid appInstanceId)
-        {
-            var spUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(appInstanceId);
-            return spUrl;
         }
     }
 }
