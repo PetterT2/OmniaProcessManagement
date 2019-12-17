@@ -11,6 +11,9 @@ namespace Omnia.ProcessManagement.Core
 {
     public static class OPMConstants
     {
+        [Obsolete("Wait for TeamCollaboration's fx, pay attention to replace it as soon as possible")]
+        public static Guid TeamCollaborationAppDefinitionId = new Guid("d2240d7b-af3c-428c-bae8-5b8bfc08e3ac");
+
         public static class RequestedOmniaResources
         {
             public static Guid SqlDBUniqueId => new Guid("dec4dab9-2ab3-4720-9cee-d00da62a507f");
@@ -175,5 +178,28 @@ namespace Omnia.ProcessManagement.Core
 
         }
 
+
+        public static class Security
+        {
+            public static class Parameters
+            {
+                public const string OPMProcessId = "OPMProcessId";
+                public const string SecurityResourceId = "SecurityResourceId";
+            }
+
+            public static class Resources
+            {
+                public const string OPMProcessIdResourcePrefix = "opmprocessid_";
+                public const string SecurityResourceIdResourcePrefix = "securityresourceid_";
+            }
+
+            public static class Roles
+            {
+                public const string Author = "f412d0be-16e8-4fc2-80cf-dca39a265a08";
+                public const string Reader = "38c86dbf-44a2-45c4-b370-2c1cabea954c";
+                public const string Approver = "22672fb9-e62f-470c-a68d-77ae03a5115d";
+                public const string Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa";
+            }
+        }
     }
 }

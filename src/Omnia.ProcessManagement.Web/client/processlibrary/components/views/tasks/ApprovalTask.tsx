@@ -13,6 +13,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { WorkflowTask, WorkflowApprovalTask, Enums } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
+import { OPMContext } from '../../../../fx/contexts';
 
 interface ApprovalTaskProps {
     closeCallback: () => void;
@@ -30,10 +31,12 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     @Inject(OmniaContext) omniaCtx: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(UserService) private omniaUserService: UserService;
+    @Inject(OPMContext) private opmContext: OPMContext;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
+    
 
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
     private task: WorkflowApprovalTask = null;
@@ -61,7 +64,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
         this.isLoadingTask = true;
         this.taskId = WebUtils.getQs(UrlParameters.TaskId);
-        this.taskService.getById(parseInt(this.taskId), this.spContext.pageContext.web.absoluteUrl)
+        this.taskService.getById(parseInt(this.taskId), this.opmContext.teamAppId)
             .then((data: WorkflowApprovalTask) => {
                 this.task = data;
                 if (this.task != null) {

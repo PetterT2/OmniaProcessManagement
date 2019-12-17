@@ -10,41 +10,16 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191202071535_Initial")]
-    partial class Initial
+    [Migration("20191217101030_AddSecurityResourceId")]
+    partial class AddSecurityResourceId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("Omnia.Fx.NetCore.EnterpriseProperties.Entities.EnterprisePropertyColumnMapping", b =>
-                {
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("EnterprisePropertyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("EnterprisePropertyInternalName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TableName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("EnterprisePropertyComputedColumnMappings");
-                });
-
-            modelBuilder.Entity("Omnia.Fx.NetCore.Repositories.EntityFramework.Entities.EntityExistedResult", b =>
-                {
-                    b.Property<int>("Result")
-                        .HasColumnType("int");
-
-                    b.ToTable("EntityExistedQuery");
-                });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTemplates.ProcessTemplate", b =>
                 {
@@ -220,14 +195,17 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<Guid>("OPMProcessId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SiteId")
+                    b.Property<byte>("ProcessWorkingStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("SecurityResourceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TeamAppId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("VersionType")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("WebId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
@@ -327,12 +305,139 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("Settings");
                 });
 
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("ClusteredId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<byte>("CompletedType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DueDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("JsonValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProcessId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("ProcessId");
+
+                    b.ToTable("Workflows");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.WorkflowTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AssignedUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ClusteredId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SPTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("TaskOutcome")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("WorkflowId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("WorkflowId");
+
+                    b.ToTable("WorkflowTasks");
+                });
+
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
                 {
                     b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "Process")
                         .WithMany("ProcessData")
                         .HasForeignKey("ProcessId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>
+                {
+                    b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "Process")
+                        .WithMany()
+                        .HasForeignKey("ProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.WorkflowTask", b =>
+                {
+                    b.HasOne("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", "Workflow")
+                        .WithMany("WorkflowTasks")
+                        .HasForeignKey("WorkflowId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

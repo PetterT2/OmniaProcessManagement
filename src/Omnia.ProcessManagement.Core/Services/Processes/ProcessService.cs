@@ -49,15 +49,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
         {
-            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision);
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
             return process;
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
-            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash);
+            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash, versionType);
             return processData;
         }
 
@@ -79,18 +79,18 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
+        public async ValueTask<List<ProcessWithAuditing>> GetProcessesAsync(Guid teamAppId, ProcessVersionType versionType)
         {
-            return await ProcessRepository.GetProcessesDataAsync(siteId, webId, versionType);
+            return await ProcessRepository.GetProcessesAsync(teamAppId, versionType);
         }
 
         public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
-            List<Process> processes = await ProcessRepository.GetProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
+            var internalProcesses = await ProcessRepository.GetInternalProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
             foreach (Guid opmProcessId in opmProcessIds)
             {
-                Process findProcess = processes.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
+                Process findProcess = internalProcesses.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
                 workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
             }
             return workingStatus;

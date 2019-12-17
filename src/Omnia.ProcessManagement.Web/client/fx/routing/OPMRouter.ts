@@ -106,7 +106,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
                 if (processRefrerence) {
                     this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
-                        console.log('set process to show');
                         resolve();
                     }).catch(reject);
                 }

@@ -9,7 +9,7 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
     public interface IWorkflowTaskService
     {
         ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId);
-        ValueTask<WorkflowTask> GetAsync(int spItemId, Guid siteId, Guid webId);
+        ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId);
         ValueTask CompletedTask(Guid id, string comment, TaskOutcome taskOutCome);
     }
 }

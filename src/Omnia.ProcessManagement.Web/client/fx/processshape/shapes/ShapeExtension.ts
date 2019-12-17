@@ -2,7 +2,7 @@
 import { Shape } from './Shape';
 import { DrawingShapeDefinition } from '../../models';
 import { IShape } from './IShape';
-import { IFabricShape, FabricShape } from '../fabricshape';
+import { IFabricShape, FabricShape, FabricShapeType, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 
 export class ShapeExtension implements Shape {
@@ -41,11 +41,25 @@ export class ShapeExtension implements Shape {
     }
 
     getShapeJson(): IShape {
+        let nodes = this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
+        this.definition = this.ensureDefinition(nodes);
+
         return {
             name: this.name,
-            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
+            nodes: nodes,
             definition: this.definition
         }
+    }
+
+    private ensureDefinition(jsonNodes: Array<IFabricShape>) {
+        if (jsonNodes) {
+            let drawingNode = jsonNodes.find((item) => item.shapeNodeType != FabricShapeTypes.text);
+            if (drawingNode) {
+                this.definition.width = drawingNode.properties.width;
+                this.definition.height = drawingNode.properties.height;
+            }
+        }
+        return this.definition;
     }
 
     addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {

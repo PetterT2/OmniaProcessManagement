@@ -15,6 +15,16 @@ namespace Omnia.ProcessManagement.Models.ProcessLibrary
         public bool IsReadReceiptRequired { get; set; }
         public List<UserIdentity> LimitedUsers { get; set; }
         public List<UserIdentity> NotifiedUsers { get; set; }
+
+        public List<UserIdentity> GetLimitedUsers()
+        {
+            if (IsLimitedAccess)
+            {
+                if (LimitedUsers != null) return LimitedUsers;
+                return new List<UserIdentity>();
+            }
+            return null;
+        }
     }
 
     public class PublishProcessWithApprovalRequest : PublishProcessWithoutApprovalRequest

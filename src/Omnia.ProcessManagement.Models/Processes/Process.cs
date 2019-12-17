@@ -14,8 +14,8 @@ namespace Omnia.ProcessManagement.Models.Processes
         public RootProcessStep RootProcessStep { get; set; }
         public string CheckedOutBy { get; set; }
         public ProcessVersionType VersionType { get; set; }
-        public Guid SiteId { get; set; }
-        public Guid WebId { get; set; }
+        public Guid TeamAppId { get; set; }
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
+        public string SecurityResourceId { get; set; }
     }
 }

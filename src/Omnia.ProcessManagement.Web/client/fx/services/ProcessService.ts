@@ -99,9 +99,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessData = (processStepId: GuidValue, hash: string) => {
+    public getProcessData = (processStepId: GuidValue, hash: string, versionType: ProcessVersionType) => {
         return new Promise<ProcessDataWithAuditing>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessDataWithAuditing>>(`/api/processes/processdata/${processStepId}/${hash}/${versionType}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -139,10 +139,10 @@ export class ProcessService {
         })
     }
 
-    public getProcessesBySite = (webUrl: string, versionType: ProcessVersionType) => {
+    public getProcessesBySite = (teamAppId: GuidValue, versionType: ProcessVersionType) => {
         return new Promise<Array<ProcessWithAuditing>>((resolve, reject) => {
             let params = {
-                webUrl: webUrl,
+                teamAppId: teamAppId,
                 versionType: versionType
             };
             this.httpClient.get<IHttpApiOperationResult<Array<ProcessWithAuditing>>>(`/api/processes/all`, { params: params }).then((response) => {

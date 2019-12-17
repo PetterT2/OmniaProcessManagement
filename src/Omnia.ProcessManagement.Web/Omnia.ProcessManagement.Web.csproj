@@ -7,16 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="client\NewFolder\**" />
-    <Content Remove="client\NewFolder\**" />
-    <EmbeddedResource Remove="client\NewFolder\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
-    <None Remove="client\NewFolder\**" />
     <None Remove="wwwroot\omnia\**" />
-    <TypeScriptCompile Remove="client\NewFolder\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -87,6 +82,10 @@
     <TypeScriptCompile Remove="client\core\styles\DialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\core\styles\index.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
+    <TypeScriptCompile Remove="client\fx\contexts\index.ts" />
+    <TypeScriptCompile Remove="client\fx\contexts\opm.contexts.manifest.ts" />
+    <TypeScriptCompile Remove="client\fx\contexts\OPMContext.ts" />
+    <TypeScriptCompile Remove="client\fx\contexts\OPMContextProvider.ts" />
     <TypeScriptCompile Remove="client\fx\Enums.ts" />
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
@@ -101,6 +100,8 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingExternalProcessShape.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts" />
@@ -331,8 +332,7 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
-    <TypeScriptCompile Remove="client\processrenderer\test\Test.manifest.ts" />
-    <TypeScriptCompile Remove="client\processrenderer\test\Test.tsx" />
+    <TypeScriptCompile Remove="client\security\security.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\stores\index.ts" />
     <TypeScriptCompile Remove="client\processlibrary\stores\LibraryStore.ts" />
     <TypeScriptCompile Remove="client\processlibrary\stores\ProcessDesignerStore.ts" />
@@ -353,6 +353,12 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <None Include="client\fx\contexts\index.js" />
+    <None Include="client\fx\contexts\opm.contexts.manifest.js" />
+    <None Include="client\fx\contexts\OPMContext.js" />
+    <None Include="client\fx\contexts\OPMContextProvider.js" />
+    <None Include="client\fx\models\contexts\index.js" />
+    <None Include="client\fx\models\contexts\OPMContext.js" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 

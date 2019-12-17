@@ -15,6 +15,7 @@ import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { FilterDialog } from './dialogs/FilterDialog';
 import { LibraryStore } from '../../stores';
+import { OPMContext } from '../../../fx/contexts';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -41,7 +42,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     @Inject(TermStore) private termStore: TermStore;
     @Inject(LibraryStore) libraryStore: LibraryStore;
-
+    @Inject(OPMContext) opmContext: OPMContext;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
 
@@ -120,7 +121,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadProcesses() {
-        this.processService.getProcessesBySite(this.request.webUrl, this.versionType)
+        this.processService.getProcessesBySite(this.request.teamAppId, this.versionType)
             .then((processes) => {
                 this.allProcesses = processes as Array<DisplayProcess>;
                 this.allProcesses.forEach(p => p.sortValues = {});
@@ -156,6 +157,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         this.isLoading = true;
         this.request = {
             webUrl: this.spContext.pageContext.web.absoluteUrl,
+            teamAppId: this.opmContext.teamAppId,
             pageNum: 1,
             filters: {},
             sortBy: this.displaySettings.defaultOrderingFieldName,

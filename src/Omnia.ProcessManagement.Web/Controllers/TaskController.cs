@@ -14,6 +14,8 @@ using Omnia.Fx.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -28,35 +30,39 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ProcessController> Logger { get; }
         IWorkflowTaskService WorkflowTaskService { get; }
-        IProcessLibraryService ProcessLibraryService { get; }
+        ISharePointSiteService SharePointSiteService { get; }
         IProcessService ProcessService { get; }
         IOmniaContext OmniaContext { get; }
         IUserService UserService { get; }
 
+        ITeamCollaborationAppsService TeamCollaborationAppService { get; }
+
         public TaskController(ILogger<ProcessController> logger,
             IWorkflowTaskService workflowTaskService,
             IProcessService processService,
-            IProcessLibraryService processLibraryService,
+            ISharePointSiteService sharePointSiteService,
             IUserService userService,
-            IOmniaContext omniaContext)
+            IOmniaContext omniaContext,
+            ITeamCollaborationAppsService teamCollaborationAppService)
         {
             WorkflowTaskService = workflowTaskService;
-            ProcessLibraryService = processLibraryService;
+            SharePointSiteService = sharePointSiteService;
             ProcessService = processService;
             OmniaContext = omniaContext;
             UserService = userService;
+            TeamCollaborationAppService = teamCollaborationAppService;
             Logger = logger;
         }
 
 
         [HttpGet, Route("{spItemId:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<WorkflowApprovalTask>> GetWorkflowTaskAsync(int spItemId, string webUrl)
+        public async ValueTask<ApiResponse<WorkflowApprovalTask>> GetWorkflowTaskAsync(int spItemId, Guid appInstanceId)
         {
             try
             {
-                var site = await ProcessLibraryService.GetProcessSiteInfo(webUrl);
-                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, site.Item1, site.Item2);
+                var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(appInstanceId);
+                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, appInstanceId);
                 var workflowApprovalTask = new WorkflowApprovalTask(workflowTask);
                 workflowApprovalTask.Process = await ProcessService.GetProcessByIdAsync(workflowTask.Workflow.ProcessId);
                 workflowApprovalTask.Responsible = workflowTask.AssignedUser.Equals(OmniaContext.Identity.LoginName);

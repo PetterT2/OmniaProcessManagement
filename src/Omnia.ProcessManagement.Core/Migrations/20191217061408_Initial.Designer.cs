@@ -10,8 +10,8 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191212042900_AddWorkflowAndUpdateProcessTables")]
-    partial class AddWorkflowAndUpdateProcessTables
+    [Migration("20191217061408_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -198,14 +198,11 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<byte>("ProcessWorkingStatus")
                         .HasColumnType("tinyint");
 
-                    b.Property<Guid>("SiteId")
+                    b.Property<Guid>("TeamAppId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("VersionType")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("WebId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
@@ -346,7 +343,12 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<byte>("Type")
                         .HasColumnType("tinyint");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("ProcessId");
 
@@ -397,7 +399,12 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<Guid>("WorkflowId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ClusteredId")
+                        .IsUnique()
+                        .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("WorkflowId");
 

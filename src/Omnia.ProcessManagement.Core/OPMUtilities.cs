@@ -15,7 +15,7 @@ namespace Omnia.ProcessManagement.Core
             else
             {
                 var cultureInfo = CultureUtils.GetCultureInfo(languageTag.Value);
-                if (cultureInfo == null) return null;
+                if (cultureInfo == null) return 1033;
                 else return (uint)cultureInfo.LCID;
             }
         }

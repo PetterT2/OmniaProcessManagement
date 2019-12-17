@@ -11,6 +11,7 @@ using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
@@ -65,8 +66,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             process.ModifiedBy = OmniaContext.Identity.LoginName;
             process.CreatedAt = DateTimeOffset.UtcNow;
             process.ModifiedAt = DateTimeOffset.UtcNow;
-            process.WebId = actionModel.Process.WebId;
-            process.SiteId = actionModel.Process.SiteId;
+            process.TeamAppId = actionModel.Process.TeamAppId;
 
             await DatabaseContext.SaveChangesAsync();
 
@@ -136,8 +136,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
         {
+            var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
             var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
 
@@ -161,14 +162,24 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processEf = draftProcessWithProcessDataIdHash.Process;
             }
 
+            if (latestPublishedProcess != null)
+            {
+                latestPublishedProcess.VersionType = ProcessVersionType.Published;
+            }
+
             processEf.CheckedOutBy = "";
-            processEf.VersionType = ProcessVersionType.Published;
+            processEf.VersionType = ProcessVersionType.LatestPublished;
             RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             rootProcessStep.Edition = isRevision ? rootProcessStep.Edition : rootProcessStep.Edition + 1;
             rootProcessStep.Revision = isRevision ? rootProcessStep.Revision + 1 : 0;
             rootProcessStep.Comment = comment;
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
             processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
+
+            if (securityResourceId.HasValue)
+            {
+                processEf.SecurityResourceId = securityResourceId.Value;
+            }
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
@@ -186,6 +197,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
             {
                 throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+            }
+            else if (actionModel.Process.Id != checkedOutProcessWithProcessDataIdHash.Process.Id)
+            {
+                throw new ProcessNotFoundException(actionModel.Process.Id);
             }
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
@@ -386,10 +401,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.ProcessData.Remove(processDataEf);
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             var processData = await DbContext.ProcessData
-                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash)
+                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash && p.Process.VersionType == versionType)
                 .OrderByDescending(p => p.ClusteredId)
                 .FirstOrDefaultAsync();
 
@@ -404,9 +419,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
         {
+            if (versionType == ProcessVersionType.Published)
+                throw new Exception("Not supported get published version");
+
             var process = await DbContext.Processes
                     .Where(p => p.ProcessData.Any(p => p.ProcessStepId == processStepId) && p.VersionType == versionType)
-                    .OrderByDescending(p => p.ClusteredId)
                     .FirstOrDefaultAsync();
 
             if (process == null)
@@ -414,30 +431,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessDataNotFoundException(processStepId);
             }
 
-            //Since it has multiple published versions, we need to check on the latest published version
-            if (versionType == ProcessVersionType.Published)
-            {
-                var latestPublishedProcessId = await DbContext.Processes
-                    .Where(p => p.OPMProcessId == process.OPMProcessId)
-                    .OrderByDescending(p => p.ClusteredId)
-                    .Select(p => p.Id)
-                    .FirstAsync();
-
-                if (latestPublishedProcessId != process.Id)
-                {
-                    throw new ProcessDataNotFoundException(processStepId);
-                }
-            }
-
             var model = MapEfToModel(process);
             return model;
         }
 
-        public async ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
+        public async ValueTask<List<ProcessWithAuditing>> GetProcessesAsync(Guid teamAppId, ProcessVersionType versionType)
         {
             List<ProcessWithAuditing> processes = new List<ProcessWithAuditing>();
             var processesData = await DbContext.Processes
-               .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == versionType)
+               .Where(p => p.TeamAppId == teamAppId && p.VersionType == versionType)
                .ToListAsync();
             processesData.ForEach(p => processes.Add(MapEfToAuditingModel(p)));
             return processes;
@@ -526,16 +528,138 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesByOPMProcessIdsAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
+        public async ValueTask<List<InternalProcess>> GetInternalProcessesByOPMProcessIdsAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
         {
-            List<Process> processes = new List<Process>();
-            var processesData = await DbContext.Processes
+            //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
+
+            if (versionType == ProcessVersionType.Published)
+                throw new Exception("Not supported get published version");
+
+            var internalProcesses = await DbContext.Processes
                .Where(p => p.VersionType == versionType && opmProcessIds.Any(opmProcessId => p.OPMProcessId == opmProcessId))
+               .Select(p => new InternalProcess
+               {
+                   Id = p.Id,
+                   VersionType = p.VersionType,
+                   CheckedOutBy = p.CheckedOutBy,
+                   OPMProcessId = p.OPMProcessId,
+                   ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   TeamAppId = p.TeamAppId
+               })
                .ToListAsync();
-            processesData.OrderByDescending(p => p.ClusteredId).ToList().GroupBy(p => p.OPMProcessId)
-                .Select(p => p.FirstOrDefault()).ToList()
-                .ForEach(p => processes.Add(MapEfToModel(p)));
-            return processes;
+
+            return internalProcesses;
+        }
+        public async ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)
+        {
+            //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
+
+            if (versionType == ProcessVersionType.Published)
+                throw new Exception("Not supported get published version");
+
+            var internalProcess = await DbContext.Processes
+               .Where(p => p.VersionType == versionType && p.OPMProcessId == opmProcessId)
+               .OrderByDescending(p => p.ClusteredId)
+               .Select(p => new InternalProcess
+               {
+                   Id = p.Id,
+                   VersionType = p.VersionType,
+                   CheckedOutBy = p.CheckedOutBy,
+                   OPMProcessId = p.OPMProcessId,
+                   ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   TeamAppId = p.TeamAppId
+               })
+               .FirstOrDefaultAsync();
+
+            if (internalProcess == null)
+            {
+                if (versionType == ProcessVersionType.CheckedOut)
+                {
+                    throw new ProcessCheckedOutVersionNotFoundException(opmProcessId);
+                }
+                if (versionType == ProcessVersionType.Draft)
+                {
+                    throw new ProcessDraftVersionNotFoundException(opmProcessId);
+                }
+                if (versionType == ProcessVersionType.Published)
+                {
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
+                }
+            }
+
+            return internalProcess;
+        }
+
+        public async ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId)
+        {
+            var internalProcess = await DbContext.Processes
+               .Where(p => p.Id == processId)
+               .OrderByDescending(p => p.ClusteredId)
+               .Select(p => new InternalProcess
+               {
+                   Id = p.Id,
+                   VersionType = p.VersionType,
+                   CheckedOutBy = p.CheckedOutBy,
+                   OPMProcessId = p.OPMProcessId,
+                   ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   TeamAppId = p.TeamAppId
+               })
+               .FirstOrDefaultAsync();
+
+            if (internalProcess == null)
+            {
+                throw new ProcessNotFoundException(processId);
+            }
+
+            return internalProcess;
+        }
+
+        public async ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        {
+            var internalProcess = await DbContext.Processes
+             .Where(p => p.VersionType == versionType && p.ProcessData.Any(pd => pd.ProcessStepId == processStepId))
+             .OrderByDescending(p => p.ClusteredId)
+             .Select(p => new InternalProcess
+             {
+                 Id = p.Id,
+                 VersionType = p.VersionType,
+                 CheckedOutBy = p.CheckedOutBy,
+                 OPMProcessId = p.OPMProcessId,
+                 ProcessWorkingStatus = p.ProcessWorkingStatus,
+                 TeamAppId = p.TeamAppId
+             })
+             .FirstOrDefaultAsync();
+
+            if (internalProcess == null)
+            {
+                throw new ProcessOfProcessStepNotFoundException(processStepId);
+            }
+
+            return internalProcess;
+        }
+
+        public async ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        {
+            var internalProcesses = await DbContext.Processes
+                .Where(p => p.ProcessData.Any(pd => pd.Hash == hash && pd.ProcessStepId == processStepId) && p.VersionType == versionType)
+               .Select(p => new InternalProcess
+               {
+                   Id = p.Id,
+                   VersionType = p.VersionType,
+                   CheckedOutBy = p.CheckedOutBy,
+                   OPMProcessId = p.OPMProcessId,
+                   ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   TeamAppId = p.TeamAppId
+               })
+               .FirstOrDefaultAsync();
+
+
+            if (internalProcesses == null)
+            {
+                throw new ProcessOfProcessStepNotFoundException(processStepId);
+            }
+
+            return internalProcesses;
         }
 
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
@@ -570,8 +694,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             checkedOutProcess.Id = Guid.NewGuid();
             checkedOutProcess.OPMProcessId = processWithProcessDataIdHash.Process.OPMProcessId;
             checkedOutProcess.EnterpriseProperties = processWithProcessDataIdHash.Process.EnterpriseProperties;
-            checkedOutProcess.WebId = processWithProcessDataIdHash.Process.WebId;
-            checkedOutProcess.SiteId = processWithProcessDataIdHash.Process.SiteId;
+            checkedOutProcess.TeamAppId = processWithProcessDataIdHash.Process.TeamAppId;
             checkedOutProcess.VersionType = versionType;
             checkedOutProcess.CreatedAt = processWithProcessDataIdHash.Process.CreatedAt;
             checkedOutProcess.CreatedBy = processWithProcessDataIdHash.Process.CreatedBy;
@@ -677,8 +800,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             model.VersionType = processEf.VersionType;
-            model.SiteId = processEf.SiteId;
-            model.WebId = processEf.WebId;
+            model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
             return model;
         }
@@ -691,8 +813,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             model.VersionType = processEf.VersionType;
-            model.SiteId = processEf.SiteId;
-            model.WebId = processEf.WebId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
             model.CreatedAt = processEf.CreatedAt;
             model.CreatedBy = processEf.CreatedBy;
@@ -705,6 +825,5 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
-
     }
 }

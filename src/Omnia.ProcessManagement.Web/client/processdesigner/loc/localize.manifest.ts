@@ -44,6 +44,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         },
         ChangeShape: "Change Shape",
         ProcessTemplateDoesNotHaveShapeDefinitions: "The current process template doesn't have any Shape Definitions.",
+        FilterShapeDefinitionNoResult: "No result",
         Media: "Media",
         FreeForm: "Free Form"
     });

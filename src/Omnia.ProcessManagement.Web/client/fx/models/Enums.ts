@@ -69,4 +69,23 @@
             FailedPublishing = 8
         }
     }
+
+    export module Security {
+        export enum OPMRoleDefinitions {
+            Author = "f412d0be-16e8-4fc2-80cf-dca39a265a08",
+            Reader = "38c86dbf-44a2-45c4-b370-2c1cabea954c",
+            Approver = "22672fb9-e62f-470c-a68d-77ae03a5115d",
+            Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa"
+        }
+
+        export enum OPMResourceEvaluators {
+            SecurityResourceIdResource = "Omnia.ProcessManagement.Web.Security.ResourceEvaluators.ISecurityResourceIdResourceEvaluator",
+            OPMProcessIdResource = "Omnia.ProcessManagement.Web.Security.ResourceEvaluators.IOPMProcessIdResourceEvaluator",
+        }
+
+        export enum Parameters {
+            OPMProcessId = "OPMProcessId",
+            SecurityResourceId = "SecurityResourceId"
+        }
+    }
 }
