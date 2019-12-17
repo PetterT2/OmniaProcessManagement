@@ -435,11 +435,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppInstanceId, ProcessVersionType versionType)
+        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, ProcessVersionType versionType)
         {
             List<Process> processes = new List<Process>();
             var processesData = await DbContext.Processes
-               .Where(p => p.TeamAppId == teamAppInstanceId && p.VersionType == versionType)
+               .Where(p => p.TeamAppId == teamAppId && p.VersionType == versionType)
                .ToListAsync();
             processesData.ForEach(p => processes.Add(MapEfToModel(p)));
             return processes;

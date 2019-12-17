@@ -284,11 +284,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetProcessesAsync(ProcessVersionType versionType, Guid appInstanceId)
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessesAsync(ProcessVersionType versionType, Guid teamAppId)
         {
             try
             {
-                var processesData = await ProcessService.GetProcessesAsync(appInstanceId, versionType);
+                var processesData = await ProcessService.GetProcessesAsync(teamAppId, versionType);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)

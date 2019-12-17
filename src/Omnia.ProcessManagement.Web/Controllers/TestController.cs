@@ -39,7 +39,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("createsampleprocess")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
-        public async ValueTask<ApiResponse> CreateSampleProcesses(Guid teamAppInstanceId,
+        public async ValueTask<ApiResponse> CreateSampleProcesses(Guid teamAppId,
             Guid processTemplateId, Guid processTypeId,
             int numberOfProcessToCreate, int treeLevel, int numberOfChildInEachLevel)
         {
@@ -61,7 +61,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     {
                         Id = Guid.NewGuid(),
                         OPMProcessId = Guid.NewGuid(),
-                        TeamAppId = teamAppInstanceId,
+                        TeamAppId = teamAppId,
                         RootProcessStep = rootProcessStep
                     };
 

@@ -39,9 +39,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             await _dataContext.SaveChangesAsync();
         }
 
-        public async ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppInstanceId)
+        public async ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId)
         {
-            var entity = await _dbSet.Where(w => w.SPTaskId == spItemId && w.Workflow.Process.TeamAppId == teamAppInstanceId)
+            var entity = await _dbSet.Where(w => w.SPTaskId == spItemId && w.Workflow.Process.TeamAppId == teamAppId)
                 .Include(w => w.Workflow).FirstOrDefaultAsync();
             return MapEfToModel(entity);
         }
