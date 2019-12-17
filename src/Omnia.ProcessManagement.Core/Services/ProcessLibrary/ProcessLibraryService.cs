@@ -32,7 +32,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         }
 
 
-        public async ValueTask<List<Process>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
+        public async ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
         {
             var (siteId, webId, language) = await GetProcessSiteInfo(webUrl);
             var processes = await ProcessService.GetProcessesDataAsync(siteId, webId, versionType);

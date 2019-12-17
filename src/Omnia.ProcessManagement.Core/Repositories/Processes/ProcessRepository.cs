@@ -433,13 +433,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
+        public async ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
         {
-            List<Process> processes = new List<Process>();
+            List<ProcessWithAuditing> processes = new List<ProcessWithAuditing>();
             var processesData = await DbContext.Processes
                .Where(p => p.SiteId == siteId && p.WebId == webId && p.VersionType == versionType)
                .ToListAsync();
-            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            processesData.ForEach(p => processes.Add(MapEfToAuditingModel(p)));
             return processes;
         }
 
@@ -680,6 +680,24 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.SiteId = processEf.SiteId;
             model.WebId = processEf.WebId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            return model;
+        }
+
+        private ProcessWithAuditing MapEfToAuditingModel(Entities.Processes.Process processEf)
+        {
+            var model = new ProcessWithAuditing();
+            model.OPMProcessId = processEf.OPMProcessId;
+            model.Id = processEf.Id;
+            model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.VersionType = processEf.VersionType;
+            model.SiteId = processEf.SiteId;
+            model.WebId = processEf.WebId;
+            model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            model.CreatedAt = processEf.CreatedAt;
+            model.CreatedBy = processEf.CreatedBy;
+            model.ModifiedAt = processEf.ModifiedAt;
+            model.ModifiedBy = processEf.ModifiedBy;
             return model;
         }
 

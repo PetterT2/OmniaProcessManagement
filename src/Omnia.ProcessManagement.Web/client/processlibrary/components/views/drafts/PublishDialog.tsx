@@ -12,7 +12,7 @@ import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, Proces
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid } from '@omnia/fx-models';
+import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid, PropertyIndexedType } from '@omnia/fx-models';
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessTypeStore, OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
@@ -56,7 +56,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private needToUpdateProcessProperties: boolean = false;
     private isCommentRequired: boolean = false;
     private unlimitedApprover: boolean = false;
-   
+
     private processTypeSettings: ProcessTypeItemSettings = null;
     private validator: FormValidator = null;
     private selectedApproverPicker: Array<UserIdentity> = [];
@@ -107,7 +107,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     private ensureAllRequiredPropertiesAreFilledIn(requiredProperties: Array<EnterprisePropertySetItem>) {
         var enterpriseProperties = this.propertyStore.getters.enterprisePropertyDefinitions();
-        requiredProperties.forEach(p => {
+        requiredProperties.filter(p => p.type != PropertyIndexedType.Boolean).forEach(p => {
             var foundEnterpriseProperty = enterpriseProperties.find(ep => ep.id == p.enterprisePropertyDefinitionId);
             var foundFieldValue = this.process.rootProcessStep.enterpriseProperties[foundEnterpriseProperty.internalName];
             if (Utils.isNullOrEmpty(foundFieldValue) || Utils.isNullOrEmpty(foundFieldValue))
@@ -245,7 +245,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         let request: PublishProcessWithApprovalRequest = this.generateRequest() as PublishProcessWithApprovalRequest;
         request.approver = this.unlimitedApprover ? this.selectedApproverPicker[0] : this.selectedApprover;
         request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
-       
+
         this.publishProcessService.publishProcessWithApproval(request).then((result) => {
             request.processId = result.id;
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
@@ -410,7 +410,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     renderFooter(h) {
         return (
-            <v-card-actions class={this.processLibraryClasses.dialogFooter}>                
+            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
                 <v-spacer></v-spacer>
                 {
                     this.readOnlyMode() ?
@@ -466,9 +466,9 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                                         :
                                         this.renderBody(h)
                                 }
+                                {this.hasError && <div class={[this.processLibraryClasses.error, "mx-5", "mb-5"]}><span>{this.errorMessage}</span></div>}
                             </div>
                             {this.renderFooter(h)}
-                            {this.hasError && <div class={[this.processLibraryClasses.error, "mr-3", "pb-3"]}><span>{this.errorMessage}</span></div>}
                         </v-card>
                     </div>
                 </omfx-dialog>

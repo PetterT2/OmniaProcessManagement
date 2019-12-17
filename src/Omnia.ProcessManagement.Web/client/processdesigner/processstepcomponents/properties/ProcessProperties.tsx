@@ -98,6 +98,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 break;
             case PropertyIndexedType.Boolean:
                 value = (propertyInfo as ProcessBooleanPropertyInfo).value;
+                value = Utils.isNullOrEmpty(value) ? false : value;
                 break;
             case PropertyIndexedType.Person:
                 value = (propertyInfo as ProcessPersonPropertyInfo).identities || [];
@@ -116,6 +117,8 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     onPropertiesChanged(propertyInfo: ProcessPropertyInfo) {
+        if (Utils.isNullOrEmpty(this.referenceData))
+            return;
         let value = this.getValue(propertyInfo);
         if (this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] != value) {
             this.referenceData.process.rootProcessStep.enterpriseProperties[propertyInfo.internalName] = value;
@@ -257,7 +260,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             }
         }
 
-        return [
+        return (
             <omfx-term-picker
                 lcid={this.lcid}
                 key={key}
@@ -267,20 +270,16 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 multi={field.multiple}
                 dark={this.omniaTheming.promoted.body.dark}
                 label={label}
+                required={field.required}
+                validator={this.useValidator}
                 termSetId={field.termSetId}
                 preSelectedTermIds={field.termIds}
                 onTermsSelected={(model) => {
                     field.termIds = model;
                     this.resetChildTermPickers(field, fields);
                     this.onPropertiesChanged(field);
-                }} ></omfx-term-picker>,
-            field.required &&
-            <omfx-field-validation
-                useValidator={this.useValidator}
-                checkValue={field.termIds}
-                rules={field.required ? new FieldValueValidation().IsArrayRequired().getRules() : null}>
-            </omfx-field-validation>
-        ]
+                }} ></omfx-term-picker>
+        )
     }
 
     renderDateTimeField(h, field: ProcessDatetimePropertyInfo) {

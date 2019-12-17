@@ -10,7 +10,7 @@ import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessLibraryConfigurationFactory } from '../../factory/ProcessLibraryConfigurationFactory';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
-import { LibrarySystemFieldsConstants } from '../../Constants';
+import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../../Constants';
 
 interface DisplayFieldsTabProps {
     isPublished: boolean;
@@ -93,16 +93,26 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                     internalName: LibrarySystemFieldsConstants.Title,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Title)
                 } as EnterprisePropertyDefinition)
+            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Edition) == null) {
+                this.enterpriseProperties.push({
+                    internalName: ProcessLibraryFields.Edition,
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Edition])
+                } as EnterprisePropertyDefinition)
+            }
+            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Revision) == null) {
+                this.enterpriseProperties.push({
+                    internalName: ProcessLibraryFields.Revision,
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Revision])
+                } as EnterprisePropertyDefinition)
+            }
+            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Published) == null) {
+                this.enterpriseProperties.push({
+                    internalName: ProcessLibraryFields.Published,
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Published])
+                } as EnterprisePropertyDefinition)
+            }
+            this.enterpriseProperties = this.enterpriseProperties.sort((a, b) => { return a.multilingualTitle.localeCompare(b.multilingualTitle); });
             this.enterprisePropertiesSortable = Utils.clone(this.enterpriseProperties);
-
-            this.enterpriseProperties.push({
-                internalName: LibrarySystemFieldsConstants.Menu,
-                multilingualTitle: this.localizationService.get(this.coreLoc.Columns.ProcessMenu)
-            } as EnterprisePropertyDefinition);
-            this.enterpriseProperties.push({
-                internalName: LibrarySystemFieldsConstants.Status,
-                multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Status)
-            } as EnterprisePropertyDefinition);
 
             this.isLoadingProperties = false;
         });

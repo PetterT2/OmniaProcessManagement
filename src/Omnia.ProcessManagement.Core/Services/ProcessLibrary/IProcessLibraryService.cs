@@ -11,7 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 {
     public interface IProcessLibraryService
     {
-        ValueTask<List<Process>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType);
+        ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType);
         ValueTask<(Guid, Guid, LanguageTag)> GetProcessSiteInfo(string webUrl);
     }
 }

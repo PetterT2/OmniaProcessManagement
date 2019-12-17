@@ -79,7 +79,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
+        public async ValueTask<List<ProcessWithAuditing>> GetProcessesDataAsync(Guid siteId, Guid webId, ProcessVersionType versionType)
         {
             return await ProcessRepository.GetProcessesDataAsync(siteId, webId, versionType);
         }

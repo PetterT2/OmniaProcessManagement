@@ -206,7 +206,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<List<ProcessWithAuditing>>> GetProcessesDataAsync(string webUrl, ProcessVersionType versionType)
         {
             try
             {
@@ -216,7 +216,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+                return ApiUtils.CreateErrorResponse<List<ProcessWithAuditing>>(ex);
             }
         }
 

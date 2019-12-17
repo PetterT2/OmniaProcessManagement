@@ -6,7 +6,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { CurrentProcessStore } from '../../../../fx/stores';
-import { RouteOptions, Process } from '../../../../fx/models';
+import { RouteOptions, Process, Enums } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
@@ -35,16 +35,9 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
-    isLoadingContextMenu: boolean = false;
-    disableButtonEdit: boolean = false;
-    disableButtonPreview: boolean = false;
-    disableButtonSendForComments: boolean = false;
-    disableButtonPublish: boolean = false;
-    disableButtonWorkflowHistory: boolean = false;
-    disableButtonDelete: boolean = false;
+    disableButtonUpdateAction: boolean = false;
     openDeleteDialog: boolean = false;
     openPublishDialog: boolean = false
-    selectedProcess: Process;
 
     created() {
     }
@@ -57,8 +50,22 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
 
     }
 
-    private editProcess(process: DisplayProcess) {
-        OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.normal)
+    private hasPermission() {
+        return true;
+    }
+
+    private refreshContextMenu() {
+        let editActionsDict: Array<Enums.WorkflowEnums.ProcessWorkingStatus> = [
+            Enums.WorkflowEnums.ProcessWorkingStatus.Draft,
+            Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval,
+            Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing,
+            Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval
+        ];
+        this.disableButtonUpdateAction = !(this.hasPermission() && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
+    }
+
+    private editProcess() {
+        OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.normal)
             .then(() => {
                 this.currentProcessStore.actions.checkOut.dispatch().then(() => {
                     ProcessDesignerUtils.openProcessDesigner();
@@ -67,8 +74,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
             })
     }
 
-    private openDeleteDraft(item: Process) {
-        this.selectedProcess = item;
+    private openDeleteDraft() {
         this.openDeleteDialog = true;
     }
 
@@ -76,7 +82,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         return (
             <PublishDialog
                 closeCallback={() => { this.openPublishDialog = false; }}
-                process={this.selectedProcess} >
+                process={this.process} >
             </PublishDialog>
         )
     }
@@ -88,7 +94,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                     this.openDeleteDialog = false;
                     this.closeCallback(hasUpdate);
                 }}
-                opmProcessId={this.selectedProcess.opmProcessId}>
+                opmProcessId={this.process.opmProcessId}>
             </DeletedDialog>
         )
     }
@@ -105,34 +111,33 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                             }
                             return [
                                 <v-button {...toSpread} icon class={this.listViewClasses.menuHeader} v-show={this.process.isMouseOver} onClick={() => {
-
+                                    this.refreshContextMenu();
                                 }}><v-icon>more_vert</v-icon></v-button>
                             ]
                         }
                     })}>
                     <v-list>
-                        <v-list-item onClick={() => { this.editProcess(this.process); }} disabled={this.isLoadingContextMenu || this.disableButtonEdit}>
+                        <v-list-item onClick={() => { this.editProcess(); }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.Edit}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonPreview}>
+                        <v-list-item onClick={() => { }}>
                             <v-list-item-title>{this.loc.ProcessActions.Preview}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonSendForComments}>
+                        <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.SendForComments}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => {
-                            this.selectedProcess = this.process;
                             this.openPublishDialog = true;
-                        }} disabled={this.isLoadingContextMenu || this.disableButtonPublish}>
+                        }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.Publish}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }} disabled={this.isLoadingContextMenu || this.disableButtonWorkflowHistory}>
+                        <v-list-item onClick={() => { }}>
                             <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { this.openDeleteDraft(this.process); }} disabled={this.isLoadingContextMenu || this.disableButtonDelete}>
+                        <v-list-item onClick={() => { this.openDeleteDraft(); }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
                         </v-list-item>
                     </v-list>
