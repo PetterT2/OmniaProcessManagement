@@ -6,6 +6,7 @@ import { IShape } from './IShape';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { Point } from 'fabric/fabric-impl';
 
 export class PentagonShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
@@ -21,6 +22,19 @@ export class PentagonShape extends ShapeExtension implements Shape {
         return new Promise<boolean>((resolve, reject) => {
             resolve(true);
         })
+    }
+
+    getShapeJson(): IShape {
+        let basicShapeJSON = super.getShapeJson();
+
+        if (basicShapeJSON.nodes) {
+            basicShapeJSON.nodes.forEach((nodeItem) => {
+                if (nodeItem.shapeNodeType != FabricShapeTypes.text && nodeItem.properties.points) {
+                    nodeItem.properties.points = this.calculatePoints();
+                }
+            });
+        }
+        return basicShapeJSON;
     }
 
     private initExistingNodes(title: MultilingualString, recDefinition: DrawingShapeDefinition,
@@ -65,13 +79,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
                     break;
             }
 
-            let triangleWidth = Math.floor(this.definition.height / 2);           
-            let points: Array<{ x: number; y: number }> = [
-                { x: 0, y: 0 },
-                { x: this.definition.width - triangleWidth, y: 0 },
-                { x: this.definition.width, y: this.definition.height / 2 },
-                { x: this.definition.width - triangleWidth, y: this.definition.height },
-                { x: 0, y: this.definition.height }];
+            let points = this.calculatePoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, isActive, { points: points, left: recleft, top: rectop, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: tleft, top: ttop, selectable: false }, title));
 
@@ -80,11 +88,14 @@ export class PentagonShape extends ShapeExtension implements Shape {
         }
     }
 
-    getShapeJson(): IShape {
-        return {
-            name: this.name,
-            nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
-            definition: this.definition
-        }
+    private calculatePoints() {
+        let triangleWidth = Math.floor(this.definition.height / 2);        
+        let points: Array<{ x: number; y: number }> = [
+            { x: 0, y: 0 },
+            { x: this.definition.width - triangleWidth, y: 0 },
+            { x: this.definition.width, y: this.definition.height / 2 },
+            { x: this.definition.width - triangleWidth, y: this.definition.height },
+            { x: 0, y: this.definition.height }];
+        return points;
     }
 }

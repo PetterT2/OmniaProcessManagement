@@ -37,7 +37,6 @@ export class AddShapeWizardStore extends Store {
             }
         ]);
         this.currentStepIndex.mutate(1);
-        console.log('shape store init');
     }
 
     onDisposing() {
