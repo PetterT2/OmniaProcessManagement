@@ -416,29 +416,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
         {
+            if (versionType == ProcessVersionType.Published)
+                throw new Exception("Not supported get published version");
+
             var process = await DbContext.Processes
                     .Where(p => p.ProcessData.Any(p => p.ProcessStepId == processStepId) && p.VersionType == versionType)
-                    .OrderByDescending(p => p.ClusteredId)
                     .FirstOrDefaultAsync();
 
             if (process == null)
             {
                 throw new ProcessDataNotFoundException(processStepId);
-            }
-
-            //Since it has multiple published versions, we need to check on the latest published version
-            if (versionType == ProcessVersionType.Published)
-            {
-                var latestPublishedProcessId = await DbContext.Processes
-                    .Where(p => p.OPMProcessId == process.OPMProcessId)
-                    .OrderByDescending(p => p.ClusteredId)
-                    .Select(p => p.Id)
-                    .FirstAsync();
-
-                if (latestPublishedProcessId != process.Id)
-                {
-                    throw new ProcessDataNotFoundException(processStepId);
-                }
             }
 
             var model = MapEfToModel(process);
