@@ -10,6 +10,7 @@ import { Process, Enums } from '../../../../fx/models';
 interface PublishedMenuActionsProps {
     closeCallback: (isUpdate: boolean) => void;
     process: DisplayProcess;
+    isAuthor: boolean;
 }
 
 @Component
@@ -17,6 +18,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: DisplayProcess;
+    @Prop() isAuthor: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -38,15 +40,11 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     }
 
-    private hasPermission() {
-        return false;
-    }
-
     private refreshContextMenu() {
         let editActionsDict: Array<Enums.WorkflowEnums.ProcessWorkingStatus> = [
             Enums.WorkflowEnums.ProcessWorkingStatus.Published
         ];
-        this.disableButtonUpdateAction = !(this.hasPermission() && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
+        this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
     }
 
     render(h) {
