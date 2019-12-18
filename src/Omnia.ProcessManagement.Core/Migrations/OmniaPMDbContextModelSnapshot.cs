@@ -196,6 +196,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<byte>("ProcessWorkingStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<Guid>("SecurityResourceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TeamAppId")
                         .HasColumnType("uniqueidentifier");
 

@@ -11,6 +11,6 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
     /// </summary>
     public interface ITeamCollaborationAppsService
     {
-        ValueTask<string> GetSharePointSiteUrlAsync(Guid teamAppInstanceId);
+        ValueTask<string> GetSharePointSiteUrlAsync(Guid teamAppId);
     }
 }

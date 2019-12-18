@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Omnia.WebContentManagement.Web.Security.ResourceEvaluators
+namespace Omnia.ProcessManagement.Web.Security.ResourceEvaluators
 {
     public interface ISecurityResourceIdResourceEvaluator : IRoleResourceEvaluator
     {
@@ -39,9 +39,9 @@ namespace Omnia.WebContentManagement.Web.Security.ResourceEvaluators
         {
             string result = null;
             var securityResourceId = context.GetContextParamValue<string>(OPMConstants.Security.Parameters.SecurityResourceId);
-            if (!string.IsNullOrWhiteSpace(securityResourceId))
+            if (!string.IsNullOrWhiteSpace(securityResourceId) && Guid.TryParse(securityResourceId, out Guid securityResourceIdGuid))
             {
-                result = SecurityResourceIdResourceHelper.GenerateResource(securityResourceId);
+                result = SecurityResourceIdResourceHelper.GenerateResource(securityResourceIdGuid);
             }
             return new ValueTask<string>(result);
         }

@@ -21,36 +21,36 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
             AppServicce = appServicce;
         }
 
-        public async ValueTask<string> GetSharePointSiteUrlAsync(Guid teamAppInstanceId)
+        public async ValueTask<string> GetSharePointSiteUrlAsync(Guid teamAppId)
         {
-            var siteUrl = await EnsureSiteUrlAsync(teamAppInstanceId);
+            var siteUrl = await EnsureSiteUrlAsync(teamAppId);
             return siteUrl;
         }
 
-        public async ValueTask<string> EnsureSiteUrlAsync(Guid teamAppInstanceId)
+        public async ValueTask<string> EnsureSiteUrlAsync(Guid teamAppId)
         {
             var siteUrl = "";
             await EnsureAppIdAndUrlDictAsync();
 
-            if (!_appIdAndUrlDict.ContainsKey(teamAppInstanceId))
+            if (!_appIdAndUrlDict.ContainsKey(teamAppId))
             {
-                var semaphoreSlim = EnsureAppIdSemaphoreSlim(teamAppInstanceId);
+                var semaphoreSlim = EnsureAppIdSemaphoreSlim(teamAppId);
 
                 try
                 {
                     await semaphoreSlim.WaitAsync();
-                    if (!_appIdAndUrlDict.ContainsKey(teamAppInstanceId))
+                    if (!_appIdAndUrlDict.ContainsKey(teamAppId))
                     {
-                        var teamAppInstance = await AppServicce.GetAppInstanceByIdAsync(teamAppInstanceId);
+                        var teamAppInstance = await AppServicce.GetAppInstanceByIdAsync(teamAppId);
 
                         if (teamAppInstance == null || teamAppInstance.AppDefinitionId != OPMConstants.TeamCollaborationAppDefinitionId ||
                             teamAppInstance.OutputInfo == null || string.IsNullOrWhiteSpace(teamAppInstance.OutputInfo.AbsoluteAppUrl))
                         {
-                            _appIdAndUrlDict.TryAdd(teamAppInstanceId, null);
+                            _appIdAndUrlDict.TryAdd(teamAppId, null);
                         }
                         else
                         {
-                            _appIdAndUrlDict.TryAdd(teamAppInstanceId, siteUrl);
+                            _appIdAndUrlDict.TryAdd(teamAppId, siteUrl);
                         }
                     }
 
@@ -61,9 +61,9 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
                 }
             }
 
-            if (!_appIdAndUrlDict.TryGetValue(teamAppInstanceId, out siteUrl) || string.IsNullOrWhiteSpace(siteUrl))
+            if (!_appIdAndUrlDict.TryGetValue(teamAppId, out siteUrl) || string.IsNullOrWhiteSpace(siteUrl))
             {
-                throw new Exception($"Invalid team app with id: {teamAppInstanceId}. Cannot get SharePoint site url from this app");
+                throw new Exception($"Invalid team app with id: {teamAppId}. Cannot get SharePoint site url from this app");
             };
 
             return siteUrl;

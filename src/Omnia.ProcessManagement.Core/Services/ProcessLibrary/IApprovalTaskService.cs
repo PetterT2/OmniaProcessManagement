@@ -12,7 +12,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     {
         ValueTask AddApprovalTaskAndSendEmailAsync(PublishProcessWithApprovalRequest request, Process process);
         ValueTask CancelApprovalTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl);
-        ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask);
-        ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask);
+        ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask, string webUrl);
+        ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask, string webUrl);
     }
 }

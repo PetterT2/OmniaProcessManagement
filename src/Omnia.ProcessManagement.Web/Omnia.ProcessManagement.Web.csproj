@@ -116,7 +116,6 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\Link.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessDataWithAuditing.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
@@ -220,6 +219,7 @@
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\models\styles\index.ts" />
+    <TypeScriptCompile Remove="client\models\styles\PermissionDialogStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
@@ -354,6 +354,11 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <None Include="client\components\permissiondialog\IPermissionDialog.js" />
+    <None Include="client\components\permissiondialog\loc\localize.js" />
+    <None Include="client\components\permissiondialog\loc\localize.manifest.js" />
+    <None Include="client\components\permissiondialog\PermissionDialog.css.js" />
+    <None Include="client\components\permissiondialog\PermissionDialog.manifest.js" />
     <None Include="client\fx\contexts\index.js" />
     <None Include="client\fx\contexts\opm.contexts.manifest.js" />
     <None Include="client\fx\contexts\OPMContext.js" />
@@ -484,9 +489,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processactions\ProcessActionModel.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\processes\ProcessDataWithAuditing.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\RootProcessStep.ts">

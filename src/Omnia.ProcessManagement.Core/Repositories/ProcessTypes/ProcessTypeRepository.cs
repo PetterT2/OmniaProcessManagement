@@ -18,7 +18,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
         public async ValueTask<IDictionary<Guid, int>> GetChildCountAsync(IList<Guid> ids)
         {
             var (sql, param) = GetChildCountQuery(ids);
-            var result = await _dataContext.ProcessTypeChildCounts.FromSqlRaw(sql, param.ToArray()).ToDictionaryAsync(d => d.Id, d => d.ChildCount);
+            var result = await _dataContext.ProcessTypeChildCountView.FromSqlRaw(sql, param.ToArray()).ToDictionaryAsync(d => d.Id, d => d.ChildCount);
             return result;
         }
 

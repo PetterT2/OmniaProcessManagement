@@ -11,4 +11,10 @@ export interface ProcessData {
     tasks: any; //TODO
 
     canvasDefinitionJSON?: string;
+
+
+    createdBy: string;
+    modifiedBy: string;
+    createAt: Date;
+    modifiedAt: Date;
 }

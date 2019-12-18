@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -49,13 +50,13 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
         {
-            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision);
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
             return process;
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash, versionType);
             return processData;
@@ -79,9 +80,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppInstanceId, ProcessVersionType versionType)
+        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, AuthorizedProcessQuery processQuery)
         {
-            return await ProcessRepository.GetProcessesAsync(teamAppInstanceId, versionType);
+            return await ProcessRepository.GetProcessesAsync(teamAppId, processQuery);
         }
 
         public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)

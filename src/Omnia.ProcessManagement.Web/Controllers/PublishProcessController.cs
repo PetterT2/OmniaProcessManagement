@@ -12,6 +12,7 @@ using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -30,14 +31,18 @@ namespace Omnia.ProcessManagement.Web.Controllers
         IProcessService ProcessService { get; }
         IWorkflowService WorkflowService { get; }
 
+        IProcessSecurityService ProcessSecurityService { get; }
+
         public PublishProcessController(ILogger<ProcessController> logger,
             IPublishProcessService publishProcessService,
             IWorkflowService workflowService,
-            IProcessService processService)
+            IProcessService processService,
+            IProcessSecurityService processSecurityService)
         {
             PublishProcessService = publishProcessService;
             ProcessService = processService;
             WorkflowService = workflowService;
+            ProcessSecurityService = processSecurityService;
             Logger = logger;
         }
 
@@ -48,13 +53,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await PublishProcessService.PublishProcessAsync(request);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(request.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async (teamAppId) =>
+                    {
+                        await PublishProcessService.PublishProcessAsync(teamAppId, request);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
+
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
@@ -65,13 +77,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var process = await PublishProcessService.PublishProcessWithApprovalAsync(request);
-                return ApiUtils.CreateSuccessResponse(process);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(request.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        var process = await PublishProcessService.PublishProcessWithApprovalAsync(request);
+                        return ApiUtils.CreateSuccessResponse(process);
+                    });
+
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
@@ -82,13 +101,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await PublishProcessService.ProcessingApprovalProcessAsync(request);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(request.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        await PublishProcessService.ProcessingApprovalProcessAsync(request);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
+
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedSendingForApproval, Models.Enums.ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
@@ -115,8 +141,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.CancellingApproval, ProcessVersionType.Draft);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.CancellingApproval, ProcessVersionType.Draft);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
+
             }
             catch (Exception ex)
             {
@@ -127,17 +161,23 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("processingcancelworkflow/{opmProcessId}/{workflowId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, string webUrl)
+        public async ValueTask<ApiResponse> ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId)
         {
             try
             {
-                await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId, workflowId, webUrl);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async (teamAppId) =>
+                    {
+                        await PublishProcessService.ProcessingCancelWorkflowAsync(opmProcessId, workflowId, teamAppId);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
@@ -148,13 +188,24 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await PublishProcessService.CompleteWorkflowAsync(approvalTask);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(approvalTask.Process.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireApprover()
+                    .DoAsync(async (teamAppId) =>
+                    {
+                        if (approvalTask.Process.TeamAppId != teamAppId)
+                        {
+                            throw new Exception(""); //TODO
+                        }
+
+                        await PublishProcessService.CompleteWorkflowAsync(approvalTask);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
@@ -165,13 +216,25 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await PublishProcessService.ProcessingCompleteWorkflowAsync(approvalTask);
-                return ApiUtils.CreateSuccessResponse();
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(approvalTask.Process.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireApprover()
+                    .DoAsync(async (teamAppId) =>
+                    {
+                        if (approvalTask.Process.TeamAppId != teamAppId)
+                        {
+                            throw new Exception(""); //TODO
+                        }
+
+                        await PublishProcessService.ProcessingCompleteWorkflowAsync(approvalTask);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
+
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                await ProcessService.UpdateProcessStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }

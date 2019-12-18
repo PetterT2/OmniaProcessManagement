@@ -11,6 +11,7 @@ using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
 using Omnia.ProcessManagement.Models.Enums;
@@ -110,7 +111,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 var processDataEf = new Entities.Processes.ProcessData();
                 processDataEf.ProcessStepId = processStep.Id;
                 processDataEf.ProcessId = processId;
-                processDataEf.JsonValue = JsonConvert.SerializeObject(processData);
+                processDataEf.JsonValue = JsonConvert.SerializeObject(new InternalProcessData(processData));
                 processDataEf.ReferenceProcessStepIds = refrerenceProcessStepIds;
                 processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
                 processDataEf.CreatedBy = OmniaContext.Identity.LoginName;
@@ -136,7 +137,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
         {
             var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
@@ -176,6 +177,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
             processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
 
+            if (securityResourceId.HasValue)
+            {
+                processEf.SecurityResourceId = securityResourceId.Value;
+            }
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
@@ -358,7 +363,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 var referenceProcessStepIds = GetReferenceProcessStepIds(newProcesData);
 
                 processDataEf.ReferenceProcessStepIds = referenceProcessStepIds;
-                processDataEf.JsonValue = JsonConvert.SerializeObject(newProcesData);
+                processDataEf.JsonValue = JsonConvert.SerializeObject(new InternalProcessData(newProcesData));
                 processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
                 processStep.ProcessDataHash = processDataEf.Hash;
 
@@ -397,7 +402,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.ProcessData.Remove(processDataEf);
         }
 
-        public async ValueTask<ProcessDataWithAuditing> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             var processData = await DbContext.ProcessData
                 .Where(p => p.ProcessStepId == processStepId && p.Hash == hash && p.Process.VersionType == versionType)
@@ -431,13 +436,22 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppInstanceId, ProcessVersionType versionType)
+        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, AuthorizedProcessQuery processQuery)
         {
-            List<Process> processes = new List<Process>();
-            var processesData = await DbContext.Processes
-               .Where(p => p.TeamAppId == teamAppInstanceId && p.VersionType == versionType)
-               .ToListAsync();
-            processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            var processes = new List<Process>();
+
+            var sqlQuery = processQuery.GetQuery();
+
+            if (sqlQuery != string.Empty)
+            {
+                var processesData = await DbContext
+                .AlternativeProcessEFView
+                .FromSqlRaw(sqlQuery)
+                .ToListAsync();
+
+                processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+            }
+
             return processes;
         }
 
@@ -777,9 +791,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
         }
 
-        private ProcessDataWithAuditing MapEfToModel(Entities.Processes.ProcessData processDataEf)
+        private Process MapEfToModel(Entities.Processes.AlternativeProcessEF processEf)
         {
-            var model = JsonConvert.DeserializeObject<ProcessDataWithAuditing>(processDataEf.JsonValue);
+            var model = new Process();
+            model.OPMProcessId = processEf.OPMProcessId;
+            model.Id = processEf.Id;
+            model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.VersionType = processEf.VersionType;
+            model.TeamAppId = processEf.TeamAppId;
+            model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            model.CreatedAt = processEf.CreatedAt;
+            model.CreatedBy = processEf.CreatedBy;
+            model.ModifiedAt = processEf.ModifiedAt;
+            model.ModifiedBy = processEf.ModifiedBy;
+            return model;
+        }
+
+        private ProcessData MapEfToModel(Entities.Processes.ProcessData processDataEf)
+        {
+            var model = JsonConvert.DeserializeObject<ProcessData>(processDataEf.JsonValue);
             model.CreatedAt = processDataEf.CreatedAt;
             model.CreatedBy = processDataEf.CreatedBy;
             model.ModifiedAt = processDataEf.ModifiedAt;
@@ -798,6 +829,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            model.CreatedAt = processEf.CreatedAt;
+            model.CreatedBy = processEf.CreatedBy;
+            model.ModifiedAt = processEf.ModifiedAt;
+            model.ModifiedBy = processEf.ModifiedBy;
             return model;
         }
 

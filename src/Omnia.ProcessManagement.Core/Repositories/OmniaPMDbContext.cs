@@ -9,6 +9,7 @@ using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
 using Omnia.ProcessManagement.Core.Entities.Settings;
 using Omnia.ProcessManagement.Core.Entities.Workflows;
+using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
@@ -49,11 +50,16 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessData> ProcessData { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
         public DbSet<ProcessType> ProcessTypes { get; set; }
-        public DbSet<ProcessTypeChildCount> ProcessTypeChildCounts { get; set; }
         public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Workflow> Workflows { get; set; }
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
+
+
+        //Views
+        public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
+        public DbSet<AlternativeProcessEF> AlternativeProcessEFView { get; set; }
+        public DbSet<AlternativeProcessEFWithoutData> AlternativeProcessEFWithoutDataView { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,7 +91,9 @@ namespace Omnia.ProcessManagement.Core.Repositories
             SetClusteredIndex<Workflow>(modelBuilder, d => new { d.Id });
             SetClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
 
-            modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCounts)).HasNoKey();
+            modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
+            modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();
+            modelBuilder.Entity<AlternativeProcessEFWithoutData>().ToView(nameof(AlternativeProcessEFWithoutDataView)).HasNoKey();
         }
 
         /// <summary>

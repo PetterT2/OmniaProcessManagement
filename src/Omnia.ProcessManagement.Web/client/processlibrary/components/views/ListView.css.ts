@@ -37,6 +37,13 @@ StyleFlow.define(ProcessLibraryListViewStyles,
         },
         publishDialogErrorFormContent: {
             boxShadow: "0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)"
+        },
+        permissionBtn: {
+            position: 'absolute !important' as any,
+            zIndex: 1,
+            right: '12px',
+            top: '0',
+            marginTop: '6px'
         }
     }
 )

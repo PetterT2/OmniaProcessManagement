@@ -15,6 +15,7 @@ import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { FilterDialog } from './dialogs/FilterDialog';
 import { LibraryStore } from '../../stores';
+import { OPMContext } from '../../../fx/contexts';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -41,7 +42,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     @Inject(TermStore) private termStore: TermStore;
     @Inject(LibraryStore) libraryStore: LibraryStore;
-
+    @Inject(OPMContext) opmContext: OPMContext;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
 
@@ -120,42 +121,46 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadProcesses() {
-        this.processService.getProcessesBySite(this.request.webUrl, this.versionType)
-            .then((processes) => {
-                this.allProcesses = processes as Array<DisplayProcess>;
-                this.allProcesses.forEach(p => p.sortValues = {});
-                let personFields = [];
-                let termSetIds = [];
-                this.displaySettings.selectedFields.forEach(f => {
-                    let field = this.getEnterpriseProperty(f);
-                    if (field) {
-                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
-                            personFields.push(f);
-                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
-                            termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
-                    }
-                })
-                let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
-                let promises: Array<Promise<any>> = [
-                    this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
-                ];
-                termSetIds.forEach(t => {
-                    promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
-                })
+        let getProcesses = () => this.versionType == ProcessVersionType.Draft ?
+            this.processService.getDraftProcessesBySite(this.request.teamAppId) :
+            this.processService.getLatestPublishedProcessesBySite(this.request.teamAppId)
 
-                Promise.all(promises).then((result) => {
-                    this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
-                    this.applyFilterAndSort();
-                });
-            }).catch(() => {
-                this.isLoading = false;
+        getProcesses().then((processes) => {
+            this.allProcesses = processes as Array<DisplayProcess>;
+            this.allProcesses.forEach(p => p.sortValues = {});
+            let personFields = [];
+            let termSetIds = [];
+            this.displaySettings.selectedFields.forEach(f => {
+                let field = this.getEnterpriseProperty(f);
+                if (field) {
+                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
+                        personFields.push(f);
+                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
+                        termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
+                }
+            })
+            let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
+            let promises: Array<Promise<any>> = [
+                this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
+            ];
+            termSetIds.forEach(t => {
+                promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
+            })
+
+            Promise.all(promises).then((result) => {
+                this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
+                this.applyFilterAndSort();
             });
+        }).catch(() => {
+            this.isLoading = false;
+        });
     }
 
     private initProcesses() {
         this.isLoading = true;
         this.request = {
             webUrl: this.spContext.pageContext.web.absoluteUrl,
+            teamAppId: this.opmContext.teamAppId,
             pageNum: 1,
             filters: {},
             sortBy: this.displaySettings.defaultOrderingFieldName,
@@ -314,6 +319,24 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                         <a onClick={() => { this.openProcess(item); }}>{item.rootProcessStep.multilingualTitle}</a>
                                     </td>
                                 );
+                            case ProcessLibraryFields.Edition:
+                                return (
+                                    <td>
+                                        {item.rootProcessStep.edition}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.Revision:
+                                return (
+                                    <td>
+                                        {item.rootProcessStep.revision}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.Published:
+                                return (
+                                    <td>
+                                        {moment(item.modifiedAt).format(this.dateFormat)}
+                                    </td>
+                                );
                             default:
                                 return (
                                     <td>{Utils.isNullOrEmpty(item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(item, internalName) : item.sortValues[internalName]}</td>
@@ -451,10 +474,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     render(h) {
         return (
-            <div>
-                <v-toolbar flat color="white">
-                    {
-                        !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+            <div class={Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ? "mt-3" : ""}>
+                {
+                    !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+                        <v-toolbar flat color="white">
                             <v-card-actions>
                                 {h(this.processListViewComponentKey.actionButtonComponent, {
                                     domProps: {
@@ -462,9 +485,9 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     }
                                 })}
                             </v-card-actions>
-                            : null
-                    }
-                </v-toolbar>
+                        </v-toolbar>
+                        : null
+                }
                 {
                     this.isLoading ?
                         <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :

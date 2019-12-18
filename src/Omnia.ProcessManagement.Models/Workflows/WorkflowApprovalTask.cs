@@ -22,6 +22,5 @@ namespace Omnia.ProcessManagement.Models.Workflows
         public User AssignedTo { get; set; }
         public User Author { get; set; }
         public bool Responsible { get; set; }
-        public string WebUrl { get; set; }
     }
 }

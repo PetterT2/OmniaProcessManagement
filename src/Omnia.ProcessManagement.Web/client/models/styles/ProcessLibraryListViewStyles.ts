@@ -7,5 +7,5 @@ export const ProcessLibraryListViewStyles = {} as
         menuColumn: types.NestedCSSProperties;
         menuHeader: types.NestedCSSProperties;
         publishDialogErrorFormContent?: types.NestedCSSProperties;
-
+        permissionBtn?: types.NestedCSSProperties;
     }

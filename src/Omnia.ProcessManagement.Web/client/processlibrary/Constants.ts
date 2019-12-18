@@ -17,5 +17,6 @@ export const LibrarySystemFieldsConstants = {
 export const ProcessLibraryFields = {
     get Edition() { return "Edition" },
     get Revision() { return "Revision" },
-    get Published() { return "Published" }
+    get Published() { return "Published" },
+    get ModifiedAt() { return "ModifiedAt" }
 }
