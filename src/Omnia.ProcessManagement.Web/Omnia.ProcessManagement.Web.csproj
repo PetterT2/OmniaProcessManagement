@@ -253,6 +253,8 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\ProcessStepDrawing.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeSelectionStep.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeTypeStep.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettings.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettings.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\stores\AddShapeWizardStore.ts" />
