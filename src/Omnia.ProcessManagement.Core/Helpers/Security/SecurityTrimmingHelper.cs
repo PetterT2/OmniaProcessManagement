@@ -46,7 +46,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                         var limitedTeamAppIdsHashSet = limitedTeamAppIds.ToHashSet();
                         teamAppIds = teamAppIds.Where(appId => limitedTeamAppIdsHashSet.Contains(appId)).ToList();
 
-                        limitedTeamAppIdTrimming = $"({GeneratePermissionForTeamAppIds(teamAppIds)})";
+                        if (teamAppIds.Any())
+                        {
+                            limitedTeamAppIdTrimming = $"({GeneratePermissionForTeamAppIds(teamAppIds)})";
+                        }
                     }
                     else
                     {
@@ -68,7 +71,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                         var limitedOPMProcessIdsHashSet = limitedOPMProcessIds.ToHashSet();
                         opmProcessIds = opmProcessIds.Where(opmProcessId => limitedOPMProcessIdsHashSet.Contains(opmProcessId)).ToList();
 
-                        limitedOPMProcessIdTrimming = $"({GeneratePermissionForOPMProcessIds(opmProcessIds)})";
+                        if (opmProcessIds.Any())
+                        {
+                            limitedOPMProcessIdTrimming = $"({GeneratePermissionForOPMProcessIds(opmProcessIds)})";
+                        }
                     }
                     else
                     {

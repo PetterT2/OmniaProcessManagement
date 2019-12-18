@@ -69,10 +69,18 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
                     nameof (Process.CreatedAt),
                     nameof (Process.ModifiedAt),
                     nameof (Process.CreatedBy),
-                    nameof (Process.ModifiedBy),
-                    nameof (Process.ClusteredId)
+                    nameof (Process.ModifiedBy)
                 };
             }
+        }
+
+        internal AuthorizedInternalProcessQuery ConvertToAuthorizedInternalProcessQuery()
+        {
+            var internalProcessQuery = new AuthorizedInternalProcessQuery(VersionType, AuthorizedResource);
+            internalProcessQuery.SetLimitedOPMProcessIds(LimitedOPMProcessIds.ToArray());
+            internalProcessQuery.SetLimitedTeamAppIds(LimitedTeamAppIds.ToArray());
+
+            return internalProcessQuery;
         }
     }
 }

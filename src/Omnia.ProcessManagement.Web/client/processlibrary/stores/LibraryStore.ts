@@ -34,11 +34,18 @@ export class LibraryStore extends Store {
     }
 
     actions = {
-        ensureProcessWorkingStatus: this.action((opmProcessIds: Array<GuidValue>, versionType: ProcessVersionType) => {
-            return this.processService.getProcessWorkingStatus(opmProcessIds, versionType)
-                .then((workingStatus: Array<Enums.WorkflowEnums.ProcessWorkingStatus>) => {
-                    opmProcessIds.forEach((opmProcessId, i) => {
-                        this.processWorkingStatus[opmProcessId.toString()] = workingStatus[i];
+        ensureProcessWorkingStatus: this.action((teamAppId: GuidValue, opmProcessIds: Array<GuidValue>, versionType: ProcessVersionType) => {
+            if (versionType == ProcessVersionType.CheckedOut || versionType == ProcessVersionType.Published)
+                throw `Not supported`;
+
+            let getProcessWorkingStatus = () => versionType == ProcessVersionType.Draft ?
+                this.processService.getDraftProcessWorkingStatus(teamAppId, opmProcessIds) :
+                this.processService.getLatestPublishedProcessWorkingStatus(teamAppId, opmProcessIds)
+
+            return getProcessWorkingStatus().then((workingStatus) => {
+                opmProcessIds.forEach((opmProcessId, i) => {
+                    if (workingStatus[opmProcessId.toString()] != null)
+                        this.processWorkingStatus[opmProcessId.toString()] = workingStatus[opmProcessId.toString()];
                     });
                     return null;
                 });

@@ -21,7 +21,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public string JsonValue { get; set; }
     }
 
-    internal class AlternativeProcessEFWithoutData : OPMAuditingEntityBase
+    internal class AlternativeProcessEFWithoutData
     {
         public Guid Id { get; set; }
         public Guid OPMProcessId { get; set; }
@@ -30,6 +30,5 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public Guid SecurityResourceId { get; set; }
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
-        public long ClusteredId { get; set; }
     }
 }

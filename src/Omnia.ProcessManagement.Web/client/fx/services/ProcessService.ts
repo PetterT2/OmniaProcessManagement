@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -144,7 +144,7 @@ export class ProcessService {
             let params = {
                 teamAppId: teamAppId
             };
-            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/drafts`, { params: params }).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/draft`, { params: params }).then((response) => {
                 if (response.data.success) {
                     let processes = response.data.data;
                     this.generateClientSideData(processes);
@@ -175,9 +175,26 @@ export class ProcessService {
         })
     }
 
-    public getProcessWorkingStatus = (opmProcessIds: Array<GuidValue>, versionType: ProcessVersionType) => {
-        return new Promise<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Array<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/workingstatus/${versionType}`, opmProcessIds).then(response => {
+    public getDraftProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>) => {
+        let params = {
+            teamAppId: teamAppId
+        };
+        return new Promise<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, {params: params}).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public getLatestPublishedProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>) => {
+        let params = {
+            teamAppId: teamAppId
+        };
+        return new Promise<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/latestpublished/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

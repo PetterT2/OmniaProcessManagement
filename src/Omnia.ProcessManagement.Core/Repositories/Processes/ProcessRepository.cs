@@ -436,7 +436,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, AuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetProcessesAsync(AuthorizedProcessQuery processQuery)
         {
             var processes = new List<Process>();
 
@@ -444,12 +444,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             if (sqlQuery != string.Empty)
             {
-                var processesData = await DbContext
+                var processEfs = await DbContext
                 .AlternativeProcessEFView
                 .FromSqlRaw(sqlQuery)
                 .ToListAsync();
 
-                processesData.ForEach(p => processes.Add(MapEfToModel(p)));
+                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
             }
 
             return processes;
@@ -538,27 +538,23 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<InternalProcess>> GetInternalProcessesByOPMProcessIdsAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
+        public async ValueTask<List<InternalProcess>> GetInternalProcessesAsync(AuthorizedInternalProcessQuery processQuery)
         {
-            //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
+            var processes = new List<InternalProcess>();
 
-            if (versionType == ProcessVersionType.Published)
-                throw new Exception("Not supported get published version");
+            var sqlQuery = processQuery.GetQuery();
 
-            var internalProcesses = await DbContext.Processes
-               .Where(p => p.VersionType == versionType && opmProcessIds.Any(opmProcessId => p.OPMProcessId == opmProcessId))
-               .Select(p => new InternalProcess
-               {
-                   Id = p.Id,
-                   VersionType = p.VersionType,
-                   CheckedOutBy = p.CheckedOutBy,
-                   OPMProcessId = p.OPMProcessId,
-                   ProcessWorkingStatus = p.ProcessWorkingStatus,
-                   TeamAppId = p.TeamAppId
-               })
-               .ToListAsync();
+            if (sqlQuery != string.Empty)
+            {
+                var processEfs = await DbContext
+                .AlternativeProcessEFWithoutDataView
+                .FromSqlRaw(sqlQuery)
+                .ToListAsync();
 
-            return internalProcesses;
+                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
+            }
+
+            return processes;
         }
         public async ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)
         {
@@ -805,6 +801,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.CreatedBy = processEf.CreatedBy;
             model.ModifiedAt = processEf.ModifiedAt;
             model.ModifiedBy = processEf.ModifiedBy;
+            return model;
+        }
+
+        private InternalProcess MapEfToModel(Entities.Processes.AlternativeProcessEFWithoutData processEf)
+        {
+            var model = new InternalProcess();
+
+            model.OPMProcessId = processEf.OPMProcessId;
+            model.Id = processEf.Id;
+            model.CheckedOutBy = processEf.CheckedOutBy;
+            model.VersionType = processEf.VersionType;
+            model.TeamAppId = processEf.TeamAppId;
+            model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+
             return model;
         }
 
