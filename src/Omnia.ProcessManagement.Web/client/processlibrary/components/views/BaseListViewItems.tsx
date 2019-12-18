@@ -65,8 +65,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     selectedProcess: Process;
     pageTotal: number = 1;
     lcid: number = 1033;
+    isAuthor: boolean = false;
 
     created() {
+        this.loadPermisison();
         let languageSettings = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
         if (languageSettings.availableLanguages.length > 0) {
             let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
@@ -98,6 +100,13 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     beforeDestroy() {
         clearInterval(this.refreshStatusInterval);
+    }
+
+    private loadPermisison() {
+        this.processService.checkAuthorPermission(this.opmContext.teamAppId)
+            .then((isAuthor: boolean) => {
+                this.isAuthor = isAuthor;
+            })
     }
 
     private refreshStatus() {
@@ -299,7 +308,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                         {h(this.processListViewComponentKey.processMenuComponent, {
                                             domProps: {
                                                 closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
-                                                process: item
+                                                process: item,
+                                                isAuthor: this.isAuthor
                                             }
                                         })}
                                     </td>
@@ -431,7 +441,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                         header: p => this.renderHeaders(h)
                     }}>
                     <div slot="no-data">
-                        {this.loc.ProcessNoItem[this.versionType]}
+                        {this.loc.ProcessNoItem[ProcessVersionType[this.versionType]]}
                     </div>
                 </v-data-table>
                 {
@@ -473,10 +483,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     render(h) {
+        let hasActionButtons = !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) && this.isAuthor;
         return (
-            <div class={Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ? "mt-3" : ""}>
+            <div class={!hasActionButtons ? "mt-3" : ""}>
                 {
-                    !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+                    hasActionButtons ?
                         <v-toolbar flat color="white">
                             <v-card-actions>
                                 {h(this.processListViewComponentKey.actionButtonComponent, {

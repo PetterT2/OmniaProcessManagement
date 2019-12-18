@@ -8,7 +8,7 @@
         },
         ProcessNoItem: {
             Draft: string,
-            Published: string
+            LatestPublished: string
         },
         ProcessStatuses: {
             Draft: string,
