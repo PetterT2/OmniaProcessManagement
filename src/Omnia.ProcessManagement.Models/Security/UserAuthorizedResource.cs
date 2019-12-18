@@ -9,13 +9,13 @@ namespace Omnia.ProcessManagement.Models.Security
         public UserAuthorizedResource()
         {
             AuthorTeamAppIds = new List<Guid>();
-            ApproveOPMProcessIds = new List<Guid>();
-            ReviewOPMProcessIds = new List<Guid>();
-            LatestPublishedSecurityResourceIds = new List<Guid>();
+            ApproverOPMProcessIds = new List<Guid>();
+            ReviewerOPMProcessIds = new List<Guid>();
+            ReaderSecurityResourceIds = new List<Guid>();
         }
         public List<Guid> AuthorTeamAppIds { get; set; }
-        public List<Guid> ApproveOPMProcessIds { get; set; }
-        public List<Guid> ReviewOPMProcessIds { get; set; }
-        public List<Guid> LatestPublishedSecurityResourceIds { get; set; }
+        public List<Guid> ApproverOPMProcessIds { get; set; }
+        public List<Guid> ReviewerOPMProcessIds { get; set; }
+        public List<Guid> ReaderSecurityResourceIds { get; set; }
     }
 }

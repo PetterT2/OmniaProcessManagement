@@ -174,13 +174,13 @@ namespace Omnia.ProcessManagement.Core.Services.Security
                     switch (roleIdAsString)
                     {
                         case OPMConstants.Security.Roles.Reader:
-                            result.LatestPublishedSecurityResourceIds.AddRange(SecurityResourceIdResourceHelper.ParseSecurityResourceIds(resources[roleId]));
+                            result.ReaderSecurityResourceIds.AddRange(SecurityResourceIdResourceHelper.ParseSecurityResourceIds(resources[roleId]));
                             break;
                         case OPMConstants.Security.Roles.Approver:
-                            result.ApproveOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
+                            result.ApproverOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
                             break;
                         case OPMConstants.Security.Roles.Reviewer:
-                            result.ReviewOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
+                            result.ReviewerOPMProcessIds.AddRange(OPMProcessIdResourceHelper.ParseOPMProcessIds(resources[roleId]));
                             break;
                         case OPMConstants.Security.Roles.Author:
                             result.AuthorTeamAppIds.AddRange(ParseTeamAppIds(resources[roleId]));
