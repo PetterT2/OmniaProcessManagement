@@ -103,7 +103,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     private refreshStatus() {
         if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes)) {
             this.isRefeshingStatuses = true;
-            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.filterAndSortProcesses.processes.map(p => p.opmProcessId), this.versionType)
+            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.request.teamAppId, this.filterAndSortProcesses.processes.map(p => p.opmProcessId), this.versionType)
                 .then(() => {
                     this.libraryStore.getters.processWorkingStatus(this.filterAndSortProcesses.processes);
                     this.isRefeshingStatuses = false;

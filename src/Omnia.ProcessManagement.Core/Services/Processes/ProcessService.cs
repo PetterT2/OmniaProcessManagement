@@ -80,21 +80,19 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(Guid teamAppId, AuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetProcessesAsync(AuthorizedProcessQuery processQuery)
         {
-            return await ProcessRepository.GetProcessesAsync(teamAppId, processQuery);
+            return await ProcessRepository.GetProcessesAsync(processQuery);
         }
 
-        public async ValueTask<List<ProcessWorkingStatus>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
+        public async ValueTask<Dictionary<Guid,ProcessWorkingStatus>> GetProcessWorkingStatusAsync(AuthorizedProcessQuery processQuery)
         {
-            var internalProcesses = await ProcessRepository.GetInternalProcessesByOPMProcessIdsAsync(opmProcessIds, versionType);
+            var internalProcessQuery = processQuery.ConvertToAuthorizedInternalProcessQuery();
+            var internalProcesses = await ProcessRepository.GetInternalProcessesAsync(internalProcessQuery);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
-            foreach (Guid opmProcessId in opmProcessIds)
-            {
-                Process findProcess = internalProcesses.FirstOrDefault(p => p.OPMProcessId == opmProcessId);
-                workingStatus.Add(findProcess != null ? findProcess.ProcessWorkingStatus : ProcessWorkingStatus.Draft);
-            }
-            return workingStatus;
+
+            var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => p.ProcessWorkingStatus);
+            return workingStatusDict;
         }
 
         public async ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus)

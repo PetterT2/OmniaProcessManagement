@@ -216,19 +216,45 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("workingstatus/{versionType:int}")]
+        [HttpPost, Route("draft/workingstatus")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<ProcessWorkingStatus>>> GetProcessWorkingStatusAsync(List<Guid> opmProcessIds, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<Dictionary<Guid,ProcessWorkingStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
         {
             try
             {
-                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(opmProcessIds, versionType);
+                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
+                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.Draft, authorizedResource);
+                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
+
+                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
                 return processWorkingStatus.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<ProcessWorkingStatus>>(ex);
+                return ApiUtils.CreateErrorResponse<Dictionary<Guid,ProcessWorkingStatus>>(ex);
+            }
+        }
+
+        [HttpPost, Route("latestpublished/workingstatus")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetLatestPublishedProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
+        {
+            try
+            {
+                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
+                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.LatestPublished, authorizedResource);
+                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
+
+                var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
+                return processWorkingStatus.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessWorkingStatus>>(ex);
             }
         }
 
@@ -284,7 +310,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("drafts")]
+        [HttpGet, Route("draft")]
         [Authorize]
         public async ValueTask<ApiResponse<List<Process>>> GetDraftProcessesAsync(Guid teamAppId)
         {
@@ -293,7 +319,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
                 var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.Draft, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                var processesData = await ProcessService.GetProcessesAsync(teamAppId, authorizedProcessQuery);
+                var processesData = await ProcessService.GetProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
@@ -312,7 +338,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
                 var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.LatestPublished, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                var processesData = await ProcessService.GetProcessesAsync(teamAppId, authorizedProcessQuery);
+                var processesData = await ProcessService.GetProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
