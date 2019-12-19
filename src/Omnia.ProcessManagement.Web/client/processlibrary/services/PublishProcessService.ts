@@ -23,6 +23,17 @@ export class PublishProcessService {
         });
     }
 
+    public processingPublishProcessWithoutApproval = (request: PublishProcessWithoutApprovalRequest): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/processingwithoutapproval', request).then(result => {
+                if (result.data.success) {
+                    resolve();
+                }
+                else reject(result.data.errorMessage)
+            })
+        });
+    }
+
     public publishProcessWithApproval = (request: PublishProcessWithApprovalRequest): Promise<Process> => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/publish/withapproval', request).then(response => {

@@ -6,7 +6,7 @@ import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVer
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
-import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessService } from '../../../fx';
@@ -16,6 +16,7 @@ import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx
 import { FilterDialog } from './dialogs/FilterDialog';
 import { LibraryStore } from '../../stores';
 import { OPMContext } from '../../../fx/contexts';
+import { SecurityService } from '@omnia/fx/services';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -45,6 +46,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(OPMContext) opmContext: OPMContext;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
+    @Inject(SecurityService) securityService: SecurityService;
 
     private messageBusReloadDocumentStatus: IMessageBusSubscriptionHandler = null;
 
@@ -85,7 +87,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             }
         }, 5000);
         this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
-            if (!this.isRefeshingStatuses && versionType == this.versionType) {
+            if (versionType == this.versionType) {
                 this.refreshStatus();
             }
         });
@@ -103,10 +105,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadPermisison() {
-        this.processService.checkAuthorPermission(this.opmContext.teamAppId)
-            .then((isAuthor: boolean) => {
-                this.isAuthor = isAuthor;
-            })
+        this.securityService.hasWritePermissionForRole(Enums.Security.OPMRoleDefinitions.Author, {
+            [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
+        }).then((hasPermission) => {
+            this.isAuthor = hasPermission;
+        })
     }
 
     private refreshStatus() {

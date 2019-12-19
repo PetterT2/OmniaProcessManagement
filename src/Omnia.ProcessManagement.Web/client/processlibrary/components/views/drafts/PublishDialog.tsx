@@ -219,6 +219,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+            this.publishProcessService.processingPublishProcessWithoutApproval(request)
+                .then(() => {
+                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+                })
+                .catch(() => {
+                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+                })
             this.isPublishingOrSending = false;
             this.closeCallback();
         }).catch(msg => {
@@ -404,7 +411,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     renderHeader(h) {
         return (
-            <omfx-heading styles={this.headingStyle} size={0}><span>{this.loc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
+            <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
+                <v-toolbar-title>{this.loc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon onClick={() => { this.publishDialogClose(); }}>
+                    <v-icon>close</v-icon>
+                </v-btn>
+            </v-toolbar>
         )
     }
 
@@ -450,14 +463,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
             <div>
                 <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
                     onClose={this.publishDialogClose}
+                    hideCloseButton
                     model={this.dialogModel}
                     contentClass={this.omniaTheming.promoted.body.class}
                     width={'800px'}
                     position={DialogPositions.Center}>
                     <div>
-                        <div class={this.omniaTheming.promoted.header.class}>
-                            {this.renderHeader(h)}
-                        </div>
+                        {this.renderHeader(h)}
                         <v-card flat tile class={this.omniaTheming.promoted.body.class}>
                             <div data-omfx>
                                 {

@@ -100,6 +100,7 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_Status = "Status";
                 public const string Fields_Assigned_To = "AssignedTo";
                 public const string Fields_PercentComplete = "PercentComplete";
+                public const string Fields_Author = "Author";
             }
         }
 

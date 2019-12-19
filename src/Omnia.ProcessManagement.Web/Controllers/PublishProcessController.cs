@@ -71,6 +71,30 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpPost, Route("processingwithoutapproval")]
+        [Authorize]
+        public async ValueTask<ApiResponse> ProcessingPublishProcessWithoutApprovalAsync(PublishProcessWithoutApprovalRequest request)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(request.OPMProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async (teamAppId) =>
+                    {
+                        await PublishProcessService.ProcessingPublishProcessAsync(teamAppId, request);
+                        return ApiUtils.CreateSuccessResponse();
+                    });
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
         [HttpPost, Route("withapproval")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request)

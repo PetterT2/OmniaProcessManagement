@@ -14,6 +14,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     public interface IPublishProcessService
     {
         ValueTask PublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request);
+        ValueTask ProcessingPublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request);
         ValueTask<Process> PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request);
         ValueTask ProcessingApprovalProcessAsync(PublishProcessWithApprovalRequest request);
         ValueTask ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, Guid teamAppId);

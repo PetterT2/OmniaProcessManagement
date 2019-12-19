@@ -39,28 +39,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
             Logger = logger;
         }
 
-        [HttpGet, Route("checkauthorpermission/{teamAppId:guid}")]
-        [Authorize]
-        public async ValueTask<ApiResponse<bool>> CheckAuthorPermission(Guid teamAppId)
-        {
-            bool isAuthor = false;
-            try
-            {
-                return await ProcessSecurityService.InitSecurityResponseByTeamAppId(teamAppId)
-                  .RequireAuthor()
-                  .DoAsync(async () =>
-                  {
-                      await Task.Run(()=> { isAuthor = true; });
-                      return isAuthor.AsApiResponse();
-                  });
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return isAuthor.AsApiResponse();
-            }
-        }
-
         [HttpPost, Route("createdraft")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> CreateDraftProcessAsync([FromBody] ProcessActionModel actionModel)
