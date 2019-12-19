@@ -96,19 +96,19 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
             if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Edition) == null) {
                 this.enterpriseProperties.push({
                     internalName: ProcessLibraryFields.Edition,
-                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Edition])
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Edition)
                 } as EnterprisePropertyDefinition)
             }
             if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Revision) == null) {
                 this.enterpriseProperties.push({
                     internalName: ProcessLibraryFields.Revision,
-                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Revision])
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Revision)
                 } as EnterprisePropertyDefinition)
             }
             if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Published) == null) {
                 this.enterpriseProperties.push({
                     internalName: ProcessLibraryFields.Published,
-                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns[ProcessLibraryFields.Published])
+                    multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Published)
                 } as EnterprisePropertyDefinition)
             }
             this.enterpriseProperties = this.enterpriseProperties.sort((a, b) => { return a.multilingualTitle.localeCompare(b.multilingualTitle); });
@@ -157,7 +157,8 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
             <draggable
                 options={{ handle: ".drag-handle", animation: "100" }}
                 element="v-list"
-                v-model={this.libraryDisplaySettings.selectedFields}>
+                v-model={this.libraryDisplaySettings.selectedFields}
+                onChange={() => { this.updateBlockData(); }}>
                 {
                     this.libraryDisplaySettings.selectedFields.map((internalName, index) => {
                         return (

@@ -248,42 +248,43 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private getEnterpriseProperty(internalName: string) {
-        let field: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
+        let field: EnterprisePropertyDefinition = null;
+        switch (internalName) {
+            case LibrarySystemFieldsConstants.Title:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Text
+                    },
+                    internalName: LibrarySystemFieldsConstants.Title
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Edition:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Edition, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Number
+                    },
+                    internalName: ProcessLibraryFields.Edition
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Revision:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Revision, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Number
+                    },
+                    internalName: ProcessLibraryFields.Revision
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Published:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.DateTime
+                    },
+                    internalName: ProcessLibraryFields.Published
+                } as EnterprisePropertyDefinition;
+                break;
+        }
         if (field == null) {
-            switch (internalName) {
-                case LibrarySystemFieldsConstants.Title:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Text
-                        },
-                        internalName: LibrarySystemFieldsConstants.Title
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Edition:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Edition, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Number
-                        },
-                        internalName: ProcessLibraryFields.Edition
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Revision:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Revision, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Number
-                        },
-                        internalName: ProcessLibraryFields.Revision
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Published:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.DateTime
-                        },
-                        internalName: ProcessLibraryFields.Published
-                    } as EnterprisePropertyDefinition;
-                    break;
-            }
+            field = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
         }
         return field;
     }
@@ -363,7 +364,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     renderHeaderForOtherColumns(h, internalName: string) {
         let field = this.getEnterpriseProperty(internalName);
-
+        if (field == null)
+            return null;
         return (
             <th class={'text-left font-weight-bold'}>
                 <v-icon v-show={this.isFilter(internalName)} size='16' class="mr-1">fal fa-filter</v-icon>
