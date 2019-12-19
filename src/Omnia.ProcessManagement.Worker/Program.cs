@@ -15,12 +15,23 @@ namespace Omnia.ProcessManagement.Worker
 {
     public class Program
     {
+
         public static async Task Main(string[] args)
         {
-            await new WorkerHost(args)
-                .ConfigureOmnia((omniaConfig, logging) =>
-                {
-                    omniaConfig.AddAppSettingsJsonFile("appsettings.json", Directory.GetCurrentDirectory());
+            await CreateHostBuilder(args).Build().RunAsync();
+        }
+
+        /// <summary>
+        /// Build host here to support add migration
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return new OmniaHostBuilder(args)
+                .ConfigureOmniaFx((omniaConfig, logger) => {
+
+                    omniaConfig.AddAppSettingsJsonFile("appsettings.json");
                     omniaConfig.AddAppSettingsJsonFile("appsettings.local.json", Directory.GetCurrentDirectory());
 
                     omniaConfig.AddOmniaFxNetCore((options) =>
@@ -32,16 +43,16 @@ namespace Omnia.ProcessManagement.Worker
                         });
                     })
                     .AddOmniaFxNetCoreSharePoint()
-                    .AddOmniaPMCore().
-                    ConfigureServices(serviceCollection =>
-                    {
-                        serviceCollection.AddDistributedMemoryCache();
+                    .AddOmniaPMCore();
 
-                        serviceCollection.AddHostedService<ProcessTypeTermSynchronizationTimerJob>();
-                        serviceCollection.AddOmniaPMSqlDB();
+                }).ConfigureHost(hostbuilder => {
+                    hostbuilder.ConfigureServices(services => {
+                        services.AddDistributedMemoryCache();
+
+                        services.AddHostedService<ProcessTypeTermSynchronizationTimerJob>();
+                        services.AddOmniaPMSqlDB();
                     });
-                })
-                .RunAsync();
+                });
         }
     }
 }
