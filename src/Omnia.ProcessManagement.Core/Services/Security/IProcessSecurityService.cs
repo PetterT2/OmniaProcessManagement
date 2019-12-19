@@ -12,11 +12,11 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     public interface IProcessSecurityService
     {
-        IOPMSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
-        ValueTask<IOPMSecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
-        ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
-        ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
-        ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
+        ISecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
+        ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
+        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
+        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
+        ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
 
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
 

@@ -47,33 +47,33 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
-        public IOPMSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)
+        public ISecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)
         {
-            return new OPMSecurityResponse(teamAppId, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new SecurityResponse(teamAppId, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType)
         {
             var process = await ProcessRepository.GetInternalProcessByOPMProcessIdAsync(opmProcessId, processVersionType);
-            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType)
         {
             var process = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, processVersionType);
-            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             var process = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, hash, versionType);
-            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<IOPMSecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId)
         {
             var process = await ProcessRepository.GetInternalProcessByProcessIdAsync(processId);
-            return new OPMSecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
+            return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync()

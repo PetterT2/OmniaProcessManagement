@@ -30,7 +30,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         public static string GenerateSecurityTrimming(UserAuthorizedResource resources, VersionTypeSupportTrimming versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
         {
             var securityTrimming = "";
-            var versionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
+            var versionTrimming = $" AND {ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
 
             var connectPart = "";
             var limitedOPMProcessIdTrimming = "";
@@ -56,27 +56,27 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
                 if (authorTeamAppIds.Any())
                 {
-                    var authorTrimming = $"({GeneratePermissionForTeamAppIds(authorTeamAppIds)}{limitedOPMProcessIdTrimming})";
+                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
                     connectPart = " OR ";
                 }
                 if (approverAndReviewerOPMProcessIds.Any() && versionType == VersionTypeSupportTrimming.Draft)
                 {
-                    var approverAndReviewerTrimming = $"({GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}{limitedTeamAppIdTrimming})";
+                    var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimming}";
                     connectPart = " OR ";
 
                 }
                 if (resources.ReaderSecurityResourceIds.Any() && versionType == VersionTypeSupportTrimming.LatestPublished)
                 {
-                    var readerTrimming = $"({GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}{limitedOPMProcessIdTrimming}{limitedTeamAppIdTrimming})";
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
                     connectPart = " OR ";
                 }
 
                 if (securityTrimming != "")
                 {
-                    securityTrimming = $"({securityTrimming}) AND {versionTrimming}";
+                    securityTrimming = $"({securityTrimming}){limitedOPMProcessIdTrimming}{limitedTeamAppIdTrimming}{versionTrimming}";
                 }
             }
 
