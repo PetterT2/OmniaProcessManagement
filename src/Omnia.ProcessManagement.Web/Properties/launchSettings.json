@@ -12,14 +12,18 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OMNIA_LOGGING_LEVEL": "Information",
+        "ASPNETCORE_HTTPS_PORT": "44353"
       }
     },
     "Omnia.ProcessManagement.Web": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OMNIA_LOGGING": "ON",
+        "OMNIA_LOGGING_LEVEL": "Trace"
       },
       "applicationUrl": "https://localhost:5001"
     }
