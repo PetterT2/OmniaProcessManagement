@@ -314,7 +314,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             position={DialogPositions.Center}
         >
             <div style={{ height: '100%' }}>
-                <opm-processdesigner-createlink onClose={this.closeCreateLinkDialog} domProps-onSave={this.createLinkCallback}></opm-processdesigner-createlink>
+              
             </div>
         </omfx-dialog>;
 
