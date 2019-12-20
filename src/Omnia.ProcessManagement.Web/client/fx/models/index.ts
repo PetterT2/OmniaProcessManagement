@@ -7,3 +7,4 @@ export * from './components';
 export * from './styles';
 export * from './shared';
 export * from './contexts';
+export * from './Constants';

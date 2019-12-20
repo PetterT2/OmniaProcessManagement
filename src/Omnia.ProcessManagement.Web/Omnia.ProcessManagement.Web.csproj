@@ -100,6 +100,7 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
@@ -428,6 +429,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\workflows\Workflow.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Constants.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessNumberPropertyInfo.ts">

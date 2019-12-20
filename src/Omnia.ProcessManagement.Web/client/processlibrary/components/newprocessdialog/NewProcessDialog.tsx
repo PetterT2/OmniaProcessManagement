@@ -8,7 +8,7 @@ import { ProcessLibraryStyles } from '../../../models';
 import { ProcessService, ProcessTemplateStore, ProcessTypeStore, ProcessStore } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
-import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings } from '../../../fx/models';
+import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
 import { Guid, GuidValue } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';
@@ -48,7 +48,6 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
             opmProcessId: Guid.newGuid(),
             rootProcessStep: {
                 id: id,
-                processTypeId: null,
                 title: null,
                 processTemplateId: null,
                 enterpriseProperties: {}
@@ -104,7 +103,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
         if (this.validator.validateAll()) {
             this.isSaving = true;
             this.process.teamAppId = this.opmContext.teamAppId;
-            this.process.rootProcessStep.processTypeId = this.selectedProcessType.id;
+            this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType] = this.selectedProcessType.id;
             this.process.rootProcessStep.processTemplateId = this.selectedTemplate.id;
             let processData: { [processStepId: string]: ProcessData } = {};
             processData[this.process.id.toString()] = {} as ProcessData;

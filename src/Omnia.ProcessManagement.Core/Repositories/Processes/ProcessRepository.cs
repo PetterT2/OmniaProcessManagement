@@ -53,6 +53,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
         {
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0);
+
             var process = new Entities.Processes.Process();
             process.Id = actionModel.Process.Id;
             DbContext.Processes.Add(process);
@@ -137,7 +139,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid? securityResourceId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
         {
             var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
@@ -163,24 +165,32 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processEf = draftProcessWithProcessDataIdHash.Process;
             }
 
-            if (latestPublishedProcess != null)
-            {
-                latestPublishedProcess.VersionType = ProcessVersionType.Published;
-            }
 
             processEf.CheckedOutBy = "";
             processEf.VersionType = ProcessVersionType.LatestPublished;
             RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
-            rootProcessStep.Edition = isRevision ? rootProcessStep.Edition : rootProcessStep.Edition + 1;
-            rootProcessStep.Revision = isRevision ? rootProcessStep.Revision + 1 : 0;
+
+            var edition = 1;
+            var revision = 0;
+
+            if (latestPublishedProcess != null)
+            {
+                latestPublishedProcess.VersionType = ProcessVersionType.Published;
+
+                var (latestEdition, latestRevision) = GetEditionAndRevision(latestPublishedProcess);
+                edition = isRevision ? latestEdition : latestEdition + 1;
+                revision = isRevision ? latestRevision + 1 : 0;
+            }
+
+            EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision);
+
             rootProcessStep.Comment = comment;
             processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
             processEf.ProcessWorkingStatus = ProcessWorkingStatus.Published;
 
-            if (securityResourceId.HasValue)
-            {
-                processEf.SecurityResourceId = securityResourceId.Value;
-            }
+
+            processEf.SecurityResourceId = securityResourceId;
+
 
             await DbContext.SaveChangesAsync();
             var process = MapEfToModel(processEf);
@@ -203,6 +213,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 throw new ProcessNotFoundException(actionModel.Process.Id);
             }
+
+            var (edition, revision) = GetEditionAndRevision(checkedOutProcessWithProcessDataIdHash.Process);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
@@ -674,14 +687,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 try
                 {
-                    var existingCheckedInProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, false);
+                    var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, false);
 
-                    if (existingCheckedInProcessWithProcessDataIdHash == null)
+                    if (existingDraftProcessWithProcessDataIdHash == null)
                     {
                         throw new ProcessDraftVersionNotFoundException(opmProcessId);
                     }
 
-                    var clonedProcess = await CloneProcessAsync(existingCheckedInProcessWithProcessDataIdHash, ProcessVersionType.CheckedOut);
+                    var clonedProcess = await CloneProcessAsync(existingDraftProcessWithProcessDataIdHash, ProcessVersionType.CheckedOut);
 
                     await transaction.CommitAsync();
                     return clonedProcess;
@@ -849,6 +862,35 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public override bool ShouldAddComputedColumn(EnterprisePropertyDefinition property)
         {
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
+        }
+
+        private (int, int) GetEditionAndRevision(Entities.Processes.Process process)
+        {
+            var processEnterpriseProperties = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(process.EnterpriseProperties);
+
+            if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
+                processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Revision.InternalName, out JToken revisionJToken) &&
+                int.TryParse(editionJToken.ToString(), out int edition) &&
+                int.TryParse(revisionJToken.ToString(), out int revision))
+            {
+                return (edition, revision);
+            }
+            else
+            {
+                throw new Exception("Invalid edition or revision to publish this process");
+            }
+        }
+
+        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision)
+        {
+            if (enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
+                !Guid.TryParse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid _))
+            {
+                throw new Exception("Invalid process type");
+            }
+
+            enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.Edition.InternalName] = edition;
+            enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.Revision.InternalName] = revision;
         }
     }
 }

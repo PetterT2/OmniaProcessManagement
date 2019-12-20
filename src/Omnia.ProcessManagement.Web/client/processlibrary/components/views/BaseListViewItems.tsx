@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey } from '../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
@@ -334,15 +334,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     </td>
                                 );
                             case ProcessLibraryFields.Edition:
-                                return (
-                                    <td>
-                                        {item.rootProcessStep.edition}
-                                    </td>
-                                );
                             case ProcessLibraryFields.Revision:
                                 return (
                                     <td>
-                                        {item.rootProcessStep.revision}
+                                        {item.rootProcessStep.enterpriseProperties[internalName]}
                                     </td>
                                 );
                             case ProcessLibraryFields.Published:
