@@ -127,6 +127,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\GlobalSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />

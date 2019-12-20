@@ -8,10 +8,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
 {
     public interface ISettingsRepository
     {
-        ValueTask<Setting> GetAsync();
+        ValueTask<T> GetAsync<T>() where T : Setting, new();
+        ValueTask<T> GetAsync<T>(string dynamicKey) where T : DynamicKeySetting;
 
-        ValueTask RemoveAsync();
+        ValueTask RemoveAsync<T>() where T : Setting, new();
+        ValueTask RemoveAsync<T>(string dynamicKey) where T : DynamicKeySetting;
 
-        ValueTask<(Setting, Setting)> AddOrUpdateAsync(Setting setting);
+
+        ValueTask<(T, T)> AddOrUpdateAsync<T>(T setting) where T : Setting;
     }
 }
