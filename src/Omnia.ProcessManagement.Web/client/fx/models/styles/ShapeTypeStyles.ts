@@ -1,5 +1,5 @@
 ﻿import { types } from 'typestyle';
 
-export const ShapeTypeStepStyles = {} as {
+export const ShapeTypeStyles = {} as {
     canvasPreviewWrapper?: types.NestedCSSProperties;
 }

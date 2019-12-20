@@ -7,7 +7,7 @@ export interface TabRegistration {
     tabRenderer: ITabRenderer;
     tabName: string;
     active: boolean;
-    actionToolbar: {
+    actionToolbar?: {
         editorDisplayActionButtons: Array<DisplayActionButton>;
         checkedOutButtons: Array<ActionItem>;
         notCheckedOutActionButtons: Array<ActionItem>;

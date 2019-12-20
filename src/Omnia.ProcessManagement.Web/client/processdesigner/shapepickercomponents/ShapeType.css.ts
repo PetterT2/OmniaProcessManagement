@@ -1,7 +1,7 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { ShapeTypeStepStyles } from '../../../../fx/models/styles';
+import { ShapeTypeStyles } from '../../fx/models/styles';
 
-StyleFlow.define(ShapeTypeStepStyles, {
+StyleFlow.define(ShapeTypeStyles, {
     canvasPreviewWrapper: {
         maxWidth: '100%',
         maxHeight: '300px',

@@ -1,8 +1,8 @@
 ﻿import { StyleFlow, OmniaTheming } from "@omnia/fx/ux";
-import { ShapeSelectionStepStyles } from '../../../../fx/models/styles';
 import { important } from 'csx';
+import { ShapeSelectionStyles } from '../../fx/models/styles';
 
-StyleFlow.define(ShapeSelectionStepStyles, {
+StyleFlow.define(ShapeSelectionStyles, {
     shapesWrapper: {
         display: 'flex',
         alignItems: 'center'

@@ -43,5 +43,6 @@
         FilterShapeDefinitionNoResult: string;
         Media: string;
         FreeForm: string;
+        ShapeSettings: string;
     }
 }

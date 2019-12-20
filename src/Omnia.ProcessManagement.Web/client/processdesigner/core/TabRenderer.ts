@@ -10,4 +10,5 @@ export abstract class TabRenderer implements ITabRenderer {
         return this.element;
     }
     protected abstract generateElement(h);
+    constructor() { }
 }

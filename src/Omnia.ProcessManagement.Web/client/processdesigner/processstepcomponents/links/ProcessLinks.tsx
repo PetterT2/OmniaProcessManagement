@@ -6,20 +6,27 @@ import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
+import { Prop } from 'vue-property-decorator';
 
 export class ProcessLinksTabRenderer extends TabRenderer {
+    private isProcessStepShortcut: boolean = false;
+    constructor(isProcessStepShortcut: boolean = false) {
+        super();
+        this.isProcessStepShortcut = isProcessStepShortcut;
+    }
     generateElement(h): JSX.Element {
-        return (<ProcessLinksComponent key={Guid.newGuid().toString()}></ProcessLinksComponent>);
+        return (<ProcessLinksComponent key={Guid.newGuid().toString()} isProcessStepShortcut={this.isProcessStepShortcut}></ProcessLinksComponent>);
     }
 }
 
-export interface ProcessDrawingProps {
+export interface ProcessLinksProps {
+    isProcessStepShortcut: boolean;
 }
 
 @Component
-export class ProcessLinksComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>
+export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {}, {}>
 {
-    //@Prop() public callerEditorStore?: EditorStore;
+    @Prop() isProcessStepShortcut: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -32,26 +39,28 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessDrawingProps,
     }
 
     init() {
-        //todo
-        //if (this.callerEditorStore) {
-        //    this.callerEditorStore = this.editorStore;
-        //    this.callerEditorStore.mutations.initFormValidator.commit(this);
-        //}
+       
     }
 
     mounted() {
-        //todo
-        //this.$nextTick(function () {
-        //    setTimeout(() => {
-        //        if (this.editorStore.errorTabIndex.state > -1)
-        //            this.editorStore.formValidator.validateAll();
-        //    }, 1000);
-        //});
     }
 
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
+    }
+
+    get currentProcessStepReferenceData() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (!this.isProcessStepShortcut) {
+            return referenceData.current;
+        }
+        return referenceData.shortcut;
+    }
+
+    onContentChanged(content) {
+        let referenceData = this.currentProcessStepReferenceData;
+        //ToDo
     }
 
     /**

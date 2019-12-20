@@ -5,10 +5,10 @@ import { InstanceLifetimes, IMessageBusSubscriptionHandler, GuidValue, Multiling
 import { ProcessDesignerSettingsStore } from './ProcessDesignerSettingsStore';
 import { ProcessDesignerTabStore } from './ProcessDesignerTabStore';
 import { CurrentProcessStore } from '../../fx';
-import { IProcessDesignerItem, ActionItem, DisplayModes, AddShapeOptions } from '../../models/processdesigner';
+import { IProcessDesignerItem, ActionItem, DisplayModes, DrawingShapeOptions } from '../../models/processdesigner';
 import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { ProcessStep, ProcessReferenceData, ProcessData, CanvasDefinition, DrawingShape, ShapeDefinition } from '../../fx/models';
+import { DrawingShape, ShapeDefinition } from '../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
@@ -18,7 +18,7 @@ export class ProcessDesignerStore extends Store {
     @Inject(ProcessDesignerPanelStore) panels: ProcessDesignerPanelStore;
     @Inject(ProcessDesignerSettingsStore) settings: ProcessDesignerSettingsStore;
     @Inject(ProcessDesignerTabStore) tabs: ProcessDesignerTabStore;
-    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;//todo: how to use the current process store will be decided in future
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
 //    private savePageStateManager: SavePageStateManager = new SavePageStateManager();//todo: important!
 
@@ -35,6 +35,7 @@ export class ProcessDesignerStore extends Store {
     errorTabIndex = this.state<number>(-1);
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
+    selectedShape = this.state<DrawingShape>(null);
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
    
@@ -57,6 +58,9 @@ export class ProcessDesignerStore extends Store {
         },
         hasDataChanged: (): boolean => {
             return this.hasDataChanged.state;
+        },
+        shapeToEditSettings: (): DrawingShape => {
+            return this.selectedShape.state;
         }
     }
 
@@ -108,8 +112,14 @@ export class ProcessDesignerStore extends Store {
             }
             this.formValidator = new FormValidator(el);
         }),
-        addShapeToDrawing: this.mutation((addShapeOptions: AddShapeOptions) => {
+        addShapeToDrawing: this.mutation((drawingShapeOption: DrawingShapeOptions) => {
 
+        }),
+        updateDrawingShape: this.mutation((drawingShapeOption: DrawingShapeOptions) => {
+
+        }),
+        setSelectedShapeToEdit: this.mutation((selectedShape: DrawingShape) => {
+            this.selectedShape.mutate(selectedShape);
         })
     }
 

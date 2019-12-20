@@ -163,8 +163,8 @@
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepPickerStyles.ts" />
-    <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStepStyles.ts" />
-    <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStepStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
@@ -212,6 +212,7 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ProcessDesignerSettings.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\ProcessEditingLink.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\ShapeDefinitionSelection.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\ShapeTypeCreationOption.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
@@ -227,6 +228,7 @@
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\core\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepShortcutDesignerItem.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\factory\BreakPointFactory.ts" />
@@ -245,16 +247,15 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\AddShape.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\AddShape.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\AddShapePanel.tsx" />
-    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeSelectionStep.css.ts" />
-    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeTypeStep.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\DrawingCanvasSettings.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\DrawingCanvasSettings.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\ProcessStepDrawing.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeSelectionStep.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\addshape\ShapeTypeStep.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettings.css.ts" />
-    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettings.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettingsPanel.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\stores\AddShapeWizardStore.ts" />
@@ -651,6 +652,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\links\ProcessLinks.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\shapepickercomponents\ShapeSelection.css.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\shapepickercomponents\ShapeSelection.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\shapepickercomponents\ShapeType.css.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\shapepickercomponents\ShapeType.tsx">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\tasks\index.ts">

@@ -100,6 +100,7 @@
             Tasks: string,
             Properties: string
         },
+        Shape: string,
         DrawingShapeSettings: {
             TextColor: string,
             ActiveBackgroundColor: string,

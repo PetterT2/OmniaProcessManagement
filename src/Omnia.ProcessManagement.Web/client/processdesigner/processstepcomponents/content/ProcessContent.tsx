@@ -10,19 +10,28 @@ import {
 } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 import { ProcessDesignerStore } from '../../stores';
+import { Prop } from 'vue-property-decorator';
 
 export class ProcessContentTabRenderer extends TabRenderer {
+    private isProcessStepShortcut: boolean = false;
+    constructor(isProcessStepShortcut: boolean = false) {
+        super();
+        this.isProcessStepShortcut = isProcessStepShortcut;
+    }
+
     generateElement(h): JSX.Element {
-        return (<ProcessContentComponent key={Guid.newGuid().toString()}></ProcessContentComponent>);
+        return (<ProcessContentComponent key={Guid.newGuid().toString()} isProcessStepShortcut={this.isProcessStepShortcut}></ProcessContentComponent>);
     }
 }
 
-export interface ProcessDrawingProps {
+export interface ProcessContentProps {
+    isProcessStepShortcut: boolean;
 }
 
 @Component
-export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProps, {}, {}>
+export class ProcessContentComponent extends VueComponentBase<ProcessContentProps, {}, {}>
 {
+    @Prop() isProcessStepShortcut: boolean;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
@@ -41,13 +50,21 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
     }
 
     onContentChanged(content) {
-        let referenceData = this.currentProcessStore.getters.referenceData();
-        var currentContent = JSON.stringify(referenceData.current.processData.content);
+        let referenceData = this.currentProcessStepReferenceData;
+        var currentContent = JSON.stringify(referenceData.processData.content);
         var newContent = JSON.stringify(content);
         if (currentContent != newContent) {
-            referenceData.current.processData.content = JSON.parse(JSON.stringify(content));
+            referenceData.processData.content = JSON.parse(JSON.stringify(content));
             this.processDesignerStore.actions.saveState.dispatch();
         }
+    }
+
+    get currentProcessStepReferenceData() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (!this.isProcessStepShortcut) {
+            return referenceData.current;
+        }
+        return referenceData.shortcut;
     }
 
     /**
@@ -55,7 +72,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
         * @param h
         */
     render(h) {
-        let referenceData = this.currentProcessStore.getters.referenceData();
+        let processStepData = this.currentProcessStepReferenceData.processData;
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 {
@@ -63,7 +80,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessDrawingProp
                         <omfx-multilingual-input
                             multipleLines={true}
                             richText={true}
-                            model={referenceData.current.processData.content}
+                            model={processStepData.content}
                             onModelChange={(content) => { this.onContentChanged(content); }}
                             forceTenantLanguages></omfx-multilingual-input>
                 }
