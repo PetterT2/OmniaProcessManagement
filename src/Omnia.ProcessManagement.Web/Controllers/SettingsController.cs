@@ -31,11 +31,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet]
         [Authorize]
-        public async ValueTask<ApiResponse<Setting>> GetAsync()
+        public async ValueTask<ApiResponse<Setting>> GetByKeyAsync(string key)
         {
             try
             {
-                var result = await SettingsService.GetAsync();
+                var result = await SettingsService.GetByKeyAsync(key);
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)
@@ -47,11 +47,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpDelete]
         [Authorize]
-        public async ValueTask<ApiResponse> RemoveAsync()
+        public async ValueTask<ApiResponse> RemoveByKeyAsync(string key)
         {
             try
             {
-                await SettingsService.RemoveAsync();
+                await SettingsService.RemoveByKeyAsync(key);
                 return ApiUtils.CreateSuccessResponse();
             }
             catch (Exception ex)

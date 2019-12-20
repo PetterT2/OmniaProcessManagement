@@ -148,20 +148,12 @@ export class FiltersAndSorting {
                     return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
                 });
             }
-            if (sortBy == ProcessLibraryFields.Edition) {
-                processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.edition);
-                return processes.sort((a, b) => {
-                    var comparer = a.rootProcessStep.edition < b.rootProcessStep.edition ? -1 : a.rootProcessStep.edition > b.rootProcessStep.edition ? 1 : 0;
-                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
-                });
+
+            if (sortBy == ProcessLibraryFields.Edition || sortBy == ProcessLibraryFields.Revision) {
+                processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.enterpriseProperties[sortBy]);
+                return processes.sort((a, b) => sortAsc ? (a.sortValues[sortBy] - b.sortValues[sortBy]) : (b.sortValues[sortBy] - a.sortValues[sortBy]));
             }
-            if (sortBy == ProcessLibraryFields.Revision) {
-                processes.forEach(p => p.sortValues[sortBy] = p.rootProcessStep.revision);
-                return processes.sort((a, b) => {
-                    var comparer = a.rootProcessStep.revision < b.rootProcessStep.revision ? -1 : a.rootProcessStep.revision > b.rootProcessStep.revision ? 1 : 0;
-                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
-                });
-            }
+
             if (sortBy == ProcessLibraryFields.Published) {
                 processes.forEach(p => p.sortValues[sortBy] = moment(p.modifiedAt).format(this.dateFormat));
                 return processes.sort((a, b) => {

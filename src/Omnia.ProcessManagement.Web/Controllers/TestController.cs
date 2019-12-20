@@ -10,6 +10,7 @@ using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
@@ -89,10 +90,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             var processDataDict = new Dictionary<Guid, ProcessData>();
             var rootProcessStep = new RootProcessStep()
             {
-                EnterpriseProperties = new Dictionary<string, Newtonsoft.Json.Linq.JToken>(),
+                EnterpriseProperties = new Dictionary<string, Newtonsoft.Json.Linq.JToken>() { { OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName, processTypeId } },
                 Id = Guid.NewGuid(),
                 ProcessTemplateId = processTemplateId,
-                ProcessTypeId = processTypeId,
                 Title = new MultilingualString() { { LanguageTag.EnUs, title } },
                 ProcessSteps = CreateProcessSteps(title, processDataDict, 1, "", treeLevel, numberOfChildInEachLevel)
             };

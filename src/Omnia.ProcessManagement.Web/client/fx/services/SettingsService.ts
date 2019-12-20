@@ -11,9 +11,13 @@ export class SettingsService {
 
     constructor() {
     }
-    public getSettings = (): Promise<Setting> => {
+
+    public getByKey = (key: string): Promise<Setting> => {
         return new Promise<Setting>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Setting>>('/api/settings').then(response => {
+            let params = {
+                key: key
+            }
+            this.httpClient.get<IHttpApiOperationResult<Setting>>('/api/settings', { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -25,7 +29,10 @@ export class SettingsService {
 
     public removeByKey = (key: string): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
-            this.httpClient.delete<IHttpApiOperationResult<void>>('/api/settings').then(response => {
+            let params = {
+                key: key
+            }
+            this.httpClient.delete<IHttpApiOperationResult<void>>('/api/settings', { params: params }).then(response => {
                 if (response.data.success) {
                     resolve();
                 }

@@ -11,19 +11,17 @@ namespace Omnia.ProcessManagement.Models.Settings
     public class Setting : OmniaJsonBase
     {
         private bool _cleanModel;
-        public Setting()
+        public Setting(string key, Guid securityRoleId, bool cleanModel)
         {
-            Key = "globalsettings";
-            SecurityRoleId = new Guid(Constants.Security.Roles.TenantAdmin);
-            _cleanModel = true;
+            Key = key.ToLower();
+            SecurityRoleId = securityRoleId;
+            _cleanModel = cleanModel;
         }
 
         public string Key { get; set; }
 
         [JsonIgnore]
         public Guid SecurityRoleId { get; }
-
-        public string ArchiveSiteUrl { get; set; }
 
         public void CleanModelIfNeeded()
         {
@@ -36,6 +34,31 @@ namespace Omnia.ProcessManagement.Models.Settings
         public virtual ValueTask ValidateAsync()
         {
             return new ValueTask();
+        }
+    }
+
+    public class DynamicKeySetting : Setting
+    {
+        private static readonly string _dyanmicToken = "_$$dyanmic$$_";
+        public DynamicKeySetting(string dynamicKey, string staticKey, Guid securityRoleId, bool cleanModel) :
+            base($"{staticKey}{_dyanmicToken}{dynamicKey}".ToLower(), securityRoleId, cleanModel)
+        {
+
+        }
+
+        public static bool TryGetDynamicSettingKey(string settingKey, out string dynamicKey, out string prefixKey)
+        {
+            var isDynamicKey = false;
+            dynamicKey = "";
+            prefixKey = "";
+            if (settingKey.Contains(_dyanmicToken))
+            {
+                isDynamicKey = true;
+                prefixKey = settingKey.Split(_dyanmicToken)[0] + _dyanmicToken;
+                dynamicKey = settingKey.Split(_dyanmicToken)[1];
+            }
+
+            return isDynamicKey;
         }
     }
 }

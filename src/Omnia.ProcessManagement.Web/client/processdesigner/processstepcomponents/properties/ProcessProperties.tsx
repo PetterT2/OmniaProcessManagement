@@ -6,7 +6,7 @@ import { Guid, EnterprisePropertyDefinition, GuidValue, PropertySetPersonItem, P
 import { CurrentProcessStore, ProcessTypeStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase, FieldValueValidation, IValidator, IDatetimePickerFormatter } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
-import { ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, PropertySetPersonItemSettings, ProcessTaxonomyPropertyInfo, ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData } from '../../../fx/models';
+import { ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, PropertySetPersonItemSettings, ProcessTaxonomyPropertyInfo, ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
 import { EnterprisePropertyStore, EnterprisePropertySetStore, MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { ProcessDesignerStore } from '../../stores';
@@ -127,15 +127,16 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     private loadProcessTypeData() {
+        let processTypeId = this.referenceData.process.rootProcessStep[OPMEnterprisePropertyInternalNames.OPMProcessType];
         let promises: Array<Promise<any>> = [
             this.propertyStore.actions.ensureLoadData.dispatch(),
             this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
-            this.processTypeStore.actions.ensureProcessTypes.dispatch([this.referenceData.process.rootProcessStep.processTypeId])
+            this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
         ];
 
         Promise.all(promises).then(() => {
             this.processProperties = [];
-            let processType = this.processTypeStore.getters.byId(this.referenceData.process.rootProcessStep.processTypeId);
+            let processType = this.processTypeStore.getters.byId(processTypeId);
             if (processType) {
                 let enterprisePropertySetId = (processType.settings as ProcessTypeItemSettings).enterprisePropertySetId;
                 let propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == enterprisePropertySetId)

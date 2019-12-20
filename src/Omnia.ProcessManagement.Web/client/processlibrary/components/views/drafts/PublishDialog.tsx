@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext, TermStore, TermData } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType, OPMEnterprisePropertyInternalNames } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
@@ -88,12 +88,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         this.needToUpdateProcessProperties = false;
         this.isCheckingPublishingRules = true;
         var promise = new Promise((resolve, reject) => {
+            let processTypeId = this.process.rootProcessStep[OPMEnterprisePropertyInternalNames.OPMProcessType]
             Promise.all([
                 this.propertyStore.actions.ensureLoadData.dispatch(),
                 this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
-                this.processTypeStore.actions.ensureProcessTypes.dispatch([this.process.rootProcessStep.processTypeId])
+                this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
             ]).then(() => {
-                var processType = this.processTypeStore.getters.byId(this.process.rootProcessStep.processTypeId);
+                var processType = this.processTypeStore.getters.byId(processTypeId);
                 if (processType) {
                     this.processTypeSettings = processType.settings as ProcessTypeItemSettings;
                 }
@@ -204,7 +205,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private checkPublishingRules() {
-        this.isCommentRequired = (this.process.rootProcessStep.edition && this.process.rootProcessStep.edition > 0) ? true : false;
+        let edition: number = this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
+        this.isCommentRequired = edition > 0;
         this.isCheckingPublishingRules = false;
     }
 
@@ -395,12 +397,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private renderBody(h) {
+        let edition: number = this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
         return (
             <v-container class={this.processLibraryClasses.centerDialogBody}>
                 {this.needToUpdateProcessProperties && this.renderErrorForm(h)}
                 {
                     !this.needToUpdateProcessProperties && [
-                        this.processTypeSettings && this.processTypeSettings.allowRevisions && this.process.rootProcessStep.edition > 0 && this.renderPublishVersionOptions(h),
+                        this.processTypeSettings && this.processTypeSettings.allowRevisions && edition > 0 && this.renderPublishVersionOptions(h),
                         this.isApprovalRequired() ? this.renderPublishWithApprovalForm(h) : this.renderPublishWithouApprovalForm(h),
                         this.renderSameSettings(h)
                     ]

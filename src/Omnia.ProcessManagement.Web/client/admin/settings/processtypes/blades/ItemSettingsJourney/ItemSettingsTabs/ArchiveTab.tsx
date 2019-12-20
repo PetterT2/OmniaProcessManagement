@@ -3,7 +3,7 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { OmniaTheming, FormValidator, VueComponentBase, StyleFlow } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../../loc/localize';
-import { ProcessType, ProcessTypeItemSettings, Setting, ArchiveFactory, Archive } from '../../../../../../fx/models';
+import { ProcessType, ProcessTypeItemSettings, Setting, ArchiveFactory, Archive, GlobalSettings } from '../../../../../../fx/models';
 import { SettingsStore } from '../../../../../../fx';
 
 interface ArchiveTabProps {
@@ -28,8 +28,8 @@ export default class ArchiveTab extends VueComponentBase<ArchiveTabProps> {
             this.enableArchive = true;
         }
 
-        this.settingsStore.actions.ensureSettings.dispatch().then(() => {
-            let settings = this.settingsStore.getters.getByModel();
+        this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings).then(() => {
+            let settings = this.settingsStore.getters.getByModel(GlobalSettings);
             if (settings)
                 this.defaultArchiveUrl = settings.archiveSiteUrl;
 

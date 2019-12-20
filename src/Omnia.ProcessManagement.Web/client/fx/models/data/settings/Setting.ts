@@ -1,8 +1,13 @@
-﻿export class Setting {
-    constructor() {
-        this.key = "globalsettings";
-        this.archiveSiteUrl = "";
+﻿
+export abstract class Setting {
+    readonly key: string;
+    constructor(key: string) {
+        this.key = key;
     }
-    key: string;
-    archiveSiteUrl: string;
+}
+
+export abstract class DynamicKeySetting extends Setting {
+    constructor(dynamicKey: string, key: string) {
+        super(`${key}_$$dyanmic$$_${dynamicKey}`)
+    }
 }
