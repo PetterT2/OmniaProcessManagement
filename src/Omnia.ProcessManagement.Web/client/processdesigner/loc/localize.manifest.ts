@@ -50,5 +50,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         Media: "Media",
         FreeForm: "Free Form",
         DiscardChangeConfirmMessage: "Are you sure you want to discard your changes to the process?",
-        MessageNoLinksItem: "There are no links for this process."
+        MessageNoLinksItem: "There are no links for this process.",
+        ShapeSettings: "Shape Settings"
     });

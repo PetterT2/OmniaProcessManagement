@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas } from '../../../fx';
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions } from '@omnia/fx/ux';
-import { CanvasDefinition } from '../../../fx/models';
+import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
@@ -13,7 +13,9 @@ import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { AddShapeOptions } from '../../../models/processdesigner';
+import { DrawingShapeOptions } from '../../../models/processdesigner';
+import { component } from 'vue-tsx-support';
+import { background } from 'csx';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -32,7 +34,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private drawingCanvas: DrawingCanvas = null;
+    private drawingCanvasEditor: DrawingCanvasEditor = null;
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private tempInterval = null;
@@ -54,8 +56,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (this.tempInterval) {
             clearInterval(this.tempInterval);
         }
-        if (this.drawingCanvas) {
-            this.drawingCanvas.destroy();
+        if (this.drawingCanvasEditor) {
+            this.drawingCanvasEditor.destroy();
         }
     }
 
@@ -66,19 +68,14 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     init() {
         this.initDrawingCanvas();
 
-        this.processDesignerStore.mutations.addShapeToDrawing.onCommited((addShapeOptions: AddShapeOptions) => {
-            this.drawingCanvas.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLink);
-            
-            setTimeout(() => {
-                this.saveState(true);
-            }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
-        });
+        this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape);
+        this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape);
     }
 
     private onCanvasDefinitionChanged() {
         this.saveState(false);
-        if (this.drawingCanvas) {
-            this.drawingCanvas.destroy();
+        if (this.drawingCanvasEditor) {
+            this.drawingCanvasEditor.destroy();
         }
         this.initCanvasDefinition();
         this.initDrawingCanvas();
@@ -86,9 +83,31 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private initDrawingCanvas() {     
         setTimeout(() => {
-            this.drawingCanvas = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, null, this.onShapeChangeByUser);
+            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, this.onClickEditShape, this.onShapeChangeByUser);
         }, 300);
         //note: need to render the canvas div element before init this DrawingCanvasEditor
+    }
+
+    private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
+        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId);
+
+        setTimeout(() => {
+            this.saveState(true);
+        }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+    }
+
+    private onEditedShape(drawingOptions: DrawingShapeOptions) {
+        let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
+        this.drawingCanvasEditor.updateShapeDefinition(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title);
+
+        setTimeout(() => {
+            this.saveState(true);
+        }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+    }
+
+    private onClickEditShape(selectedShape: DrawingShape) {
+        this.processDesignerStore.mutations.setSelectedShapeToEdit.commit(selectedShape);
+        this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(true);
     }
 
     private onShapeChangeByUser() {
@@ -97,7 +116,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private saveState(isShapeChanged: boolean = false) {
         if (isShapeChanged) {
-            this.canvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvas.getCanvasDefinitionJson();
+            this.canvasDefinition = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = this.drawingCanvasEditor.getCanvasDefinitionJson();
         }
         this.processDesignerStore.actions.saveState.dispatch();
     }
@@ -129,6 +148,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             </v-navigation-drawer>            
         );
         components.push(this.renderAddShapePanel(h));
+        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
         return components;
     }
 
@@ -151,6 +171,22 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 </div>
             </omfx-dialog>;            
         }
+    }
+    private renderEditShapeSettingsPanel(h, backgroundColor: string) {
+        return <v-navigation-drawer
+            app
+            float
+            right
+            clipped
+            dark={this.omniaTheming.promoted.body.dark}
+            width="700"
+            temporary={false}
+            disable-resize-watcher
+            hide-overlay
+            class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+            v-model={this.processDesignerStore.panels.editShapeSettingsPanel.state.show}>
+            {this.processDesignerStore.panels.editShapeSettingsPanel.state.show ? <opm-processdesigner-shape-settings></opm-processdesigner-shape-settings> : null}
+        </v-navigation-drawer>;
     }
     private closeAddShapePanel() {
         this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(false);

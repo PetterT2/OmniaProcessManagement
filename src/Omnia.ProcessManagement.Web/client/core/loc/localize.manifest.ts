@@ -108,6 +108,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Properties: "Properties",
             Tasks: "Tasks"
         },
+        Shape: "Shape",
         DrawingShapeSettings: {
             TextColor: "Text Color",
             ActiveBackgroundColor: "Active Background Color",

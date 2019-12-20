@@ -47,5 +47,6 @@
         FreeForm: string;
         DiscardChangeConfirmMessage: string;
         MessageNoLinksItem: string;
+        ShapeSettings: string;
     }
 }

@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { Link, Enums } from '../../../fx/models';
@@ -24,10 +24,6 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private openedImageDialog: boolean = false;
-    private headingStyle: typeof HeadingStyles = {
-        wrapper: DialogStyles.heading
-    };
     private editingLink: Link = null;
     private isNew: boolean = false;
     private internalValidator: FormValidator = null;

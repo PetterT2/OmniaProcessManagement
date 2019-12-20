@@ -23,10 +23,10 @@ export class ProcessDesignerPanelStore extends Store {
         show: false,
         visible: false
     });
-   //createLinkPanel: StoreState<IPanelState> = this.state<IPanelState>({
-   //     show: false,
-   //     visible: false
-   // });
+    editShapeSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
+        show: false,
+        visible: false
+    });
 
     constructor() {
         super({
@@ -53,6 +53,8 @@ export class ProcessDesignerPanelStore extends Store {
         }),
         hideNoneSpinnedPanels: this.mutation(() => {
             this.mutations.toggleDrawingCanvasSettingsPanel.commit(false);
+            this.mutations.toggleAddShapePanel.commit(false);
+            this.mutations.toggleEditShapeSettingsPanel.commit(false);
         }),
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
@@ -66,13 +68,13 @@ export class ProcessDesignerPanelStore extends Store {
                 show: show,
                 visible: show
             });
+        }),
+        toggleEditShapeSettingsPanel: this.mutation((show: boolean) => {
+            this.editShapeSettingsPanel.mutate({
+                show: show,
+                visible: show
+            });
         })
-        //createLinkPanel: this.mutation((show: boolean) => {
-        //    this.createLinkPanel.mutate({
-        //        show: show,
-        //        visible: show
-        //    });
-        //})
     }
 }
 

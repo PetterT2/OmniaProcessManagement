@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape } from '../shapes';
+import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition } from '../../models';
@@ -44,7 +44,7 @@ export class DrawingCanvas implements CanvasDefinition {
 
     protected findDrawingShape(object: fabric.Object): DrawingShape {
         return this.drawingShapes.find(d => {
-            return (d.shape as Shape).shapeObject.find(s => s == object) != null;
+            return (d.shape as Shape).shapeObject && (d.shape as Shape).shapeObject.find(s => s == object) != null;
         });
     }
 
@@ -122,7 +122,7 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number, processStepId?: GuidValue, customLink?: string) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue) {
         if (!definition.shapeTemplate)
             return;
         let position = this.correctDefinition(definition, left, top);
@@ -141,7 +141,7 @@ export class DrawingCanvas implements CanvasDefinition {
                 (drawingShape as DrawingProcessStepShape).processStepId = processStepId;
             }
             if (type == DrawingShapeTypes.CustomLink) {
-                (drawingShape as DrawingCustomLinkShape).link = customLink;
+                (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
             }
             this.addShapeFromTemplateClassName(drawingShape, isActive, position.left, position.top);
         }
@@ -153,41 +153,54 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    updateShapeDefinition(oldDrawingShape: DrawingShape, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
-        if (!definition.shapeTemplate)
-            return;
-        let position = this.correctDefinition(definition, left, top);
-        if (oldDrawingShape) {
-            let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == oldDrawingShape.id);
-            if (oldShapeIndex > -1) {
-                this.drawingShapes.splice(oldShapeIndex, 1);
-                (oldDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
-            }
-            oldDrawingShape.title = title;
-        }
-        else
-            oldDrawingShape = {
-                id: Guid.newGuid(),
-                type: DrawingShapeTypes.Undefined,
-                title: title
-            } as DrawingShape;
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean) {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            let resolved = true;
 
-        oldDrawingShape.shape = {
-            name: definition.shapeTemplate.name,
-            nodes: null,
-            definition: definition
-        };
-        this.addShapeFromTemplateClassName(oldDrawingShape, isActive, position.left, position.top);
+            if (definition.shapeTemplate) {
+                let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
+                if (oldShapeIndex > -1) {
+                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+
+                    let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
+                    let currentLeft = fabricShapeObject.left;
+                    let currentTop = fabricShapeObject.top;
+
+                    this.drawingShapes.splice(oldShapeIndex, 1);
+                    (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+
+
+                    currentDrawingShape.title = title;
+                    currentDrawingShape.shape = {
+                        name: definition.shapeTemplate.name,
+                        nodes: null,
+                        definition: definition
+                    };
+                    resolved = false;
+                    this.addShapeFromTemplateClassName(currentDrawingShape, isActive, currentLeft, currentTop).then((readyDrawingShape: DrawingShape) => {
+                        resolve(readyDrawingShape);
+                    });
+                }
+            }
+            if (resolved) {
+                resolve(null);
+            }
+        });
     }
 
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
         let readyDrawingShape = Utils.clone(drawingShape);
 
         let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, isActive, readyDrawingShape.title, this.selectable, left, top);
-        newShape.ready().then((result) => {
-            if (result)
-                this.addShapeToCanvas(readyDrawingShape, newShape);
-        })
+
+        return new Promise<DrawingShape>((resolve, reject) => {
+            newShape.ready().then((result) => {
+                if (result) {
+                    this.addShapeToCanvas(readyDrawingShape, newShape);
+                }
+                resolve(readyDrawingShape);
+            });
+        });
     }
 
     private addShapeToCanvas(drawingShape: DrawingShape, newShape: Shape) {

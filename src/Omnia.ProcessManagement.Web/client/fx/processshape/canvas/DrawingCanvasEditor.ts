@@ -3,23 +3,37 @@ import { DrawingCanvas } from './DrawingCanvas';
 import { Shape } from '../shapes';
 import { CanvasDefinition, DrawingShape } from '../../models/data/drawingdefinitions';
 import { Utils } from '@omnia/fx';
+import { DrawingShapeDefinition } from '../../models';
+import { GuidValue, MultilingualString } from '@omnia/fx-models';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
-    callback: (drawingShape: DrawingShape) => void;
-    onMoved: () => void;
+    onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
+    onDrawingChanged: () => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
 
-    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => {}, onMoved?: () => void) {
+    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: () => void) {
         super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition);
-        this.callback = callback;
-        this.onMoved = onMoved;
+        this.onClickEditShapeSettings = onClickEditShapeSettings;
+        this.onDrawingChanged = onDrawingChanged;
     }
 
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
         this.selectable = true;
         this.renderGridView(elementId, options, definition);
         this.addEventListener(); 
+    }
+
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean) {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            super.updateShapeDefinition(id, definition, title, isActive).then((drawingShapeResult: DrawingShape) => {
+                if (drawingShapeResult) {
+                    this.canvasObject.setActiveObject((drawingShapeResult.shape as Shape).shapeObject[0]);
+                }
+                resolve();
+            }).catch(reject);
+
+        });
     }
 
     private addEditIcon(object: fabric.Object) {
@@ -75,8 +89,8 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 var currPos = this.canvasObject.getPointer(options.e);
                 if (currPos.x > this.editObject.aCoords.tr.x && currPos.x < (this.editObject.aCoords.tr.x + 30)
                     && currPos.y < this.editObject.aCoords.tr.y && currPos.y > (this.editObject.aCoords.tr.y - 30)) {
-                    if (this.callback) {
-                        this.callback(this.findDrawingShape(this.editObject));
+                    if (this.onClickEditShapeSettings) {
+                        this.onClickEditShapeSettings(this.findDrawingShape(this.editObject));
                     }
                     this.canvasObject.setActiveObject(this.editObject);
                     this.addEditIcon(this.editObject);
@@ -86,17 +100,16 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
             }
             if (this.isMoving) {
                 this.isMoving = false;
-                if (this.onMoved) {
-                    this.onMoved();
+                if (this.onDrawingChanged) {
+                    this.onDrawingChanged();
                 }
             }
         });
                 
         this.canvasObject.on('object:scaled', (options) => {
-            if (this.onMoved) {
-                this.onMoved();
+            if (this.onDrawingChanged) {
+                this.onDrawingChanged();
             }
-
         });
     }
 

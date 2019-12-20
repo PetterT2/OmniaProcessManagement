@@ -3,16 +3,12 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles } from '@omnia/fx/ux';
-import { Prop } from 'vue-property-decorator';
-//import { CurrentProcessStore } from '../../../../fx';
+import { OmniaTheming, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles } from '@omnia/fx/ux';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import './AddShape.css';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { AddShapeStep } from '../../../../models/processdesigner';
-import Vue from 'vue';
-import { ShapeSelectionStepComponent } from './ShapeSelectionStep';
 
 export interface AddShapePanelProps {
     
@@ -21,7 +17,6 @@ export interface AddShapePanelProps {
 @Component
 export class AddShapePanelComponent extends VueComponentBase implements IWebComponentInstance{
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    //@Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
