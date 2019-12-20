@@ -100,6 +100,7 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\drawingdefinitions\DrawingCustomLinkShape.ts" />
@@ -127,6 +128,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\settings\GlobalSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
@@ -239,6 +241,7 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\ProcessDocuments.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ICreateLinkPanel.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\Links.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ProcessLinks.tsx" />
@@ -386,8 +389,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.2-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.2-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.20-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.20-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 
@@ -430,6 +433,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\workflows\Workflow.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\Constants.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessNumberPropertyInfo.ts">

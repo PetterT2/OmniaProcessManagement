@@ -17,20 +17,20 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Helpers.Security
 {
-    public interface IOPMSecurityResponse
+    public interface ISecurityResponse
     {
-        IOPMSecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes);
     }
 
-    public interface IOPMSecurityResponseHandler
+    public interface ISecurityResponseHandler
     {
-        IOPMSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
-        IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
+        ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
         ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
         ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
         ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, ValueTask<ApiResponse<T>>> action);
@@ -39,7 +39,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         internal ValueTask<ApiResponse> DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action);
     }
 
-    internal class OPMSecurityResponse : IOPMSecurityResponse, IOPMSecurityResponseHandler
+    internal class SecurityResponse : ISecurityResponse, ISecurityResponseHandler
     {
         private List<Guid> RequiredRoles { get; }
         private InternalProcess Process { get; set; }
@@ -48,7 +48,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         private ISecurityProvider SecurityProvider { get; }
         private IOmniaContext OmniaContext { get; }
         private bool AuthorOnly { get; }
-        public OPMSecurityResponse(
+        public SecurityResponse(
             InternalProcess process,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
@@ -62,7 +62,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             TeamAppId = Process.TeamAppId;
         }
 
-        public OPMSecurityResponse(
+        public SecurityResponse(
             Guid teamAppId,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
@@ -76,51 +76,51 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             AuthorOnly = true;
         }
 
-        public IOPMSecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes)
         {
             EnsureRole(OPMConstants.Security.Roles.Author, versionTypes);
             return this;
         }
 
-        public IOPMSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes)
         {
             return RequireAuthor(versionTypes);
         }
 
-        public IOPMSecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes)
         {
             EnsureRole(OPMConstants.Security.Roles.Approver, versionTypes);
             return this;
         }
 
-        public IOPMSecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes)
         {
             return RequireApprover(versionTypes);
         }
 
-        public IOPMSecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes)
         {
             EnsureRole(OPMConstants.Security.Roles.Reviewer, versionTypes);
             return this;
         }
 
-        public IOPMSecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes)
         {
             return RequireApprover(versionTypes);
         }
 
-        public IOPMSecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes)
         {
             EnsureRole(OPMConstants.Security.Roles.Reader, versionTypes);
             return this;
         }
 
-        public IOPMSecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes)
+        public ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes)
         {
             return RequireApprover(versionTypes);
         }
 
-        async ValueTask<ApiResponse<T>> IOPMSecurityResponseHandler.DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action)
+        async ValueTask<ApiResponse<T>> ISecurityResponseHandler.DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();
@@ -134,7 +134,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return await action(TeamAppId, Process);
         }
 
-        async ValueTask<ApiResponse> IOPMSecurityResponseHandler.DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action)
+        async ValueTask<ApiResponse> ISecurityResponseHandler.DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();

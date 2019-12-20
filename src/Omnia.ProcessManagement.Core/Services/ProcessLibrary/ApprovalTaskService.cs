@@ -4,6 +4,7 @@ using Omnia.Fx.Emails;
 using Omnia.Fx.Localization;
 using Omnia.Fx.Models.Emails;
 using Omnia.Fx.Models.Language;
+using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Users;
@@ -31,6 +32,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         IUserService UserService { get; }
         IEmailService EmailService { get; }
         IOmniaScopedContext OmniaScopedContext { get; }
+        IMultilingualHelper MultilingualHelper { get; }
 
         public ApprovalTaskService(ISharePointClientContextProvider sharePointClientContextProvider,
           IWorkflowService workflowService,
@@ -39,7 +41,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
           ILocalizationProvider localizationProvider,
           IEmailService emailService,
           IUserService userService,
-          IOmniaScopedContext omniaScopedContext)
+          IOmniaScopedContext omniaScopedContext,
+          IMultilingualHelper multilingualHelper)
         {
             WorkflowService = workflowService;
             WorkflowTaskService = workflowTaskService;
@@ -49,14 +52,17 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             UserService = userService;
             EmailService = emailService;
             OmniaScopedContext = omniaScopedContext;
+            MultilingualHelper = multilingualHelper;
         }
 
         public async ValueTask AddApprovalTaskAndSendEmailAsync(PublishProcessWithApprovalRequest request, Process process)
         {
+            Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
             PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(request.WebUrl, true);
             User approverUser = appContext.Web.EnsureUser(request.Approver.Uid);
-            Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
+            User spCurrentUser = appContext.Web.EnsureUser(currentUser.UserPrincipalName);
             appContext.Load(approverUser, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
+            appContext.Load(spCurrentUser, us => us.Id);
             await appContext.ExecuteQueryAsync();
             Workflow workflow = new Workflow
             {
@@ -76,7 +82,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
             LanguageTag language = currentUser.PreferredLanguage.HasValue ? currentUser.PreferredLanguage.Value : LanguageTag.EnUs;
-            string processTitle = process.RootProcessStep.Title.ContainsKey(language) ? process.RootProcessStep.Title[language] : process.RootProcessStep.Title[LanguageTag.EnUs];
+            string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, language, null);
             string titleFormat = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.ApprovalTaskTitle, lcid);
             string taskTitle = string.Format(titleFormat, processTitle);
             Dictionary<string, dynamic> keyValuePairs = new Dictionary<string, object>();
@@ -85,6 +91,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_DueDate, workflow.DueDate.Value.LocalDateTime);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
+            keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, spCurrentUser.Id);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = await SharePointListService.AddListItemAsync(appContext, taskList, keyValuePairs);
 

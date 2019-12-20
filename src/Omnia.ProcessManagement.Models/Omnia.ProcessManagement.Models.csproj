@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Omnia.Fx" Version="4.0.12-dev" />
-    <PackageReference Include="Omnia.Fx.Models" Version="4.0.12-dev" />
+    <PackageReference Include="Omnia.Fx" Version="4.0.20-dev" />
+    <PackageReference Include="Omnia.Fx.Models" Version="4.0.20-dev" />
   </ItemGroup>
   
   <ItemGroup>

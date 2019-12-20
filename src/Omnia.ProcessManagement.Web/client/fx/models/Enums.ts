@@ -25,7 +25,7 @@
         export enum ProcessAccessTypes {
             DefaultReaderGroup = 0,
             LimitedAccess = 1
-        }       
+        }
     }
     export enum ShapeTypes {
         None = 0,
@@ -68,6 +68,10 @@
             FailedCancellingApproval = 7,
             FailedPublishing = 8
         }
+    }
+    export enum LinkType {
+        CustomLink = 0,
+        Heading = 1
     }
 
     export module Security {

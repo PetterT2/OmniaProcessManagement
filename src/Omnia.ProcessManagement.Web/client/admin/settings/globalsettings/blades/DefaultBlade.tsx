@@ -4,7 +4,7 @@ import { Inject, Localize, Utils } from '@omnia/fx';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, JourneyInstance, VueComponentBase } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../loc/localize';
 import { SettingsStore } from '../../../../fx';
-import { Setting } from '../../../../fx/models';
+import { Setting, GlobalSettings } from '../../../../fx/models';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -23,12 +23,12 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
 
     isSaving = false;
     isLoading = true;
-    globalSettings: Setting = new Setting();
+    globalSettings: GlobalSettings = new GlobalSettings();
 
     created() {
         Promise.all([
-            this.settingsStore.actions.ensureSettings.dispatch().then(() => {
-                let globalSettings = this.settingsStore.getters.getByModel();
+            this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings).then(() => {
+                let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
                 if (globalSettings)
                     this.globalSettings = Object.assign(this.globalSettings, globalSettings);
             })

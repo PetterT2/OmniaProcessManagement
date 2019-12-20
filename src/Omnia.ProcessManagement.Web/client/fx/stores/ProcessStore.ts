@@ -1,4 +1,4 @@
-﻿import { Store } from '@omnia/fx/store';
+﻿import { Store, MultilingualStore } from '@omnia/fx/store';
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
@@ -24,6 +24,7 @@ interface ProcessStepIdAndProcessIdDict {
 })
 export class ProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     //states
     private processDict = this.state<ProcessDict>({});
@@ -48,7 +49,6 @@ export class ProcessStore extends Store {
             let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId);
             let process = this.processDict.state[processCacheKey];
             let processData = this.processDataDict.state[processDataCacheKey];
-
             if (process == null)
                 throw `Process with id: ${processReference.processId} not found in store`;
 

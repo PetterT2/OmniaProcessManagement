@@ -22,10 +22,7 @@ namespace Omnia.ProcessManagement.Models.Processes
     public class RootProcessStep : ProcessStep
     {
         public Dictionary<string, JToken> EnterpriseProperties { get; set; }
-        public Guid ProcessTypeId { get; set; }
         public Guid ProcessTemplateId { get; set; }
-        public int Edition { get; set; }
-        public int Revision { get; set; }
         public string Comment { get; set; }
     }
 }

@@ -18,6 +18,7 @@ import { DeletedDialog } from './DeleteDialog';
 interface DraftsMenuActionsProps {
     closeCallback: (isUpdate: boolean) => void;
     process: DisplayProcess;
+    isAuthor: boolean;
 }
 
 @Component
@@ -25,6 +26,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: DisplayProcess;
+    @Prop() isAuthor: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -50,10 +52,6 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
 
     }
 
-    private hasPermission() {
-        return true;
-    }
-
     private refreshContextMenu() {
         let editActionsDict: Array<Enums.WorkflowEnums.ProcessWorkingStatus> = [
             Enums.WorkflowEnums.ProcessWorkingStatus.Draft,
@@ -61,7 +59,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
             Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing,
             Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval
         ];
-        this.disableButtonUpdateAction = !(this.hasPermission() && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
+        this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
     }
 
     private editProcess() {

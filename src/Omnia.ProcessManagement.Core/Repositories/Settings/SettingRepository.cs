@@ -12,7 +12,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
     {
         public SettingsRepository(OmniaPMDbContext databaseContext) : base(databaseContext) { }
 
-        public async ValueTask<(Setting, Setting)> AddOrUpdateAsync(Setting setting)
+        public async ValueTask<(T, T)> AddOrUpdateAsync<T>(T setting) where T : Setting
         {
             if (setting == null)
             {
@@ -20,7 +20,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
             }
 
             var dbEntity = await _dbSet.AsTracking().FirstOrDefaultAsync(s => s.Key == setting.Key);
-            Setting dbModel = null;
+            T dbModel = null;
             if (dbEntity == null)
             {
                 dbEntity = new Entities.Settings.Setting
@@ -34,7 +34,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
             {
                 if (!string.IsNullOrWhiteSpace(dbEntity.Value))
                 {
-                    dbModel = JsonConvert.DeserializeObject<Setting>(dbEntity.Value);
+                    dbModel = JsonConvert.DeserializeObject<T>(dbEntity.Value);
                 }
 
                 dbEntity.Value = JsonConvert.SerializeObject(setting);
@@ -45,21 +45,33 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
             return (setting, dbModel);
         }
 
-        public async ValueTask<Setting> GetAsync()
+        public async ValueTask<T> GetAsync<T>() where T : Setting, new()
         {
-            Setting tObj = new Setting();
+            T tObj = new T();
             var setting = await _dbSet.FirstOrDefaultAsync(s => s.Key == tObj.Key);
 
             if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
                 return null;
 
-            Setting result = JsonConvert.DeserializeObject<Setting>(setting.Value);
+            T result = JsonConvert.DeserializeObject<T>(setting.Value);
             return result;
         }
 
-        public async ValueTask RemoveAsync()
+        public async ValueTask<T> GetAsync<T>(string dynamicKey) where T : DynamicKeySetting
         {
-            Setting tObj = new Setting();
+            var tObj = (T)Activator.CreateInstance(typeof(T), dynamicKey);
+            var setting = await _dbSet.FirstOrDefaultAsync(s => s.Key == tObj.Key);
+
+            if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
+                return null;
+
+            T result = JsonConvert.DeserializeObject<T>(setting.Value);
+            return result;
+        }
+
+        public async ValueTask RemoveAsync<T>() where T : Setting, new()
+        {
+            T tObj = new T();
             var setting = await _dbSet.AsTracking().FirstOrDefaultAsync(s => s.Key == tObj.Key);
 
             if (setting != null)
@@ -69,5 +81,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Settings
             }
         }
 
+        public async ValueTask RemoveAsync<T>(string dynamicKey) where T : DynamicKeySetting
+        {
+            var tObj = (T)Activator.CreateInstance(typeof(T), dynamicKey);
+            var setting = await _dbSet.AsTracking().FirstOrDefaultAsync(s => s.Key == tObj.Key);
+
+            if (setting != null)
+            {
+                _dbSet.Remove(setting);
+                await _dataContext.SaveChangesAsync();
+            }
+        }
     }
 }

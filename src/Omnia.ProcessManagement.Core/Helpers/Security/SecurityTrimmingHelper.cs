@@ -29,79 +29,72 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         public static string GenerateSecurityTrimming(UserAuthorizedResource resources, VersionTypeSupportTrimming versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
         {
-            var securityTrimming = string.Empty;
-            var versionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
+            var securityTrimming = "";
+            var versionTrimming = $" AND {ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
 
-            var limitedOPMProcessIdTrimming = string.Empty;
-            var limitedTeamAppIdTrimming = string.Empty;
+            var connectPart = "";
+            var limitedOPMProcessIdTrimming = "";
+            var limitedTeamAppIdTrimming = "";
 
-            var connectPart = " "; //initial with one blank space
             if (resources != null)
             {
-                if (resources.AuthorTeamAppIds.Any())
-                {
-                    var teamAppIds = resources.AuthorTeamAppIds;
-                    if (limitedTeamAppIds.Any())
-                    {
-                        var limitedTeamAppIdsHashSet = limitedTeamAppIds.ToHashSet();
-                        teamAppIds = teamAppIds.Where(appId => limitedTeamAppIdsHashSet.Contains(appId)).ToList();
+                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
+                var authorTeamAppIds = TrimByLimitedIds(resources.AuthorTeamAppIds, limitedTeamAppIds);
+                var approverAndReviewerOPMProcessIds = new List<Guid>();
+                approverAndReviewerOPMProcessIds.AddRange(resources.ApproverOPMProcessIds);
+                approverAndReviewerOPMProcessIds.AddRange(resources.ReviewerOPMProcessIds);
+                approverAndReviewerOPMProcessIds = TrimByLimitedIds(approverAndReviewerOPMProcessIds, limitedOPMProcessIds);
 
-                        if (teamAppIds.Any())
-                        {
-                            limitedTeamAppIdTrimming = $"({GeneratePermissionForTeamAppIds(teamAppIds)})";
-                        }
-                    }
-                    else
-                    {
-                        securityTrimming = $"{securityTrimming}{connectPart}{GeneratePermissionForTeamAppIds(teamAppIds)}";
-                        connectPart = " OR ";
-                    }
+                if (limitedOPMProcessIds.Any())
+                {
+                    limitedOPMProcessIdTrimming = $" AND {GeneratePermissionForOPMProcessIds(limitedOPMProcessIds)}";
                 }
-                if ((resources.ApproveOPMProcessIds.Any() || resources.ReviewOPMProcessIds.Any()) && versionType == VersionTypeSupportTrimming.Draft)
+                if (limitedTeamAppIds.Any())
                 {
-                    var opmProcessIds = new List<Guid>();
-                    opmProcessIds.AddRange(resources.ApproveOPMProcessIds);
-                    opmProcessIds.AddRange(resources.ReviewOPMProcessIds);
-
-                    opmProcessIds = opmProcessIds.Distinct().ToList();
-
-
-                    if (limitedOPMProcessIds.Any())
-                    {
-                        var limitedOPMProcessIdsHashSet = limitedOPMProcessIds.ToHashSet();
-                        opmProcessIds = opmProcessIds.Where(opmProcessId => limitedOPMProcessIdsHashSet.Contains(opmProcessId)).ToList();
-
-                        if (opmProcessIds.Any())
-                        {
-                            limitedOPMProcessIdTrimming = $"({GeneratePermissionForOPMProcessIds(opmProcessIds)})";
-                        }
-                    }
-                    else
-                    {
-                        securityTrimming = $"{securityTrimming}{connectPart}{GeneratePermissionForOPMProcessIds(opmProcessIds)}";
-                        connectPart = " OR ";
-                    }
+                    limitedTeamAppIdTrimming = $" AND {GeneratePermissionForTeamAppIds(limitedTeamAppIds)}";
                 }
-                if (resources.LatestPublishedSecurityResourceIds.Any() && versionType == VersionTypeSupportTrimming.LatestPublished)
+
+                if (authorTeamAppIds.Any())
                 {
-                    securityTrimming = $"{securityTrimming}{connectPart}{GeneratePermissionForSecurityProcessId(resources.LatestPublishedSecurityResourceIds)}";
+                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
                     connectPart = " OR ";
                 }
-            }
+                if (approverAndReviewerOPMProcessIds.Any() && versionType == VersionTypeSupportTrimming.Draft)
+                {
+                    var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimming}";
+                    connectPart = " OR ";
 
-            if (securityTrimming != string.Empty)
-            {
-                securityTrimming = $"({securityTrimming})";
-            }
+                }
+                if (resources.ReaderSecurityResourceIds.Any() && versionType == VersionTypeSupportTrimming.LatestPublished)
+                {
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
+                    connectPart = " OR ";
+                }
 
-            if (securityTrimming != string.Empty || limitedOPMProcessIdTrimming != string.Empty || limitedTeamAppIdTrimming != string.Empty)
-            {
-                securityTrimming = string.Join(" AND ",
-                    (new List<string> { securityTrimming, limitedOPMProcessIdTrimming, limitedTeamAppIdTrimming, versionTrimming })
-                    .Where(trimming => trimming != string.Empty));
+                if (securityTrimming != "")
+                {
+                    securityTrimming = $"({securityTrimming}){limitedOPMProcessIdTrimming}{limitedTeamAppIdTrimming}{versionTrimming}";
+                }
             }
 
             return securityTrimming;
+        }
+
+        private static List<Guid> TrimByLimitedIds(List<Guid> ids, List<Guid> limitedIds)
+        {
+            if (ids.Any())
+            {
+                if (limitedIds.Any())
+                {
+                    var limitedIdHashSet = limitedIds.ToHashSet();
+                    ids = ids.Where(id => limitedIdHashSet.Contains(id)).ToList();
+                }
+            }
+
+            return ids.Distinct().ToList();
         }
 
         private static string GeneratePermissionForSecurityProcessId(List<Guid> securityResourceIds)

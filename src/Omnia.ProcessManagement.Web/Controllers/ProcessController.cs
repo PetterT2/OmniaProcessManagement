@@ -270,7 +270,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
                         var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
@@ -296,7 +296,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);

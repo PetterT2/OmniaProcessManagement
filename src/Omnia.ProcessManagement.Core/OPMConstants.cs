@@ -35,7 +35,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static IList<EnterprisePropertyDefinition> Properties => new List<EnterprisePropertyDefinition>()
                     {
-                        ProcessType
+                        ProcessType, Revision, Edition
                     };
                 public static EnterprisePropertyDefinition ProcessType
                 {
@@ -51,6 +51,50 @@ namespace Omnia.ProcessManagement.Core
                                 [LanguageTag.EnUs] = "Process Type"
                             },
                             EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Taxonomy.Id,
+                            Settings = null,
+                            SPSearchable = false,
+                            ManagedPropertySettings = null,
+                            BuiltIn = true
+                        };
+                    }
+                }
+
+                public static EnterprisePropertyDefinition Revision
+                {
+                    get
+                    {
+                        return new EnterprisePropertyDefinition()
+                        {
+                            Id = new Guid("59e47e4f-561c-4f97-985f-ec843b0d922b"),
+                            InternalName = SharePoint.OPMFields.Fields_Revision,
+                            OmniaSearchable = false,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Revision"
+                            },
+                            EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Number.Id,
+                            Settings = null,
+                            SPSearchable = false,
+                            ManagedPropertySettings = null,
+                            BuiltIn = true
+                        };
+                    }
+                }
+
+                public static EnterprisePropertyDefinition Edition
+                {
+                    get
+                    {
+                        return new EnterprisePropertyDefinition()
+                        {
+                            Id = new Guid("d5128e77-3056-40a9-94c4-f1251a60690a"),
+                            InternalName = SharePoint.OPMFields.Fields_Edition,
+                            OmniaSearchable = false,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Edition"
+                            },
+                            EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Number.Id,
                             Settings = null,
                             SPSearchable = false,
                             ManagedPropertySettings = null,
@@ -100,6 +144,7 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_Status = "Status";
                 public const string Fields_Assigned_To = "AssignedTo";
                 public const string Fields_PercentComplete = "PercentComplete";
+                public const string Fields_Author = "Author";
             }
         }
 

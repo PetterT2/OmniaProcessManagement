@@ -20,7 +20,7 @@ namespace Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers
             if (!Regex.IsMatch(resource)) return false;
 
             resource = resource.ToLower();
-            resource = resource.Replace($"{OPMConstants.Security.Resources.OPMProcessIdResourcePrefix.ToLower()}", "");
+            resource = resource.Replace($"{OPMConstants.Security.Resources.SecurityResourceIdResourcePrefix.ToLower()}", "");
             return Guid.TryParse(resource, out securityResourceId);
         }
 

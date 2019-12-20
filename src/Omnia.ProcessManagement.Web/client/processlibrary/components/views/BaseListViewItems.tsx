@@ -2,11 +2,11 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey } from '../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
-import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessService } from '../../../fx';
@@ -16,6 +16,7 @@ import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx
 import { FilterDialog } from './dialogs/FilterDialog';
 import { LibraryStore } from '../../stores';
 import { OPMContext } from '../../../fx/contexts';
+import { SecurityService } from '@omnia/fx/services';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -45,6 +46,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(OPMContext) opmContext: OPMContext;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
+    @Inject(SecurityService) securityService: SecurityService;
 
     private messageBusReloadDocumentStatus: IMessageBusSubscriptionHandler = null;
 
@@ -65,8 +67,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     selectedProcess: Process;
     pageTotal: number = 1;
     lcid: number = 1033;
+    isAuthor: boolean = false;
 
     created() {
+        this.loadPermisison();
         let languageSettings = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
         if (languageSettings.availableLanguages.length > 0) {
             let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
@@ -83,7 +87,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             }
         }, 5000);
         this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
-            if (!this.isRefeshingStatuses && versionType == this.versionType) {
+            if (versionType == this.versionType) {
                 this.refreshStatus();
             }
         });
@@ -98,6 +102,14 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     beforeDestroy() {
         clearInterval(this.refreshStatusInterval);
+    }
+
+    private loadPermisison() {
+        this.securityService.hasWritePermissionForRole(Enums.Security.OPMRoleDefinitions.Author, {
+            [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
+        }).then((hasPermission) => {
+            this.isAuthor = hasPermission;
+        })
     }
 
     private refreshStatus() {
@@ -236,42 +248,43 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private getEnterpriseProperty(internalName: string) {
-        let field: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
+        let field: EnterprisePropertyDefinition = null;
+        switch (internalName) {
+            case LibrarySystemFieldsConstants.Title:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Text
+                    },
+                    internalName: LibrarySystemFieldsConstants.Title
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Edition:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Edition, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Number
+                    },
+                    internalName: ProcessLibraryFields.Edition
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Revision:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Revision, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Number
+                    },
+                    internalName: ProcessLibraryFields.Revision
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.Published:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.DateTime
+                    },
+                    internalName: ProcessLibraryFields.Published
+                } as EnterprisePropertyDefinition;
+                break;
+        }
         if (field == null) {
-            switch (internalName) {
-                case LibrarySystemFieldsConstants.Title:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Title, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Text
-                        },
-                        internalName: LibrarySystemFieldsConstants.Title
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Edition:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Edition, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Number
-                        },
-                        internalName: ProcessLibraryFields.Edition
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Revision:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Revision, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.Number
-                        },
-                        internalName: ProcessLibraryFields.Revision
-                    } as EnterprisePropertyDefinition;
-                    break;
-                case ProcessLibraryFields.Published:
-                    field = {
-                        multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
-                            indexedType: PropertyIndexedType.DateTime
-                        },
-                        internalName: ProcessLibraryFields.Published
-                    } as EnterprisePropertyDefinition;
-                    break;
-            }
+            field = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
         }
         return field;
     }
@@ -299,7 +312,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                         {h(this.processListViewComponentKey.processMenuComponent, {
                                             domProps: {
                                                 closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
-                                                process: item
+                                                process: item,
+                                                isAuthor: this.isAuthor
                                             }
                                         })}
                                     </td>
@@ -320,15 +334,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     </td>
                                 );
                             case ProcessLibraryFields.Edition:
-                                return (
-                                    <td>
-                                        {item.rootProcessStep.edition}
-                                    </td>
-                                );
                             case ProcessLibraryFields.Revision:
                                 return (
                                     <td>
-                                        {item.rootProcessStep.revision}
+                                        {item.rootProcessStep.enterpriseProperties[internalName]}
                                     </td>
                                 );
                             case ProcessLibraryFields.Published:
@@ -350,7 +359,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     renderHeaderForOtherColumns(h, internalName: string) {
         let field = this.getEnterpriseProperty(internalName);
-
+        if (field == null)
+            return null;
         return (
             <th class={'text-left font-weight-bold'}>
                 <v-icon v-show={this.isFilter(internalName)} size='16' class="mr-1">fal fa-filter</v-icon>
@@ -431,7 +441,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                         header: p => this.renderHeaders(h)
                     }}>
                     <div slot="no-data">
-                        {this.loc.ProcessNoItem[this.versionType]}
+                        {this.loc.ProcessNoItem[ProcessVersionType[this.versionType]]}
                     </div>
                 </v-data-table>
                 {
@@ -473,10 +483,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     render(h) {
+        let hasActionButtons = !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) && this.isAuthor;
         return (
-            <div class={Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ? "mt-3" : ""}>
+            <div class={!hasActionButtons ? "mt-3" : ""}>
                 {
-                    !Utils.isNullOrEmpty(this.processListViewComponentKey.actionButtonComponent) ?
+                    hasActionButtons ?
                         <v-toolbar flat color="white">
                             <v-card-actions>
                                 {h(this.processListViewComponentKey.actionButtonComponent, {

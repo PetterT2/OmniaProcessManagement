@@ -22,6 +22,8 @@
         },
         New: string;
         AddLink: string;
+        AddHeader: string;
+        EditHeader: string;
         EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
@@ -43,6 +45,8 @@
         FilterShapeDefinitionNoResult: string;
         Media: string;
         FreeForm: string;
+        DiscardChangeConfirmMessage: string;
+        MessageNoLinksItem: string;
         ShapeSettings: string;
     }
 }

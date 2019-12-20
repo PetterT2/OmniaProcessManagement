@@ -44,8 +44,22 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         {
             try
             {
+                var process = await ProcessService.BeforeApprovalProcessAsync(request.OPMProcessId, ProcessWorkingStatus.Publishing);
+            }
+            catch (Exception ex)
+            {
+                await ProcessService.UpdateProcessStatusAsync(request.OPMProcessId, ProcessWorkingStatus.FailedPublishing, ProcessVersionType.Draft);
+                throw;
+            }
+        }
+
+        public async ValueTask ProcessingPublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request)
+        {
+            try
+            {
                 var securityResourceId = await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(teamAppId, request.OPMProcessId, GetLimitedUsers(request.IsLimitedAccess, request.LimitedUsers));
-                var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
+                await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
+                //TODO: sync process to sharepoint
             }
             catch (Exception ex)
             {

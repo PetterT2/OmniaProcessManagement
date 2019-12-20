@@ -1,4 +1,6 @@
-﻿export const DefaultDateFormat = "YYYY-MM-DD";
+﻿import { OPMEnterprisePropertyInternalNames } from '../fx/models';
+
+export const DefaultDateFormat = "YYYY-MM-DD";
 
 export const UrlParameters = {
     get DisplayTab() { return "displaytab" },
@@ -15,8 +17,8 @@ export const LibrarySystemFieldsConstants = {
 }
 
 export const ProcessLibraryFields = {
-    get Edition() { return "Edition" },
-    get Revision() { return "Revision" },
+    get Edition() { return OPMEnterprisePropertyInternalNames.OPMEdition},
+    get Revision() { return OPMEnterprisePropertyInternalNames.OPMRevision },
     get Published() { return "Published" },
     get ModifiedAt() { return "ModifiedAt" }
 }

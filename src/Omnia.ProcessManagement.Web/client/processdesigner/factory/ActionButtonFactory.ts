@@ -1,11 +1,12 @@
 ﻿import { Inject, OmniaContext, Localize } from '@omnia/fx';
-import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
+import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, ConfirmDialogOptions } from '@omnia/fx/ux';
 import { ProcessStepDesignerItemBase } from '../designeritems/ProcessStepDesignerItemBase';
 import { ActionItem, ActionItemType, ActionButton, DisplayActionButton, DisplayModes } from '../../models/processdesigner';
 import { ActionButtonIds } from './ActionButtonIds';
 import { ProcessDesignerStore } from '../stores';
 import { RootProcessStepDesignerItem } from '../designeritems/RootProcessStepDesignerItem';
 import { OPMCoreLocalization } from '../../core/loc/localize';
+import { ProcessDesignerLocalization } from '../loc/localize';
 
 export class ActionButtonFactory {
     @Inject(ProcessDesignerStore) static processDesignerStore: ProcessDesignerStore;
@@ -13,6 +14,7 @@ export class ActionButtonFactory {
     @Inject(OmniaContext) static omniaCtx: OmniaContext;
 
     @Localize(OPMCoreLocalization.namespace) static opmCoreLoc: OPMCoreLocalization.locInterface;
+    @Localize(ProcessDesignerLocalization.namespace) static loc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) static omniaLoc: OmniaUxLocalization;
 
     static discardChangesButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
@@ -21,6 +23,10 @@ export class ActionButtonFactory {
             loading: false,
             disabled: false,
             id: ActionButtonIds.discardchanges,
+            confirmationOptions: {
+                message: this.loc.DiscardChangeConfirmMessage,
+                title: this.opmCoreLoc.Buttons.DiscardChanges
+            },
             actionCallback: editorItem.onDiscardChanges.bind(editorItem),
             highLighted: highLighted,
             icon: "",

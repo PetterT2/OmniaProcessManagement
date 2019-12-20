@@ -92,6 +92,7 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
                     await semaphoreSlim.WaitAsync();
                     if (_appIdAndUrlDict == null)
                     {
+                        _appIdAndUrlDict = new ConcurrentDictionary<Guid, string>();
                         var teamAppInstancesOutputInfos = await AppServicce.GetAppInstanceOutputInfosAsync(OPMConstants.TeamCollaborationAppDefinitionId);
                         foreach (var appInstanceOutputInfo in teamAppInstancesOutputInfos)
                         {
