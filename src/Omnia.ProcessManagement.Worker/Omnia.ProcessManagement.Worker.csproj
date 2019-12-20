@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.17-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.Worker" Version="4.0.17-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.20-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.Worker" Version="4.0.20-dev" />
   </ItemGroup>
 
   <ItemGroup>
