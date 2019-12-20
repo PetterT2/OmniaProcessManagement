@@ -883,7 +883,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision)
         {
-            if (enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
+            if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
                 !Guid.TryParse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid _))
             {
                 throw new Exception("Invalid process type");
