@@ -1,4 +1,4 @@
-﻿import { Inject, Localize, Utils, WebComponentBootstrapper, vueCustomElement } from '@omnia/fx';
+﻿import { Inject, Localize, Utils, WebComponentBootstrapper, vueCustomElement, IWebComponentInstance } from '@omnia/fx';
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
@@ -6,20 +6,17 @@ import { Guid, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-model
 import { OmniaTheming, VueComponentBase, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { Link } from '../../../fx/models';
+import { Link, Enums } from '../../../fx/models';
 import { CurrentProcessStore } from '../../../fx';
+import { ICreateLinkPanel } from './ICreateLinkPanel';
 
-export interface CreateLinkPanelProps {
-    onClose: () => void;
-    onSave: (link: Link) => void;
-    linkId?: GuidValue;
-}
 
 @Component
-export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelProps, {}, {}>{
+export class CreateLinkPanelComponent extends VueComponentBase implements IWebComponentInstance, ICreateLinkPanel {
     @Prop() onClose: () => void;
     @Prop() onSave: (link: Link) => void;
     @Prop() linkId?: GuidValue;
+    @Prop() linkType: Enums.LinkType;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -58,12 +55,14 @@ export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelPr
             this.isNew = true;
         }
     }
+
     private initDefaultLink(): Link {
         return {
             id: Guid.newGuid(),
             title: null,
             url: '',
-            openNewWindow: false
+            openNewWindow: false,
+            linkType: this.linkType
         };
     }
 
@@ -89,53 +88,62 @@ export class CreateLinkPanelComponent extends VueComponentBase<CreateLinkPanelPr
         this.onSave(savedLink);
     }
 
-   
+
     visible: boolean = true;
     /**
         * Render 
         * @param h
         */
     render(h) {
+        let header = "";
+        if (this.linkType == Enums.LinkType.Heading)
+            header = this.isNew ? this.pdLoc.AddHeader : this.pdLoc.EditHeader;
+        else
+            header = this.isNew ? this.pdLoc.AddLink : this.pdLoc.EditLink;
         return <div>
             <v-toolbar color={this.omniaTheming.promoted.body.primary.base} flat dark tabs>
-                <v-toolbar-title>{this.isNew ? this.pdLoc.AddLink : this.pdLoc.EditLink}</v-toolbar-title>
+                <v-toolbar-title>{header}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn icon onClick={this.onClose}>
                     <v-icon>close</v-icon>
                 </v-btn>
             </v-toolbar>
             <v-container>
-            <v-card flat>
-                <v-card-content>
-                    <v-row>
-                        <v-col cols="12">
-                            <omfx-multilingual-input
-                                requiredWithValidator={this.internalValidator}
-                                model={this.editingLink.title}
-                                onModelChange={(title) => { this.editingLink.title = title; }}
-                                forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field v-model={this.editingLink.url} label={this.omniaLoc.Common.Url}></v-text-field>
-                            <omfx-field-validation
-                                useValidator={this.internalValidator}
-                                checkValue={this.editingLink.url}
-                                rules={new FieldValueValidation().IsRequired().getRules()}>
-                            </omfx-field-validation>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-checkbox input-value={this.editingLink.openNewWindow}
-                                onChange={(val) => { this.editingLink.openNewWindow = val; }}
-                                label={this.pdLoc.LinkObject.OpenNewWindow}>
-                            </v-checkbox>
-                        </v-col>
-                    </v-row>
-                </v-card-content>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
+                <v-card flat>
+                    <v-card-content>
+                        <v-row>
+                            <v-col cols="12">
+                                <omfx-multilingual-input
+                                    requiredWithValidator={this.internalValidator}
+                                    model={this.editingLink.title}
+                                    onModelChange={(title) => { this.editingLink.title = title; }}
+                                    forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                            </v-col>
+                            {
+                                this.linkType == Enums.LinkType.CustomLink ?
+                                    [<v-col cols="12">
+                                        <v-text-field v-model={this.editingLink.url} label={this.omniaLoc.Common.Url}></v-text-field>
+                                        <omfx-field-validation
+                                            useValidator={this.internalValidator}
+                                            checkValue={this.editingLink.url}
+                                            rules={new FieldValueValidation().IsRequired().getRules()}>
+                                        </omfx-field-validation>
+                                    </v-col>,
+                                    <v-col cols="12">
+                                        <v-checkbox input-value={this.editingLink.openNewWindow}
+                                            onChange={(val) => { this.editingLink.openNewWindow = val; }}
+                                            label={this.pdLoc.LinkObject.OpenNewWindow}>
+                                        </v-checkbox>
+                                    </v-col>]
+                                    : null
+                            }
+                        </v-row>
+                    </v-card-content>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
                         <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.saveLink}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
                         <v-btn text onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
-                </v-card-actions>
+                    </v-card-actions>
                 </v-card>
             </v-container>
         </div>

@@ -333,7 +333,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             position={DialogPositions.Center}
         >
             <div style={{ height: '100%' }}>
-                <opm-processdesigner-createlink onClose={this.closeCreateLinkDialog} onSave={this.createLinkCallback}></opm-processdesigner-createlink>
+                <opm-processdesigner-createlink onClose={this.closeCreateLinkDialog} onSave={this.createLinkCallback} linkType={Enums.LinkType.CustomLink}></opm-processdesigner-createlink>
             </div>
         </omfx-dialog>;
 

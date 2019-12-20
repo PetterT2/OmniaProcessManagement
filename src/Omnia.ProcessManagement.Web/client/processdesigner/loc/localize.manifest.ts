@@ -26,6 +26,8 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         },
         New: "New",
         AddLink: "Add Link",
+        AddHeader: "Add Header",
+        EditHeader: "Edit Header",
         EditLink: "Edit Link",
         NoProperties: "There are no properties to be edited.",
         CreateProcessStep: "Create Process Step",
@@ -47,5 +49,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         FilterShapeDefinitionNoResult: "No result",
         Media: "Media",
         FreeForm: "Free Form",
-        DiscardChangeConfirmMessage: "Are you sure you want to discard your changes to the process?"
+        DiscardChangeConfirmMessage: "Are you sure you want to discard your changes to the process?",
+        MessageNoLinksItem: "There are no links for this process."
     });

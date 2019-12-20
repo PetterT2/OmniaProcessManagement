@@ -237,6 +237,7 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\ProcessDocuments.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ICreateLinkPanel.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\Links.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ProcessLinks.tsx" />

@@ -52,6 +52,11 @@ export const ProcessDesignerStyles = {
     canvasContainer: style({
         height: "calc(100vh - 97px)",
         overflowY: "auto",
+        $nest: {
+            '.notdragging.v-list-item:hover': {
+                backgroundColor: 'rgba(0,0,0,.04)'
+            }
+        }
     }),
     container: style({
         marginTop: "-20px",
