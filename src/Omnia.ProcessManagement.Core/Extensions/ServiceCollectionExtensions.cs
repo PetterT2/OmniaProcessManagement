@@ -53,6 +53,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IApprovalTaskService, ApprovalTaskService>();
             services.AddScopedWithSingeltonRef<ISharePointListService, SharePointListService>();
             services.AddScopedWithSingeltonRef<ITeamCollaborationAppsService, TeamCollaborationAppsService>();
+            services.AddScopedWithSingeltonRef<ISharePointGroupService, SharePointGroupService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
@@ -62,7 +63,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ISettingsRepository, SettingsRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
-           
+
             services.AddAutoMapper();
             return services;
         }

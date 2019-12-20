@@ -11,6 +11,10 @@ using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.SharePoint.Services.SharePointEntities;
 using Omnia.ProcessManagement.Core.Services.Features.Artifacts;
+using Omnia.ProcessManagement.Core.Services.Settings;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
+using Omnia.ProcessManagement.Models.Settings;
 
 namespace Omnia.ProcessManagement.Core.Services.Features
 {
@@ -20,23 +24,30 @@ namespace Omnia.ProcessManagement.Core.Services.Features
         private ILocalizationProvider LocalizationProvider { get; }
         private ISharePointClientContextProvider SPClientContextProvider { get; }
         private ISharePointEntityProvider SPEntityProvider { get; }
-
-
+        private ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
+        private ISettingsService SettingsService { get; }
+        private ISharePointGroupService SPGroupService { get; }
         public ProcessLibraryFeatureService(ILogger<ProcessLibraryFeatureService> logger,
             ILocalizationProvider localizationProvider,
             ISharePointClientContextProvider spClientContextProvider,
-            ISharePointEntityProvider spEntityProvider
+            ISharePointEntityProvider spEntityProvider,
+            ISettingsService settingsService,
+            ITeamCollaborationAppsService teamCollaborationAppsService,
+            ISharePointGroupService spGroupService
         )
         {
             Logger = logger;
             LocalizationProvider = localizationProvider;
             SPClientContextProvider = spClientContextProvider;
             SPEntityProvider = spEntityProvider;
+            SettingsService = settingsService;
+            SPGroupService = spGroupService;
+            TeamCollaborationAppsService = teamCollaborationAppsService;
         }
 
         public async ValueTask ActiveFeatureAsync(string spUrl, FeatureEventArg eventArg)
         {
-            await Execute(spUrl, eventArg);
+            await ExecuteAsync(spUrl, eventArg);
         }
 
         public async ValueTask DeactiveFeatureAsync(string spUrl)
@@ -45,11 +56,13 @@ namespace Omnia.ProcessManagement.Core.Services.Features
 
         public async ValueTask UpgradeFeatureAsync(string fromVersion, string spUrl, FeatureEventArg eventArg)
         {
-            await Execute(spUrl, eventArg);
+            await ExecuteAsync(spUrl, eventArg);
         }
 
-        private async ValueTask Execute(string spUrl, FeatureEventArg eventArg)
+        private async ValueTask ExecuteAsync(string spUrl, FeatureEventArg eventArg)
         {
+            var teamAppId = await TeamCollaborationAppsService.GetTeamAppIdAsync(spUrl);
+
             PortableClientContext ctx = SPClientContextProvider.CreateClientContext(spUrl, true);
             Site site = ctx.Site;
             Web web = ctx.Web;
@@ -62,15 +75,78 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 w => w.Title);
             await ctx.ExecuteQueryAsync();
 
-            await ProvisionList(ctx, web);
+            var (authorGroup, readerGroup) = await EnsureSharePointGroupsAsync(ctx, teamAppId);
+             await EnsureListsAsync(ctx, authorGroup, readerGroup);
+            
+            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.PublishList,
+                new List<Group> { authorGroup, readerGroup },
+                new List<RoleType> { RoleType.Reader });
+
+            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.TaskList, null, null);
+
             await EnsurePage(ctx, web);
             await ConfigQuickLaunch(ctx, web);
         }
 
-        private async ValueTask ProvisionList(PortableClientContext clientContext, Web web)
+        private async ValueTask<(Group, Group)> EnsureSharePointGroupsAsync(PortableClientContext ctx, Guid teamAppId)
         {
-            string contentTypeGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ContentTypeGroupName, web.Language);
-            string fieldGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.FieldGroupName, web.Language);
+            Principal owner = null;// ctx.Web.AssociatedOwnerGroup; ;
+
+            var settings = await SettingsService.GetAsync<SiteGroupIdSettings>(teamAppId.ToString());
+            if (settings == null)
+            {
+                settings = new SiteGroupIdSettings(teamAppId.ToString());
+            }
+            Group authorGroup = null;
+            Group readerGroup = null;
+            bool settingsChanged = true;
+
+            if (settings.AuthorGroupId > 0)
+            {
+                authorGroup = await SPGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, settings.AuthorGroupId);
+            }
+
+            if (settings.DefaultReaderGroupId > 0)
+            {
+                readerGroup = await SPGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, settings.DefaultReaderGroupId);
+            }
+
+            if (authorGroup == null)
+            {
+                string opmAuthorGroupName = await GetGroupNameAsync(OPMConstants.LocalizedTextKeys.AuthorsGroupSuffix, ctx.Web.Title, ctx.Web.Language);
+                authorGroup = await SPGroupService.EnsureGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmAuthorGroupName, new List<RoleDefinition> { ctx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, owner);
+
+                settings.AuthorGroupId = authorGroup.Id;
+                settingsChanged = true;
+            }
+
+            if (readerGroup == null)
+            {
+                string opmReaderGroupName = await GetGroupNameAsync(OPMConstants.LocalizedTextKeys.ReadersGroupSuffix, ctx.Web.Title, ctx.Web.Language);
+                readerGroup = await SPGroupService.EnsureGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmReaderGroupName, new List<RoleDefinition> { ctx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, owner);
+
+                settings.DefaultReaderGroupId = readerGroup.Id;
+                settingsChanged = true;
+            }
+
+            if (settingsChanged)
+            {
+                await SettingsService.AddOrUpdateAsync(settings);
+            }
+
+            return (authorGroup, readerGroup);
+        }
+
+        private async ValueTask<string> GetGroupNameAsync(string localizedText, string webTitle, uint webLanguage)
+        {
+            var suffix = await LocalizationProvider.GetLocalizedValueAsync(localizedText, webLanguage);
+            return webTitle + " " + suffix;
+        }
+
+        private async ValueTask EnsureListsAsync(PortableClientContext clientContext, Group authorGroup, Group readerGroup)
+        {
+            string contentTypeGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ContentTypeGroupName, clientContext.Web.Language);
+            string fieldGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.FieldGroupName, clientContext.Web.Language);
             var context = SPEntityProvider.CreateContext(clientContext.Site, clientContext.Web);
             EnsureFields(context, fieldGroupName);
             EnsureContentTypes(context, contentTypeGroupName);
@@ -79,6 +155,30 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             await context.ExecuteAsync();
             Logger.Log(LogLevel.Information, "Ensured ContentTypes, Lists, Fields");
 
+        }
+
+        private async ValueTask EnsureUniquePermissionOnListAsync(PortableClientContext ctx, string listUrl, List<Group> groups, List<RoleType> roles)
+        {
+            List list = ctx.Web.GetList(listUrl);
+            ctx.Load(list, l => l.HasUniqueRoleAssignments);
+            await ctx.ExecuteQueryAsync();
+
+            if (!list.HasUniqueRoleAssignments)
+            {
+                list.BreakRoleInheritance(false, false);
+            }
+
+            if (groups != null && roles != null && groups.Any() && roles.Any())
+            {
+                foreach (var group in groups)
+                {
+                    foreach (var role in roles)
+                    {
+                        list.RoleAssignments.Add(group, new RoleDefinitionBindingCollection(ctx) { ctx.Web.RoleDefinitions.GetByType(role) });
+                    }
+                }
+                await ctx.ExecuteQueryAsync();
+            }
         }
 
         private void EnsureContentTypes(ISharePointEntityContext context, string contentTypeGroupName)

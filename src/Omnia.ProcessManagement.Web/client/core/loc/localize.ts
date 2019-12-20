@@ -36,6 +36,10 @@
                     Description: string
                 }
             },
+            SharePointGroups: {
+                AuthorGroupSuffix: string,
+                ReaderGroupSuffix: string
+            },
             Fields: {
                 GroupName: string,
                 OPMProcessId: {

@@ -10,7 +10,7 @@ namespace Omnia.ProcessManagement.Models.Settings
         public int DefaultReaderGroupId { get; set; }
         public int AuthorGroupId { get; set; }
 
-        public SiteGroupIdSettings(Guid teamAppId) : base(teamAppId.ToString(), "sitegroupidssettings", new Guid(Constants.Security.Roles.TenantAdmin), true)
+        public SiteGroupIdSettings(string teamAppId) : base(teamAppId, "sitegroupidssettings", new Guid(Constants.Security.Roles.TenantAdmin), true)
         {
         }
     }

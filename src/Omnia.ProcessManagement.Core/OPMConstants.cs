@@ -169,6 +169,8 @@ namespace Omnia.ProcessManagement.Core
 
         public static class LocalizedTextKeys
         {
+            public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");
+            public static readonly string ReadersGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.ReaderGroupSuffix");
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");

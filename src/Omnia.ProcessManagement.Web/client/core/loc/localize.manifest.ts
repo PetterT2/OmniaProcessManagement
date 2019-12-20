@@ -40,6 +40,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Description: "System content type created by Omnia to handle approval tasks of process"
                 }
             },
+            SharePointGroups: {
+                AuthorGroupSuffix: "Process Authors",
+                ReaderGroupSuffix: "Process Readers"
+            },
             Fields: {
                 GroupName: "Omnia Process Management",
                 OPMProcessId: {
