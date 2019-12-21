@@ -10,9 +10,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 {
     public interface IApprovalTaskService
     {
-        ValueTask AddApprovalTaskAndSendEmailAsync(PublishProcessWithApprovalRequest request, Process process);
+        ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request);
+        ValueTask<int> AddSharePointApprovalTaskAndSendEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, Process process, string webUrl);
         ValueTask CancelApprovalTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl);
-        ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask, string webUrl);
-        ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask, string webUrl);
+        ValueTask CompleteSharePointTaskAsync(WorkflowApprovalTask approvalTask, string webUrl);
+        ValueTask SendCompletedEmailAsync(WorkflowApprovalTask approvalTask);
     }
 }

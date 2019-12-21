@@ -1,7 +1,7 @@
 ﻿import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, WebUtils } from "@omnia/fx";
-import { ProcessLibraryViewSettings, Enums, ProcessVersionType, ProcessListViewComponentKey } from '../../../fx/models';
+import { ProcessLibraryViewSettings, Enums, ProcessVersionType, ProcessListViewComponentKey, Security } from '../../../fx/models';
 import { SpacingSetting, LanguageTag, RoleDefinitions, Parameters } from '@omnia/fx-models';
 import { ProcessLibraryListViewStyles } from '../../../models';
 import { StyleFlow, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
@@ -53,9 +53,9 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
-        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Enums.Security.OPMRoleDefinitions.Author], {
+        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
-            [Enums.Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
+            [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {
             this.hasPermission = hasPermission;
         })

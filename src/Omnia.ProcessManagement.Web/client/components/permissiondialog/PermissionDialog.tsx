@@ -10,7 +10,7 @@ import { PrincipalService, SharePointContext, AssociatedGroup, SiteGroupMembersh
 import { SiteGroup } from '@omnia/fx-sp-models';
 import { OPMPermissionDialogLocalization } from './loc/localize';
 import { PermissionInputSettings, UserPrincipalType, Parameters, UserIdentity, PermissionBinding, SecurityIdentities, RolePermissionSetting, RoleDefinitions } from '@omnia/fx-models';
-import { Enums } from '../../fx/models';
+import { Enums, Security } from '../../fx/models';
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../fx/contexts';
 
@@ -42,7 +42,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     showSaveBtn: boolean = false;
     contextParams = {
         [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
-        [Enums.Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
+        [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
     }
 
     authors: Array<UserIdentity> = [];
@@ -51,7 +51,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     created() {
         this.isLoading = true;
 
-        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Enums.Security.OPMRoleDefinitions.Author], {
+        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {
             this.hasPermission = hasPermission;
@@ -72,11 +72,11 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     loadData() {
 
         return new Promise<void>((resolve, reject) => {
-            this.securityService.getPermissionBindings([Enums.Security.OPMRoleDefinitions.Author, Enums.Security.OPMRoleDefinitions.Reader], this.contextParams).then((result) => {
-                if (result[Enums.Security.OPMRoleDefinitions.Author] && result[Enums.Security.OPMRoleDefinitions.Reader]) {
+            this.securityService.getPermissionBindings([Security.OPMRoleDefinitions.Author, Security.OPMRoleDefinitions.Reader], this.contextParams).then((result) => {
+                if (result[Security.OPMRoleDefinitions.Author] && result[Security.OPMRoleDefinitions.Reader]) {
 
-                    this.authors = this.mapToUserIdentities(result[Enums.Security.OPMRoleDefinitions.Author]);
-                    this.defaultReaders = this.mapToUserIdentities(result[Enums.Security.OPMRoleDefinitions.Reader]);
+                    this.authors = this.mapToUserIdentities(result[Security.OPMRoleDefinitions.Author]);
+                    this.defaultReaders = this.mapToUserIdentities(result[Security.OPMRoleDefinitions.Reader]);
                 }
                 this.isLoading = false;
                 resolve();
@@ -137,8 +137,8 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     save() {
         let rolePermissionSetting: Array<RolePermissionSetting> = [];
 
-        rolePermissionSetting.push(this.mapToRolePermissionSetting(Enums.Security.OPMRoleDefinitions.Author, this.authors));
-        rolePermissionSetting.push(this.mapToRolePermissionSetting(Enums.Security.OPMRoleDefinitions.Reader, this.defaultReaders));
+        rolePermissionSetting.push(this.mapToRolePermissionSetting(Security.OPMRoleDefinitions.Author, this.authors));
+        rolePermissionSetting.push(this.mapToRolePermissionSetting(Security.OPMRoleDefinitions.Reader, this.defaultReaders));
 
         this.isSaving = true;
         this.errMsg = "";

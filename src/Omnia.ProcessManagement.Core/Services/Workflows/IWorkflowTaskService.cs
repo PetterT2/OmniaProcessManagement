@@ -1,4 +1,5 @@
-﻿using Omnia.ProcessManagement.Models.Workflows;
+﻿using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,6 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
     {
         ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId);
         ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId);
-        ValueTask CompletedTask(Guid id, string comment, TaskOutcome taskOutCome);
+        ValueTask CompletedAsync(Guid id, string comment, TaskOutcome taskOutCome);
     }
 }

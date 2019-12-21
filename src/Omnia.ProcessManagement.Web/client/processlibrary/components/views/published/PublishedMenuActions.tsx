@@ -5,7 +5,7 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { Process, Enums } from '../../../../fx/models';
+import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 
 interface PublishedMenuActionsProps {
     closeCallback: (isUpdate: boolean) => void;
@@ -41,10 +41,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     }
 
     private refreshContextMenu() {
-        let editActionsDict: Array<Enums.WorkflowEnums.ProcessWorkingStatus> = [
-            Enums.WorkflowEnums.ProcessWorkingStatus.Published
-        ];
-        this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
+        this.disableButtonUpdateAction = !this.isAuthor;
     }
 
     render(h) {

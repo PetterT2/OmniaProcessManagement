@@ -15,9 +15,9 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
         private static readonly string ProcessTableName = nameof(OmniaPMDbContext.Processes);
         private List<Guid> LimitedTeamAppIds = new List<Guid>();
         private List<Guid> LimitedOPMProcessIds = new List<Guid>();
-        private SecurityTrimmingHelper.VersionTypeSupportTrimming VersionType { get; }
+        private DraftOrLatestPublishedVersionType VersionType { get; }
         private UserAuthorizedResource AuthorizedResource { get; }
-        public AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming versionType, UserAuthorizedResource authorizedResource)
+        public AuthorizedProcessQuery(DraftOrLatestPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
         {
             VersionType = versionType;
             AuthorizedResource = authorizedResource;

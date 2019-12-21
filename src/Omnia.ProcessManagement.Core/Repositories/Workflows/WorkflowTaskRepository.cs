@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 
         public async ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId)
         {
-            var entity = await _dbSet.Where(w => w.SPTaskId == spItemId && w.Workflow.Process.TeamAppId == teamAppId)
+            var entity = await _dbSet.Where(w => w.SPTaskId == spItemId && w.TeamAppId == teamAppId)
                 .Include(w => w.Workflow).FirstOrDefaultAsync();
             return MapEfToModel(entity);
         }
@@ -55,13 +56,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model.Id = entity.Id;
                 model.WorkflowId = entity.WorkflowId;
                 model.AssignedUser = entity.AssignedUser;
-                model.CreatedBy = entity.CreatedBy;
-                model.ModifiedBy = entity.ModifiedBy;
-                model.CreatedAt = entity.CreatedAt;
-                model.ModifiedAt = entity.ModifiedAt;
                 model.IsCompleted = entity.IsCompleted;
                 model.Comment = entity.Comment;
                 model.SPTaskId = entity.SPTaskId;
+                model.CreatedBy = entity.CreatedBy;
+                model.CreatedAt = entity.CreatedAt;
                 if (entity.Workflow != null)
                     model.Workflow = MapEfToModel(entity.Workflow);
             }
@@ -76,7 +75,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             {
                 model = new Workflow();
                 model.Id = entity.Id;
-                model.ProcessId = entity.ProcessId;
+                model.OPMProcessId = entity.OPMProcessId;
                 model.WorkflowData = JsonConvert.DeserializeObject<WorkflowData>(entity.JsonValue);
                 model.DueDate = entity.DueDate;
                 model.CompletedType = entity.CompletedType;

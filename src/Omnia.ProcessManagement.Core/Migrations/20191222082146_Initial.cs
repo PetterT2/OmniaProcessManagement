@@ -8,6 +8,22 @@ namespace Omnia.ProcessManagement.Core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ProcessConcurrencyLock",
+                columns: table => new
+                {
+                    OPMProcessId = table.Column<Guid>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
+                    ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProcessConcurrencyLock", x => x.OPMProcessId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Processes",
                 columns: table => new
                 {
@@ -23,8 +39,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     EnterpriseProperties = table.Column<string>(nullable: true),
                     CheckedOutBy = table.Column<string>(nullable: true),
                     TeamAppId = table.Column<Guid>(nullable: false),
+                    SecurityResourceId = table.Column<Guid>(nullable: false),
                     ProcessWorkingStatus = table.Column<byte>(nullable: false),
-                    VersionType = table.Column<int>(nullable: false)
+                    VersionType = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -120,6 +137,30 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Workflows",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
+                    ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
+                    ClusteredId = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OPMProcessId = table.Column<Guid>(nullable: false),
+                    JsonValue = table.Column<string>(nullable: true),
+                    Type = table.Column<byte>(nullable: false),
+                    CompletedType = table.Column<byte>(nullable: false),
+                    DueDate = table.Column<DateTimeOffset>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Workflows", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProcessData",
                 columns: table => new
                 {
@@ -148,36 +189,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Workflows",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<string>(nullable: true),
-                    ModifiedBy = table.Column<string>(nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
-                    ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(nullable: true),
-                    ClusteredId = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProcessId = table.Column<Guid>(nullable: false),
-                    JsonValue = table.Column<string>(nullable: true),
-                    Type = table.Column<byte>(nullable: false),
-                    CompletedType = table.Column<byte>(nullable: false),
-                    DueDate = table.Column<DateTimeOffset>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Workflows", x => x.Id)
-                        .Annotation("SqlServer:Clustered", false);
-                    table.ForeignKey(
-                        name: "FK_Workflows_Processes_ProcessId",
-                        column: x => x.ProcessId,
-                        principalTable: "Processes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "WorkflowTasks",
                 columns: table => new
                 {
@@ -194,6 +205,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     Comment = table.Column<string>(nullable: true),
                     AssignedUser = table.Column<string>(nullable: true),
                     SPTaskId = table.Column<int>(nullable: false),
+                    TeamAppId = table.Column<Guid>(nullable: false),
                     TaskOutcome = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
@@ -270,9 +282,11 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Workflows_ProcessId",
+                name: "IX_Workflows_OPMProcessId",
                 table: "Workflows",
-                column: "ProcessId");
+                column: "OPMProcessId",
+                unique: true,
+                filter: "[CompletedType] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkflowTasks_ClusteredId",
@@ -289,6 +303,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ProcessConcurrencyLock");
+
             migrationBuilder.DropTable(
                 name: "ProcessData");
 
@@ -308,10 +325,10 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "WorkflowTasks");
 
             migrationBuilder.DropTable(
-                name: "Workflows");
+                name: "Processes");
 
             migrationBuilder.DropTable(
-                name: "Processes");
+                name: "Workflows");
         }
     }
 }

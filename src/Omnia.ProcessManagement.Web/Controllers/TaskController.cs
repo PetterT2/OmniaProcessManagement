@@ -64,11 +64,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(appInstanceId);
                 var workflowTask = await WorkflowTaskService.GetAsync(spItemId, appInstanceId);
                 var workflowApprovalTask = new WorkflowApprovalTask(workflowTask);
-                workflowApprovalTask.Process = await ProcessService.GetProcessByIdAsync(workflowTask.Workflow.ProcessId);
+                //workflowApprovalTask.Process = await ProcessService.GetProcessesAsync(workflowTask.Workflow.OPMProcessId);
                 workflowApprovalTask.Responsible = workflowTask.AssignedUser.Equals(OmniaContext.Identity.LoginName);
-                var users = await UserService.GetByPrincipalNamesAsync(new List<string> { workflowTask.AssignedUser, workflowTask.CreatedBy });
-                workflowApprovalTask.AssignedTo = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.AssignedUser);
-                workflowApprovalTask.Author = users.FirstOrDefault(us => us.UserPrincipalName == workflowApprovalTask.CreatedBy);
                 return workflowApprovalTask.AsApiResponse();
             }
             catch (Exception ex)

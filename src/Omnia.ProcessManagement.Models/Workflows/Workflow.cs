@@ -1,4 +1,5 @@
 ﻿using Omnia.Fx.Models.JsonTypes;
+using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,22 +7,6 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Workflows
 {
-    public enum WorkflowType : byte
-    {
-        ReviewWorkflow = 1,
-        PublishWorkflow = 2,
-        CreateDraft = 3,
-        MovedProcess = 4
-    }
-
-    public enum WorkflowCompletedType : byte
-    {
-        None = 0,
-        AllTasksDone = 1,
-        MeetDueDate = 2,
-        Cancelled = 3
-    }
-
     public class Workflow : AuditingInformation
     {
         public Workflow()
@@ -31,7 +16,7 @@ namespace Omnia.ProcessManagement.Models.Workflows
 
         public Guid Id { get; set; }
 
-        public Guid ProcessId { get; set; }
+        public Guid OPMProcessId { get; set; }
 
         public WorkflowCompletedType CompletedType { get; set; }
 

@@ -29,20 +29,20 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ISecurityProvider SecurityProvider { get; }
         IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
         IOmniaContext OmniaContext { get; }
-        IProcessRepository ProcessRepository { get; }
+        IProcessService ProcessService { get; }
         IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
         public ProcessSecurityService(
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
             IOmniaContext omniaContext,
-            IProcessRepository processRepository,
+            IProcessService processService,
             IRoleService roleService,
             IOmniaMemoryDependencyCache omniaMemoryDependencyCache)
         {
             DynamicScopedContextProvider = dynamicScopedContextProvider;
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
-            ProcessRepository = processRepository;
+            ProcessService = processService;
             RoleService = roleService;
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
@@ -54,25 +54,25 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 
         public async ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType)
         {
-            var process = await ProcessRepository.GetInternalProcessByOPMProcessIdAsync(opmProcessId, processVersionType);
+            var process = await ProcessService.GetInternalProcessByOPMProcessIdAsync(opmProcessId, processVersionType);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType)
         {
-            var process = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, processVersionType);
+            var process = await ProcessService.GetInternalProcessByProcessStepIdAsync(processStepId, processVersionType);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
-            var process = await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processStepId, hash, versionType);
+            var process = await ProcessService.GetInternalProcessByProcessStepIdAsync(processStepId, hash, versionType);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
         public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId)
         {
-            var process = await ProcessRepository.GetInternalProcessByProcessIdAsync(processId);
+            var process = await ProcessService.GetInternalProcessByProcessIdAsync(processId);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
@@ -91,13 +91,13 @@ namespace Omnia.ProcessManagement.Core.Services.Security
                     .ToDictionary(group => group.Key, items => items.Select(b => b.Resource).Distinct().ToList());
                 return GetUserAuthorizedResource(resources);
             });
-            
+
             return result.Value;
         }
 
         public async ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null)
         {
-            var securityResourceId = limitedUserItentities == null ? teamAppId : opmProcessId;
+            var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(teamAppId, opmProcessId, limitedUserItentities != null);
 
             if (securityResourceId == opmProcessId)
             {
@@ -203,7 +203,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             }
 
             result = result.Distinct().ToList();
-            
+
             return result;
         }
     }

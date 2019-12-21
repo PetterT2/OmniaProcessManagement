@@ -10,7 +10,7 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, TaskService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, WorkflowApprovalTask, Enums } from '../../../../fx/models';
+import { WorkflowTask, WorkflowApprovalTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
@@ -97,7 +97,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
     private approve() {
         this.isApproving = true;
-        this.task.taskOutCome = Enums.WorkflowEnums.TaskOutcome.Approved;
+        this.task.taskOutCome = TaskOutcome.Approved;
         this.completeApprovalTask();
     }
 
@@ -109,17 +109,13 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         }
 
         this.isRejecting = true;
-        this.task.taskOutCome = Enums.WorkflowEnums.TaskOutcome.Rejected;
+        this.task.taskOutCome = TaskOutcome.Rejected;
         this.completeApprovalTask();
     }
 
     private completeApprovalTask() {
         this.publishProcessService.completeApprovalTask(this.task)
             .then(() => {
-                this.publishProcessService.processingCompleteApprovalTask(this.task).catch((errorMessage: string) => {
-                    this.hasError = true;
-                    this.errorMessage = errorMessage;
-                });
                 this.hasError = false;
                 this.isApproving = false;
                 this.isRejecting = false;
@@ -134,17 +130,16 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private checkTaskIsInApprovalStatus(): boolean {
-        return this.task && this.task.process && this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval && this.task.responsible && !this.task.isCompleted;
+        return this.task && this.task.process && this.task.process.processWorkingStatus == ProcessWorkingStatus.SentForApproval && this.task.responsible && !this.task.isCompleted;
     }
 
     private checkValidToShowTaskContent(): boolean {
-        if (!this.task.isCompleted && this.task.workflow.completedType != Enums.WorkflowEnums.WorkflowCompletedType.Cancelled) {
-            if (this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval ||
-                this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing) {
+        if (!this.task.isCompleted && this.task.workflow.completedType != WorkflowCompletedType.Cancelled) {
+            if (this.task.process.processWorkingStatus == ProcessWorkingStatus.SendingForApprovalFailed) {
                 this.resolveTaskErrorMessage = this.loc.Messages.MessageProcessOfTaskFailedToSendForApproval;
                 return false;
             }
-            if (this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval) {
+            if (this.task.process.processWorkingStatus == ProcessWorkingStatus.CancellingApprovalFailed) {
                 this.resolveTaskErrorMessage = this.loc.Messages.MessageFailedToCancelTask;
                 return false;
             }
@@ -157,18 +152,18 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private allowToApproval() {
-        return this.task && !this.task.isCompleted && this.task.responsible && this.task.workflow.completedType == Enums.WorkflowEnums.WorkflowCompletedType.None;
+        return this.task && !this.task.isCompleted && this.task.responsible && this.task.workflow.completedType == WorkflowCompletedType.None;
     }
 
     renderBody(h) {
-        if (this.task && this.task.process && this.task.process.processWorkingStatus == Enums.WorkflowEnums.ProcessWorkingStatus.SendingForApproval) {
+        if (this.task && this.task.process && this.task.process.processWorkingStatus == ProcessWorkingStatus.SendingForApproval) {
             return (
                 <div class="mt-3 mb-3">
                     <span class={this.processLibraryClasses.error}>{this.loc.Messages.TaskIsInProcessingStatus}</span>
                 </div>
             )
         }
-        if (this.task.workflow.completedType == Enums.WorkflowEnums.WorkflowCompletedType.Cancelled) {
+        if (this.task.workflow.completedType == WorkflowCompletedType.Cancelled) {
             return (
                 <div>
                     <p>{this.loc.Messages.MessageTaskCancelledBySystem}</p>

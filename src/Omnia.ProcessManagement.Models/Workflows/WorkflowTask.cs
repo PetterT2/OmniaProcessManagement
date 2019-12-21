@@ -1,32 +1,36 @@
-﻿using Omnia.ProcessManagement.Models.Processes;
+﻿using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Workflows
 {
+    /// <summary>
+    /// This enum is defined SharePoint task statuses
+    /// We only allow to use some status in OPM
+    /// </summary>
     public enum TaskStatus : byte
     {
+        [Obsolete("Don't use this", true)]
         NotStarted = 1,
+        [Obsolete("Don't use this", true)]
         InProgress = 2,
         Completed = 3,
+        [Obsolete("Don't use this", true)]
         Deferred = 4,
+        [Obsolete("Don't use this", true)]
         WaitingOnSomeoneElse = 5,
         Cancel = 6
     }
-    public enum TaskOutcome : byte
-    {
-        Approved = 1,
-        Rejected = 2
-    }
 
-    public class WorkflowTask : AuditingInformation
+    public class WorkflowTask
     {
         public WorkflowTask()
         {
         }
 
-        public WorkflowTask(WorkflowTask workflowTask) : base(workflowTask)
+        public WorkflowTask(WorkflowTask workflowTask)
         {
             Id = workflowTask.Id;
             WorkflowId = workflowTask.WorkflowId;
@@ -36,8 +40,9 @@ namespace Omnia.ProcessManagement.Models.Workflows
             SPTaskId = workflowTask.SPTaskId;
             TaskOutcome = workflowTask.TaskOutcome;
             Workflow = workflowTask.Workflow;
+            CreatedAt = workflowTask.CreatedAt;
+            CreatedBy = workflowTask.CreatedBy;
         }
-
         public Guid Id { get; set; }
 
         public Guid WorkflowId { get; set; }
@@ -50,8 +55,14 @@ namespace Omnia.ProcessManagement.Models.Workflows
 
         public int SPTaskId { get; set; }
 
+        public Guid TeamAppId { get; set; }
+
         public TaskOutcome TaskOutcome { get; set; }
 
         public Workflow Workflow { get; set; }
+
+        public string CreatedBy { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

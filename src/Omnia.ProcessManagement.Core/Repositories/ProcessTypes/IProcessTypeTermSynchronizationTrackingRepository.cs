@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
 {
-    public interface IProcessTypeTermSynchronizationTrackingRepository
+    internal interface IProcessTypeTermSynchronizationTrackingRepository
     {
         ValueTask AddTrackingResultAsync(ProcessTypeTermSynchronizationTrackingResult result);
         ValueTask<ProcessTypeTermSynchronizationTrackingRequest> GetTrackingRequestAsync(Guid rootId);

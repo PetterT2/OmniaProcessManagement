@@ -1,7 +1,7 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
-import { Enums } from '../../Enums';
+import { WorkflowType } from '..';
 
 export interface WorkflowData {
-    type: Enums.WorkflowEnums.WorkflowType;
+    type: WorkflowType;
     comment: string;
 }

@@ -14,6 +14,12 @@ namespace Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers
             return $"{OPMConstants.Security.Resources.SecurityResourceIdResourcePrefix}{securityResourceId}".ToLower();
         }
 
+        public static Guid GetSecurityResourceIdForReader(Guid teamAppId, Guid opmProcessId, bool hasLimitedAccess)
+        {
+            var securityResourceId = hasLimitedAccess ? opmProcessId : teamAppId;
+            return securityResourceId;
+        }
+
         public static bool TryParseSecurityResourceId(string resource, out Guid securityResourceId)
         {
             securityResourceId = Guid.Empty;

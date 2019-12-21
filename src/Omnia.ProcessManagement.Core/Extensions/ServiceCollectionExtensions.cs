@@ -7,6 +7,7 @@ using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
 using Omnia.ProcessManagement.Core.Repositories.Settings;
+using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Core.Services.Features;
 using Omnia.ProcessManagement.Core.Services.Processes;
@@ -56,6 +57,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ISharePointGroupService, SharePointGroupService>();
 
             //Repositories
+            services.AddScopedWithSingeltonRef<ITransactionRepository, TransactionRepositiory>();
             services.AddScopedWithSingeltonRef<IProcessTemplateRepository, ProcessTemplateRepository>();
             services.AddScopedWithSingeltonRef<IProcessRepository, ProcessRepository>();
             services.AddScopedWithSingeltonRef<IProcessTypeRepository, ProcessTypeRepository>();

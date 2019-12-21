@@ -1,7 +1,6 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
 import { RootProcessStep } from './RootProcessStep';
-import { ProcessVersionType } from '..';
-import { Enums } from '../../Enums';
+import { ProcessVersionType, ProcessWorkingStatus } from '..';
 
 export interface Process {
     id: GuidValue;
@@ -11,7 +10,7 @@ export interface Process {
     versionType: ProcessVersionType;
     teamAppId: GuidValue;
     webId: GuidValue;
-    processWorkingStatus: Enums.WorkflowEnums.ProcessWorkingStatus;
+    processWorkingStatus: ProcessWorkingStatus;
     createdBy: string;
     modifiedBy: string;
     createAt: Date;

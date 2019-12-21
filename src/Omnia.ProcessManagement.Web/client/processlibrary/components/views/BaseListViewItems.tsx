@@ -2,11 +2,11 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
-import { OmniaContext, Inject, Localize, Utils } from '@omnia/fx';
-import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding } from '@omnia/fx-models';
+import { OmniaContext, Inject, Localize, Utils, ResolvablePromise, SubscriptionHandler } from '@omnia/fx';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding, Guid } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessService } from '../../../fx';
@@ -47,8 +47,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Inject(SecurityService) securityService: SecurityService;
-
-    private messageBusReloadDocumentStatus: IMessageBusSubscriptionHandler = null;
+    @Inject(SubscriptionHandler) subcriptionHandler: SubscriptionHandler;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
@@ -56,7 +55,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     filterOptions: Array<FilterOption> = [];
 
     refreshStatusInterval: any;
-    isRefeshingStatuses: boolean = false;;
+    refreshStatusPromise: ResolvablePromise<IdDict<ProcessWorkingStatus>> = null;
 
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
@@ -82,15 +81,13 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
         this.isLoading = true;
         this.refreshStatusInterval = setInterval(() => {
-            if (!this.isRefeshingStatuses) {
-                this.refreshStatus();
-            }
+            this.refreshStatus();
         }, 5000);
-        this.messageBusReloadDocumentStatus = this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
+        this.subcriptionHandler.add(this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
             if (versionType == this.versionType) {
-                this.refreshStatus();
+                this.refreshStatus(true);
             }
-        });
+        }));
         this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
             this.initProcesses();
         });
@@ -105,24 +102,51 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadPermisison() {
-        this.securityService.hasWritePermissionForRole(Enums.Security.OPMRoleDefinitions.Author, {
+        this.securityService.hasWritePermissionForRole(Security.OPMRoleDefinitions.Author, {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {
             this.isAuthor = hasPermission;
         })
     }
 
-    private refreshStatus() {
-        if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes)) {
-            this.isRefeshingStatuses = true;
-            this.libraryStore.actions.ensureProcessWorkingStatus.dispatch(this.request.teamAppId, this.filterAndSortProcesses.processes.map(p => p.opmProcessId), this.versionType)
-                .then(() => {
-                    this.libraryStore.getters.processWorkingStatus(this.filterAndSortProcesses.processes);
-                    this.isRefeshingStatuses = false;
-                })
-                .catch((errorMessage) => {
-                    this.isRefeshingStatuses = false;
-                });
+    private refreshStatus(force?: boolean) {
+        if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes) &&
+            (force || !this.refreshStatusPromise || !this.refreshStatusPromise.resolving)) {
+
+            if (this.refreshStatusPromise && this.refreshStatusPromise.resolving) {
+                this.refreshStatusPromise.reject('force refreshing new status');
+            }
+
+            this.refreshStatusPromise = new ResolvablePromise<IdDict<ProcessWorkingStatus>>();
+            this.refreshStatusPromise.resolving = true;
+
+            let opmProcessIds = this.filterAndSortProcesses.processes.map(p => p.opmProcessId);
+
+            if (this.versionType == ProcessVersionType.Draft) {
+                this.processService.getDraftProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
+                    .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
+            }
+            else {
+                this.processService.getLatestPublishedProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
+                    .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
+            }
+
+            this.refreshStatusPromise.promise.then((statusDict) => {
+                for (let opmProcessId of opmProcessIds) {
+                    let process = this.allProcesses.find(p => p.opmProcessId == opmProcessId);
+                    let status = statusDict[opmProcessId.toString()];
+
+                    if (process && status != null) {
+                        process.processWorkingStatus = status;
+                    } else if (process) {
+                        this.allProcesses = this.allProcesses.filter(p => p != process);
+                        this.filterAndSortProcesses.processes = this.filterAndSortProcesses.processes.filter(p => p != process);
+                    }
+                }
+
+            }).catch((errMsg) => {
+                console.warn(errMsg);
+            })
         }
     }
 
@@ -289,10 +313,9 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         return field;
     }
 
-    private isErrorStatus(status: Enums.WorkflowEnums.ProcessWorkingStatus) {
-        if (status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval ||
-            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval ||
-            status == Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing) {
+    private isErrorStatus(status: ProcessWorkingStatus) {
+        if (status == ProcessWorkingStatus.SendingForApprovalFailed ||
+            status == ProcessWorkingStatus.CancellingApprovalFailed) {
             return true;
         }
         else {

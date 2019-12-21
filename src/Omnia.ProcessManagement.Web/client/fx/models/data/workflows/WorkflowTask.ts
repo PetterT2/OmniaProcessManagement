@@ -1,7 +1,6 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
-import { Enums } from '../../Enums';
-import { Process } from '../processes';
 import { Workflow } from './Workflow';
+import { TaskOutcome } from '..';
 
 export interface WorkflowTask {
     id: GuidValue,
@@ -10,7 +9,7 @@ export interface WorkflowTask {
     isCompleted: boolean,
     assignedUser: string,
     spTaskId: number,
-    taskOutCome: Enums.WorkflowEnums.TaskOutcome,
+    taskOutCome: TaskOutcome,
     createdAt: string,
     createdBy: string,
     workflow: Workflow

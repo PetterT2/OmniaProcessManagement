@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
@@ -16,24 +18,41 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
         public async ValueTask CompleteAsync(Guid id, WorkflowCompletedType completedType)
         {
             var existingEntity = await _dbSet.AsTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
-            existingEntity.CompletedType = completedType;
-            await _dataContext.SaveChangesAsync();
+                .FirstOrDefaultAsync(x => x.Id == id && x.CompletedType == WorkflowCompletedType.None);
+            
+            if (existingEntity != null)
+            {
+                existingEntity.CompletedType = completedType;
+                await _dataContext.SaveChangesAsync();
+            }
         }
 
         public async ValueTask<Workflow> CreateAsync(Workflow workflow)
         {
-            var entity = MapModelToEf(workflow);
-            await _dbSet.AddAsync(entity);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                var entity = MapModelToEf(workflow);
+                await _dbSet.AddAsync(entity);
+                await _dataContext.SaveChangesAsync();
 
-            var model = MapEfToModel(entity);
-            return model;
+                var model = MapEfToModel(entity);
+                return model;
+            }
+            catch (DbUpdateException exception)
+            {
+                if (exception.InnerException is SqlException sqlException &&
+                    sqlException.Number == 2601 &&
+                    sqlException.Message.Contains("IX_Workflows_OPMProcessId"))
+                {
+                    throw new Exception("There is another active workflow existing for this process");
+                }
+                throw;
+            }
         }
 
-        public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId)
+        public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, WorkflowType workflowType)
         {
-            var existingEntity = await _dbSet.Where(x => x.DeletedAt == null && x.Process.OPMProcessId == opmProcessId && x.Process.ProcessWorkingStatus == Models.Processes.ProcessWorkingStatus.WaitingForApproval)
+            var existingEntity = await _dbSet.Where(x => x.DeletedAt == null && x.OPMProcessId == opmProcessId && x.Type == workflowType)
                 .OrderByDescending(p => p.ClusteredId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
             var model = MapEfToModel(existingEntity, true);
             return model;
@@ -52,7 +71,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             {
                 model = new Models.Workflows.Workflow();
                 model.Id = entity.Id;
-                model.ProcessId = entity.ProcessId;
+                model.OPMProcessId = entity.OPMProcessId;
                 model.WorkflowData = JsonConvert.DeserializeObject<WorkflowData>(entity.JsonValue);
                 model.DueDate = entity.DueDate;
                 model.CompletedType = entity.CompletedType;
@@ -73,7 +92,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
         {
             var entity = new Entities.Workflows.Workflow();
             entity.Id = model.Id;
-            entity.ProcessId = model.ProcessId;
+            entity.OPMProcessId = model.OPMProcessId;
             entity.DueDate = model.DueDate;
             entity.CompletedType = model.CompletedType;
             entity.Type = model.WorkflowData.Type;
@@ -90,10 +109,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model.Id = entity.Id;
                 model.WorkflowId = entity.WorkflowId;
                 model.AssignedUser = entity.AssignedUser;
-                model.CreatedBy = entity.CreatedBy;
-                model.ModifiedBy = entity.ModifiedBy;
-                model.CreatedAt = entity.CreatedAt;
-                model.ModifiedAt = entity.ModifiedAt;
                 model.IsCompleted = entity.IsCompleted;
                 model.Comment = entity.Comment;
                 model.SPTaskId = entity.SPTaskId;

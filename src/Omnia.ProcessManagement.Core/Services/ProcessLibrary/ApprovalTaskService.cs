@@ -10,6 +10,7 @@ using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Workflows;
@@ -55,30 +56,36 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             MultilingualHelper = multilingualHelper;
         }
 
-        public async ValueTask AddApprovalTaskAndSendEmailAsync(PublishProcessWithApprovalRequest request, Process process)
+        public async ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request)
         {
-            Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
-            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(request.WebUrl, true);
-            User approverUser = appContext.Web.EnsureUser(request.Approver.Uid);
-            User spCurrentUser = appContext.Web.EnsureUser(currentUser.UserPrincipalName);
-            appContext.Load(approverUser, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
-            appContext.Load(spCurrentUser, us => us.Id);
-            await appContext.ExecuteQueryAsync();
             Workflow workflow = new Workflow
             {
                 Id = Guid.NewGuid(),
-                ProcessId = process.Id,
+                OPMProcessId = request.OPMProcessId,
                 DueDate = request.DueDate,
                 CompletedType = WorkflowCompletedType.None,
                 WorkflowData = new WorkflowApprovalData
                 {
-                    Type = WorkflowType.PublishWorkflow,
                     Comment = request.Comment,
                     IsRevisionPublishing = request.IsRevisionPublishing,
                     IsLimitedAccess = request.IsLimitedAccess,
-                    LimitedUsers = request.LimitedUsers
+                    LimitedUsers = request.LimitedUsers,
+                    Approver = request.Approver
                 }
             };
+
+            await WorkflowService.CreateAsync(workflow);
+        }
+
+        public async ValueTask<int> AddSharePointApprovalTaskAndSendEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, Process process, string webUrl)
+        {
+            Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
+            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl, true);
+            User approverUser = appContext.Web.EnsureUser(workflowApprovalData.Approver.Uid);
+            User spCurrentUser = appContext.Web.EnsureUser(currentUser.UserPrincipalName);
+            appContext.Load(approverUser, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
+            appContext.Load(spCurrentUser, us => us.Id);
+            await appContext.ExecuteQueryAsync();
 
             var lcid = OPMUtilities.GetLcidFromLanguage(currentUser.PreferredLanguage);
             LanguageTag language = currentUser.PreferredLanguage.HasValue ? currentUser.PreferredLanguage.Value : LanguageTag.EnUs;
@@ -88,18 +95,16 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             Dictionary<string, dynamic> keyValuePairs = new Dictionary<string, object>();
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Title, taskTitle);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_StartDate, DateTime.Now);
-            keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_DueDate, workflow.DueDate.Value.LocalDateTime);
+            keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_DueDate, workflow.DueDate);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, spCurrentUser.Id);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = await SharePointListService.AddListItemAsync(appContext, taskList, keyValuePairs);
 
-            var addedWorkflow = await WorkflowService.CreateAsync(workflow);
-            var workflowTask = await WorkflowTaskService.CreateAsync(addedWorkflow.Id, request.Approver.Uid, taskListItem.Id);
+            await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverUser, currentUser, processTitle, taskTitle, taskListItem.Id, webUrl);
 
-            await SendForApprovalEmailAsync(request, approverUser, currentUser, processTitle, taskTitle, taskListItem.Id);
-
+            return taskListItem.Id;
         }
 
         public async ValueTask CancelApprovalTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl)
@@ -116,9 +121,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await WorkflowService.CompleteAsync(workflow.Id, WorkflowCompletedType.Cancelled);
         }
 
-        public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask, string webUrl)
+        public async ValueTask CompleteSharePointTaskAsync(WorkflowApprovalTask approvalTask, string webUrl)
         {
-            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl, true);
+            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskItem = taskList.GetItemById(approvalTask.SPTaskId);
             appContext.Load(taskItem,
@@ -137,23 +142,15 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await appContext.ExecuteQueryAsync();
         }
 
-        public async ValueTask CompletedApprovalTaskAndSendEmail(WorkflowApprovalTask approvalTask, string webUrl)
-        {
-            await WorkflowService.CompleteAsync(approvalTask.Workflow.Id, WorkflowCompletedType.AllTasksDone);
-            await WorkflowTaskService.CompletedTask(approvalTask.Id, approvalTask.Comment, approvalTask.TaskOutcome);
-            await SendCompletedEmailAsync(approvalTask);
-        }
-
-        #region Utils
-        private async ValueTask SendForApprovalEmailAsync(PublishProcessWithApprovalRequest request, User approverUser, Fx.Models.Users.User currentUser, string processTitle, string taskTitle, int taskListItemId)
+        private async ValueTask SendForApprovalEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, User approverUser, Fx.Models.Users.User currentUser, string processTitle, string taskTitle, int taskListItemId, string webUrl)
         {
             if (!string.IsNullOrEmpty(approverUser.Email))
             {
-                string taskUrl = string.Format(OPMConstants.OPMPages.ApprovalTaskUrl, request.WebUrl, taskListItemId);
+                string taskUrl = string.Format(OPMConstants.OPMPages.ApprovalTaskUrl, webUrl, taskListItemId);
                 string emailTemplate = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.BodyLocalizedKey;
-                string previewProcessLink = string.Format(OPMConstants.EmailTemplates.LinkHtmlTemplate, string.Format(OPMConstants.OPMPages.ProcessPreviewUrl, request.WebUrl), processTitle);
+                string previewProcessLink = string.Format(OPMConstants.EmailTemplates.LinkHtmlTemplate, string.Format(OPMConstants.OPMPages.ProcessPreviewUrl, webUrl), processTitle);
 
-                if (!string.IsNullOrEmpty(request.Comment))
+                if (!string.IsNullOrEmpty(workflowApprovalData.Comment))
                 {
                     emailTemplate += OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.ApprovalEditionCommentTemplateKey;
                 }
@@ -166,12 +163,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Author,  currentUser.DisplayName},
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Approver,  approverUser.Title },
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.ProcessLink, previewProcessLink },
-                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Message,  request.Comment},
+                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Message,  workflowApprovalData.Comment},
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.TaskTitle,  string.Format(OPMConstants.EmailTemplates.LinkHtmlTemplate, taskUrl, taskTitle) }
                 });
 
                 emailInfo.TokenInfo.AddTokenDatetimeValues(new Dictionary<string, DateTimeOffset>{
-                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.DueDate,  request.DueDate},
+                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.DueDate,  workflow.DueDate.GetValueOrDefault()},
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.StartDate,  DateTime.Now}
                 });
                 emailInfo.To = new List<string> { approverUser.Email };
@@ -210,10 +207,25 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        private async ValueTask SendCompletedEmailAsync(WorkflowApprovalTask task)
+        public async ValueTask SendCompletedEmailAsync(WorkflowApprovalTask task)
         {
             string emailTemplate = string.Empty;
             string emailTitle = string.Empty;
+
+            var users = await UserService.GetByPrincipalNamesAsync(new List<string> { task.CreatedBy, task.AssignedUser });
+            var author = users.FirstOrDefault(u => u.UserPrincipalName.ToLower() == task.CreatedBy);
+            var approver = users.FirstOrDefault(u => u.UserPrincipalName.ToLower() == task.AssignedUser);
+
+            if (author == null)
+            {
+                throw new Exception($"Cannot resolve Author: {task.CreatedBy}");
+            }
+
+            if (approver == null)
+            {
+                throw new Exception($"Cannot resolve Approver: {task.AssignedUser}");
+            }
+
             if (task.TaskOutcome == TaskOutcome.Approved)
             {
                 if (!string.IsNullOrEmpty(task.Comment))
@@ -232,12 +244,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 emailTitle = OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.SubjectRejectKey;
             }
 
-            if (task.Author != null && !string.IsNullOrEmpty(task.Author.Mail))
+            if (!string.IsNullOrEmpty(author.Mail))
             {
                 var emailInfo = new EmailInfo();
                 emailInfo.Subject = emailTitle;
                 emailInfo.Body.Add(emailTemplate);
-                emailInfo.LocalizationSetting.ApplyUserSetting(task.Author.UserPrincipalName);
+                emailInfo.LocalizationSetting.ApplyUserSetting(author.UserPrincipalName);
 
                 emailInfo.UseMultilingualTokenInfo(OmniaScopedContext.BusinessProfileId)
                    .AddTokenMultilingualValues(new Dictionary<string, MultilingualString>
@@ -246,8 +258,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                    });
 
                 emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
-                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Author,  task.Author.DisplayName},
-                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Approver,  task.AssignedTo.DisplayName },
+                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Author,  author.DisplayName},
+                    {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.Approver,  approver.DisplayName },
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.ApproverComment,  task.Comment }
                 });
 
@@ -256,10 +268,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     {OPMConstants.EmailTemplates.SendForApprovalEmailTemplate.Tokens.StartDate, task.Workflow.CreatedAt}
                 });
 
-                emailInfo.To = new List<string> { task.Author.Mail };
+                emailInfo.To = new List<string> { approver.Mail };
                 await EmailService.SendEmailAsync(emailInfo);
             }
         }
-        #endregion
     }
 }

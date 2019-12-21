@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -179,8 +179,8 @@ export class ProcessService {
         let params = {
             teamAppId: teamAppId
         };
-        return new Promise<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, {params: params}).then(response => {
+        return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, {params: params}).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -193,8 +193,8 @@ export class ProcessService {
         let params = {
             teamAppId: teamAppId
         };
-        return new Promise<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<Enums.WorkflowEnums.ProcessWorkingStatus>>>(`/api/processes/latestpublished/workingstatus`, opmProcessIds, { params: params }).then(response => {
+        return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/latestpublished/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

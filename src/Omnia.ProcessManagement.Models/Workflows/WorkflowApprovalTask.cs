@@ -15,12 +15,10 @@ namespace Omnia.ProcessManagement.Models.Workflows
 
         public WorkflowApprovalTask(WorkflowTask workflowTask) : base(workflowTask)
         {
-      
+
         }
 
         public Process Process { get; set; }
-        public User AssignedTo { get; set; }
-        public User Author { get; set; }
         public bool Responsible { get; set; }
     }
 }

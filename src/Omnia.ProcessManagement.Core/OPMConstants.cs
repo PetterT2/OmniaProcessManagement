@@ -6,6 +6,7 @@ using Omnia.Fx.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Omnia.ProcessManagement.Models.Enums;
 
 namespace Omnia.ProcessManagement.Core
 {
@@ -23,6 +24,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class Topics
             {
+                public static readonly Topic<List<ProcessWorkingStatus>> OnProcessWorkingStatusUpdated= new Topic<List<ProcessWorkingStatus>>("OmniaProcessManagement", "OnProcessWorkingStatusUpdated");
                 public static readonly Topic<Dictionary<string, string>> OmniaTokenKeyUpdatedProcessType = new Topic<Dictionary<string, string>>("OmniaProcessManagement", "UpdateUserOmniaTokenKeyInWorker");
                 public static readonly Topic<List<ProcessType>> OnProcessTypesUpdated = new Topic<List<ProcessType>>("OmniaProcessManagement", "OnProcessTypesUpdated");
                 public static readonly Topic<StringBuilder> OnSettingsUpdated = new Topic<StringBuilder>("OmniaProcessManagement", "OnSettingsUpdated");

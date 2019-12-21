@@ -50,6 +50,7 @@ namespace Omnia.ProcessManagement.Worker
                         services.AddDistributedMemoryCache();
 
                         services.AddHostedService<ProcessTypeTermSynchronizationTimerJob>();
+                        services.AddHostedService<SendingForApprovalWorkflowTimerJob>();
                         services.AddOmniaPMSqlDB();
                     });
                 });

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.ProcessTypes
 {
-    public interface IProcessTypeRepository
+    internal interface IProcessTypeRepository
     {
         ValueTask<IList<ProcessType>> GetByIdAsync(List<Guid> ids);
         ValueTask<IList<ProcessType>> GetChildrenAsync(Guid? parentId);

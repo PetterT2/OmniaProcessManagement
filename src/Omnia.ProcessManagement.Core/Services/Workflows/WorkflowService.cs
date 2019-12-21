@@ -39,9 +39,9 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
             await WorkflowRepository.CompleteAsync(id, completedType);
         }
 
-        public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, string webUrl)
+        public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, WorkflowType workflowType)
         {
-            var workflow = await WorkflowRepository.GetByProcessAsync(opmProcessId);
+            var workflow = await WorkflowRepository.GetByProcessAsync(opmProcessId, workflowType);
             workflow.CanCancelByUser = workflow.CreatedBy.Equals(OmniaContext.Identity.LoginName);
             return workflow;
         }

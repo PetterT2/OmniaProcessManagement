@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191217061408_Initial")]
+    [Migration("20191222082146_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,11 +198,14 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<byte>("ProcessWorkingStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<Guid>("SecurityResourceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TeamAppId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("VersionType")
-                        .HasColumnType("int");
+                    b.Property<byte>("VersionType")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
@@ -216,6 +219,32 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .HasFilter("[VersionType] != 2");
 
                     b.ToTable("Processes");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessConcurrencyLock", b =>
+                {
+                    b.Property<Guid>("OPMProcessId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OPMProcessId");
+
+                    b.ToTable("ProcessConcurrencyLock");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Processes.ProcessData", b =>
@@ -337,7 +366,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProcessId")
+                    b.Property<Guid>("OPMProcessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<byte>("Type")
@@ -350,7 +379,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .IsUnique()
                         .HasAnnotation("SqlServer:Clustered", true);
 
-                    b.HasIndex("ProcessId");
+                    b.HasIndex("OPMProcessId")
+                        .IsUnique()
+                        .HasFilter("[CompletedType] = 0");
 
                     b.ToTable("Workflows");
                 });
@@ -396,6 +427,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<byte>("TaskOutcome")
                         .HasColumnType("tinyint");
 
+                    b.Property<Guid>("TeamAppId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("WorkflowId")
                         .HasColumnType("uniqueidentifier");
 
@@ -417,15 +451,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .WithMany("ProcessData")
                         .HasForeignKey("ProcessId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>
-                {
-                    b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "Process")
-                        .WithMany()
-                        .HasForeignKey("ProcessId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

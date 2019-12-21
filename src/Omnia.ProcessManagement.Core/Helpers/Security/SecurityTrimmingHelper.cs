@@ -10,11 +10,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 {
     public class SecurityTrimmingHelper
     {
-        public enum VersionTypeSupportTrimming
-        {
-            Draft = ProcessVersionType.Draft,
-            LatestPublished = ProcessVersionType.LatestPublished
-        }
         public readonly static string ProcessTableAlias = "P";
         public static List<Guid> Roles()
         {
@@ -27,7 +22,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             };
         }
 
-        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, VersionTypeSupportTrimming versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, DraftOrLatestPublishedVersionType versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
         {
             var securityTrimming = "";
             var versionTrimming = $" AND {ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
@@ -60,14 +55,14 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
                     connectPart = " OR ";
                 }
-                if (approverAndReviewerOPMProcessIds.Any() && versionType == VersionTypeSupportTrimming.Draft)
+                if (approverAndReviewerOPMProcessIds.Any() && versionType == DraftOrLatestPublishedVersionType.Draft)
                 {
                     var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimming}";
                     connectPart = " OR ";
 
                 }
-                if (resources.ReaderSecurityResourceIds.Any() && versionType == VersionTypeSupportTrimming.LatestPublished)
+                if (resources.ReaderSecurityResourceIds.Any() && versionType == DraftOrLatestPublishedVersionType.LatestPublished)
                 {
                     var readerTrimming = $"{GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";

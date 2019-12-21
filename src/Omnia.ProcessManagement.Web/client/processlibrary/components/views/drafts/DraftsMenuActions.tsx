@@ -6,7 +6,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { CurrentProcessStore } from '../../../../fx/stores';
-import { RouteOptions, Process, Enums } from '../../../../fx/models';
+import { RouteOptions, Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
@@ -53,11 +53,10 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     }
 
     private refreshContextMenu() {
-        let editActionsDict: Array<Enums.WorkflowEnums.ProcessWorkingStatus> = [
-            Enums.WorkflowEnums.ProcessWorkingStatus.Draft,
-            Enums.WorkflowEnums.ProcessWorkingStatus.FailedCancellingApproval,
-            Enums.WorkflowEnums.ProcessWorkingStatus.FailedPublishing,
-            Enums.WorkflowEnums.ProcessWorkingStatus.FailedSendingForApproval
+        let editActionsDict: Array<ProcessWorkingStatus> = [
+            ProcessWorkingStatus.None,
+            ProcessWorkingStatus.CancellingApprovalFailed,
+            ProcessWorkingStatus.SendingForApprovalFailed
         ];
         this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
     }

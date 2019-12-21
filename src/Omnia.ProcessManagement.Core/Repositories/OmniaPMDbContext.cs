@@ -48,6 +48,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
         public DbSet<Process> Processes { get; set; }
         public DbSet<ProcessData> ProcessData { get; set; }
+        public DbSet<ProcessConcurrencyLock> ProcessConcurrencyLock { get; set; }
         public DbSet<ProcessTemplate> ProcessTemplates { get; set; }
         public DbSet<ProcessType> ProcessTypes { get; set; }
         public DbSet<ProcessTypeTermSynchronizationTracking> ProcessTypeTermSynchronizationTracking { get; set; }
@@ -69,7 +70,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
             modelBuilder.Entity<Process>()
                .HasIndex(c => new { c.OPMProcessId, c.VersionType })
                .IsUnique()
-               .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}");
+               .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}"); 
 
             modelBuilder.Entity<ProcessData>()
                 .HasKey(pd => new { pd.ProcessStepId, pd.ProcessId });
@@ -86,10 +87,18 @@ namespace Omnia.ProcessManagement.Core.Repositories
                 .HasIndex(c => new { c.RootId })
                 .IsUnique()
                 .HasFilter("[ParentId] IS NULL AND [DeletedAt] IS NULL");
+
             SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
 
             SetClusteredIndex<Workflow>(modelBuilder, d => new { d.Id });
+            modelBuilder.Entity<Workflow>()
+               .HasIndex(c => new { c.OPMProcessId })
+               .IsUnique()
+               .HasFilter($"[CompletedType] = {(int)WorkflowCompletedType.None}");
+
             SetClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
+
+
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
             modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();

@@ -23,31 +23,9 @@ export class PublishProcessService {
         });
     }
 
-    public processingPublishProcessWithoutApproval = (request: PublishProcessWithoutApprovalRequest): Promise<void> => {
+    public publishProcessWithApproval = (request: PublishProcessWithApprovalRequest): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/processingwithoutapproval', request).then(result => {
-                if (result.data.success) {
-                    resolve();
-                }
-                else reject(result.data.errorMessage)
-            })
-        });
-    }
-
-    public publishProcessWithApproval = (request: PublishProcessWithApprovalRequest): Promise<Process> => {
-        return new Promise<Process>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/publish/withapproval', request).then(response => {
-                if (response.data.success) {
-                    resolve(response.data.data);
-                }
-                else reject(response.data.errorMessage)
-            });
-        });
-    }
-
-    public processingApprovalProcess = (request: PublishProcessWithApprovalRequest): Promise<void> => {
-        return new Promise<void>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/processingapproval', request).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/publish/withapproval', request).then(response => {
                 if (response.data.success) {
                     resolve();
                 }
@@ -81,17 +59,6 @@ export class PublishProcessService {
         });
     }
 
-    public processingCancelWorkflow = (opmProcessId: GuidValue, workflowId: GuidValue): Promise<void> => {
-        return new Promise<void>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<void>>(`/api/publish/processingcancelworkflow/${opmProcessId}/${workflowId}`).then(response => {
-                if (response.data.success) {
-                    resolve();
-                }
-                else reject(response.data.errorMessage)
-            });
-        });
-    }
-
     public completeApprovalTask = (workflowTask: WorkflowApprovalTask): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/completeworkflow`, workflowTask).then(response => {
@@ -103,14 +70,4 @@ export class PublishProcessService {
         });
     }
 
-    public processingCompleteApprovalTask = (workflowTask: WorkflowApprovalTask): Promise<void> => {
-        return new Promise<void>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/processingcompleteworkflow`, workflowTask).then(response => {
-                if (response.data.success) {
-                    resolve();
-                }
-                else reject(response.data.errorMessage)
-            });
-        });
-    }
 }

@@ -90,7 +90,7 @@ export class FiltersAndSorting {
     public applyFiltersAndSort(processes: Array<DisplayProcess>, request: FilterAndSortInfo, pageSize: number): FilterAndSortResponse {
         let result: FilterAndSortResponse = {
             total: processes.length,
-            processes: Utils.clone(processes)
+            processes: [...processes] 
         };
         if (request.filters) {
             Object.getOwnPropertyNames(request.filters).forEach(key => {

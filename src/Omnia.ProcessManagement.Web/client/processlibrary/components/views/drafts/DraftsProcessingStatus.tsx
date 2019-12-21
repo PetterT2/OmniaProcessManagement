@@ -5,7 +5,7 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
-import { Enums, Process } from '../../../../fx/models';
+import { Enums, Process, ProcessWorkingStatus } from '../../../../fx/models';
 import { ApprovalPublishDialog } from './ApprovalPublishDialog';
 
 interface DraftsProcessingStatusProps {
@@ -50,9 +50,9 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
     }
 
     renderStatus(h) {
-        let statusName = this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[this.process.processWorkingStatus]];
+        let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]];
         switch (this.process.processWorkingStatus) {
-            case Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval:
+            case ProcessWorkingStatus.SentForApproval:
                 return <a onClick={() => {
                     this.selectedProcess = this.process;
                     this.openApprovalPublishDialog = true;

@@ -1,5 +1,6 @@
 ﻿using Omnia.Fx.NetCore.Repositories.EntityFramework.Entities;
 using Omnia.ProcessManagement.Core.Entities.Processes;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
@@ -12,13 +13,11 @@ namespace Omnia.ProcessManagement.Core.Entities.Workflows
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid ProcessId { get; set; }
+        public Guid OPMProcessId { get; set; }
         public string JsonValue { get; set; }
         public WorkflowType Type { get; set; }
         public WorkflowCompletedType CompletedType { get; set; }
         public DateTimeOffset? DueDate { get; set; }
-        
-        public Process Process { get; set; }
         public ICollection<WorkflowTask> WorkflowTasks { get; set; }
     }
 }

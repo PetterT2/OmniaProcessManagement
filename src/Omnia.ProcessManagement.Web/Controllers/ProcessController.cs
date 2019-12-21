@@ -223,7 +223,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.Draft, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.Draft, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -244,7 +244,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.LatestPublished, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.LatestPublished, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -317,9 +317,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.Draft, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.Draft, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                var processesData = await ProcessService.GetProcessesAsync(authorizedProcessQuery);
+                var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
@@ -336,9 +336,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(SecurityTrimmingHelper.VersionTypeSupportTrimming.LatestPublished, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.LatestPublished, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                var processesData = await ProcessService.GetProcessesAsync(authorizedProcessQuery);
+                var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
             catch (Exception ex)
@@ -361,7 +361,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                    .OrRequireReviewer(ProcessVersionType.CheckedOut)
                    .DoAsync(async () =>
                    {
-                       var beingUsed = await ProcessService.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+                       var beingUsed = await ProcessService.CheckIfDeletingProcessStepsAreBeingUsedAsync(processId, deletingProcessStepIds);
                        return beingUsed.AsApiResponse();
                    });
             }

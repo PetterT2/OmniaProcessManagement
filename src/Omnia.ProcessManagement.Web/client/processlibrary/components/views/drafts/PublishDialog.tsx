@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext, TermStore, TermData } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType, OPMEnterprisePropertyInternalNames } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
@@ -87,23 +87,22 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private init() {
         this.needToUpdateProcessProperties = false;
         this.isCheckingPublishingRules = true;
-        var promise = new Promise((resolve, reject) => {
-            let processTypeId = this.process.rootProcessStep[OPMEnterprisePropertyInternalNames.OPMProcessType]
-            Promise.all([
-                this.propertyStore.actions.ensureLoadData.dispatch(),
-                this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
-                this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
-            ]).then(() => {
-                var processType = this.processTypeStore.getters.byId(processTypeId);
-                if (processType) {
-                    this.processTypeSettings = processType.settings as ProcessTypeItemSettings;
-                }
-                var propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == this.processTypeSettings.enterprisePropertySetId);
-                if (this.isApprovalRequired()) this.loadListApprover();
-                var requiredProperties = propertySet.settings.items.filter(p => p.required);
-                this.ensureAllRequiredPropertiesAreFilledIn(requiredProperties);
-            })
-        });
+
+        let processTypeId = this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType]
+        Promise.all([
+            this.propertyStore.actions.ensureLoadData.dispatch(),
+            this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
+            this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
+        ]).then(() => {
+            var processType = this.processTypeStore.getters.byId(processTypeId);
+            if (processType) {
+                this.processTypeSettings = processType.settings as ProcessTypeItemSettings;
+            }
+            var propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == this.processTypeSettings.enterprisePropertySetId);
+            if (this.isApprovalRequired()) this.loadListApprover();
+            var requiredProperties = propertySet.settings.items.filter(p => p.required);
+            this.ensureAllRequiredPropertiesAreFilledIn(requiredProperties);
+        })
     }
 
     private ensureAllRequiredPropertiesAreFilledIn(requiredProperties: Array<EnterprisePropertySetItem>) {
@@ -213,7 +212,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private isApprovalRequired(): boolean {
         return this.processTypeSettings && this.processTypeSettings.publishingApprovalSettings != null &&
             this.versionPublishingType != Enums.WorkflowEnums.VersionPublishingTypes.NewRevision
-            && this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval;
+            && this.process.processWorkingStatus != ProcessWorkingStatus.SentForApproval;
     }
 
     private publishProcess() {
@@ -221,13 +220,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingPublishProcessWithoutApproval(request)
-                .then(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
-                .catch(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
+
             this.isPublishingOrSending = false;
             this.closeCallback();
         }).catch(msg => {
@@ -256,15 +249,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
 
         this.publishProcessService.publishProcessWithApproval(request).then((result) => {
-            request.processId = result.id;
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingApprovalProcess(request)
-                .then(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
-                .catch(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
+
             this.isPublishingOrSending = false;
             this.closeCallback();
         }).catch(msg => {
@@ -284,8 +270,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private readOnlyMode() {
-        return !(this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.WaitingForApproval &&
-            this.process.processWorkingStatus != Enums.WorkflowEnums.ProcessWorkingStatus.SendingForApproval);
+        return !(this.process.processWorkingStatus != ProcessWorkingStatus.SentForApproval &&
+            this.process.processWorkingStatus != ProcessWorkingStatus.SendingForApproval);
     }
     private renderErrorForm(h) {
         return (

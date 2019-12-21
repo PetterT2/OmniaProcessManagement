@@ -11,15 +11,19 @@
             LatestPublished: string
         },
         ProcessStatuses: {
-            Draft: string,
-            Published: string,
+            SendingForReview: string,
+            SendingForReviewFailed: string,
+            SentForReview: string,
+            CancellingReview: string,
+            CancellingReviewFailed: string,
+
             SendingForApproval: string,
-            WaitingForApproval: string,
-            Publishing: string,
+            SendingForApprovalFailed: string,
+            SentForApproval: string,
             CancellingApproval: string,
-            FailedSendingForApproval: string,
-            FailedCancellingApproval: string,
-            FailedPublishing: string
+            CancellingApprovalFailed: string,
+
+            SyncingToSharePoint: string
         },
         TaskStatus: {
             Cancel: string,

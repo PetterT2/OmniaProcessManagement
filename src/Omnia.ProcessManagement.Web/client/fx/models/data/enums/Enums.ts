@@ -10,3 +10,42 @@ export enum ProcessVersionType {
     Published = 2,
     LatestPublished = 3
 }
+
+export enum ProcessWorkingStatus {
+    None = 0,
+
+    SendingForReview = 1,
+    SendingForReviewFailed = 2,
+    SentForReview = 3,
+    CancellingReview = 4,
+    CancellingReviewFailed = 5,
+
+    SendingForApproval = 6,
+    SendingForApprovalFailed = 7,
+    SentForApproval = 8,
+    CancellingApproval = 9,
+    CancellingApprovalFailed = 10,
+
+    SyncingToSharePoint = 11
+}
+
+
+export enum WorkflowType {
+    ReviewWorkflow = 1,
+    PublishWorkflow = 2,
+    CreateDraft = 3,
+    MovedProcess = 4
+}
+
+
+export enum WorkflowCompletedType {
+    None = 0,
+    AllTasksDone = 1,
+    MeetDueDate = 2,
+    Cancelled = 3
+}
+
+export enum TaskOutcome {
+    Approved = 1,
+    Rejected = 2
+} 

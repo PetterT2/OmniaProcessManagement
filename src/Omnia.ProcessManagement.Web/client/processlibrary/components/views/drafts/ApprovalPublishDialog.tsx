@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, Enums, ProcessVersionType } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, Enums, ProcessVersionType, ProcessWorkingStatus } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { DefaultDateFormat } from '../../../Constants';
@@ -124,13 +124,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
         this.isCancelling = true;
         this.publishProcessService.cancelWorkflow(this.process.opmProcessId).then(() => {
             this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-            this.publishProcessService.processingCancelWorkflow(this.process.opmProcessId, this.currentApproval.id)
-                .then(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
-                .catch(() => {
-                    this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
-                })
+
             this.isCancelling = false;
             this.closeCallback();
         }).catch(msg => {
@@ -178,7 +172,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
                         type="text"
                         dark={this.omniaTheming.promoted.body.dark}
                         color={this.omniaTheming.promoted.body.text.base}
-                        value={this.loc.ProcessStatuses[Enums.WorkflowEnums.ProcessWorkingStatus[this.process.processWorkingStatus]]}
+                        value={this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]]}
                         readonly label={this.coreLoc.Columns.Status}></v-text-field>
                 </div>
                 <div>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Settings
 {
-    public interface ISettingsRepository
+    internal interface ISettingsRepository
     {
         ValueTask<T> GetAsync<T>() where T : Setting, new();
         ValueTask<T> GetAsync<T>(string dynamicKey) where T : DynamicKeySetting;

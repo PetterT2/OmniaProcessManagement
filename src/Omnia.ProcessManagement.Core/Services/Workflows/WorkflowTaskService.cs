@@ -1,4 +1,5 @@
 ﻿using Omnia.ProcessManagement.Core.Repositories.Workflows;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
             return await WorkflowTaskRepository.GetAsync(spItemId, teamAppId);
         }
 
-        public async ValueTask CompletedTask(Guid id, string comment, TaskOutcome taskOutCome)
+        public async ValueTask CompletedAsync(Guid id, string comment, TaskOutcome taskOutCome)
         {
             await WorkflowTaskRepository.SetCompletedTask(id, comment, taskOutCome);
         }

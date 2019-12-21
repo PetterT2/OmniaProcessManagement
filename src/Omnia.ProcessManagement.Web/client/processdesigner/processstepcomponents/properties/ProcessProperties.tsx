@@ -127,7 +127,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     }
 
     private loadProcessTypeData() {
-        let processTypeId = this.referenceData.process.rootProcessStep[OPMEnterprisePropertyInternalNames.OPMProcessType];
+        let processTypeId = this.referenceData.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType];
         let promises: Array<Promise<any>> = [
             this.propertyStore.actions.ensureLoadData.dispatch(),
             this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),

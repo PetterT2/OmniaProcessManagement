@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Omnia.Fx.Messaging;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
+using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -13,10 +15,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
     internal class ProcessService : IProcessService
     {
         IProcessRepository ProcessRepository { get; }
+        IMessageBus MessageBus { get; }
 
-        public ProcessService(IProcessRepository processRepository)
+        public ProcessService(IProcessRepository processRepository, IMessageBus messageBus)
         {
             ProcessRepository = processRepository;
+            MessageBus = messageBus;
         }
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
@@ -53,6 +57,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
         {
             var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.SyningToSharePoint });
             return process;
         }
 
@@ -75,17 +80,28 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
+        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrLatestPublishedVersionType versionType)
+        {
+            var process = await ProcessRepository.GetProcessByOPMProcessIdAsync(opmProcessId, versionType);
+            return process;
+        }
+
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
         {
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetProcessesAsync(AuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery)
         {
-            return await ProcessRepository.GetProcessesAsync(processQuery);
+            return await ProcessRepository.GetAuthorizedProcessesAsync(processQuery);
         }
 
-        public async ValueTask<Dictionary<Guid,ProcessWorkingStatus>> GetProcessWorkingStatusAsync(AuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrLatestPublishedVersionType vesionType)
+        {
+            return await ProcessRepository.GetProcessesByWorkingStatusAsync(processWorkingStatus, vesionType);
+        }
+
+        public async ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(AuthorizedProcessQuery processQuery)
         {
             var internalProcessQuery = processQuery.ConvertToAuthorizedInternalProcessQuery();
             var internalProcesses = await ProcessRepository.GetInternalProcessesAsync(internalProcessQuery);
@@ -95,21 +111,41 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return workingStatusDict;
         }
 
-        public async ValueTask<Process> BeforeApprovalProcessAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus)
+        public async ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion)
         {
-            return await ProcessRepository.BeforeApprovalProcessAsync(opmProcessId, processWorkingStatus);
+            await ProcessRepository.UpdateDraftProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus, allowEixstingCheckedOutVersion);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
         }
 
-        public async ValueTask<Process> UpdateProcessStatusAsync(Guid opmProcessId, ProcessWorkingStatus processWorkingStatus, ProcessVersionType versionType)
+        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
-            return await ProcessRepository.UpdateProcessStatusAsync(opmProcessId, processWorkingStatus, versionType);
+            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
         }
 
-
-        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsed(Guid processId, List<Guid> deletingProcessStepIds)
+        public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)
         {
-            var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsed(processId, deletingProcessStepIds);
+            var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsedAsync(processId, deletingProcessStepIds);
             return beingUsed;
+        }
+
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)
+        {
+            return await ProcessRepository.GetInternalProcessByOPMProcessIdAsync(opmProcessId, versionType);
+        }
+
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessIdAsync(Guid processId)
+        {
+            return await ProcessRepository.GetInternalProcessByProcessIdAsync(processId);
+        }
+
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType)
+        {
+            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, versionType);
+        }
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType)
+        {
+            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash, versionType);
         }
     }
 }

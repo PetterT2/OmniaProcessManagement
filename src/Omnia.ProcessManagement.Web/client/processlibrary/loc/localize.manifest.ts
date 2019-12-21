@@ -15,15 +15,19 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             LatestPublished: "There are no published processes to show"
         },
         ProcessStatuses: {
-            Draft: "Draft",
-            Published: "Published",
             SendingForApproval: "Sending for Approval",
-            WaitingForApproval: "Waiting for Approval",
-            Publishing: "Publishing",
+            SentForApproval: "Waiting for Approval",
+            SendingForApprovalFailed: "Sending for Approval failed",
             CancellingApproval: "Cancelling Approval",
-            FailedSendingForApproval: "Sending for Approval failed",
-            FailedCancellingApproval: "Cancelling Send for Approval failed",
-            FailedPublishing: "Publishing failed"
+            CancellingApprovalFailed: "Cancelling Send for Approval failed",
+
+            SendingForReview: "Sending for Comments",
+            SentForReview: "Sent for Comments",
+            SendingForReviewFailed: "Sending for Comments failed",
+            CancellingReview: "Cancelling Send for Comments",
+            CancellingReviewFailed: "Cancelling Send for Comments failed",
+            SyncingToSharePoint: "Syncing to SharePoint"
+            
         },
         TaskStatus: {
             Cancel: "Cancel",

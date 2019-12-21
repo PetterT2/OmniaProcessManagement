@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.ProcessTemplates
 {
-    public interface IProcessTemplateRepository
+    internal interface IProcessTemplateRepository
     {
         ValueTask<List<ProcessTemplate>> GetAllAsync();
         ValueTask<ProcessTemplate> GetByIdAsync(Guid id);
