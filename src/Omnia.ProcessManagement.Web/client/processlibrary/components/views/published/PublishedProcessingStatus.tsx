@@ -16,6 +16,7 @@ interface PublishedProcessingStatusProps {
 export class PublishedProcessingStatus extends VueComponentBase<PublishedProcessingStatusProps> implements IWebComponentInstance {
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: Process;
+    @Prop() redLabel: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;

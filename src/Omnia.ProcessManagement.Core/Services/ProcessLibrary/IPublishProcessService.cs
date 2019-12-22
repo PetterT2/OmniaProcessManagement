@@ -16,5 +16,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         ValueTask ProcessSendingForApprovalAsync(Process process);
         ValueTask UpdateSendingForApprovalFailedAsync(Process process);
+
+        ValueTask ProcessCancellingApprovalAsync(Process process);
+        ValueTask UpdateCancellingApprovalFailedAsync(Process process);
     }
 }

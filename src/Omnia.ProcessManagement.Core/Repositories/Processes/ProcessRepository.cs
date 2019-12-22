@@ -1061,6 +1061,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 case ProcessWorkingStatus.None:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SentForApproval);
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SentForReview);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingApproval);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingReview);
                     break;
                 case ProcessWorkingStatus.SendingForReview:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.None);
@@ -1075,6 +1077,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     break;
                 case ProcessWorkingStatus.CancellingReview:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SentForReview);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingReviewFailed);
                     break;
                 case ProcessWorkingStatus.CancellingReviewFailed:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingReview);
@@ -1092,6 +1095,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     break;
                 case ProcessWorkingStatus.CancellingApproval:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SentForApproval);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingApprovalFailed);
                     break;
                 case ProcessWorkingStatus.CancellingApprovalFailed:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingApproval);

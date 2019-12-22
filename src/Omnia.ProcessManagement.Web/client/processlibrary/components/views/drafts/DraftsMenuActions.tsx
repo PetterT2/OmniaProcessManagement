@@ -55,7 +55,6 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     private refreshContextMenu() {
         let editActionsDict: Array<ProcessWorkingStatus> = [
             ProcessWorkingStatus.None,
-            ProcessWorkingStatus.CancellingApprovalFailed,
             ProcessWorkingStatus.SendingForApprovalFailed
         ];
         this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);

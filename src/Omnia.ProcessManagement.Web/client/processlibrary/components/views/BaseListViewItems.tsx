@@ -315,7 +315,9 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     private isErrorStatus(status: ProcessWorkingStatus) {
         if (status == ProcessWorkingStatus.SendingForApprovalFailed ||
-            status == ProcessWorkingStatus.CancellingApprovalFailed) {
+            status == ProcessWorkingStatus.CancellingApprovalFailed ||
+            status == ProcessWorkingStatus.SendingForReviewFailed ||
+            status == ProcessWorkingStatus.CancellingReviewFailed) {
             return true;
         }
         else {
@@ -342,9 +344,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     </td>
                                 );
                             case LibrarySystemFieldsConstants.Status:
-                                return (<td class={this.isErrorStatus(item.processWorkingStatus) ? 'red--text' : ''}>
+                                let errorStatus = this.isErrorStatus(item.processWorkingStatus);
+                                return (<td>
                                     {h(this.processListViewComponentKey.processingStatusComponent, {
                                         domProps: {
+                                            redLabel: errorStatus,
                                             closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
                                             process: item
                                         }

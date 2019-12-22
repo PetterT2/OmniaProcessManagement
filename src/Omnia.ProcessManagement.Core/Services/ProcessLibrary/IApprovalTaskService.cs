@@ -11,8 +11,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     public interface IApprovalTaskService
     {
         ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request);
-        ValueTask<int> AddSharePointApprovalTaskAndSendEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, Process process, string webUrl);
-        ValueTask CancelApprovalTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl);
+        ValueTask<int> AddSharePointTaskAndSendEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, Process process, string webUrl);
+        ValueTask CancelSharePointTaskAndSendEmailAsync(Workflow workflow, Process process, string webUrl);
+
+        //The reason we split the CompleteSharePointTask and SendCompletedEmail 
+        //Because we don't want the transaction rollback depends on the send email, which is not so important in approving a process
         ValueTask CompleteSharePointTaskAsync(WorkflowApprovalTask approvalTask, string webUrl);
         ValueTask SendCompletedEmailAsync(WorkflowApprovalTask approvalTask);
     }

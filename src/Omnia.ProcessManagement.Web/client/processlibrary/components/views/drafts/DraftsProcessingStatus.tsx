@@ -17,6 +17,7 @@ interface DraftsProcessingStatusProps {
 export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingStatusProps> implements IWebComponentInstance {
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: Process;
+    @Prop() redLabel: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -51,14 +52,16 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
 
     renderStatus(h) {
         let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]];
+        let className = this.redLabel ? "red--text" : "";
         switch (this.process.processWorkingStatus) {
             case ProcessWorkingStatus.SentForApproval:
-                return <a onClick={() => {
+            case ProcessWorkingStatus.CancellingApprovalFailed:
+                return <a class={className} onClick={() => {
                     this.selectedProcess = this.process;
                     this.openApprovalPublishDialog = true;
                 }}>{statusName}</a>;
             default:
-                return statusName;
+                return <div class={className}>{statusName}</div>;
         }
     }
 

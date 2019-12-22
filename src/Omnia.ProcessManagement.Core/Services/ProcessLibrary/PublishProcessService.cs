@@ -83,7 +83,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 var workflowApprovalData = workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
                 await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SentForApproval, false);
 
-                var spTaskItemId = await ApprovalTaskService.AddSharePointApprovalTaskAndSendEmailAsync(workflow, workflowApprovalData, process, webUrl);
+                var spTaskItemId = await ApprovalTaskService.AddSharePointTaskAndSendEmailAsync(workflow, workflowApprovalData, process, webUrl);
                 await WorkflowTaskService.CreateAsync(workflow.Id, workflowApprovalData.Approver.Uid, spTaskItemId);
                 await ProcessSecurityService.AddOrUpdateOPMApproverPermissionAsync(process.OPMProcessId, workflowApprovalData.Approver.Uid);
             });
@@ -104,35 +104,35 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             });
         }
 
+
         public async ValueTask CancelWorkflowAsync(Guid opmProcessId)
         {
             await ProcessService.UpdateDraftProcessWorkingStatusAsync(opmProcessId, ProcessWorkingStatus.CancellingApproval, false);
         }
 
-        //public async ValueTask ProcessingCancelWorkflowAsync(Guid opmProcessId, Guid workflowId, Guid teamAppId)
-        //{
-        //    try
-        //    {
-        //        var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(teamAppId);
-        //        var workflow = await WorkflowService.GetAsync(workflowId);
-        //        var process = await ProcessService.GetInternalProcessByOPMProcessIdAsync(workflow.OPMProcessId, ProcessVersionType.Draft);
-        //        if (process.OPMProcessId != opmProcessId)
-        //        {
-        //            throw new Exception(""); //TO-DO : what message should we throw here ?!
-        //        }
+        public async ValueTask ProcessCancellingApprovalAsync(Process process)
+        {
+            await TransactionRepositiory.InitTransactionAsync(async () =>
+            {
+                var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
+                var workflow = await WorkflowService.GetByProcessAsync(process.OPMProcessId, WorkflowType.Approval);
 
-        //        await ProcessSecurityService.RemoveOPMApproverPermissionAsync(opmProcessId);
-        //        await ApprovalTaskService.CancelApprovalTaskAndSendEmailAsync(workflow, process, webUrl);
-        //        await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.None, ProcessVersionType.Draft);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await ProcessService.UpdateProcessStatusAsync(opmProcessId, ProcessWorkingStatus.FailedCancellingApproval, ProcessVersionType.Draft);
-        //        throw;
-        //    }
-        //}
+                await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
+                
+                if (workflow.CompletedType == WorkflowCompletedType.None)
+                {
+                    await WorkflowService.CompleteAsync(workflow.Id, WorkflowCompletedType.Cancelled);
+                    await ApprovalTaskService.CancelSharePointTaskAndSendEmailAsync(workflow, process, webUrl);
+                }
 
+                await ProcessSecurityService.RemoveOPMApproverPermissionAsync(process.OPMProcessId);
+            });
+        }
 
+        public async ValueTask UpdateCancellingApprovalFailedAsync(Process process)
+        {
+            await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.CancellingApprovalFailed, false);
+        }
 
         public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
         {
@@ -148,6 +148,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
+                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.None, false);
                     await ProcessService.PublishProcessAsync(approvalTask.Process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
                 }
                 else

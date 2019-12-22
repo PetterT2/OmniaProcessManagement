@@ -51,6 +51,7 @@ namespace Omnia.ProcessManagement.Worker
 
                         services.AddHostedService<ProcessTypeTermSynchronizationTimerJob>();
                         services.AddHostedService<SendingForApprovalWorkflowTimerJob>();
+                        services.AddHostedService<CancellingApprovalWorkflowTimerJob>();
                         services.AddOmniaPMSqlDB();
                     });
                 });
