@@ -36,6 +36,7 @@ export class ProcessDesignerStore extends Store {
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     selectedShape = this.state<DrawingShape>(null);
+    selectingShape = this.state<DrawingShape>(null);
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
    
@@ -61,6 +62,9 @@ export class ProcessDesignerStore extends Store {
         },
         shapeToEditSettings: (): DrawingShape => {
             return this.selectedShape.state;
+        },
+        selectingShape: (): DrawingShape => {
+            return this.selectingShape.state;
         }
     }
 
@@ -120,6 +124,9 @@ export class ProcessDesignerStore extends Store {
         }),
         setSelectedShapeToEdit: this.mutation((selectedShape: DrawingShape) => {
             this.selectedShape.mutate(selectedShape);
+        }),
+        setSelectingShape: this.mutation((selectingShape: DrawingShape) => {
+            this.selectingShape.mutate(selectingShape);
         })
     }
 

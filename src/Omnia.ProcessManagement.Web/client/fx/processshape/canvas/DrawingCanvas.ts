@@ -43,6 +43,8 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     protected findDrawingShape(object: fabric.Object): DrawingShape {
+        if (object == null)
+            return null;
         return this.drawingShapes.find(d => {
             return (d.shape as Shape).shapeObject && (d.shape as Shape).shapeObject.find(s => s == object) != null;
         });

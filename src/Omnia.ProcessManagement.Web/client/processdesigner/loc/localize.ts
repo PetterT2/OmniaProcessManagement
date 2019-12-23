@@ -12,6 +12,7 @@
         AllShapes: string;
         RecentShapes: string;
         AddShape: string;
+        DeleteShape: string;
         SelectShape: string;
         ShapeType: string;
         Search: string;

@@ -7,8 +7,9 @@ import { DrawingShapeDefinition } from '../../models';
 import { GuidValue, MultilingualString } from '@omnia/fx-models';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
-    onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
-    onDrawingChanged: () => void;
+    private onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
+    private onDrawingChanged: () => void;
+    private onSelectingShape: (shape: DrawingShape) => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
 
@@ -18,10 +19,15 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         this.onDrawingChanged = onDrawingChanged;
     }
 
+    setSelectingShapeCallback(onSelectingShape) {
+        this.onSelectingShape = onSelectingShape;
+        this.onSelectingShape(null);
+    }
+
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
         this.selectable = true;
         this.renderGridView(elementId, options, definition);
-        this.addEventListener(); 
+        this.addEventListener();
     }
 
     updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean) {
@@ -58,7 +64,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         ctx.font = '900 0px "Font Awesome 5 Pro"';
         ctx.fillText("", 0, 0);
 
-        this.canvasObject.on('object:moving', (options) => {            
+        this.canvasObject.on('object:moving', (options) => {
             if (options.target.type != 'text') {
                 if (this.gridX)
                     options.target.set({
@@ -98,6 +104,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 } else
                     this.editObject = null;
             }
+            if (this.onSelectingShape) {
+                this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
+            }
             if (this.isMoving) {
                 this.isMoving = false;
                 if (this.onDrawingChanged) {
@@ -105,10 +114,16 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 }
             }
         });
-                
+
         this.canvasObject.on('object:scaled', (options) => {
             if (this.onDrawingChanged) {
                 this.onDrawingChanged();
+            }
+        });
+
+        this.canvasObject.on('object:selected', (options) => {
+            if (options.target && this.onSelectingShape) {
+                this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
             }
         });
     }

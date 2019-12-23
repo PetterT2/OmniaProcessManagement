@@ -84,6 +84,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private initDrawingCanvas() {     
         setTimeout(() => {
             this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, this.onClickEditShape, this.onShapeChangeByUser);
+            this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
         }, 300);
         //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
@@ -94,6 +95,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         setTimeout(() => {
             this.saveState(true);
         }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+    }
+
+    private onSelectingShape(shape: DrawingShape) {
+        this.processDesignerStore.mutations.setSelectingShape.commit(shape);
     }
 
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
