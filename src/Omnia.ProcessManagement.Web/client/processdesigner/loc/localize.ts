@@ -24,6 +24,8 @@
         AddLink: string;
         AddHeader: string;
         EditHeader: string;
+        AddTask: string;
+        EditTask: string;
         EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
@@ -47,6 +49,7 @@
         FreeForm: string;
         DiscardChangeConfirmMessage: string;
         MessageNoLinksItem: string;
+        MessageNoTasksItem: string;
         ShapeSettings: string;
     }
 }

@@ -4,8 +4,12 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
-import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, ConfirmDialogResponse, DialogPositions } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
+import { Task } from '../../../fx/models';
+import { ProcessDesignerStore } from '../../stores';
+import { MultilingualStore } from '@omnia/fx/store';
+import { ProcessDesignerLocalization } from '../../loc/localize';
 import { Prop } from 'vue-property-decorator';
 
 export class ProcessTasksTabRenderer extends TabRenderer {
@@ -30,47 +34,158 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
-    private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private isEditMode: boolean = false;
+    @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
+
+    private openTaskPicker: boolean = false;
+    private selectedTask: Task;
+    private orderTasks: Array<Task> = [];
+    private isDragging: boolean = false;
 
     created() {
         this.init();
     }
 
     init() {
+        this.orderTasks = Utils.clone(this.referenceTasksData) || [];
+        for (let task of this.orderTasks) {
+            task.multilingualTitle = this.multilingualStore.getters.stringValue(task.title);
+        }
     }
 
     mounted() {
     }
 
     beforeDestroy() {
-        if (this.subscriptionHandler)
-            this.subscriptionHandler.unsubscribe();
     }
 
-    get currentProcessStepReferenceData() {
-        let referenceData = this.currentProcessStore.getters.referenceData();
-        if (!this.isProcessStepShortcut) {
-            return referenceData.current;
+    openAddTasksForm() {
+        this.selectedTask = { id: null } as Task;
+        this.openTaskPicker = true;
+    }
+
+    get referenceTasksData(): Task[] {
+        return this.currentProcessStore.getters.referenceData().current.processData.tasks;
+    }
+
+    onTasksChanged(task?: Task, isDelete?: boolean) {
+        if (Utils.isNullOrEmpty(this.referenceTasksData))
+            return;
+        if (task) {
+            task.multilingualTitle = this.multilingualStore.getters.stringValue(task.title);
+            let findTaskIndex = this.orderTasks.findIndex(l => l.id == task.id);
+            if (isDelete) {
+                this.orderTasks.splice(findTaskIndex, 1);
+            }
+            else {
+                if (findTaskIndex == -1)
+                    this.orderTasks.push(task);
+                else
+                    this.orderTasks[findTaskIndex] = task;
+            }
         }
-        return referenceData.shortcut;
+        this.currentProcessStore.getters.referenceData().current.processData.tasks = this.orderTasks;
+        this.processDesignerStore.actions.saveState.dispatch();
     }
 
-    onContentChanged(content) {
-        let referenceData = this.currentProcessStepReferenceData;
-        //ToDo
+    private deleteTask(task) {
+        this.$confirm.open().then((res) => {
+            if (res == ConfirmDialogResponse.Ok) {
+                this.onTasksChanged(task, true);
+            }
+        })
     }
 
     /**
         * Render 
         * @param h
         */
+    renderTaskPicker(h) {
+        return (
+            <omfx-dialog
+                hideCloseButton={true}
+                model={{ visible: true }}
+                maxWidth="800px"
+                dark={this.omniaTheming.promoted.header.dark}
+                contentClass={this.omniaTheming.promoted.body.class}
+                position={DialogPositions.Center}
+            >
+                <div style={{ height: '100%' }}>
+                    <opm-processdesigner-createtask
+                        taskId={this.selectedTask.id}
+                        onSave={(task: Task) => {
+                            this.openTaskPicker = false;
+                            this.onTasksChanged(task, false);
+                        }}
+                        onClose={() => {
+                            this.openTaskPicker = false;
+                        }}
+                    ></opm-processdesigner-createtask>
+                </div>
+            </omfx-dialog>
+        )
+    }
+
+    renderItems() {
+        let h = this.$createElement;
+        return (
+            <draggable
+                options={{ handle: ".drag-handle", animation: "100" }}
+                onStart={() => { this.isDragging = true; }}
+                onEnd={() => { this.isDragging = false; }}
+                element="v-list"
+                v-model={this.orderTasks}
+                onChange={() => { this.onTasksChanged(); }}>
+                {
+                    this.orderTasks.length == 0 ?
+                        <div>{this.pdLoc.MessageNoTasksItem}</div>
+                        : this.orderTasks.map((task) => {
+                            return (
+                                <v-list-item class={!this.isDragging && "notdragging"} >
+                                    <v-list-item-content>
+                                        <v-list-item-title color={this.omniaTheming.promoted.body.onComponent.base}>{task.multilingualTitle}</v-list-item-title>
+                                    </v-list-item-content>
+
+                                    <v-list-item-action>
+                                        <v-btn icon class="mr-1 ml-1" onClick={() => {
+                                            this.selectedTask = task;
+                                            this.openTaskPicker = true;
+                                        }}>
+                                            <v-icon size='14' color={this.omniaTheming.promoted.body.onComponent.base}>fas fa-pen</v-icon>
+                                        </v-btn>
+                                    </v-list-item-action>
+                                    <v-list-item-action>
+                                        <v-btn icon class="mr-0" onClick={() => { this.deleteTask(task); }}>
+                                            <v-icon size='14' color={this.omniaTheming.promoted.body.onComponent.base}>far fa-trash-alt</v-icon>
+                                        </v-btn>
+                                    </v-list-item-action>
+                                    <v-list-item-action>
+                                        <v-btn icon class="mr-0" onClick={() => { }}>
+                                            <v-icon class="drag-handle" size='14' color={this.omniaTheming.promoted.body.onComponent.base}>fas fa-grip-lines</v-icon>
+                                        </v-btn>
+                                    </v-list-item-action>
+                                </v-list-item>
+                            )
+                        })
+                }
+            </draggable>
+        )
+    }
+
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                Tasks tab content
+                <div>
+                    <v-btn text onClick={(e: Event) => { e.stopPropagation(); this.openAddTasksForm() }} >
+                        <v-icon small>add</v-icon>
+                        <span>{this.pdLoc.AddTask}</span>
+                    </v-btn>
+                </div>
+                <div>{this.renderItems()}</div>
             </v-card-text>
+            {this.openTaskPicker && this.renderTaskPicker(h)}
         </v-card>)
     }
 }
