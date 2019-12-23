@@ -1,4 +1,5 @@
 ﻿using Omnia.Fx.Models.Users;
+using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -19,6 +20,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
 
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
+        ValueTask<List<Microsoft.SharePoint.Client.User>> EnsureProcessLimitedReadAccessSharePointUsersAsync(PortableClientContext ctx, Guid opmProcessId);
 
         /// <summary>
         /// 

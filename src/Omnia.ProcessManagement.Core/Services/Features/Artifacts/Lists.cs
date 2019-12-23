@@ -47,7 +47,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
         [FieldRef(typeof(OPMProcessId))]
         [FieldRef(typeof(OPMEdition))]
         [FieldRef(typeof(OPMRevision))]
-        [FieldRef(typeof(OPMProperties))]
+        [FieldRef(typeof(OPMProcessData))]
         public IEnumerable<FieldBase> Fields
         {
             get;

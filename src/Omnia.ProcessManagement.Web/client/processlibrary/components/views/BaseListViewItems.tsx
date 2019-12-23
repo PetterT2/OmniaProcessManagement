@@ -317,7 +317,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         if (status == ProcessWorkingStatus.SendingForApprovalFailed ||
             status == ProcessWorkingStatus.CancellingApprovalFailed ||
             status == ProcessWorkingStatus.SendingForReviewFailed ||
-            status == ProcessWorkingStatus.CancellingReviewFailed) {
+            status == ProcessWorkingStatus.CancellingReviewFailed ||
+            status == ProcessWorkingStatus.SyncingToSharePointFailed) {
             return true;
         }
         else {
@@ -350,7 +351,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                         domProps: {
                                             redLabel: errorStatus,
                                             closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
-                                            process: item
+                                            process: item,
+                                            isAuthor: this.isAuthor
                                         }
                                     })}
                                 </td>)

@@ -117,7 +117,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class ListUrl
             {
-                public const string PublishList = "OPMPublishedProcesss";
+                public const string PublishList = "OPMPublishedProcesses";
                 public const string TaskList = "OPMTasks";
             }
 
@@ -127,7 +127,7 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_ProcessId = "OPMProcessId";
                 public const string Fields_Edition = "OPMEdition";
                 public const string Fields_Revision = "OPMRevision";
-                public const string Fields_Properties = "OPMProperties";
+                public const string Fields_ProcessData = "OPMProcessData";
                 public const string Fields_TaskOutcome = "OPMTaskOutcome";
                 public const string Fields_Comment = "OPMComment";
             }

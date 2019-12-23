@@ -56,6 +56,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ITeamCollaborationAppsService, TeamCollaborationAppsService>();
             services.AddScopedWithSingeltonRef<ISharePointGroupService, SharePointGroupService>();
             services.AddScopedWithSingeltonRef<ISharePointPermissionService, SharePointPermissionService>();
+            services.AddScopedWithSingeltonRef<IProcessSyncingService, ProcessSyncingService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<ITransactionRepository, TransactionRepositiory>();

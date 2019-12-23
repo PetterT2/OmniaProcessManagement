@@ -28,11 +28,11 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     {
     }
 
-    [NoteField(id: "021dcddd-6bdf-4fac-be3c-d111211f0ea0", internalName: OPMConstants.SharePoint.OPMFields.Fields_Properties,
-    Title = "$Localize:OPM.Core.Features.Fields.OPMProperties.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMProperties.Description;",
+    [NoteField(id: "9d23f99a-207d-47aa-8794-fc7a5b56ddd6", internalName: OPMConstants.SharePoint.OPMFields.Fields_ProcessData,
+    Title = "$Localize:OPM.Core.Features.Fields.OPMProcessData.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMProcessData.Description;",
     Group = "$Localize:OPM.Core.Features.Fields.GroupName;", Required = false,
     UnlimitedLengthInDocumentLibrary = true, Sealed = true, NumberOfLines = 6, RichText = false)]
-    public class OPMProperties : FieldBase
+    public class OPMProcessData : FieldBase
     {
     }
 

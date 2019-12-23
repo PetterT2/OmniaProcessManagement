@@ -371,5 +371,28 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse<bool>(ex);
             }
         }
+
+        [HttpPost, Route("sync/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse> TriggerSyncToSharePointAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.LatestPublished);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .DoAsync(async () =>
+                   {
+                       await ProcessService.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, ProcessWorkingStatus.SyncingToSharePoint);
+                       return ApiUtils.CreateSuccessResponse();
+                   });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
     }
 }

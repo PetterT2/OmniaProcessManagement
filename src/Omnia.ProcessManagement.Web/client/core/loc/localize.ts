@@ -54,7 +54,7 @@
                     Name: string,
                     Description: string,
                 },
-                OPMProperties: {
+                OPMProcessData: {
                     Name: string,
                     Description: string,
                 },

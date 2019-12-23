@@ -11,6 +11,8 @@ import { ApprovalPublishDialog } from './ApprovalPublishDialog';
 interface DraftsProcessingStatusProps {
     closeCallback: (isUpdate: boolean) => void;
     process: Process;
+    redLabel: boolean;
+    isAuthor: boolean;
 }
 
 @Component
@@ -18,6 +20,7 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: Process;
     @Prop() redLabel: boolean;
+    @Prop() isAuthor: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;

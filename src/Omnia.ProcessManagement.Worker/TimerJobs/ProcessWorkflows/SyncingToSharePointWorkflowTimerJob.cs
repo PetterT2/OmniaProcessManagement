@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Messaging;
+using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -20,7 +21,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
                 messageBus,
                 logger,
                 ProcessWorkingStatus.SyncingToSharePoint,
-                DraftOrLatestPublishedVersionType.Draft)
+                DraftOrLatestPublishedVersionType.LatestPublished)
         {
 
         }
@@ -31,6 +32,8 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             {
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
+                    var processSyncingService = scope.ServiceProvider.GetRequiredService<IProcessSyncingService>();
+                    await processSyncingService.SyncToSharePointAsync(process);
                 }
             }
             catch (Exception ex)
@@ -39,9 +42,10 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
 
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
-                   
+                    var processService = scope.ServiceProvider.GetRequiredService<IProcessService>();
+                    await processService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SyncingToSharePointFailed);
                 }
-                Logger.LogError($"process with OPMProcessId: {process.OPMProcessId} was updated to working status {ProcessWorkingStatus.CancellingApprovalFailed.ToString()}");
+                Logger.LogError($"process with OPMProcessId: {process.OPMProcessId} was updated to working status {ProcessWorkingStatus.SyncingToSharePointFailed.ToString()}");
             }
         }
     }

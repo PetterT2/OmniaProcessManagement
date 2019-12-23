@@ -214,6 +214,19 @@ export class ProcessService {
         });
     }
 
+    public syncToSharePoint = (opmProcessId: GuidValue) => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/processes/sync/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    resolve();
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }    
+
     private generateClientSideData = (processes: Array<Process>) => {
         return this.omniaContext.user.then((user) => {
             let currentUserLoginName = user.loginName.toLowerCase();

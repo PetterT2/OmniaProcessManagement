@@ -58,9 +58,9 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Name: "Revision",
                     Description: "System column in Omnia Process Management for Revision.",
                 },
-                OPMProperties: {
-                    Name: "Properties",
-                    Description: "System column in Omnia Process Management for Properties.",
+                OPMProcessData: {
+                    Name: "Process Data",
+                    Description: "System column in Omnia Process Management for Process Data.",
                 },
                 OPMTaskOutcome: {
                     Name: "TaskOutcome",

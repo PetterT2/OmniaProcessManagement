@@ -202,7 +202,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 processEf.SecurityResourceId = securityResourceId;
 
                 await DbContext.SaveChangesAsync();
-                
+
                 var rawSql = GenerateUpdateRelatedWorkflowEditionRowSql(opmProcessId, edition);
                 await DbContext.ExecuteSqlCommandAsync(rawSql);
 
@@ -319,7 +319,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
             {
 
-                var process = DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefault();
+                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefault();
                 if (process == null)
                 {
                     throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
@@ -922,7 +922,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
         }
 
-        private string GenerateUpdateRelatedWorkflowEditionRowSql(Guid opmProcessId, int eidtion)
+        private string GenerateUpdateRelatedWorkflowEditionRowSql(Guid opmProcessId, int edition)
         {
             #region Names
             var tableName = nameof(DbContext.Workflows);
@@ -931,7 +931,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
 
             #region SQL
-            return @$"UPDATE {tableName} SET {editionColumnName} = edition WHERE {opmProcessIdColumnName} = '{opmProcessId}' AND {editionColumnName} = '{opmProcessId}'";
+            return @$"UPDATE {tableName} SET {editionColumnName} = {edition} WHERE {opmProcessIdColumnName} = '{opmProcessId}' AND {editionColumnName} = 0";
             #endregion
         }
 
@@ -999,7 +999,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
-       
+
         private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision)
         {
             if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
@@ -1019,6 +1019,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 case ProcessWorkingStatus.None:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePoint);
+                    break;
+                case ProcessWorkingStatus.SyncingToSharePointFailed:
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePoint);
+                    break;
+                case ProcessWorkingStatus.SyncingToSharePoint:
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePointFailed);
                     break;
                 default:
                     throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrLatestPublishedVersionType.LatestPublished);

@@ -5,6 +5,8 @@ using Omnia.Fx.Contexts.Scoped;
 using Omnia.Fx.Models.Security;
 using Omnia.Fx.Models.Users;
 using Omnia.Fx.Security;
+using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.Fx.SharePoint.Services.Principal;
 using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
@@ -31,12 +33,16 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         IOmniaContext OmniaContext { get; }
         IProcessService ProcessService { get; }
         IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
+
+        IPrincipalService PrincipalService { get; }
+
         public ProcessSecurityService(
             IDynamicScopedContextProvider dynamicScopedContextProvider,
             ISecurityProvider securityProvider,
             IOmniaContext omniaContext,
             IProcessService processService,
             IRoleService roleService,
+            IPrincipalService principalService,
             IOmniaMemoryDependencyCache omniaMemoryDependencyCache)
         {
             DynamicScopedContextProvider = dynamicScopedContextProvider;
@@ -44,6 +50,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             OmniaContext = omniaContext;
             ProcessService = processService;
             RoleService = roleService;
+            PrincipalService = principalService;
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
@@ -93,6 +100,36 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             });
 
             return result.Value;
+        }
+
+        public async ValueTask<List<Microsoft.SharePoint.Client.User>> EnsureProcessLimitedReadAccessSharePointUsersAsync(PortableClientContext ctx, Guid opmProcessId)
+        {
+            var queryInput = new PermissionBindingsByResourcesQueryInput();
+            queryInput.Resources.Add(SecurityResourceIdResourceHelper.GenerateResource(opmProcessId));
+            queryInput.IncludeGroups = true;
+
+            var permissionBindings = await RoleService.GetIdentityPermissionBindingsForCurrentServiceAsync(queryInput);
+
+            var identities = permissionBindings.Where(p => p.UserDefinedRules == null || p.UserDefinedRules.Count == 0)
+                .Select(p => new UserIdentity { Uid = p.Identity })
+                .ToList();
+
+            var userDefinedRulePermissionBinding = permissionBindings.Where(p => p.UserDefinedRules != null).FirstOrDefault();
+            if (userDefinedRulePermissionBinding != null)
+            {
+                if (userDefinedRulePermissionBinding.UserDefinedRules.Any(u => u.RoleId == new Guid(Fx.Constants.Security.Roles.AuthorizedUsers)))
+                {
+                    identities.Add(new UserIdentity { Uid = Fx.Constants.Security.Roles.AuthorizedUsers });
+                }
+
+                if (userDefinedRulePermissionBinding.UserDefinedRules.Any(u => u.RoleId == new Guid(Fx.Constants.Security.Roles.InternalUsersOnly)))
+                {
+                    identities.Add(new UserIdentity { Uid = Fx.Constants.Security.Roles.InternalUsersOnly });
+                }
+            }
+
+            var users = await PrincipalService.EnsureSharePointUsersAsync(ctx, identities);
+            return users;
         }
 
         public async ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null)
