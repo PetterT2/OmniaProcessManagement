@@ -52,5 +52,6 @@
         MessageNoLinksItem: string;
         MessageNoTasksItem: string;
         ShapeSettings: string;
+        DeleteShapeConfirmMessage: string;
     }
 }

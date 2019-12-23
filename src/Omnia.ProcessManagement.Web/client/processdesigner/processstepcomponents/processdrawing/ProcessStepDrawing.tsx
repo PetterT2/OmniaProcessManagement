@@ -70,6 +70,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
         this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape);
         this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape);
+        this.processDesignerStore.mutations.deleteSelectingDrawingShape.onCommited(this.onDeletedShape);
     }
 
     private onCanvasDefinitionChanged() {
@@ -108,6 +109,15 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         setTimeout(() => {
             this.saveState(true);
         }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+    }
+
+    private onDeletedShape() {
+        if (this.processDesignerStore.getters.selectingShape() != null) {
+            this.drawingCanvasEditor.deleteShape(this.processDesignerStore.getters.selectingShape());
+            setTimeout(() => {
+                this.saveState(true);
+            }, 200);
+        }
     }
 
     private onClickEditShape(selectedShape: DrawingShape) {

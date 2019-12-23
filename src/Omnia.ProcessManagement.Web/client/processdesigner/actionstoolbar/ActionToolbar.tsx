@@ -45,6 +45,14 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
         }
     }
 
+    private deleteShape() {
+        this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
+            if (response === ConfirmDialogResponse.Ok) {
+                this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();
+            }
+        });
+    }
+
     private createButton(h, button: ActionItem, classStr?: string) {
         let showButton = true;
         if (button.visibilityCallBack) showButton = button.visibilityCallBack();
@@ -115,7 +123,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
                 this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
             }}>{this.pdLoc.AddShape}</v-btn></div>);
             result.push(<div v-show={this.processDesignerStore.getters.selectingShape() != null} class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
-
+                this.deleteShape();
             }}>{this.pdLoc.DeleteShape}</v-btn></div>);
         }
         result.push(<v-spacer></v-spacer>);

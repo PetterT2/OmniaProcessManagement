@@ -236,6 +236,14 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
+    deleteShape(shape: DrawingShape) {
+        let findIndex = this.drawingShapes.findIndex(s => s.id == shape.id);
+        if (findIndex > -1) {
+            this.drawingShapes.splice(findIndex, 1);
+            (shape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+        }
+    }
+
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
         let readyDrawingShape = Utils.clone(drawingShape);
 

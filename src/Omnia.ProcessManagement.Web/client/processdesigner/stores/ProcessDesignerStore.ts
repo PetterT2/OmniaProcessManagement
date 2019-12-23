@@ -122,6 +122,9 @@ export class ProcessDesignerStore extends Store {
         updateDrawingShape: this.mutation((drawingShapeOption: DrawingShapeOptions) => {
 
         }),
+        deleteSelectingDrawingShape: this.mutation(() => {
+            
+        }),
         setSelectedShapeToEdit: this.mutation((selectedShape: DrawingShape) => {
             this.selectedShape.mutate(selectedShape);
         }),
