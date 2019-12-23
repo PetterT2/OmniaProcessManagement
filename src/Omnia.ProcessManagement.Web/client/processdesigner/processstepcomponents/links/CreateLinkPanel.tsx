@@ -23,7 +23,6 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
-    private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private editingLink: Link = null;
     private isNew: boolean = false;
     private internalValidator: FormValidator = null;
@@ -68,8 +67,6 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     }
 
     beforeDestroy() {
-        if (this.subscriptionHandler)
-            this.subscriptionHandler.unsubscribe();
     }
 
     private saveLink() {
