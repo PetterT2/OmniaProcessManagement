@@ -57,7 +57,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
         {
             var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.SyningToSharePoint });
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.SyncingToSharePoint });
             return process;
         }
 
@@ -119,7 +119,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
-            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
+           await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
         }
 

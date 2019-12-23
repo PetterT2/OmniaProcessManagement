@@ -8,12 +8,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Entities.Workflows
-{  
+{
     internal class Workflow : ClusteredIndexAuditingEntityBase
     {
         [Key]
         public Guid Id { get; set; }
         public Guid OPMProcessId { get; set; }
+        public int Edition { get; set; }
         public string JsonValue { get; set; }
         public WorkflowType Type { get; set; }
         public WorkflowCompletedType CompletedType { get; set; }

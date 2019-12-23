@@ -18,9 +18,9 @@ namespace Omnia.ProcessManagement.Models.Processes
         public List<Link> Links { get; set; } //TODO
         public object Tasks { get; set; }// TODO
 
-        public string CreatedBy { get; set; }
-        public string ModifiedBy { get; set; }
-        public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset ModifiedAt { get; set; }
+        public virtual string CreatedBy { get; set; }
+        public virtual string ModifiedBy { get; set; }
+        public virtual DateTimeOffset CreatedAt { get; set; }
+        public virtual DateTimeOffset ModifiedAt { get; set; }
     }
 }

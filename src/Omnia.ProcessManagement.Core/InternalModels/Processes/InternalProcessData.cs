@@ -19,18 +19,18 @@ namespace Omnia.ProcessManagement.Core.InternalModels.Processes
         /// </summary>
         [Obsolete("Don't use this", true)]
         [JsonIgnore]
-        public new string CreatedBy { get; set; }
+        public override string CreatedBy { get; set; }
 
         [Obsolete("Don't use this", true)]
         [JsonIgnore]
-        public new string ModifiedBy { get; set; }
+        public override string ModifiedBy { get; set; }
 
         [Obsolete("Don't use this", true)]
         [JsonIgnore]
-        public new DateTimeOffset CreatedAt { get; set; }
+        public override DateTimeOffset CreatedAt { get; set; }
 
         [Obsolete("Don't use this", true)]
         [JsonIgnore]
-        public new DateTimeOffset ModifiedAt { get; set; }
+        public override DateTimeOffset ModifiedAt { get; set; }
     }
 }

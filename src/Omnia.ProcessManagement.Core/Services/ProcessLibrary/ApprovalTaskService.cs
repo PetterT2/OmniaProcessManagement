@@ -8,6 +8,7 @@ using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Users;
+using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
@@ -62,6 +63,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 Id = Guid.NewGuid(),
                 OPMProcessId = request.OPMProcessId,
+                //the edition initial value is 0, will be updated to correct value when publish the draft-process. 
+                //Or will be removed when delete the draft-process
+                Edition = 0,
                 DueDate = request.DueDate,
                 CompletedType = WorkflowCompletedType.None,
                 WorkflowData = new WorkflowApprovalData

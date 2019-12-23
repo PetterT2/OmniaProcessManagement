@@ -12,6 +12,7 @@ using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
@@ -176,7 +177,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 processEf.CheckedOutBy = "";
                 processEf.VersionType = ProcessVersionType.LatestPublished;
-                processEf.ProcessWorkingStatus = ProcessWorkingStatus.SyningToSharePoint;
+                processEf.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
 
                 RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
 
@@ -187,7 +188,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 {
                     latestPublishedProcess.VersionType = ProcessVersionType.Published;
 
-                    var (latestEdition, latestRevision) = GetEditionAndRevision(latestPublishedProcess);
+                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(latestPublishedProcess);
                     edition = isRevision ? latestEdition : latestEdition + 1;
                     revision = isRevision ? latestRevision + 1 : 0;
                 }
@@ -200,9 +201,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 processEf.SecurityResourceId = securityResourceId;
 
-
                 await DbContext.SaveChangesAsync();
-
+                
+                var rawSql = GenerateUpdateRelatedWorkflowEditionRowSql(opmProcessId, edition);
+                await DbContext.ExecuteSqlCommandAsync(rawSql);
 
                 var process = MapEfToModel(processEf);
                 return process;
@@ -225,7 +227,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessNotFoundException(actionModel.Process.Id);
             }
 
-            var (edition, revision) = GetEditionAndRevision(checkedOutProcessWithProcessDataIdHash.Process);
+            var (edition, revision) = ProcessVersionHelper.GetEditionAndRevision(checkedOutProcessWithProcessDataIdHash.Process);
             EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
@@ -872,7 +874,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
 
-            sqlStrBuilder.Append(GenerateCloneProcessDataRowSql(processStep.Id, processId, oldProcessId));
+            sqlStrBuilder.Append(GenerateCloneProcessDataRawSql(processStep.Id, processId, oldProcessId));
 
             if (processStep.ProcessSteps != null)
             {
@@ -900,7 +902,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return processWithProcessDataIdHash;
         }
 
-        private string GenerateCloneProcessDataRowSql(Guid processStepId, Guid newProcessId, Guid oldProcessId)
+        private string GenerateCloneProcessDataRawSql(Guid processStepId, Guid newProcessId, Guid oldProcessId)
         {
             #region Names
             var tableName = nameof(DbContext.ProcessData);
@@ -917,6 +919,19 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             #region SQL
             return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {referenceProcessStepIdsColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{processStepId}', '{newProcessId}', pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{referenceProcessStepIdsColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processStepIdColumnName} = '{processStepId}' AND {processIdColumnName} = '{oldProcessId}'";
+            #endregion
+        }
+
+        private string GenerateUpdateRelatedWorkflowEditionRowSql(Guid opmProcessId, int eidtion)
+        {
+            #region Names
+            var tableName = nameof(DbContext.Workflows);
+            var editionColumnName = nameof(Entities.Workflows.Workflow.Edition);
+            var opmProcessIdColumnName = nameof(Entities.Workflows.Workflow.OPMProcessId);
+            #endregion
+
+            #region SQL
+            return @$"UPDATE {tableName} SET {editionColumnName} = edition WHERE {opmProcessIdColumnName} = '{opmProcessId}' AND {editionColumnName} = '{opmProcessId}'";
             #endregion
         }
 
@@ -984,23 +999,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
-        private (int, int) GetEditionAndRevision(Entities.Processes.Process process)
-        {
-            var processEnterpriseProperties = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(process.EnterpriseProperties);
-
-            if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
-                processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Revision.InternalName, out JToken revisionJToken) &&
-                int.TryParse(editionJToken.ToString(), out int edition) &&
-                int.TryParse(revisionJToken.ToString(), out int revision))
-            {
-                return (edition, revision);
-            }
-            else
-            {
-                throw new Exception("Invalid edition or revision to publish this process");
-            }
-        }
-
+       
         private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision)
         {
             if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
@@ -1019,7 +1018,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             switch (newProcessWorkingStatus)
             {
                 case ProcessWorkingStatus.None:
-                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyningToSharePoint);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePoint);
                     break;
                 default:
                     throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrLatestPublishedVersionType.LatestPublished);
