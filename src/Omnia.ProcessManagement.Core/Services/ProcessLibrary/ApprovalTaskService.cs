@@ -168,14 +168,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             taskListItem.Update();
             await appContext.ExecuteQueryAsync();
 
-            var approvalUser = appContext.Web.EnsureUser(workflowTask.AssignedUser);
-            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
-            roleAssignments.Add(approvalUser, new List<RoleType> { RoleType.Reader });
-
-            await SharePointPermissionService.BreakListItemPermissionAsync(appContext, taskListItem, false, false, roleAssignments);
             string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
             await SharePointGroupService.EnsureRemoveGroupOnWebAsync(appContext, appContext.Web, temporaryApprovalGroupTitle);
-
             await SendCancellWorkflowEmail(workflow, process);
         }
 
