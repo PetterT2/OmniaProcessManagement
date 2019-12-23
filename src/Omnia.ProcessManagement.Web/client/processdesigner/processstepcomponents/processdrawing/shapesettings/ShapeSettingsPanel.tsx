@@ -88,6 +88,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (this.processDesignerStore.formValidator.validateAll()) {
             this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
             this.processDesignerStore.mutations.updateDrawingShape.commit(this.drawingShapeOptions);
+            this.processDesignerStore.mutations.setSelectingShape.commit(null);
         }
     }
 
