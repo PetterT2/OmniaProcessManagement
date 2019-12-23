@@ -18,19 +18,19 @@ export class ProcessStepShortcutDesignerItem {
     };
     protected documentsTab: TabRegistration = {
         tabId: "4273a5d1-a389-41aa-9cf9-bade153f75c6",
-        tabRenderer: new ProcessDocumentsTabRenderer(),
+        tabRenderer: new ProcessDocumentsTabRenderer(true),
         tabName: this.opmCoreLoc.Process.Documents,
         active: false
     };
     protected linksTab: TabRegistration = {
         tabId: "9a2017e4-dd73-4385-bf57-c3568a0bf74e",
-        tabRenderer: new ProcessLinksTabRenderer(),
+        tabRenderer: new ProcessLinksTabRenderer(true),
         tabName: this.opmCoreLoc.Process.Links,
         active: false
     };
     protected tasksTab: TabRegistration = {
         tabId: "0e551d8f-19fc-4f02-8b1b-518d96362785",
-        tabRenderer: new ProcessTasksTabRenderer(),
+        tabRenderer: new ProcessTasksTabRenderer(true),
         tabName: this.opmCoreLoc.Process.Tasks,
         active: false
     };

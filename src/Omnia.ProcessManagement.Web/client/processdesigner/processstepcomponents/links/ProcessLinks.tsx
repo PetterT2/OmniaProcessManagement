@@ -49,7 +49,7 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
     }
 
     init() {
-        this.orderLinks = Utils.clone(this.referenceLinksData) || [];
+        this.orderLinks = Utils.clone(this.currentProcessStepReferenceData.processData.links) || [];
         for (let link of this.orderLinks) {
             link.multilingualTitle = this.multilingualStore.getters.stringValue(link.title);
         }
@@ -68,12 +68,8 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
         this.openLinkPicker = true;
     }
 
-    get referenceLinksData(): Link[] {
-        return this.currentProcessStore.getters.referenceData().current.processData.links;
-    }
-
     onLinksChanged(link?: Link, isDelete?: boolean) {
-        if (Utils.isNullOrEmpty(this.referenceLinksData))
+        if (Utils.isNullOrEmpty(this.currentProcessStepReferenceData.processData.links))
             return;
         if (link) {
             link.multilingualTitle = this.multilingualStore.getters.stringValue(link.title);
@@ -88,7 +84,7 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
                     this.orderLinks[findLinkIndex] = link;
             }
         }
-        this.currentProcessStore.getters.referenceData().current.processData.links = this.orderLinks;
+        this.currentProcessStepReferenceData.processData.links = this.orderLinks;
         this.processDesignerStore.actions.saveState.dispatch();
     }
 
@@ -143,6 +139,7 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
                             this.openLinkPicker = false;
                         }}
                         linkType={this.selectedLink.linkType}
+                        isProcessStepShortcut={this.isProcessStepShortcut}
                     ></opm-processdesigner-createlink>
                 </div>
             </omfx-dialog>

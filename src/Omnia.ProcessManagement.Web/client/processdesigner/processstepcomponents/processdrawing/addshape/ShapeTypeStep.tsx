@@ -70,11 +70,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     private createShape() {
         if (this.internalValidator.validateAll()) {
-            let drawingShapeType: DrawingShapeTypes = DrawingShapeTypes.Undefined;
-
-            let newShape: DrawingShape = null;
-            let shapeProcessStepId: GuidValue = null;
-            let customLinkId: GuidValue = null;
             let readyToDrawShape: boolean = true;
 
             if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep) {

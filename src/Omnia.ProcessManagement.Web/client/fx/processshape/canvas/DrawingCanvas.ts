@@ -177,7 +177,53 @@ export class DrawingCanvas implements CanvasDefinition {
                         definition: definition
                     };
                     resolved = false;
+
                     this.addShapeFromTemplateClassName(currentDrawingShape, isActive, currentLeft, currentTop).then((readyDrawingShape: DrawingShape) => {
+                        resolve(readyDrawingShape);
+                    });
+                }
+            }
+            if (resolved) {
+                resolve(null);
+            }
+        });
+    }
+
+    updateShape(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, type: DrawingShapeTypes, processStepId?: GuidValue, customLinkId?: GuidValue) {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            let resolved = true;
+
+            if (definition.shapeTemplate) {
+                let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
+                if (oldShapeIndex > -1) {
+                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+
+                    let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
+                    let currentLeft = fabricShapeObject.left;
+                    let currentTop = fabricShapeObject.top;
+
+                    this.drawingShapes.splice(oldShapeIndex, 1);
+                    (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+
+
+                    currentDrawingShape.title = title;
+                    delete currentDrawingShape['processStepId'];
+                    delete currentDrawingShape['linkId'];
+                    currentDrawingShape.type = type;
+                    if (type == DrawingShapeTypes.ProcessStep) {
+                        (currentDrawingShape as DrawingProcessStepShape).processStepId = processStepId;
+                    }
+                    if (type == DrawingShapeTypes.CustomLink) {
+                        (currentDrawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                    }
+                    currentDrawingShape.shape = {
+                        name: definition.shapeTemplate.name,
+                        nodes: null,
+                        definition: definition
+                    };
+                    resolved = false;
+
+                    this.addShapeFromTemplateClassName(currentDrawingShape, false, currentLeft, currentTop).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
                 }

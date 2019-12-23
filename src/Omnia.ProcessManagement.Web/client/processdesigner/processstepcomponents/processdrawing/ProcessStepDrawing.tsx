@@ -98,7 +98,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
         let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        this.drawingCanvasEditor.updateShapeDefinition(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title);
+        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.shapeType, drawingOptions.processStepId, drawingOptions.customLinkId);
 
         setTimeout(() => {
             this.saveState(true);
@@ -158,10 +158,9 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
         else {
             return <omfx-dialog
-                onClose={this.closeAddShapePanel}
                 model={{ visible: true }}
                 maxWidth="800px"
-                hideCloseButton={false}
+                hideCloseButton={true}
                 dark={this.omniaTheming.promoted.header.dark}
                 contentClass={this.omniaTheming.promoted.body.class}
                 position={DialogPositions.Center}

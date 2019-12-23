@@ -237,8 +237,9 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (!srcDrawingCanvasListing[canvasId]) {
             let canvasSize = 100;
             let iconSize = drawingShapeDefinition.textPosition == TextPosition.Center ? canvasSize : 80;
-            let shapeIconWidth = drawingShapeDefinition.width;
-            let shapeIconHeight = drawingShapeDefinition.height;
+            let shapeIconWidth = this.getNumber(drawingShapeDefinition.width);
+            let shapeIconHeight = this.getNumber(drawingShapeDefinition.height);
+
             if (shapeIconWidth > shapeIconHeight) {
                 if (shapeIconWidth > iconSize) {
                     shapeIconHeight = (shapeIconHeight / shapeIconWidth) * iconSize;
@@ -265,6 +266,12 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
 
             srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, false, 0, 0);
         }
+    }
+
+    private getNumber(value: any) {
+        if (typeof (value) == 'string')
+            return parseInt(value);
+        return value;
     }
 
     private groupDefinitionsByHeading() {
