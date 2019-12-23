@@ -3,12 +3,14 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import './AddShape.css';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { AddShapeStep } from '../../../../models/processdesigner';
+import { AddShapePanelStyles } from '../../../../fx/models';
+import './AddShape.css';
 
 export interface AddShapePanelProps {
     
@@ -23,9 +25,7 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private headingStyle: typeof HeadingStyles = {
-        wrapper: DialogStyles.heading
-    };
+    private addShapePanelStyles = StyleFlow.use(AddShapePanelStyles);
 
     created() {
         this.init();
@@ -67,7 +67,7 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
 
     private renderStepContents(h, wizardSteps: Array<AddShapeStep>) {
         return wizardSteps.map((stepItem, idx) =>
-            <v-stepper-content step={idx + 1}>
+            <v-stepper-content step={idx + 1} class={this.addShapePanelStyles.stepWrapper}>
                 {
                     idx == this.addShapeWizardStore.currentStepIndex.state - 1 ?
                         h(stepItem.elementToRender) : null
@@ -84,12 +84,16 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
 
     render(h) {
         return <div>
-            <div class={this.omniaTheming.promoted.header.class}>
-                <omfx-heading styles={this.headingStyle} size={0}>{this.dialogTitle}</omfx-heading>
-            </div>
-            <div>
+            <v-toolbar color={this.omniaTheming.promoted.body.primary.base} flat dark>
+                <v-toolbar-title>{this.dialogTitle}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon onClick={this.onClose}>
+                    <v-icon>close</v-icon>
+                </v-btn>
+            </v-toolbar>
+            <v-container class="pa-0">
                 {this.renderSteps()}
-           </div>
+            </v-container>
         </div>;      
     }
 }

@@ -5,6 +5,9 @@ StyleFlow.define(ShapeTypeStyles, {
     canvasPreviewWrapper: {
         maxWidth: '100%',
         maxHeight: '300px',
-        overflow: 'auto'        
-    }    
+        overflow: 'auto'
+    },
+    drawingSettingsWrapper: {
+       
+    }
 });

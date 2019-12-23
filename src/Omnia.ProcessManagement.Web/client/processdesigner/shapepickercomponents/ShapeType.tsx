@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore,  ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -45,7 +45,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     shapeTypeStepStyles = StyleFlow.use(ShapeTypeStyles);
     private drawingCanvas: DrawingCanvas = null;
     private internalShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
-    private selectedShapeType: DrawingShapeTypes = DrawingShapeTypes.ProcessStep;
+    private selectedShapeType: DrawingShapeTypes = null;
     private previewCanvasId: GuidValue = Guid.newGuid();
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
@@ -132,7 +132,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private onSelectedShapeType() {
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
-        this.selectedCustomLinkId = !this.isHideCreateNew ? Guid.empty : null;
+        this.selectedCustomLinkId = Guid.empty;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
@@ -193,9 +193,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     });
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false, 0, 0);
             });
-            setTimeout(() => {
-               
-            }, 200);
         }
     }
 
@@ -212,8 +209,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
     private renderShapeTypeOptions(h) {
-        return <v-container>
-            <v-row>
+        return <v-container class="pa-0">
+            <v-row dense>
                 <v-col cols="6">
                     <v-select item-value="value" item-text="title" items={this.shapeTypes} label={this.pdLoc.ShapeType}
                         onChange={this.onSelectedShapeType} v-model={this.selectedShapeType}></v-select>
@@ -235,10 +232,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         model={this.shapeTitle}
                         onModelChange={(title) => { this.shapeTitle = title; this.updateDrawedShape(); }}
                         forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
-                    {this.renderChangeShapeSection(h)}
                 </v-col>
                 <v-col cols="6">
                     {this.renderShapePreview(h)}
+                    <div class="mt-2">
+                        {this.renderChangeShapeSection(h)}
+                    </div>
                 </v-col>
             </v-row>
         </v-container>;
@@ -277,7 +276,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }];
         let customLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
         if (customLinks) {
-            customLinkOptions = customLinkOptions.concat(customLinks.map(item => {
+            customLinkOptions = customLinkOptions.concat(customLinks.filter(item => item.linkType != Enums.LinkType.Heading).map(item => {
                 return {
                     id: item.id,
                     title: this.multilingualStore.getters.stringValue(item.title)
@@ -314,13 +313,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             position={DialogPositions.Center}
         >
             <div style={{ height: '100%' }}>
-              
+                <opm-processdesigner-createlink onClose={this.closeCreateLinkDialog} onSave={this.createLinkCallback} linkType={Enums.LinkType.CustomLink} isProcessStepShortcut={false}></opm-processdesigner-createlink>
             </div>
         </omfx-dialog>;
 
     }
     private renderShapeSettings(h) {
-        return <v-container>           
+        return <v-container class={this.shapeTypeStepStyles.drawingSettingsWrapper}>           
             <v-row dense>
                 <v-col cols="6">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}

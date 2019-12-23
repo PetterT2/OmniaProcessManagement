@@ -70,6 +70,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
         this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape);
         this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape);
+        this.processDesignerStore.mutations.deleteSelectingDrawingShape.onCommited(this.onDeletedShape);
     }
 
     private onCanvasDefinitionChanged() {
@@ -84,6 +85,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private initDrawingCanvas() {     
         setTimeout(() => {
             this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, this.onClickEditShape, this.onShapeChangeByUser);
+            this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
         }, 300);
         //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
@@ -96,13 +98,26 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
     }
 
+    private onSelectingShape(shape: DrawingShape) {
+        this.processDesignerStore.mutations.setSelectingShape.commit(shape);
+    }
+
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
         let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        this.drawingCanvasEditor.updateShapeDefinition(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title);
+        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.shapeType, drawingOptions.processStepId, drawingOptions.customLinkId);
 
         setTimeout(() => {
             this.saveState(true);
         }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+    }
+
+    private onDeletedShape() {
+        if (this.processDesignerStore.getters.selectingShape() != null) {
+            this.drawingCanvasEditor.deleteShape(this.processDesignerStore.getters.selectingShape());
+            setTimeout(() => {
+                this.saveState(true);
+            }, 200);
+        }
     }
 
     private onClickEditShape(selectedShape: DrawingShape) {
@@ -158,10 +173,9 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
         else {
             return <omfx-dialog
-                onClose={this.closeAddShapePanel}
                 model={{ visible: true }}
                 maxWidth="800px"
-                hideCloseButton={false}
+                hideCloseButton={true}
                 dark={this.omniaTheming.promoted.header.dark}
                 contentClass={this.omniaTheming.promoted.body.class}
                 position={DialogPositions.Center}

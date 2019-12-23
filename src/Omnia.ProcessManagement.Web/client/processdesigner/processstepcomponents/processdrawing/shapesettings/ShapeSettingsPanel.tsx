@@ -70,11 +70,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             title: this.selectedShape.title
         };
 
-        if (this.selectedShape.type = DrawingShapeTypes.ProcessStep) {
-            this.currentProcessStore.actions.ensureShortcut.dispatch(this.selectedProcessStepId).then(() => {
-                this.shortcutDesignerItem = new ProcessStepShortcutDesignerItem();
-            });
-        }
+        this.initShortcut();
 
         this.processDesignerStore.mutations.initFormValidator.commit(this);
     }
@@ -92,11 +88,26 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (this.processDesignerStore.formValidator.validateAll()) {
             this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
             this.processDesignerStore.mutations.updateDrawingShape.commit(this.drawingShapeOptions);
+            this.processDesignerStore.mutations.setSelectingShape.commit(null);
+        }
+    }
+
+    initShortcut() {
+        if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep) {
+            this.currentProcessStore.actions.ensureShortcut.dispatch(this.drawingShapeOptions.processStepId).then(() => {
+                this.shortcutDesignerItem = new ProcessStepShortcutDesignerItem();
+            });
         }
     }
         
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
+        let previousType = this.drawingShapeOptions.shapeType;
+        let previousProcessStepId = this.drawingShapeOptions.processStepId;
+
         this.drawingShapeOptions = drawingOptions;
+        if (previousType != drawingOptions.shapeType || previousProcessStepId != drawingOptions.processStepId) {
+            this.initShortcut();
+        }
 
         if (this.lockedSubmitShapeSettings) {
             this.lockedSubmitShapeSettings = false;
@@ -196,7 +207,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
                 </v-btn>
             </v-toolbar>
             <v-container>
-                {this.selectedShape.type != DrawingShapeTypes.ProcessStep ? this.renderDrawingSettings(h) : this.renderShortcutSettings(h)}
+                {(this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep && this.drawingShapeOptions.processStepId != null) ? this.renderShortcutSettings(h) : this.renderDrawingSettings(h)}
             </v-container>
         </div>
     }

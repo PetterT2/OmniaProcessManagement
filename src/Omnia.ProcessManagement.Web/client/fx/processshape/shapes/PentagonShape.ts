@@ -49,7 +49,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             fabricGroupObjects.push(rectShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}, title));
+            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}), title);
             this.fabricShapes.push(textShape);
             fabricTextObject = textShape.fabricObject;
         }

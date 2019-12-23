@@ -17,6 +17,7 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     @Prop() onSave: (link: Link) => void;
     @Prop() linkId?: GuidValue;
     @Prop() linkType: Enums.LinkType;
+    @Prop() isProcessStepShortcut: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -33,7 +34,7 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     }
 
     init() {
-        this.processStepLinks = this.currentProcessStore.getters.referenceData().current.processData.links;
+        this.processStepLinks = this.currentProcessStepReferenceData.processData.links;
 
         if (this.processStepLinks) {
             var existedLink = this.processStepLinks.find((item) => item.id == this.linkId);
@@ -43,12 +44,20 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
             }
         }
         else {
-            this.processStepLinks = this.currentProcessStore.getters.referenceData().current.processData.links = [];
+            this.processStepLinks = this.currentProcessStepReferenceData.processData.links = [];
         }
         if (!this.editingLink) {
             this.editingLink = this.initDefaultLink();
             this.isNew = true;
         }
+    }
+
+    get currentProcessStepReferenceData() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (!this.isProcessStepShortcut) {
+            return referenceData.current;
+        }
+        return referenceData.shortcut;
     }
 
     private initDefaultLink(): Link {

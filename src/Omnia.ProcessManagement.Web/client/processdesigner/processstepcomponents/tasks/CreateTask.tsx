@@ -16,6 +16,7 @@ export class CreateTaskComponent extends VueComponentBase implements IWebCompone
     @Prop() onClose: () => void;
     @Prop() onSave: (task: Task) => void;
     @Prop() taskId?: GuidValue;
+    @Prop() isProcessStepShortcut: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -32,7 +33,7 @@ export class CreateTaskComponent extends VueComponentBase implements IWebCompone
     }
 
     init() {
-        this.processStepTasks = this.currentProcessStore.getters.referenceData().current.processData.tasks;
+        this.processStepTasks = this.currentProcessStepReferenceData.processData.tasks;
 
         if (this.processStepTasks) {
             var existedTask = this.processStepTasks.find((item) => item.id == this.taskId);
@@ -42,12 +43,20 @@ export class CreateTaskComponent extends VueComponentBase implements IWebCompone
             }
         }
         else {
-            this.processStepTasks = this.currentProcessStore.getters.referenceData().current.processData.tasks = [];
+            this.processStepTasks = this.currentProcessStepReferenceData.processData.tasks = [];
         }
         if (!this.editingTask) {
             this.editingTask = this.initDefaultTask();
             this.isNew = true;
         }
+    }
+
+    get currentProcessStepReferenceData() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (!this.isProcessStepShortcut) {
+            return referenceData.current;
+        }
+        return referenceData.shortcut;
     }
 
     private initDefaultTask(): Task {

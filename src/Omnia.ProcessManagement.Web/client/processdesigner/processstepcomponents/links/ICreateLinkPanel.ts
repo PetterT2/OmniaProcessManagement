@@ -14,6 +14,9 @@ export interface ICreateLinkPanel {
     linkType: Enums.LinkType;
 
     /*@DomProperty*/
+    isProcessStepShortcut?: boolean;
+
+    /*@DomProperty*/
     linkId?: GuidValue;
 
 }
