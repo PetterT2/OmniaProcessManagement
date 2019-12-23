@@ -174,7 +174,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
                             throw new Exception("This task is not belong to current user");
                         }
 
-
                         approvalTask.Process = await ProcessService.GetProcessByOPMProcessIdAsync(dbWorkflow.OPMProcessId, DraftOrLatestPublishedVersionType.Draft);
 
                         await PublishProcessService.CompleteWorkflowAsync(approvalTask);

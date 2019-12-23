@@ -72,6 +72,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model = new Models.Workflows.Workflow();
                 model.Id = entity.Id;
                 model.OPMProcessId = entity.OPMProcessId;
+                model.Edition = entity.Edition;
                 model.WorkflowData = JsonConvert.DeserializeObject<WorkflowData>(entity.JsonValue);
                 model.DueDate = entity.DueDate;
                 model.CompletedType = entity.CompletedType;
@@ -93,6 +94,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             var entity = new Entities.Workflows.Workflow();
             entity.Id = model.Id;
             entity.OPMProcessId = model.OPMProcessId;
+            entity.Edition = model.Edition;
             entity.DueDate = model.DueDate;
             entity.CompletedType = model.CompletedType;
             entity.Type = model.WorkflowData.Type;
@@ -112,6 +114,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model.IsCompleted = entity.IsCompleted;
                 model.Comment = entity.Comment;
                 model.SPTaskId = entity.SPTaskId;
+                model.TeamAppId = entity.TeamAppId;
             }
 
             return model;

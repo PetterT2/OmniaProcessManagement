@@ -20,7 +20,8 @@ namespace Omnia.ProcessManagement.Models.Enums
         CancellingApproval = 9,
         CancellingApprovalFailed = 10,
 
-        SyningToSharePoint = 11
+        SyncingToSharePoint = 11,
+        SyncingToSharePointFailed = 12
 
     }
 }

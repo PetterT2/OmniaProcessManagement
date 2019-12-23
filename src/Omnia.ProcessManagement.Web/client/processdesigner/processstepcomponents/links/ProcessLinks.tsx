@@ -38,7 +38,6 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
-    private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private openLinkPicker: boolean = false;
     private selectedLink: Link;
     private orderLinks: Array<Link> = [];
@@ -59,8 +58,6 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
     }
 
     beforeDestroy() {
-        if (this.subscriptionHandler)
-            this.subscriptionHandler.unsubscribe();
     }
 
     openAddLinksForm(type: Enums.LinkType) {

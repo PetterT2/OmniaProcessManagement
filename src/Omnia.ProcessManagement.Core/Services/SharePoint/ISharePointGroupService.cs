@@ -9,7 +9,8 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
     {
         ValueTask<Group> TryGetGroupByNameAsync(PortableClientContext ctx, Web web, string groupName);
         ValueTask<Group> TryGetGroupByIdAsync(PortableClientContext ctx, Web web, int groupId);
-        ValueTask<Group> EnsureGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName, List<RoleDefinition> roles, Principal owner = null);
-        ValueTask<List<Group>> EnsureGroupsOnWebAsync(PortableClientContext ctx, Web web, List<string> groupNames, List<RoleDefinition> roles, Principal owner = null);
+        ValueTask<Group> EnsureGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName, List<RoleDefinition> roles, Principal owner = null, List<User> users = null);
+        ValueTask<List<Group>> EnsureGroupsOnWebAsync(PortableClientContext ctx, Web web, List<string> groupNames, List<RoleDefinition> roles, Principal owner = null, List<User> users = null);
+        ValueTask EnsureRemoveGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName);
     }
 }

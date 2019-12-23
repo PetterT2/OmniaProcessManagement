@@ -18,6 +18,8 @@ namespace Omnia.ProcessManagement.Models.Workflows
 
         public Guid OPMProcessId { get; set; }
 
+        public int Edition { get; set; }
+
         public WorkflowCompletedType CompletedType { get; set; }
 
         public DateTimeOffset? DueDate { get; set; }

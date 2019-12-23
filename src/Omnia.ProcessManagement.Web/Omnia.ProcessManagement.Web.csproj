@@ -119,6 +119,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\RootProcessStep.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\Task.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
@@ -239,7 +240,6 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\ProcessContent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\ProcessDocuments.tsx" />
-    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ICreateLinkPanel.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\index.ts" />
@@ -259,8 +259,11 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettings.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\processdrawing\shapesettings\ShapeSettingsPanel.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\CreateTask.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ICreateTask.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\Tasks.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\AddShapeWizardStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessDesignerPanelStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessLinksStore.ts" />
