@@ -9,11 +9,13 @@ using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.Helpers.Processes;
+using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
+using Omnia.ProcessManagement.Models.Settings;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
 using System.Collections.Generic;
@@ -35,7 +37,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         IEmailService EmailService { get; }
         IOmniaScopedContext OmniaScopedContext { get; }
         IMultilingualHelper MultilingualHelper { get; }
-
+        ISharePointGroupService SharePointGroupService { get; }
+        ISettingsService SettingsService { get; }
+        ISharePointPermissionService SharePointPermissionService { get; }
         public ApprovalTaskService(ISharePointClientContextProvider sharePointClientContextProvider,
           IWorkflowService workflowService,
           IWorkflowTaskService workflowTaskService,
@@ -44,7 +48,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
           IEmailService emailService,
           IUserService userService,
           IOmniaScopedContext omniaScopedContext,
-          IMultilingualHelper multilingualHelper)
+          IMultilingualHelper multilingualHelper,
+          ISharePointGroupService sharePointGroupService,
+          ISharePointPermissionService sharePointPermissionService,
+          ISettingsService settingsService)
         {
             WorkflowService = workflowService;
             WorkflowTaskService = workflowTaskService;
@@ -55,6 +62,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             EmailService = emailService;
             OmniaScopedContext = omniaScopedContext;
             MultilingualHelper = multilingualHelper;
+            SharePointGroupService = sharePointGroupService;
+            SharePointPermissionService = sharePointPermissionService;
+            SettingsService = settingsService;
         }
 
         public async ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request)
@@ -83,13 +93,23 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         public async ValueTask<int> AddSharePointTaskAndSendEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, Process process, string webUrl)
         {
-            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl, true);
-            var approverSPUser = appContext.Web.EnsureUser(workflowApprovalData.Approver.Uid);
-            var authorSPUser = appContext.Web.EnsureUser(workflow.CreatedBy);
+            var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
 
-            appContext.Load(approverSPUser, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
-            appContext.Load(authorSPUser, us => us.Id, us => us.Title);
-            await appContext.ExecuteQueryAsync();
+            if (siteGroupIdSettings == null)
+                throw new Exception("Cannot get Author SharePoint group");
+
+            PortableClientContext appCtx = SharePointClientContextProvider.CreateClientContext(webUrl, true);
+
+            var authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(appCtx, appCtx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
+            if (authorGroup == null)
+                throw new Exception($"Cannot get Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
+
+            var approverSPUser = appCtx.Web.EnsureUser(workflowApprovalData.Approver.Uid);
+            var authorSPUser = appCtx.Web.EnsureUser(workflow.CreatedBy);
+
+            appCtx.Load(approverSPUser, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
+            appCtx.Load(authorSPUser, us => us.Id, us => us.Title);
+            await appCtx.ExecuteQueryAsync();
 
             //var approverUser = (await UserService.GetByPrincipalNamesAsync(new List<string> { workflowApprovalData.Approver.Uid })).FirstOrDefault();
 
@@ -114,8 +134,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverSPUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, authorSPUser.Id);
-            List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
-            ListItem taskListItem = await SharePointListService.AddListItemAsync(appContext, taskList, keyValuePairs);
+            List taskList = await SharePointListService.GetListByUrlAsync(appCtx, OPMConstants.SharePoint.ListUrl.TaskList);
+            ListItem taskListItem = await SharePointListService.AddListItemAsync(appCtx, taskList, keyValuePairs);
+
+            string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
+            var temporaryApprovalGroup = await SharePointGroupService.EnsureGroupOnWebAsync(appCtx, appCtx.Web, temporaryApprovalGroupTitle,
+                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.RestrictedReader) }, null, new List<User> { approverSPUser });
+
+            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
+            roleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
+            roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
+
+            await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, roleAssignments);
 
             await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl);
 
@@ -126,11 +156,25 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         {
             PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl, true);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
-            ListItem taskListItem = taskList.GetItemById(workflow.WorkflowTasks.FirstOrDefault().SPTaskId);
+            var workflowTask = workflow.WorkflowTasks.FirstOrDefault();
+            if (workflowTask == null)
+            {
+                throw new Exception($"Workflow task not found in approval workflow: {workflow.Id}");
+            }
+
+            ListItem taskListItem = taskList.GetItemById(workflowTask.SPTaskId);
             taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_Status] = Models.Workflows.TaskStatus.Cancel.ToString();
             taskListItem[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] = 1;
             taskListItem.Update();
             await appContext.ExecuteQueryAsync();
+
+            var approvalUser = appContext.Web.EnsureUser(workflowTask.AssignedUser);
+            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
+            roleAssignments.Add(approvalUser, new List<RoleType> { RoleType.Reader });
+
+            await SharePointPermissionService.BreakListItemPermissionAsync(appContext, taskListItem, false, false, roleAssignments);
+            string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
+            await SharePointGroupService.EnsureRemoveGroupOnWebAsync(appContext, appContext.Web, temporaryApprovalGroupTitle);
 
             await SendCancellWorkflowEmail(workflow, process);
         }
@@ -154,6 +198,14 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             taskItem[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome] = approvalTask.TaskOutcome;
             taskItem.Update();
             await appContext.ExecuteQueryAsync();
+
+            var approvalUser = appContext.Web.EnsureUser(approvalTask.AssignedUser);
+            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
+            roleAssignments.Add(approvalUser, new List<RoleType> { RoleType.Reader });
+
+            await SharePointPermissionService.BreakListItemPermissionAsync(appContext, taskItem, false, false, roleAssignments);
+            string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + approvalTask.Process.OPMProcessId.ToString().ToLower();
+            await SharePointGroupService.EnsureRemoveGroupOnWebAsync(appContext, appContext.Web, temporaryApprovalGroupTitle);
         }
 
         private async ValueTask SendForApprovalEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, User approverSPUser, User authorSPUser, string processTitle, string taskTitle, int taskListItemId, string webUrl)

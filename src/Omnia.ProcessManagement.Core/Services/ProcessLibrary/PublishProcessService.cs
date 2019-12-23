@@ -84,6 +84,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SentForApproval, false);
 
                 var spTaskItemId = await ApprovalTaskService.AddSharePointTaskAndSendEmailAsync(workflow, workflowApprovalData, process, webUrl);
+
                 await WorkflowTaskService.CreateAsync(workflow.Id, workflowApprovalData.Approver.Uid, spTaskItemId, process.TeamAppId);
                 await ProcessSecurityService.AddOrUpdateOPMApproverPermissionAsync(process.OPMProcessId, workflowApprovalData.Approver.Uid);
             });

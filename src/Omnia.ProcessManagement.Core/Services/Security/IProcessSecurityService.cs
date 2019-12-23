@@ -28,7 +28,6 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         /// <param name="limitedUserItentities">null mean using default reader</param>
         /// <returns></returns>
         ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null);
-
         ValueTask AddOrUpdateOPMApproverPermissionAsync(Guid opmProcessId, string userLoginName);
         ValueTask RemoveOPMApproverPermissionAsync(Guid opmProcessId);
     }

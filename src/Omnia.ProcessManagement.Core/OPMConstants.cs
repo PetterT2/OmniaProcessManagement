@@ -169,6 +169,13 @@ namespace Omnia.ProcessManagement.Core
             public const string ProcessLibraryComponent = "opm-process-library";
         }
 
+        public static class TemporaryGroupPrefixes
+        {
+            public const string ReviewsGroup = "Temporary Process Reviewers ";
+            public const string ApproversGroup = "Temporary Process Approvers ";
+        }
+
+
         public static class LocalizedTextKeys
         {
             public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");

@@ -14,19 +14,19 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
         {
         }
 
-        public async ValueTask<List<Group>> EnsureGroupsOnWebAsync(PortableClientContext ctx, Web web, List<string> groupNames, List<RoleDefinition> roles, Principal owner = null)
+        public async ValueTask<List<Group>> EnsureGroupsOnWebAsync(PortableClientContext ctx, Web web, List<string> groupNames, List<RoleDefinition> roles, Principal owner = null, List<User> users = null)
         {
             List<Group> groups = new List<Group>();
-            foreach (var definition in groupNames)
+            foreach (var groupName in groupNames)
             {
-                Group addedGroup = await EnsureGroupOnWebAsync(ctx, web, definition, roles, owner);
+                Group addedGroup = await EnsureGroupOnWebAsync(ctx, web, groupName, roles, owner, users);
                 ctx.Load(addedGroup);
                 groups.Add(addedGroup);
             }
             await ctx.ExecuteQueryAsync();
             return groups;
         }
-        public async ValueTask<Group> EnsureGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName, List<RoleDefinition> roles, Principal owner = null)
+        public async ValueTask<Group> EnsureGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName, List<RoleDefinition> roles, Principal owner = null, List<User> users = null)
         {
             var existingGroup = await TryGetGroupByNameAsync(ctx, web, groupName);
 
@@ -38,12 +38,18 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                 });
                 if (owner != null) existingGroup.Owner = owner;
                 existingGroup.Update();
-                await web.Context.ExecuteQueryAsync();
+                await ctx.ExecuteQueryAsync();
+            }
+
+            if (users != null && users.Any())
+            {
+                users.ForEach(user => existingGroup.Users.AddUser(user));
+                await ctx.ExecuteQueryAsync();
             }
 
             if (roles.Count > 0)
             {
-                await EnsureRoleDefinitionBindingsOnGroup(ctx, web, existingGroup, roles);
+                await EnsureUsersAndRoleDefinitionBindingsOnGroup(ctx, web, existingGroup, roles);
             }
 
             return existingGroup;
@@ -51,7 +57,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
 
         public async ValueTask<Group> TryGetGroupByNameAsync(PortableClientContext ctx, Web web, string groupName)
         {
-            await ctx.LoadIfNeeded(web, w => w.SiteGroups).ExecuteQueryIfNeededAsync();         
+            await ctx.LoadIfNeeded(web, w => w.SiteGroups).ExecuteQueryIfNeededAsync();
             return web.SiteGroups.FirstOrDefault(r => r.Title == groupName);
         }
 
@@ -61,11 +67,23 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             return web.SiteGroups.FirstOrDefault(r => r.Id == groupId);
         }
 
-        public async ValueTask EnsureRoleDefinitionBindingsOnGroup(PortableClientContext ctx, Web web, Group group, List<RoleDefinition> roles)
+        public async ValueTask EnsureRemoveGroupOnWebAsync(PortableClientContext ctx, Web web, string groupName)
+        {
+            var existingGroup = await TryGetGroupByNameAsync(ctx, web, groupName);
+
+            if (existingGroup != null)
+            {
+                web.SiteGroups.Remove(existingGroup);
+                await web.Context.ExecuteQueryAsync();
+            }
+        }
+
+        private async ValueTask EnsureUsersAndRoleDefinitionBindingsOnGroup(PortableClientContext ctx, Web web, Group group, List<RoleDefinition> roles)
         {
             var roleBindings = new RoleDefinitionBindingCollection(ctx);
             roles.ForEach(r => roleBindings.Add(r));
             web.RoleAssignments.Add(group, roleBindings);
+
             ctx.Load(group);
             await ctx.ExecuteQueryAsync();
         }
