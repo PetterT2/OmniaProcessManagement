@@ -6,13 +6,13 @@ import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, Dialog
 import { IPermissionDialog } from './IPermissionDialog';
 import { PermissionDialogStyles } from '../../models';
 import './PermissionDialog.css';
-import { PrincipalService, SharePointContext, AssociatedGroup, SiteGroupMembership } from '@omnia/fx-sp';
-import { SiteGroup } from '@omnia/fx-sp-models';
+import { PrincipalService } from '@omnia/fx-sp';
 import { OPMPermissionDialogLocalization } from './loc/localize';
-import { PermissionInputSettings, UserPrincipalType, Parameters, UserIdentity, PermissionBinding, SecurityIdentities, RolePermissionSetting, RoleDefinitions } from '@omnia/fx-models';
-import { Enums, Security } from '../../fx/models';
+import { Parameters, UserIdentity, PermissionBinding, SecurityIdentities, RolePermissionSetting, RoleDefinitions } from '@omnia/fx-models';
+import { Enums, Security, AuthorAndDefaultReaderUpdateInput } from '../../fx/models';
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../fx/contexts';
+import { PermissionService } from '../../fx';
 
 declare var Zepto: any;
 
@@ -23,8 +23,8 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
 
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(PrincipalService) principalService: PrincipalService;
     @Inject(SecurityService) securityService: SecurityService;
+    @Inject(PermissionService) permissionService: PermissionService;
     @Inject(OPMContext) opmContext: OPMContext;
 
     @Localize(OPMPermissionDialogLocalization.namespace) loc: OPMPermissionDialogLocalization.locInterface;
@@ -70,7 +70,6 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     }
 
     loadData() {
-
         return new Promise<void>((resolve, reject) => {
             this.securityService.getPermissionBindings([Security.OPMRoleDefinitions.Author, Security.OPMRoleDefinitions.Reader], this.contextParams).then((result) => {
                 if (result[Security.OPMRoleDefinitions.Author] && result[Security.OPMRoleDefinitions.Reader]) {
@@ -108,41 +107,17 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
         return [permissionBinding.identity];
     }
 
-    mapToRolePermissionSetting(roleId: string, identities: UserIdentity[]): RolePermissionSetting {
-        const result: RolePermissionSetting = {
-            roleId,
-            identities: [],
-            groups: [],
-            userDefinedRules: []
-        };
-        const userDefinedRulesIdentities: string[] = [
-            RoleDefinitions.InternalUsersOnly,
-            RoleDefinitions.AuthorizedUsers
-        ];
-
-        for (const identity of identities) {
-            if (userDefinedRulesIdentities.indexOf(identity.uid) >= 0) {
-                result.userDefinedRules.push({ roleId: identity.uid });
-            }
-            else if (identity.uid.indexOf('@') == -1) {
-                result.groups.push(identity.uid);
-            }
-            else {
-                result.identities.push(identity.uid);
-            }
-        }
-        return result;
-    }
-
-    save() {
-        let rolePermissionSetting: Array<RolePermissionSetting> = [];
-
-        rolePermissionSetting.push(this.mapToRolePermissionSetting(Security.OPMRoleDefinitions.Author, this.authors));
-        rolePermissionSetting.push(this.mapToRolePermissionSetting(Security.OPMRoleDefinitions.Reader, this.defaultReaders));
-
+    save() {  
         this.isSaving = true;
+
+        let updateInput: AuthorAndDefaultReaderUpdateInput = {
+            teamAppId: this.opmContext.teamAppId,
+            authors: this.authors,
+            defaultReaders: this.defaultReaders
+        }
+
         this.errMsg = "";
-        this.securityService.addOrUpdatePermissionBindings(rolePermissionSetting, this.contextParams).then(() => {
+        this.permissionService.updateOPMPermissions(updateInput).then(() => {
             this.isSaving = false;
             this.close();
         }).catch(errMsg => {
@@ -150,7 +125,6 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
             this.errMsg = errMsg;
         })
     }
-
 
 
     renderPermissions() {

@@ -129,6 +129,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\security\AuthorAndDefaultReaderUpdateInput.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\security\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\GlobalSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
@@ -178,6 +180,7 @@
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepDrawingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\routing\index.ts" />
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
+    <TypeScriptCompile Remove="client\fx\services\PermissionService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />

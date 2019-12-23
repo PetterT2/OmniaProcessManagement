@@ -115,6 +115,23 @@ namespace Omnia.ProcessManagement.Core
 
         public static class SharePoint
         {
+            public static class SharepointType
+            {
+                public const string Text = "Text";
+                public const string Boolean = "Boolean";
+                public const string Integer = "Integer";
+                public const string DateTime = "DateTime";
+                public const string File = "File";
+                public const string Note = "Note";
+                public const string User = "User";
+                public const string UserId = "UserId";
+                public const string Number = "Number";
+                public const string UserMulti = "UserMulti";
+                public const string String = "String";
+                public const string TaxonomyFieldType = "TaxonomyFieldType";
+                public const string TaxonomyFieldTypeMulti = "TaxonomyFieldTypeMulti";
+                public const string Counter = "Counter";
+            }
             public static class ListUrl
             {
                 public const string PublishList = "OPMPublishedProcesses";

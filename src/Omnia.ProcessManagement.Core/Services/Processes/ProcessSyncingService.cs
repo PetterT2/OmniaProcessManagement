@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Taxonomy;
+using Newtonsoft.Json;
 using Omnia.Fx.EnterpriseProperties;
 using Omnia.Fx.Localization;
 using Omnia.Fx.Messaging;
 using Omnia.Fx.Models.EnterpriseProperties;
+using Omnia.Fx.Models.Users;
 using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
@@ -30,13 +33,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 {
     internal class ProcessSyncingService : IProcessSyncingService
     {
-        private static HashSet<string> ProvisionedInternalNames = new HashSet<string>();
-
         ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
         IProcessService ProcessService { get; }
         ITransactionRepository TransactionRepository { get; }
         ISharePointClientContextProvider SharePointClientContextProvider { get; }
-
         ISharePointGroupService SharePointGroupService { get; }
         ISharePointListService SharePointListService { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
@@ -88,11 +88,14 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             List<Microsoft.SharePoint.Client.User> limitedReadAccessUser = null;
             Microsoft.SharePoint.Client.Group authorGroup = null;
 
+            var (enterpriseProperties, cache) = await EnterprisePropertyService.GetAllAsync();
+            var enterprisePropertyDict = enterpriseProperties.ToDictionary(e => e.InternalName, e => e);
+
             if (process.SecurityResourceId == process.OPMProcessId.ToString())
             {
                 limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
-            }
-            else {
+
+
                 var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
 
                 if (siteGroupIdSettings == null)
@@ -107,15 +110,16 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var internalNames = process.RootProcessStep.EnterpriseProperties.Keys.ToList();
 
-            var ensuredSharePointNewFields = await EnsureSharePointFieldsAsync(ctx, internalNames, publishedList, OPMConstants.SharePoint.ListUrl.PublishList);
+            var ensuredSharePointNewFields = await EnsureSharePointFieldsAsync(ctx, internalNames, publishedList, OPMConstants.SharePoint.ListUrl.PublishList, enterprisePropertyDict);
             if (ensuredSharePointNewFields)
             {
                 ctx = SharePointClientContextProvider.CreateClientContext(spUrl, true);
+                ctx.Load(ctx.Web);
+                ctx.Load(ctx.Web, w => w.Language);
                 publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
             }
 
-            var folderUrl = process.OPMProcessId.ToString();
-            var folder = await SharePointListService.EnsureChildFolderAsync(ctx, publishedList.RootFolder, folderUrl, true);
+            var folderItem = await SyncProcessToPublishedListAsync(ctx, publishedList, process, enterprisePropertyDict);
 
             if (limitedReadAccessUser != null)
             {
@@ -123,14 +127,281 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 limitedReadAccessUser.ForEach(user => roleAssignments.Add(user, new List<RoleType> { RoleType.Reader }));
                 roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
-                await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folder.ListItemAllFields, false, false, roleAssignments);
+                await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folderItem, false, false, roleAssignments);
             }
         }
 
-        private async ValueTask<bool> EnsureSharePointFieldsAsync(PortableClientContext appContext, List<string> internalNames, Microsoft.SharePoint.Client.List listWithFields, string listRelativeUrl)
+        private async ValueTask<ListItem> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        {
+            var folderItem = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
+            var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
+
+            var fileItem = publishedList.AddItem(new ListItemCreationInformation
+            {
+                UnderlyingObjectType = FileSystemObjectType.File,
+                LeafName = fileName,
+                FolderUrl = $"{folderItem.Folder.ServerRelativeUrl}"
+            });
+
+            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, process, enterprisePropertyDict);
+            await ctx.ExecuteQueryAsync();
+
+            return folderItem;
+        }
+
+        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        {
+            var language = CultureUtils.GetCultureInfo((int)ctx.Web.Language);
+            var processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, language.Name, null);
+
+            var (userValuesMapToSharePointFieldInternalNameDict, termCollectionMapToSharePointFieldInternalNameDict, termStoreDefaultLanguage) =
+                await PrepareSharePointFieldDataAsync(ctx, process, enterprisePropertyDict);
+
+
+
+            foreach (var property in process.RootProcessStep.EnterpriseProperties)
+            {
+                var spField = publishedList.Fields.FirstOrDefault(item => item.InternalName == property.Key);
+                var enterpriseProperty = enterprisePropertyDict.GetValueOrDefault(property.Key);
+                if (spField != null && enterpriseProperty != null)
+                {
+                    switch (enterpriseProperty.EnterprisePropertyDataType.IndexedType)
+                    {
+                        case PropertyIndexedType.Taxonomy:
+                            var taxField = ctx.CastTo<TaxonomyField>(spField);
+                            var termCollection = termCollectionMapToSharePointFieldInternalNameDict.GetValueOrDefault(spField.InternalName);
+                            UpdateTaxonomyField(taxField, fileItem, termCollection, termStoreDefaultLanguage);
+                            break;
+                        case PropertyIndexedType.Person:
+                            var userValues = userValuesMapToSharePointFieldInternalNameDict.GetValueOrDefault(spField.InternalName);
+                            UpdatePersonField(spField, fileItem, userValues, spField.InternalName);
+                            break;
+                        case PropertyIndexedType.Text:
+                            fileItem[spField.InternalName] = property.Value.ToString();
+                            break;
+                        case PropertyIndexedType.Boolean:
+                            fileItem[spField.InternalName] = property.Value.ToString() != "true" ? true : false;
+                            break;
+                        case PropertyIndexedType.DateTime:
+                            var dateTimeValue = property.Value.ToString();
+                            if (string.IsNullOrWhiteSpace(dateTimeValue))
+                            {
+                                fileItem[spField.InternalName] = null;
+                            }
+                            else
+                            {
+                                fileItem[spField.InternalName] = dateTimeValue;
+                            }
+                            break;
+                        case PropertyIndexedType.Number:
+                            if (int.TryParse(property.Value.ToString(), out int numberValue))
+                            {
+                                fileItem[spField.InternalName] = numberValue;
+                            }
+                            else
+                            {
+                                fileItem[spField.InternalName] = null;
+                            }
+
+                            break;
+                        default:
+                            throw new Exception($"Enterprise Property with IndexedType {enterpriseProperty.EnterprisePropertyDataType.IndexedType.ToString()} is not supported");
+                    }
+                }
+            }
+
+            fileItem["Title"] = processTitle;
+            fileItem.Update();
+            await ctx.ExecuteQueryAsync();
+        }
+
+        private void UpdatePersonField(Field field, ListItem item, List<FieldUserValue> userValues, string internalFieldName)
+        {
+            if (userValues != null && userValues.Count > 0)
+            {
+                if (field.TypeAsString == OPMConstants.SharePoint.SharepointType.UserMulti)
+                {
+                    item[internalFieldName] = userValues;
+                }
+                else
+                {
+                    item[internalFieldName] = userValues.First();
+                }
+            }
+            else
+            {
+                item[internalFieldName] = null;
+            }
+        }
+
+        private void UpdateTaxonomyField(TaxonomyField taxField, ListItem item, TermCollection termCollection, int lcid)
+        {
+            if (termCollection != null)
+            {
+                if (OPMConstants.SharePoint.SharepointType.TaxonomyFieldTypeMulti == taxField.TypeAsString)
+                {
+                    taxField.SetFieldValueByTermCollection(item, termCollection, lcid);
+                }
+                else
+                {
+                    taxField.SetFieldValueByTerm(item, termCollection.FirstOrDefault(), lcid);
+                }
+            }
+            else
+            {
+                taxField.ValidateSetValue(item, null);
+            }
+        }
+
+        public async ValueTask<(Dictionary<string, List<FieldUserValue>>, Dictionary<string, TermCollection>, int)> PrepareSharePointFieldDataAsync(PortableClientContext ctx, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        {
+            var userDict = new Dictionary<string, Microsoft.SharePoint.Client.User>();
+            var usersMapToSharePointFieldInternalNameDict = new Dictionary<string, List<Microsoft.SharePoint.Client.User>>();
+            var userValuesMapToSharePointFieldInternalNameDict = new Dictionary<string, List<FieldUserValue>>();
+            var termCollectionMapToSharePointFieldInternalNameDict = new Dictionary<string, TermCollection>();
+            var termStoreDefaultLanguage = 0;
+
+            TermStore termStore = null;
+            TaxonomySession taxonomySession = null;
+            foreach (var property in process.RootProcessStep.EnterpriseProperties)
+            {
+                var enterpriseProperty = enterprisePropertyDict.GetValueOrDefault(property.Key);
+
+                if (enterpriseProperty?.EnterprisePropertyDataType?.IndexedType == PropertyIndexedType.Taxonomy)
+                {
+                    var termIds = new List<Guid>();
+                    if(property.Value.ToString() != "")
+                    {
+                        if (property.Key == OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName)
+                        {
+                            termIds.Add(new Guid(property.Value.ToString()));
+                        }
+                        else
+                        {
+                            termIds = property.Value.ToObject<List<Guid>>();
+                        }
+                    }
+
+                    if (termIds.Count > 0)
+                    {
+                        if (taxonomySession == null)
+                        {
+                            taxonomySession = TaxonomySession.GetTaxonomySession(ctx);
+                        }
+
+                        TermCollection termCollection = taxonomySession.GetTermsById(termIds.ToArray());
+                        ctx.Load(termCollection);
+                        termCollectionMapToSharePointFieldInternalNameDict.Add(property.Key, termCollection);
+                    }
+                }
+                else if (enterpriseProperty?.EnterprisePropertyDataType?.IndexedType == PropertyIndexedType.Person)
+                {
+                    var identities = property.Value.ToString() != "" ? property.Value.ToObject<List<UserIdentity>>() : new List<UserIdentity>();
+                    var identitiesNeedToLoad = identities.Where(i => !string.IsNullOrWhiteSpace(i.Uid) && !userDict.ContainsKey(i.Uid)).ToList();
+
+
+                    foreach (var identity in identitiesNeedToLoad)
+                    {
+                        var user = ctx.Web.EnsureUser(identity.Uid);
+                        ctx.Load(user);
+                        userDict.Add(identity.Uid, user);
+                    }
+
+
+                    if (identities.Count > 0)
+                    {
+                        var users = new List<Microsoft.SharePoint.Client.User>();
+                        foreach (var identity in identities)
+                        {
+                            if (userDict.TryGetValue(identity.Uid, out var user))
+                            {
+                                users.Add(user);
+                            }
+                        }
+                        usersMapToSharePointFieldInternalNameDict.Add(property.Key, users);
+                    }
+                }
+            }
+
+
+            if (termCollectionMapToSharePointFieldInternalNameDict.Count > 0)
+            {
+                termStore = taxonomySession.GetDefaultSiteCollectionTermStore();
+                ctx.Load(termStore, t => t.DefaultLanguage);
+            }
+
+            if (termCollectionMapToSharePointFieldInternalNameDict.Count > 0 || usersMapToSharePointFieldInternalNameDict.Count > 0)
+            {
+                await ctx.ExecuteQueryAsync();
+
+                //Throw friendly message if the term is not avaiable on SharePoint
+                //This should be the Process Type have not been synced to SharePoint
+                var propertyWithUnAvailableTermValue = termCollectionMapToSharePointFieldInternalNameDict.Where(p => p.Value.Count == 0).ToList();
+                if (propertyWithUnAvailableTermValue.Count > 0)
+                {
+                    throw new Exception($"The selected term value for property {propertyWithUnAvailableTermValue[0].Key} is not available on SharePoint!");
+                }
+            }
+
+
+            if (termStore != null)
+            {
+                termStoreDefaultLanguage = termStore.DefaultLanguage;
+            }
+
+            if (usersMapToSharePointFieldInternalNameDict.Count > 0)
+            {
+                foreach (var item in usersMapToSharePointFieldInternalNameDict)
+                {
+                    var userValues = item.Value.Select(user => new FieldUserValue { LookupId = user.Id }).ToList();
+                    userValuesMapToSharePointFieldInternalNameDict.Add(item.Key, userValues);
+                }
+            }
+
+            return (userValuesMapToSharePointFieldInternalNameDict, termCollectionMapToSharePointFieldInternalNameDict, termStoreDefaultLanguage);
+        }
+
+
+        private async ValueTask<ListItem> EnsureNewProcessFolderAsync(PortableClientContext ctx, List publishedList, Process process)
+        {
+            var folderName = process.OPMProcessId.ToString("N").ToLower();
+            try
+            {
+                var folder = ctx.Web.GetFolderByServerRelativeUrl($"{ctx.Web.ServerRelativeUrl}/{OPMConstants.SharePoint.ListUrl.PublishList}/{folderName}");
+                ctx.Load(folder);
+                await ctx.ExecuteQueryAsync();
+                folder.DeleteObject();
+                await ctx.ExecuteQueryAsync();
+
+            }
+            catch (ServerException ex)
+            {
+                if (ex.ServerErrorTypeName != "System.IO.FileNotFoundException")
+                {
+                    throw;
+                }
+            }
+
+            var folderItem = publishedList.AddItem(new ListItemCreationInformation
+            {
+                UnderlyingObjectType = FileSystemObjectType.Folder,
+                LeafName = folderName
+            });
+            folderItem["Title"] = folderName;
+            folderItem.Update();
+            ctx.Load(folderItem.Folder, f => f.ServerRelativeUrl);
+            await ctx.ExecuteQueryAsync();
+
+
+
+            return folderItem;
+
+        }
+
+        private async ValueTask<bool> EnsureSharePointFieldsAsync(PortableClientContext appContext, List<string> internalNames,
+            Microsoft.SharePoint.Client.List listWithFields, string listRelativeUrl, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var ensuredNewFields = false;
-            var (enterpriseProperties, cache) = await EnterprisePropertyService.GetAllAsync();
             var enterprisePropertiesNeedToEnsure = new List<EnterprisePropertyDefinition>();
 
             appContext.Load(appContext.Web);
@@ -143,15 +414,13 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 var existedField = listWithFields.Fields.FirstOrDefault(f => f.InternalName == internalName);
                 if (existedField == null)
                 {
-                    var enterpriseProperty = enterpriseProperties.FirstOrDefault(p => p.InternalName == internalName);
-                    if (enterpriseProperty == null)
-                    {
-                        throw new Exception("Invalid SharePoint field: cannot find related EnterpriseProperty to ensure to SharePoint library");
-                    }
-
-                    if (!ProvisionedInternalNames.Contains(enterpriseProperty.InternalName))
+                    if (enterprisePropertyDict.TryGetValue(internalName, out var enterpriseProperty))
                     {
                         enterprisePropertiesNeedToEnsure.Add(enterpriseProperty);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid SharePoint field: cannot find related EnterpriseProperty to ensure to SharePoint library");
                     }
                 }
             }
@@ -182,8 +451,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
                 }
                 await context.ExecuteAsync();
-
-                enterprisePropertiesNeedToEnsure.ForEach(property => ProvisionedInternalNames.Add(property.InternalName));
             }
 
             return ensuredNewFields;

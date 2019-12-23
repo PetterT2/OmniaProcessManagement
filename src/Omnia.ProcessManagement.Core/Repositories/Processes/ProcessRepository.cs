@@ -197,7 +197,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 rootProcessStep.Comment = comment;
                 processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
-
+                processEf.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
 
                 processEf.SecurityResourceId = securityResourceId;
 

@@ -45,32 +45,5 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
 
             return spList;
         }
-
-        public async ValueTask<Folder> EnsureChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool deleteExistingFolder)
-        {
-            await context.LoadIfNeeded(parentFolder, f => f.Folders).ExecuteQueryIfNeededAsync();
-
-            if (deleteExistingFolder)
-            {
-                var existingfolder = parentFolder.Folders.ToList().FirstOrDefault(f => f.Name == folderUrl);
-
-                if (existingfolder != null)
-                {
-                    existingfolder.DeleteObject();
-                    await context.ExecuteQueryAsync();
-
-                    context.Load(parentFolder, f => f.Folders);
-                    await context.ExecuteQueryAsync();
-                }
-            }
-
-            Folder folder = parentFolder.Folders.Add(folderUrl);
-            context.Load(folder);
-            context.Load(folder.Files);
-            context.Load(folder.ListItemAllFields);
-            await context.ExecuteQueryAsync();
-
-            return folder;
-        }
     }
 }

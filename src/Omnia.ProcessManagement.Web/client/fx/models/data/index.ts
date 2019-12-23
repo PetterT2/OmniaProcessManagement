@@ -8,3 +8,4 @@ export * from './drawingdefinitions';
 export * from './MultilingualData';
 export * from './settings';
 export * from './workflows';
+export * from './security';

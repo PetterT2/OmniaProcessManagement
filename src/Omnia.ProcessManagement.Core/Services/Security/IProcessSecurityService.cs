@@ -13,7 +13,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     public interface IProcessSecurityService
     {
-        ISecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
+        IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
@@ -32,5 +32,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null);
         ValueTask AddOrUpdateOPMApproverPermissionAsync(Guid opmProcessId, string userLoginName);
         ValueTask RemoveOPMApproverPermissionAsync(Guid opmProcessId);
+
+        ValueTask AddOrUpdateOPMAuthorAndDefaultReaderAsync(PortableClientContext ctx, AuthorAndDefaultReaderUpdateInput updateInput);
     }
 }

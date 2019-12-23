@@ -11,6 +11,5 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
     {
         ValueTask<ListItem> AddListItemAsync(PortableClientContext context, List list, Dictionary<string, dynamic> keyValuePairs);
         ValueTask<List> GetListByUrlAsync(PortableClientContext context, string listUrl, bool loadFields = false);
-        ValueTask<Folder> EnsureChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool deleteExistingFolder);
     }
 }

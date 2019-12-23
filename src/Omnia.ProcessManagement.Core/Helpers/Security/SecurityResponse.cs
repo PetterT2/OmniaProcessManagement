@@ -17,16 +17,33 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Helpers.Security
 {
+    public interface IOnlyTeamAppIdSecurityResponse
+    {
+        IOnlyTeamAppIdSecurityResponseHandler RequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
+        IOnlyTeamAppIdSecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes);
+    }
+
+    public interface IOnlyTeamAppIdSecurityResponseHandler
+    {
+        IOnlyTeamAppIdSecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
+        IOnlyTeamAppIdSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
+        ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
+        ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
+    }
+
     public interface ISecurityResponse
     {
+        ISecurityResponseHandler RequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes);
+
     }
 
     public interface ISecurityResponseHandler
     {
+        ISecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
@@ -39,7 +56,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         internal ValueTask<ApiResponse> DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action);
     }
 
-    internal class SecurityResponse : ISecurityResponse, ISecurityResponseHandler
+    internal class SecurityResponse : ISecurityResponse, ISecurityResponseHandler, IOnlyTeamAppIdSecurityResponse, IOnlyTeamAppIdSecurityResponseHandler
     {
         private List<Guid> RequiredRoles { get; }
         private InternalProcess Process { get; set; }
@@ -76,6 +93,38 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             AuthorOnly = true;
         }
 
+        IOnlyTeamAppIdSecurityResponseHandler IOnlyTeamAppIdSecurityResponse.RequireTeamAppAdmin(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(Fx.Constants.Security.Roles.AppInstanceAdmin, versionTypes);
+            return this;
+        }
+        IOnlyTeamAppIdSecurityResponseHandler IOnlyTeamAppIdSecurityResponseHandler.OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(Fx.Constants.Security.Roles.AppInstanceAdmin, versionTypes);
+            return this;
+        }
+        IOnlyTeamAppIdSecurityResponseHandler IOnlyTeamAppIdSecurityResponse.RequireAuthor(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Author, versionTypes);
+            return this;
+        }
+
+        IOnlyTeamAppIdSecurityResponseHandler IOnlyTeamAppIdSecurityResponseHandler.OrRequireAuthor(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(OPMConstants.Security.Roles.Author, versionTypes);
+            return this;
+        }
+
+
+        public ISecurityResponseHandler RequireTeamAppAdmin(params ProcessVersionType[] versionTypes)
+        {
+            EnsureRole(Fx.Constants.Security.Roles.AppInstanceAdmin, versionTypes);
+            return this;
+        }
+        public ISecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes)
+        {
+            return RequireTeamAppAdmin(versionTypes);
+        }
         public ISecurityResponseHandler RequireAuthor(params ProcessVersionType[] versionTypes)
         {
             EnsureRole(OPMConstants.Security.Roles.Author, versionTypes);
@@ -225,11 +274,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         private void EnsureRole(string roleIdString, params ProcessVersionType[] versionTypes)
         {
-            if (AuthorOnly && roleIdString != OPMConstants.Security.Roles.Author)
-            {
-                return;
-            }
-
             if (!CheckVersionTypesInEnsuringRole(versionTypes))
             {
                 return;
