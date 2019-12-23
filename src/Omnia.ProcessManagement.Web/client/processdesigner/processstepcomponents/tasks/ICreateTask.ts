@@ -13,6 +13,8 @@ export interface ICreateTask {
     /*@DomProperty*/
     taskId?: GuidValue;
 
+    /*@DomProperty*/
+    isProcessStepShortcut?: boolean;
 }
 
 declare global {

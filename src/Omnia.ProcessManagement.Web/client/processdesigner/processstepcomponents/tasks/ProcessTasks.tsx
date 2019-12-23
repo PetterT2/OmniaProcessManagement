@@ -49,7 +49,7 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
     }
 
     init() {
-        this.orderTasks = Utils.clone(this.referenceTasksData) || [];
+        this.orderTasks = Utils.clone(this.currentProcessStepReferenceData.processData.tasks) || [];
         for (let task of this.orderTasks) {
             task.multilingualTitle = this.multilingualStore.getters.stringValue(task.title);
         }
@@ -64,14 +64,18 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
     openAddTasksForm() {
         this.selectedTask = { id: null } as Task;
         this.openTaskPicker = true;
-    }
+    }    
 
-    get referenceTasksData(): Task[] {
-        return this.currentProcessStore.getters.referenceData().current.processData.tasks;
+    get currentProcessStepReferenceData() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (!this.isProcessStepShortcut) {
+            return referenceData.current;
+        }
+        return referenceData.shortcut;
     }
 
     onTasksChanged(task?: Task, isDelete?: boolean) {
-        if (Utils.isNullOrEmpty(this.referenceTasksData))
+        if (Utils.isNullOrEmpty(this.currentProcessStepReferenceData.processData.tasks))
             return;
         if (task) {
             task.multilingualTitle = this.multilingualStore.getters.stringValue(task.title);
@@ -86,7 +90,7 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
                     this.orderTasks[findTaskIndex] = task;
             }
         }
-        this.currentProcessStore.getters.referenceData().current.processData.tasks = this.orderTasks;
+        this.currentProcessStepReferenceData.processData.tasks = this.orderTasks;
         this.processDesignerStore.actions.saveState.dispatch();
     }
 
@@ -122,6 +126,7 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
                         onClose={() => {
                             this.openTaskPicker = false;
                         }}
+                        isProcessStepShortcut={this.isProcessStepShortcut}
                     ></opm-processdesigner-createtask>
                 </div>
             </omfx-dialog>
