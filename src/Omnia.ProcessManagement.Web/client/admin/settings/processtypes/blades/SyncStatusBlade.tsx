@@ -194,25 +194,27 @@ export default class SyncStatusBlade extends VueComponentBase<SyncStatusBladePro
         let processTypes = this.processTypeStore.getters.children(this.rootProcessType.id, true);
 
         return (
-            <div>
-                <v-toolbar prominent dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.promoted.header.background.base}>
-                    <v-toolbar-title>{syncStatus.syncFromSharePoint || processTypes.length == 0 ? this.loc.ProcessTypes.SyncJob.SyncProcessTypeFromTermSet :
-                        this.loc.ProcessTypes.SyncJob.SyncProcessTypeToTermSet}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon onClick={() => { this.journey().travelBack() }}>
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
-                <v-divider></v-divider>
-                <v-container>
-                    {
-                        syncStatus.status == ProcessTypeTermSynchronizationStatusStatuses.Syncing ? this.renderSyncing(h) :
-                            processTypes.length == 0 && !syncStatus.syncFromSharePoint ? this.renderSyncFromTermSet(h, syncStatus) :
-                                syncStatus.status == ProcessTypeTermSynchronizationStatusStatuses.Failed ? this.renderFailed(h, syncStatus) :
-                                    this.renderSuccess(h, syncStatus)
-                    }
-                </v-container>
-            </div>
+            <v-row no-gutters width="100%">
+                <v-card width="100%" dark={this.omniaTheming.promoted.body.dark}>
+                    <v-app-bar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.promoted.header.background.base}>
+                        <v-toolbar-title>{syncStatus.syncFromSharePoint || processTypes.length == 0 ? this.loc.ProcessTypes.SyncJob.SyncProcessTypeFromTermSet :
+                            this.loc.ProcessTypes.SyncJob.SyncProcessTypeToTermSet}</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn icon onClick={() => { this.journey().travelBack() }}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-app-bar>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        {
+                            syncStatus.status == ProcessTypeTermSynchronizationStatusStatuses.Syncing ? this.renderSyncing(h) :
+                                processTypes.length == 0 && !syncStatus.syncFromSharePoint ? this.renderSyncFromTermSet(h, syncStatus) :
+                                    syncStatus.status == ProcessTypeTermSynchronizationStatusStatuses.Failed ? this.renderFailed(h, syncStatus) :
+                                        this.renderSuccess(h, syncStatus)
+                        }
+                    </v-card-text>
+                </v-card>
+            </v-row>
         )
     }
 }

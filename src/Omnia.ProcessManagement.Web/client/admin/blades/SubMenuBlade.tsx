@@ -21,29 +21,33 @@ export default class SubMenuBlade extends tsx.Component<DefaultBladeProps> {
     render(h) {
         let subMenuItems = this.adminJourneyStore.getters.subMenuItems();
         return (
-            <div>
-                <v-toolbar prominent dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.promoted.header.background.base}>
-                    <v-toolbar-title>{this.loc.ProcessManagement}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                </v-toolbar>
-                <v-divider></v-divider>
-                <v-list dense>
-                    {
-                        subMenuItems.map(subMenuItem =>
-                            <v-list-item
-                                ripple
-                                onClick={() => { this.adminJourneyStore.mutations.setActiveSubMenuItem.commit(subMenuItem); }}>
-                                <v-list-item-action>
-                                    <v-icon color={this.omniaTheming.promoted.body.onComponent.base}>{subMenuItem.icon}</v-icon>
-                                </v-list-item-action>
-                                <v-list-item-content >
-                                    <v-list-item-title color={this.omniaTheming.promoted.body.onComponent.base}>{subMenuItem.title}</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                        )
-                    }
-                </v-list>
-            </div>
+            <v-row no-gutters width="100%">
+                <v-card width="100%" dark={this.omniaTheming.promoted.body.dark}>
+                    <v-app-bar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.promoted.header.background.base}>
+                        <v-toolbar-title>{this.loc.ProcessManagement}</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                    </v-app-bar>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-list dense>
+                            {
+                                subMenuItems.map(subMenuItem =>
+                                    <v-list-item
+                                        ripple
+                                        onClick={() => { this.adminJourneyStore.mutations.setActiveSubMenuItem.commit(subMenuItem); }}>
+                                        <v-list-item-action>
+                                            <v-icon color={this.omniaTheming.promoted.body.onComponent.base}>{subMenuItem.icon}</v-icon>
+                                        </v-list-item-action>
+                                        <v-list-item-content >
+                                            <v-list-item-title color={this.omniaTheming.promoted.body.onComponent.base}>{subMenuItem.title}</v-list-item-title>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                )
+                            }
+                        </v-list>
+                    </v-card-text>
+                </v-card>
+            </v-row>
         );
     }
 }
