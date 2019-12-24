@@ -40,6 +40,10 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private isShowChangeShape: boolean = false;
     private selectedTab = StaticTabNames.shape;
     private lockedSubmitShapeSettings = true;
+    private previousProcessStepId: GuidValue = null;
+    private pendingUnsubmitted: boolean = false;
+    private autoUpdatingTimewatch = 'DrawingShapeSettingsAutoUpdating';
+    private timewatchId = null;
 
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
     created() {
@@ -49,15 +53,18 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     init() {
         this.initSelectedShape();
 
-        this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited((selectedShape: DrawingShape) => {
-            this.initSelectedShape();
-        });
+        this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(this.onSelectedShapeChanged);
+    }
+
+    onSelectedShapeChanged(selectedShape: DrawingShape) {
+        //ToDo: handle checking pending changes that has not been saved
+        this.initSelectedShape();
     }
 
     initSelectedShape() {
         this.selectedShape = this.processDesignerStore.getters.shapeToEditSettings();
         this.isShowChangeShape = false;
-        this.lockedSubmitShapeSettings = true;
+        this.lockedSubmitShapeSettings = true;        
 
         this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
         this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
@@ -69,6 +76,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title
         };
+        this.previousProcessStepId = this.selectedProcessStepId;
 
         this.initShortcut();
 
@@ -85,38 +93,82 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     }
 
     private onClose() {
-        if (this.processDesignerStore.formValidator.validateAll()) {
-            this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
-            this.processDesignerStore.mutations.updateDrawingShape.commit(this.drawingShapeOptions);
-            this.processDesignerStore.mutations.setSelectingShape.commit(null);
+        if (this.timewatchId) {
+            Utils.clearTimewatch(this.timewatchId);
         }
+        this.validateAndSubmitChanges(true);
     }
 
     initShortcut() {
-        if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep) {
-            this.currentProcessStore.actions.ensureShortcut.dispatch(this.drawingShapeOptions.processStepId).then(() => {
-                this.shortcutDesignerItem = new ProcessStepShortcutDesignerItem();
-            });
+        return new Promise<any>((resolve, reject) => {
+            if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep && this.drawingShapeOptions.processStepId) {
+                this.currentProcessStore.actions.ensureShortcut.dispatch(this.drawingShapeOptions.processStepId).then(() => {
+                    this.shortcutDesignerItem = new ProcessStepShortcutDesignerItem();
+                    resolve();
+                }).catch(reject);
+            }
+            else {
+                resolve();
+            }
+        });
+    }
+
+    isGoodToGo(drawingOptions: DrawingShapeOptions) {
+        //Need to manually check some rule before saveState
+        let result = true;
+        if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep && (!drawingOptions.processStepId || drawingOptions.processStepId == Guid.empty)) {
+            result = false;
         }
+        if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink && (!drawingOptions.customLinkId || drawingOptions.customLinkId == Guid.empty)) {
+            result = false;
+        }
+        return result;
     }
         
-    onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
-        let previousType = this.drawingShapeOptions.shapeType;
-        let previousProcessStepId = this.drawingShapeOptions.processStepId;
-
+    onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {        
         this.drawingShapeOptions = drawingOptions;
-        if (previousType != drawingOptions.shapeType || previousProcessStepId != drawingOptions.processStepId) {
-            this.initShortcut();
-        }
 
         if (this.lockedSubmitShapeSettings) {
             this.lockedSubmitShapeSettings = false;
             return;
         }
-        if (this.processDesignerStore.formValidator.validateAll()) {
-            this.processDesignerStore.mutations.updateDrawingShape.commit(this.drawingShapeOptions);
+
+        if (this.previousProcessStepId != this.drawingShapeOptions.processStepId) {
+            this.previousProcessStepId = this.drawingShapeOptions.processStepId;
+            this.initShortcut().then(() => {
+                this.timeWatchToSaveChanges();
+            });
         }
+        else {
+            this.timeWatchToSaveChanges();
+        }
+        
     }
+
+    timeWatchToSaveChanges() {
+        this.timewatchId = Utils.timewatch(this.autoUpdatingTimewatch, () => {
+            this.validateAndSubmitChanges(false);
+        }, 1500);        
+    }
+
+    validateAndSubmitChanges(isClosed: boolean) {
+        return new Promise<any>((resolve, reject) => {
+            if (this.processDesignerStore.formValidator.validateAll() && this.isGoodToGo(this.drawingShapeOptions)) {
+                this.processDesignerStore.mutations.updateDrawingShape.commit(this.drawingShapeOptions);
+                if (isClosed) {
+                    this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
+                }
+            }
+            else {
+                if (isClosed) {
+                    this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
+                }
+                resolve();
+            }
+
+        });
+    }
+
     onChangeShape() {
         this.isShowChangeShape = true;
     }

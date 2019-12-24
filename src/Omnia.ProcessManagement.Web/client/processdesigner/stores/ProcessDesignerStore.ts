@@ -234,8 +234,8 @@ export class ProcessDesignerStore extends Store {
             drawingShapes: [],
             width: 700,
             height: 500,
-            gridX: 50,
-            gridY: 50,
+            gridX: 20,
+            gridY: 20,
             imageBackgroundUrl: ''
         };
 
