@@ -996,6 +996,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public override bool ShouldAddComputedColumn(EnterprisePropertyDefinition property)
         {
+            if (property.InternalName == OPMConstants.Features.OPMDefaultProperties.Edition.InternalName ||
+                property.InternalName == OPMConstants.Features.OPMDefaultProperties.Revision.InternalName)
+                return true;
+
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
