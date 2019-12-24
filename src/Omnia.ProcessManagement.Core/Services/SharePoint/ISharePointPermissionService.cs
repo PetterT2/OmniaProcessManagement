@@ -11,5 +11,6 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
     public interface ISharePointPermissionService
     {
         ValueTask BreakListItemPermissionAsync(PortableClientContext context, ListItem item, bool copyRoleAssignments, bool clearSubscopes, Dictionary<Principal, List<RoleType>> roleAssignments);
+        ValueTask EnsureListItemPermissionAsync(PortableClientContext context, ListItem item, Dictionary<Principal, List<RoleType>> roleAssignments);
     }
 }

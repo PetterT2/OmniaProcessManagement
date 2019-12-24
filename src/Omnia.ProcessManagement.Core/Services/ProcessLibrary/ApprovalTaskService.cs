@@ -128,13 +128,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
             var temporaryApprovalGroup = await SharePointGroupService.EnsureGroupOnWebAsync(appCtx, appCtx.Web, temporaryApprovalGroupTitle,
-                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.RestrictedReader) }, null, new List<User> { approverSPUser });
+                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, null, new List<User> { approverSPUser });
 
-            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
-            roleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
-            roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
+            Dictionary<Principal, List<RoleType>> taskItemRoleAssignments = new Dictionary<Principal, List<RoleType>>();
+            taskItemRoleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
+            taskItemRoleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
-            await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, roleAssignments);
+            await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, taskItemRoleAssignments);
 
             await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl);
 
