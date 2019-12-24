@@ -5,13 +5,17 @@ import { Localize, Inject, IWebComponentInstance, WebComponentBootstrapper, vueC
 import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation, DialogModel, IValidator } from '@omnia/fx/ux';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryStyles } from '../../../models';
-import { ProcessService, ProcessTemplateStore, ProcessTypeStore, ProcessStore } from '../../../fx';
+import { ProcessService, ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, OPMRouter } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
-import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
+import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, RouteOptions } from '../../../fx/models';
 import { Guid, GuidValue } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';
+import { ProcessDesignerStore } from '../../../processdesigner/stores';
+import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
+import { DisplayModes } from '../../../models/processdesigner';
+import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
 
 @Component
 export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IWebComponentInstance, INewProcessDialog {
@@ -25,6 +29,8 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     @Inject(OPMContext) opmContext: OPMContext;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -111,8 +117,15 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                 process: this.process,
                 processData: processData
             };
-            this.processStore.actions.createDraft.dispatch(model).then(() => {
+            this.processStore.actions.createDraft.dispatch(model).then((newProcess: Process) => {
                 this.isSaving = false;
+                OPMRouter.navigate(newProcess, newProcess.rootProcessStep, RouteOptions.normal)
+                    .then(() => {
+                        this.currentProcessStore.actions.checkOut.dispatch().then(() => {
+                            ProcessDesignerUtils.openProcessDesigner();
+                            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                        })
+                    })
                 this.closeCallback(true);
             }).catch((err) => {
                 this.errMessage = err;
