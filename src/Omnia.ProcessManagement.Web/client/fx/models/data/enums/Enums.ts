@@ -26,7 +26,8 @@ export enum ProcessWorkingStatus {
     CancellingApproval = 9,
     CancellingApprovalFailed = 10,
 
-    SyncingToSharePoint = 11
+    SyncingToSharePoint = 11,
+    SyncingToSharePointFailed = 12
 }
 
 

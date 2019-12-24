@@ -2,3 +2,4 @@
 export * from './ProcessService';
 export * from './ProcessTypeService';
 export * from './SettingsService';
+export * from './PermissionService';

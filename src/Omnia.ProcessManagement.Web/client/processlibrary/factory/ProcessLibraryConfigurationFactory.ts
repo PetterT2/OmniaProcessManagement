@@ -39,7 +39,8 @@ export const ProcessLibraryConfigurationFactory = {
             LibrarySystemFieldsConstants.Menu,
             ProcessLibraryFields.Edition,
             ProcessLibraryFields.Revision,
-            ProcessLibraryFields.Published
+            ProcessLibraryFields.Published,
+            LibrarySystemFieldsConstants.Status
         ]
     },
     getDefaultDraftDisplayFields() {

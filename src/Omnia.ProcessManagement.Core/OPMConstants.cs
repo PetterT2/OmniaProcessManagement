@@ -115,9 +115,26 @@ namespace Omnia.ProcessManagement.Core
 
         public static class SharePoint
         {
+            public static class SharepointType
+            {
+                public const string Text = "Text";
+                public const string Boolean = "Boolean";
+                public const string Integer = "Integer";
+                public const string DateTime = "DateTime";
+                public const string File = "File";
+                public const string Note = "Note";
+                public const string User = "User";
+                public const string UserId = "UserId";
+                public const string Number = "Number";
+                public const string UserMulti = "UserMulti";
+                public const string String = "String";
+                public const string TaxonomyFieldType = "TaxonomyFieldType";
+                public const string TaxonomyFieldTypeMulti = "TaxonomyFieldTypeMulti";
+                public const string Counter = "Counter";
+            }
             public static class ListUrl
             {
-                public const string PublishList = "OPMPublishedProcesss";
+                public const string PublishList = "OPMPublishedProcesses";
                 public const string TaskList = "OPMTasks";
             }
 
@@ -127,7 +144,7 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_ProcessId = "OPMProcessId";
                 public const string Fields_Edition = "OPMEdition";
                 public const string Fields_Revision = "OPMRevision";
-                public const string Fields_Properties = "OPMProperties";
+                public const string Fields_ProcessData = "OPMProcessData";
                 public const string Fields_TaskOutcome = "OPMTaskOutcome";
                 public const string Fields_Comment = "OPMComment";
             }

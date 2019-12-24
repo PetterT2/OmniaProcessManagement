@@ -43,6 +43,8 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     protected findDrawingShape(object: fabric.Object): DrawingShape {
+        if (object == null)
+            return null;
         return this.drawingShapes.find(d => {
             return (d.shape as Shape).shapeObject && (d.shape as Shape).shapeObject.find(s => s == object) != null;
         });
@@ -232,6 +234,14 @@ export class DrawingCanvas implements CanvasDefinition {
                 resolve(null);
             }
         });
+    }
+
+    deleteShape(shape: DrawingShape) {
+        let findIndex = this.drawingShapes.findIndex(s => s.id == shape.id);
+        if (findIndex > -1) {
+            this.drawingShapes.splice(findIndex, 1);
+            (shape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+        }
     }
 
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {

@@ -36,7 +36,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     [SPList(relativeUrl: OPMConstants.SharePoint.ListUrl.PublishList, Title = "$Localize:OPM.Core.Features.Lists.OPMPublished.Name;",
            ListTemplate = ListTemplateType.GenericList,
            Description = "$Localize:OPM.Core.Features.Lists.OPMPublished.Description;",
-           EnableVersioning = false, EnableMinorVersions = false)]
+           EnableVersioning = false, EnableMinorVersions = false, EnableFolderCreation = true)]
     public class OPMPublished : ListBase, IListBase
     {
         public IEnumerable<ContentTypeBase> ContentTypes
@@ -47,7 +47,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
         [FieldRef(typeof(OPMProcessId))]
         [FieldRef(typeof(OPMEdition))]
         [FieldRef(typeof(OPMRevision))]
-        [FieldRef(typeof(OPMProperties))]
+        [FieldRef(typeof(OPMProcessData))]
         public IEnumerable<FieldBase> Fields
         {
             get;

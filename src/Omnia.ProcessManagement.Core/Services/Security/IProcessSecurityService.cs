@@ -1,4 +1,5 @@
 ﻿using Omnia.Fx.Models.Users;
+using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
@@ -12,13 +13,14 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     public interface IProcessSecurityService
     {
-        ISecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
+        IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
 
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
+        ValueTask<List<Microsoft.SharePoint.Client.User>> EnsureProcessLimitedReadAccessSharePointUsersAsync(PortableClientContext ctx, Guid opmProcessId);
 
         /// <summary>
         /// 
@@ -30,5 +32,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null);
         ValueTask AddOrUpdateOPMApproverPermissionAsync(Guid opmProcessId, string userLoginName);
         ValueTask RemoveOPMApproverPermissionAsync(Guid opmProcessId);
+
+        ValueTask AddOrUpdateOPMAuthorAndDefaultReaderAsync(PortableClientContext ctx, AuthorAndDefaultReaderUpdateInput updateInput);
     }
 }

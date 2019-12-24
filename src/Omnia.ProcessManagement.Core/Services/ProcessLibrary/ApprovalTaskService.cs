@@ -96,13 +96,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
 
             if (siteGroupIdSettings == null)
-                throw new Exception("Cannot get Author SharePoint group");
+                throw new Exception("Missing Process Author SharePoint group");
 
             PortableClientContext appCtx = SharePointClientContextProvider.CreateClientContext(webUrl, true);
 
             var authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(appCtx, appCtx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
             if (authorGroup == null)
-                throw new Exception($"Cannot get Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
+                throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
 
             var approverSPUser = appCtx.Web.EnsureUser(workflowApprovalData.Approver.Uid);
             var authorSPUser = appCtx.Web.EnsureUser(workflow.CreatedBy);

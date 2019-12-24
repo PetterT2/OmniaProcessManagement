@@ -21,8 +21,10 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         defaultDisplayMode: DisplayModes.contentEditing,
     };   
 
+    public static drawingTabId = "9bf78a25-3082-4333-80d1-55484a28efc0";
+
     protected drawingTab: TabRegistration = {
-        tabId: "9bf78a25-3082-4333-80d1-55484a28efc0",
+        tabId: ProcessStepDesignerItem.drawingTabId,
         tabRenderer: new ProcessStepDrawingTabRenderer(),
         tabName: this.opmCoreLoc.Process.Drawing,
         active: true,

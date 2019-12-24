@@ -5,11 +5,14 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
-import { Enums, Process } from '../../../../fx/models';
+import { Enums, Process, ProcessWorkingStatus } from '../../../../fx/models';
+import { SyncToSharePointDialog } from './SyncToSharePointDialog';
 
 interface PublishedProcessingStatusProps {
     closeCallback: (isUpdate: boolean) => void;
     process: Process;
+    redLabel: boolean;
+    isAuthor: boolean;
 }
 
 @Component
@@ -17,6 +20,7 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
     @Prop() closeCallback: (isUpdate: boolean) => void;
     @Prop() process: Process;
     @Prop() redLabel: boolean;
+    @Prop() isAuthor: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -24,7 +28,9 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    selectedProcess: Process;   
+    selectedProcess: Process;
+    openApprovalPublishDialog: boolean = false;
+
     processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
 
     created() {
@@ -38,9 +44,35 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
 
     }
 
+    renderApprovalPublishDialog(h) {
+        return (
+            <SyncToSharePointDialog
+                closeCallback={() => { this.openApprovalPublishDialog = false; }}
+                process={this.selectedProcess}
+                isAuthor={this.isAuthor}>
+            </SyncToSharePointDialog>
+        )
+    }
+
+    renderStatus(h) {
+        let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]];
+        let className = this.redLabel ? "red--text" : "";
+        switch (this.process.processWorkingStatus) {
+            case ProcessWorkingStatus.SyncingToSharePointFailed:
+                return <a class={className} onClick={() => {
+                    this.selectedProcess = this.process;
+                    this.openApprovalPublishDialog = true;
+                }}>{statusName}</a>;
+            default:
+                return <div class={className}>{statusName}</div>;
+        }
+    }
+
     render(h) {
         return (
-            <div>               
+            <div>
+                {this.renderStatus(h)}
+                {this.openApprovalPublishDialog && this.renderApprovalPublishDialog(h)}
             </div>
         )
     }

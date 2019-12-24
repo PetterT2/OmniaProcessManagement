@@ -13,6 +13,7 @@ import { ActionToolbarStyles } from './ActionToolbar.css';
 import { DisplaySettingsToolbarComponent } from './DisplaySettingsToolbar';
 import { Localization } from '@omnia/tooling-composers';
 import { ProcessDesignerLocalization } from '../loc/localize';
+import { ProcessStepDesignerItem } from '../designeritems/ProcessStepDesignerItem';
 
 export interface ActionToolbarProps {
 }
@@ -42,6 +43,14 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             var result = callback();
             if (result instanceof Promise) result.catch(() => { });
         }
+    }
+
+    private deleteShape() {
+        this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
+            if (response === ConfirmDialogResponse.Ok) {
+                this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();
+            }
+        });
     }
 
     private createButton(h, button: ActionItem, classStr?: string) {
@@ -103,16 +112,20 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             if (currentProcessReferenceData.process.versionType == ProcessVersionType.CheckedOut) {
                 actionButtons = this.createActionButtons(h,
                     this.processDesignerStore.tabs.selectedTab.state.actionToolbar.checkedOutButtons)
-            }            
+            }
             else {
                 actionButtons = this.createActionButtons(h,
                     this.processDesignerStore.tabs.selectedTab.state.actionToolbar.notCheckedOutActionButtons)
             }
         }
-
-        result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
-            this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-        }}>{this.pdLoc.AddShape}</v-btn></div>);
+        if (this.processDesignerStore.tabs.selectedTab.state && this.processDesignerStore.tabs.selectedTab.state.tabId == ProcessStepDesignerItem.drawingTabId) {
+            result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
+                this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
+            }}>{this.pdLoc.AddShape}</v-btn></div>);
+            result.push(<div v-show={this.processDesignerStore.getters.selectingShape() != null} class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
+                this.deleteShape();
+            }}>{this.pdLoc.DeleteShape}</v-btn></div>);
+        }
         result.push(<v-spacer></v-spacer>);
         if (hasDataChanged === true) {
             result.push(<div class={[ActionToolbarStyles.statusButton]}>

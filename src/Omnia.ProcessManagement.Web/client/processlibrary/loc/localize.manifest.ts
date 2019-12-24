@@ -26,8 +26,9 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             SendingForReviewFailed: "Sending for Comments failed",
             CancellingReview: "Cancelling Send for Comments",
             CancellingReviewFailed: "Cancelling Send for Comments failed",
-            SyncingToSharePoint: "Syncing to SharePoint"
-            
+            SyncingToSharePoint: "Syncing to SharePoint",
+            SyncingToSharePointFailed: "Syncing To SharePoint failed"
+
         },
         TaskStatus: {
             Cancel: "Cancel",
@@ -84,7 +85,9 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             ExportProcess: "Export Process",
             ProcessHistory: "Process History",
             MoveProcess: "Move Process",
-            UnpublishProcess: "Unpublish Process"
+            UnpublishProcess: "Unpublish Process",
+            SyncToSharePoint: "Sync To SharePoint",
+            RetrySyncToSharePoint: "Retry"
         },
         SortText: {
             Direction: "Sort Direction",
@@ -114,6 +117,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             TaskIsInProcessingStatus: "The task is processing. Please wait a few seconds.",
             MessageTaskCancelledBySystem: "Task was cancelled by the system",
             MessageApprovalTaskEditingDescription: "Open the process and review the contents. When you are done, please write a comment in the text field below and select Approve or Reject",
+            SyncToSharePointFailed: "This process was synced to SharePoint failed"
 
         },
         ProcessType: "Process Type",
