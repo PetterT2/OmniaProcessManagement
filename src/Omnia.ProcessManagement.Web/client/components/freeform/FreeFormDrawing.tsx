@@ -6,7 +6,7 @@ import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions
 import { FreeFormDrawingStyles } from '../../models';
 import { IFreeFormDrawing } from './IFreeFormDrawing';
 import { CanvasDefinition, DrawingShapeDefinition } from '../../fx/models';
-import { DrawingCanvas, DrawingCanvasFreeForm, IShape, FreeformShape } from '../../fx';
+import { DrawingCanvas, DrawingCanvasFreeForm, IShape, FreeformShape, FabricShapeTypes, FabricShapeExtension, Shape } from '../../fx';
 import { Guid } from '@omnia/fx-models';
 import { FreeFormDrawingLocalization } from './loc/localize';
 
@@ -51,8 +51,11 @@ export default class FreeFormDrawingComponent extends VueComponentBase implement
     }
 
     private addNewFreeFormDrawing() {
-        if (this.drawingCanvas.drawingShapes.length > 0)
-            this.onSaved((this.drawingCanvas.drawingShapes[0].shape as FreeformShape).getShapeJson());
+        if (this.drawingCanvas.drawingShapes.length > 0) {
+            let shape: IShape = (this.drawingCanvas.drawingShapes[0].shape as FreeformShape).getShapeJson();
+            shape.definition = this.shapeDefinition;
+            this.onSaved(shape);
+        }
         this.onInternalClosed();
     }
 

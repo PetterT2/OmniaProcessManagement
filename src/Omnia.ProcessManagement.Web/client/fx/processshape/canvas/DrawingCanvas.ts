@@ -165,6 +165,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
 
                     let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
+                    if (!fabricShapeObject) return;
                     let currentLeft = fabricShapeObject.left;
                     let currentTop = fabricShapeObject.top;
 

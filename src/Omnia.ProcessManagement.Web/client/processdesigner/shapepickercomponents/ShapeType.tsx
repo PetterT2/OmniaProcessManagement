@@ -5,9 +5,9 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore,  ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants } from '../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, IShape } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums, DrawingShape } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -16,7 +16,7 @@ import { ShapeTypeStyles } from '../../fx/models/styles';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerLocalization } from '../loc/localize';
 
-export interface ShapeSelectionProps {    
+export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
     formValidator: FormValidator;
     isHideCreateNew?: boolean;
@@ -25,7 +25,7 @@ export interface ShapeSelectionProps {
 }
 
 @Component
-export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance{    
+export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance {
     @Prop() drawingOptions: DrawingShapeOptions;
     @Prop() formValidator: FormValidator;
     @Prop() isHideCreateNew?: boolean;
@@ -80,6 +80,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     ];
     private isShowAddLinkDialog: boolean = false;
     private isCreatingChildStep: boolean = false;
+    private openDrawPolygon: boolean = false;
 
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
@@ -98,12 +99,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     mounted() {
         this.startToDrawShape();
     }
-       
+
     init() {
         this.internalShapeDefinition = Utils.clone(this.drawingOptions.shapeDefinition);//Use internal definition to render the review section        
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
-        this.selectedCustomLinkId = this.drawingOptions.customLinkId;        
+        this.selectedCustomLinkId = this.drawingOptions.customLinkId;
         this.shapeTitle = this.drawingOptions.title ? this.drawingOptions.title : this.internalShapeDefinition.title;
     }
 
@@ -146,10 +147,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         else
             this.shapeTitle = null;
-     
-        this.onDrawingShapeOptionChanged();   
+
+        this.onDrawingShapeOptionChanged();
     }
-  
+
     private onSelectedLinkChanged() {
         let links = this.currentProcessStore.getters.referenceData().current.processData.links;
         if (links) {
@@ -160,7 +161,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             else
                 this.shapeTitle = null;
         }
-      
+
         this.onDrawingShapeOptionChanged();
     }
 
@@ -172,8 +173,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     renderShapePreview(h) {
-        return <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>;
+        return <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+            {
+                this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ?
+                    <v-btn onClick={() => { this.openDrawPolygon = true; }} class={["mx-2"]} fab large>
+                        <v-icon>fa fa-draw-polygon</v-icon>
+                    </v-btn>
+                    : null
+            }
+            <canvas id={this.previewCanvasId.toString()}></canvas>
+        </div>;
     }
+
     private initShapeTitle() {
         let result = this.shapeTitle;
         let shapeTitleStringValue = this.multilingualStore.getters.stringValue(result);
@@ -182,6 +193,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         return result;
     }
+
     startToDrawShape() {
         if (this.internalShapeDefinition) {
             if (this.drawingCanvas)
@@ -214,7 +226,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.drawingCanvas) {
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false);
         }
-        this.onDrawingShapeOptionChanged();   
+        this.onDrawingShapeOptionChanged();
     }
 
     previewActivedShape() {
@@ -322,7 +334,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     }
     private renderShapeSettings(h) {
-        return <v-container class={this.shapeTypeStepStyles.drawingSettingsWrapper}>           
+        return <v-container class={this.shapeTypeStepStyles.drawingSettingsWrapper}>
             <v-row dense>
                 <v-col cols="6">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
@@ -406,12 +418,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderDrawingShapeDefinition(h) {
         return <div>
             {this.renderShapeTypeOptions(h)}
-            {this.renderShapeSettings(h)}            
-        </div>;
-    }
-    private renderFreeFormShapeDefinition(h) {
-        return <div>
-           ToDo
+            {this.renderShapeSettings(h)}
+            {this.openDrawPolygon && this.renderFreeformDrawing(h)}
         </div>;
     }
     private renderMediaShapeDefinition(h) {
@@ -422,14 +430,33 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderChangeShapeSection(h) {
         return <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.changeShapeCallback}>{this.pdLoc.ChangeShape}</v-btn>
     }
+
+    private renderPreviewFreeformShape(shape: IShape) {
+        let newDrawingShape: DrawingShape = {
+            id: this.drawingCanvas.drawingShapes.length > 0 ? this.drawingCanvas.drawingShapes[0].id : Guid.newGuid(),
+            type: this.selectedShapeType,
+            title: this.shapeTitle,
+            shape: shape
+        };
+        this.drawingCanvas.deleteShape(this.drawingCanvas.drawingShapes[0]);
+        this.drawingCanvas.addDrawingShape(newDrawingShape, false, 0, 0);
+    }
+
+    private renderFreeformDrawing(h) {
+        return (<opm-free-form-drawing
+            shapeDefinition={this.internalShapeDefinition}
+            onClosed={() => { this.openDrawPolygon = false; }}
+            onSaved={(shape: IShape) => {
+                this.renderPreviewFreeformShape(shape);
+                this.openDrawPolygon = false;
+            }}
+        ></opm-free-form-drawing>);
+    }
     /**
         * Render 
         * @param h
         */
     render(h) {
-        if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
-            return this.renderFreeFormShapeDefinition(h);
-
         if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id)
             return this.renderMediaShapeDefinition(h);
 

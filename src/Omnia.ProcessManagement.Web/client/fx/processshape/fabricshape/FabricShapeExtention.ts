@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { IFabricShape, FabricShapeType } from './IFabricShape';
+import { IFabricShape, FabricShapeTypes } from './IFabricShape';
 import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
 
@@ -17,6 +17,7 @@ export class FabricShapeExtension implements FabricShape {
         this.properties["originX"] = "left";
         this.properties["originY"] = "top";
         this.properties["hoverCursor"] = "pointer";
+        this.properties["strokeUniform"] = true;
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];

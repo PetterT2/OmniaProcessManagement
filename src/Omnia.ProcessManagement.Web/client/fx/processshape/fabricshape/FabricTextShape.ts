@@ -22,6 +22,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             this.properties["fill"] = isActive ? definition.activeTextColor : definition.textColor;
             this.properties["textAlign"] = 'center';
             this.properties["fontFamily"] = 'Roboto,Arial,sans-serif';
+            this.properties['stroke'] = this.properties["fill"];
         }
         this.properties["hoverCursor"] = "default";
         let text = "Sample Text";

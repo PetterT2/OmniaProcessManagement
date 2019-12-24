@@ -14,6 +14,8 @@ export declare abstract class Shape implements IShape {
     abstract ready(): Promise<boolean>;
     abstract getShapeJson(): IShape;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
+    abstract finishScaled(obj: fabric.Object);
+    abstract getObjectPosition(isText: boolean, left: number, top: number, width: number, height: number, isCenter?: boolean): { left: number, top: number };
 }
 
 export interface Shape {

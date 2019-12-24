@@ -1,6 +1,6 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShape, FabricRectShape, FabricTextShape, FabricTriangleShape, IFabricShape, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, FabricShapeType, FabricShapeTypes, FabricPathShape, FabricPolylineShape, FabricLineShape } from '../fabricshape';
+import { FabricShape, FabricRectShape, FabricTextShape, FabricTriangleShape, IFabricShape, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, FabricShapeTypes, FabricPathShape, FabricPolylineShape, FabricLineShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
@@ -18,6 +18,8 @@ export class FreeformShape extends ShapeExtension implements Shape {
 
     protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
+        let hasLeft: boolean = (left != null && left != undefined) ? true : false;
+        let hasTop: boolean = (top != null && top != undefined) ? true : false;
         left = left || 0; top = top || 0;
         left = parseFloat(left.toString());
         top = parseFloat(top.toString());
@@ -60,22 +62,19 @@ export class FreeformShape extends ShapeExtension implements Shape {
 
             let group = new fabric.Group(fabricGroupObjects, Object.assign({ selectable: selectable }, (left && top) ? { left: pleft, top: ptop } : {}));
             group.toActiveSelection();
+            if (hasLeft)
+                group.left = left;
+            if (hasTop)
+                group.top = top;
+            if (this.definition.width)
+                group.scaleToWidth(this.definition.width);
+            if (this.definition.height)
+                group.scaleToHeight(this.definition.height);
             this.fabricObjects.push(group);
-            let tleft = left + (textNode.properties['left'] || group.left), ttop = top + (textNode.properties['top'] || group.top);
-            switch (this.definition.textPosition) {
-                case TextPosition.Center:
-                    ttop += Math.floor(group.height / 2 - this.definition.fontSize / 2 - 2);
-                    break;
-                case TextPosition.Bottom:
-                    ttop += group.height + TextSpacingWithShape;
-                    break;
-                default:
-                    ptop += (this.definition.fontSize + TextSpacingWithShape);
-                    break;
-            }
 
             if (textNode) {
-                let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable, left: tleft, top: ttop }, textNode.properties || {}, title));
+                let textPosition = this.getObjectPosition(true, group.left, group.top, group.width * group.scaleX, group.height * group.scaleY, true);
+                let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable, left: textPosition.left, top: textPosition.top }, textNode.properties || {}, title));
                 this.fabricShapes.push(textShape);
                 fabricTextObject = textShape.fabricObject;
                 this.fabricObjects.push(fabricTextObject);

@@ -43,9 +43,10 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             if (this.isDrawing && this.polylineShape == null) {
                 this.addLine(options, this.shapeDefinition.borderColor);
                 this.canvasObject.on('mouse:up', (options) => {
-                    if (!this.isDrawing)
+                    if (this.polylineShape != null)
+                        this.finishDrawing();
+                     if (!this.isDrawing)
                         return;
-
                     if (this.isDrawingFree) {
                         this.addLine(options, this.shapeDefinition.borderColor);
                     }
@@ -58,7 +59,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         })
 
         this.canvasObject.on('mouse:move', (options) => {
-            if (!this.isDrawing)
+            if (!this.isDrawing || this.polylineShape != null)
                 return;
 
             if (this.isMouseDown && (options.pointer.x != this.x || options.pointer.y != this.y)) {
@@ -120,9 +121,19 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     private isInRootPointZone() {
+        let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path' && object.path.length > 2;
+        });
+
         var space = 5;
-        return this.lines.length > 2 && this.x >= this.lines[0].x1 - space && this.x <= this.lines[0].x1 + space
-            && this.y >= this.lines[0].y1 - space && this.y <= this.lines[0].y1 + space;
+        return (this.lines.length > 2 && this.compareInZone(this.x, this.lines[0].x1, space)
+            && this.compareInZone(this.y, this.lines[0].y1, space)
+            || (pathsObject.length > 0 && this.compareInZone(pathsObject[0].toObject().path[0][1], pathsObject[pathsObject.length - 1].toObject().path[pathsObject[pathsObject.length - 1].toObject().path.length - 1][1], space)
+                && this.compareInZone(pathsObject[0].toObject().path[0][2], pathsObject[pathsObject.length - 1].toObject().path[pathsObject[pathsObject.length - 1].toObject().path.length - 1][2], space)));
+    }
+
+    private compareInZone(p: number, targetP: number, space: number) {
+        return p >= targetP - space && p <= targetP + space;
     }
 
     private createFreeFromShape() {
@@ -221,6 +232,9 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
 
     start(shapeDefinition: DrawingShapeDefinition) {
         this.shapeDefinition = shapeDefinition;
+        this.shapeDefinition.width = 0;
+        this.shapeDefinition.height = 0;
+        this.shapeDefinition.borderColor = this.shapeDefinition.borderColor || '#000';
         this.canvasObject.isDrawingMode = true;
         this.canvasObject.freeDrawingBrush.color = this.shapeDefinition.borderColor;
         this.canvasObject.freeDrawingBrush.width = this.strokeWidth;

@@ -17,7 +17,7 @@ export class FabricPolylineShape extends FabricShapeExtension implements FabricS
             prop["points"] = options["points"];
         }
         return prop;
-    }
+    }    
 
     get shapeNodeType() {
         return FabricShapeTypes.polyline;
