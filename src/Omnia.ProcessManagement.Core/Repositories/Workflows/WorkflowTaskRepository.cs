@@ -19,6 +19,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 
         public async ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId, Guid teamAppId)
         {
+            var workflowCreatedBy = await _dataContext.Workflows.Where(w => w.Id == workflowId).Select(w => w.CreatedBy).FirstOrDefaultAsync();
+
             Entities.Workflows.WorkflowTask entity = new Entities.Workflows.WorkflowTask();
             entity.Id = Guid.NewGuid();
             entity.WorkflowId = workflowId;
@@ -26,6 +28,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             entity.IsCompleted = false;
             entity.SPTaskId = spItemId;
             entity.TeamAppId = teamAppId;
+            entity.CreatedBy = workflowCreatedBy;
             await _dbSet.AddAsync(entity);
             await _dataContext.SaveChangesAsync();
             return MapEfToModel(entity);

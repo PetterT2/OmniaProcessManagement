@@ -134,18 +134,24 @@
         },
         EmailTemplates: {
             SendForApproval: {
-                TaskTitle: string,
-                EmailSubjectTemplate: string,
-                EmailBodyTemplate: string,
-                ApprovalEditionCommentTemplate: string,
-                SubjectApproval: string,
-                BodyApproval: string,
-                BodyApprovalNoComment: string,
-                SubjectReject: string,
-                BodyReject: string,
-                CancelSubjectTemplate: string,
-                CancelBodyTemplate: string
+                SubjectTemplate: string,
+                BodyTemplate: string,
+                AuthorEditionCommentTemplate: string
+            },
+            CancelApproval: {
+                SubjectTemplate: string,
+                BodyTemplate: string
+            },
+            CompleteApproval: {
+                ApproveSubjectTemplate: string,
+                ApproveBodyTemplate: string,
+                ApproveBodyNoCommentTemplate: string,
+                RejectSubjectTemplate: string,
+                RejectBodyTemplate: string
             }
+        },
+        TaskTitle: {
+            Approval: string
         }
     }
 }

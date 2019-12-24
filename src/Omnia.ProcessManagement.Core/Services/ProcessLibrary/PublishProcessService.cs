@@ -161,7 +161,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(approvalTask.Process.TeamAppId, approvalTask.Process.OPMProcessId, GetLimitedUsers(approvalData.IsLimitedAccess, approvalData.LimitedUsers));
             });
 
-            await ApprovalTaskService.SendCompletedEmailAsync(approvalTask);
+            await ApprovalTaskService.SendCompletedEmailAsync(approvalTask, webUrl);
         }
 
         private List<UserIdentity> GetLimitedUsers(bool isLimitedAccess, List<UserIdentity> limitedUsers)

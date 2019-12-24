@@ -8,16 +8,5 @@ namespace Omnia.ProcessManagement.Core
 {
     public static class OPMUtilities
     {
-        public static uint GetLcidFromLanguage(LanguageTag? languageTag)
-        {
-            if (languageTag == null)
-                return 1033;
-            else
-            {
-                var cultureInfo = CultureUtils.GetCultureInfo(languageTag.Value);
-                if (cultureInfo == null) return 1033;
-                else return (uint)cultureInfo.LCID;
-            }
-        }
     }
 }

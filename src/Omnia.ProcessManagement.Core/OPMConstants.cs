@@ -200,7 +200,8 @@ namespace Omnia.ProcessManagement.Core
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
-       }
+            public static readonly string ApprovalTaskTitle = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.Approval");
+        }
 
         public static class OPMContentTypeId
         {
@@ -209,43 +210,53 @@ namespace Omnia.ProcessManagement.Core
 
         public static class EmailTemplates
         {
-            public static string LinkHtmlTemplate = "<a href='{0}' target='_blank'>{1}</a>";
-
-            public static class SendForApprovalEmailTemplate
+            public static class CompleteApproval
             {
-                public static readonly string ApprovalTaskTitle = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.TaskTitle");
-                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.EmailSubjectTemplate");
-                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.EmailBodyTemplate");
-                public static readonly string ApprovalEditionCommentTemplateKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.ApprovalEditionCommentTemplate");
-                public static readonly string SubjectApprovalKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectApproval");
-                public static readonly string BodyApprovalKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyApproval");
-                public static readonly string BodyApprovalNoCommentKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyApprovalNoComment");
-                public static readonly string SubjectRejectKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectReject");
-                public static readonly string BodyRejectKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyReject");
+                public static readonly string ApproveSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveSubjectLocalizedKey");
+                public static readonly string ApproveBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyLocalizedKey");
+                public static readonly string ApproveBodyNoCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyNoCommentLocalizedKey");
+
+                public static readonly string RejectSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectSubjectLocalizedKey");
+                public static readonly string RejectBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectBodyLocalizedKey");
 
                 public static class Tokens
                 {
-                    public static readonly string Name = "Name";
-                    public static readonly string Author = "Author";
-                    public static readonly string Approver = "Approver";
-                    public static readonly string DueDate = "DueDate";
-                    public static readonly string ProcessLink = "ProcessLink";
-                    public static readonly string TaskTitle = "TaskTitle";
-                    public static readonly string StartDate = "StartDate";
-                    public static readonly string Message = "Message";
+                    public static readonly string ApproverName = "ApproverName";
+                    public static readonly string AuthorName = "AuthorName";
+                    public static readonly string ProcessTitle = "ProcessTitle";
                     public static readonly string ApproverComment = "ApproverComment";
                 }
             }
 
-            public static class CancelApprovalEmailTemplate
+            public static class SendForApproval
             {
-                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.CancelSubjectTemplate");
-                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.CancelBodyTemplate");
+                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectTemplate");
+                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyTemplate");
+                public static readonly string AuthorEditionCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyTemplate");
 
                 public static class Tokens
                 {
-                    public static readonly string Approver = "Approver";
-                    public static readonly string Name = "Name";
+                    public static readonly string ApproverName = "ApproverName";
+                    public static readonly string AuthorName = "AuthorName";
+                    public static readonly string ProcessTitle = "ProcessTitle";
+                    public static readonly string ProcessLink = "ProcessLink";
+                    public static readonly string DueDate = "DueDate";
+                    public static readonly string TaskTitle = "TaskTitle";
+                    public static readonly string TaskLink = "TaskLink";
+                    public static readonly string StartDate = "StartDate";
+                    public static readonly string Message= "Message";
+                }
+            }
+
+            public static class CancelApproval
+            {
+                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CancelApproval.SubjectTemplate");
+                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CancelApproval.BodyTemplate");
+
+                public static class Tokens
+                {
+                    public static readonly string ApproverName = "ApproverName";
+                    public static readonly string ProcessTitle = "ProcessTitle";
                 }
             }
 

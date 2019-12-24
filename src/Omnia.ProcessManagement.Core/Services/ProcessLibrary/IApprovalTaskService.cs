@@ -17,6 +17,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         //The reason we split the CompleteSharePointTask and SendCompletedEmail 
         //Because we don't want the transaction rollback depends on the send email, which is not so important in approving a process
         ValueTask CompleteSharePointTaskAsync(WorkflowApprovalTask approvalTask, string webUrl);
-        ValueTask SendCompletedEmailAsync(WorkflowApprovalTask approvalTask);
+        ValueTask SendCompletedEmailAsync(WorkflowApprovalTask approvalTask, string webUrl);
     }
 }

@@ -17,9 +17,9 @@ namespace Omnia.ProcessManagement.Core.Services.Workflows
             WorkflowTaskRepository = workflowTaskRepository;
         }
 
-        public async ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId, Guid teamAPpId)
+        public async ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId, Guid teamAppId)
         {
-            return await WorkflowTaskRepository.CreateAsync(workflowId, assignedUser, spItemId, teamAPpId);
+            return await WorkflowTaskRepository.CreateAsync(workflowId, assignedUser, spItemId, teamAppId);
         }
 
         public async ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId)
