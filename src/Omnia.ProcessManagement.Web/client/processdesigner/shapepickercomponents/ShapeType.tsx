@@ -90,6 +90,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
     created() {
+        if (this.formValidator)
+            this.formValidator.register(this);
         this.init();
     }
 
@@ -130,7 +132,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
 
-    private onSelectedShapeType() {
+    private onSelectedShapeType(selectedShapeType) {
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
         this.shapeTitle = null;
@@ -185,15 +187,27 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             if (this.drawingCanvas)
                 this.drawingCanvas.destroy();
             this.$nextTick(() => {
+                let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
+                let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
+                if (this.internalShapeDefinition.textPosition != TextPosition.Center) {
+                    canvasWidth += this.internalShapeDefinition.fontSize;
+                    canvasHeight += this.internalShapeDefinition.fontSize;
+                }
                 this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
                     {
                         drawingShapes: [],
-                        width: this.internalShapeDefinition.width,
-                        height: this.internalShapeDefinition.height
+                        width: canvasWidth,
+                        height: canvasHeight
                     });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false, 0, 0);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false);
             });
         }
+    }
+
+    private getNumber(value: any) {
+        if (typeof (value) == 'string')
+            return parseInt(value);
+        return value;
     }
 
     updateDrawedShape() {
@@ -222,16 +236,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         this.renderCustomLinkOptions(h)
                         : null
                     }
-                    <omfx-field-validation
-                        useValidator={this.formValidator}
-                        checkValue={this.internalShapeDefinition.textPosition}
-                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                    </omfx-field-validation>
-                    <omfx-multilingual-input
-                        requiredWithValidator={this.formValidator}
+                    <omfx-multilingual-input                      
                         model={this.shapeTitle}
                         onModelChange={(title) => { this.shapeTitle = title; this.updateDrawedShape(); }}
-                        forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                        label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
                 </v-col>
                 <v-col cols="6">
                     {this.renderShapePreview(h)}
@@ -261,12 +269,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
 
         return <div>
-            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId} onChange={this.onSelectedProcessChanged}></v-select>
-            <omfx-field-validation
-                useValidator={this.formValidator}
-                checkValue={this.selectedProcessStepId}
-                rules={new FieldValueValidation().IsRequired().getRules()}>
-            </omfx-field-validation>
+            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId}
+                onChange={this.onSelectedProcessChanged}
+                rules={new FieldValueValidation().IsRequired().getRules()}
+            ></v-select>
         </div>;
     }
     private renderCustomLinkOptions(h) {
@@ -284,12 +290,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             }));
         }
         return <div>
-            <v-select item-value="id" item-text="title" items={customLinkOptions} v-model={this.selectedCustomLinkId} onChange={this.onSelectedLinkChanged}></v-select>
-            <omfx-field-validation
-                useValidator={this.formValidator}
-                checkValue={this.selectedCustomLinkId}
-                rules={new FieldValueValidation().IsRequired().getRules()}>
-            </omfx-field-validation>
+            <v-select item-value="id" item-text="title" items={customLinkOptions} v-model={this.selectedCustomLinkId}
+                onChange={this.onSelectedLinkChanged}
+                rules={new FieldValueValidation().IsRequired().getRules()}></v-select>
             {this.selectedCustomLinkId == Guid.empty ? <a onClick={this.openCreateLinkDialog} href="javascript:void(0)">{this.pdLoc.AddLink}</a> : null}
             {this.renderCreateLinkDialog(h)}
         </div>;
@@ -324,20 +327,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 <v-col cols="6">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textPosition}></v-select>
-                    <omfx-field-validation
-                        useValidator={this.formValidator}
-                        checkValue={this.internalShapeDefinition.textPosition}
-                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                    </omfx-field-validation>
                 </v-col>
                 <v-col cols="6">
                     <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                        onChange={this.updateDrawedShape} type="number" suffix="px"></v-text-field>
-                    <omfx-field-validation
-                        useValidator={this.formValidator}
-                        checkValue={this.internalShapeDefinition.fontSize}
-                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                    </omfx-field-validation>
+                        onChange={this.updateDrawedShape} type="number" suffix="px"
+                        rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field>
                 </v-col>
             </v-row>
             <v-row dense>
