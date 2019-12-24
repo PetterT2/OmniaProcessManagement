@@ -103,6 +103,8 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             DateFieldDescending: "Newer to older"
         },
         Messages: {
+            DeletePublishedProcessConfirmation: "Are you sure you want to delete the process?",
+            ArchivePublishedProcessConfirmation: "Are you sure you want to delete and archive the process?",
             DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?",
             NoProcessTemplateValidation: "This process is not based on any existing process template.",
             MessageNobodyCanApprove: "There are no available approver for this process.",

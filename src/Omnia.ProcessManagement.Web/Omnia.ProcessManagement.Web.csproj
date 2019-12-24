@@ -298,6 +298,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedProcessingStatus.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\SyncToSharePointDialog.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\published\UnpublishDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ApprovalTask.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\TasksView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />

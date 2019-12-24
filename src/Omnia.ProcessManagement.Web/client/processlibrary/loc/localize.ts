@@ -99,6 +99,8 @@
             DateFieldDescending: string
         },
         Messages: {
+            DeletePublishedProcessConfirmation: string,
+            ArchivePublishedProcessConfirmation: string,
             DeleteDraftProcessConfirmation: string,
             NoProcessTemplateValidation: string,
             MessageNobodyCanApprove: string,
