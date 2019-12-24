@@ -7,8 +7,7 @@ using Omnia.Fx.Models.Language;
 using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
-using Omnia.Fx.Users;
-using Omnia.ProcessManagement.Core.Helpers.Processes;
+using Omnia.Fx.SharePoint.Services.Users;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
@@ -29,7 +28,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     internal class ApprovalTaskService : IApprovalTaskService
     {
         IWorkflowService WorkflowService { get; }
-        IWorkflowTaskService WorkflowTaskService { get; }
+        IUserService SPUSerService { get; }
         ISharePointListService SharePointListService { get; }
         ILocalizationProvider LocalizationProvider { get; }
         ISharePointClientContextProvider SharePointClientContextProvider { get; }
@@ -39,9 +38,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         ISharePointGroupService SharePointGroupService { get; }
         ISettingsService SettingsService { get; }
         ISharePointPermissionService SharePointPermissionService { get; }
+
         public ApprovalTaskService(ISharePointClientContextProvider sharePointClientContextProvider,
           IWorkflowService workflowService,
-          IWorkflowTaskService workflowTaskService,
           ISharePointListService sharePointListService,
           ILocalizationProvider localizationProvider,
           IEmailService emailService,
@@ -49,10 +48,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
           IMultilingualHelper multilingualHelper,
           ISharePointGroupService sharePointGroupService,
           ISharePointPermissionService sharePointPermissionService,
-          ISettingsService settingsService)
+          ISettingsService settingsService,
+          IUserService spUSerService)
         {
             WorkflowService = workflowService;
-            WorkflowTaskService = workflowTaskService;
             SharePointListService = sharePointListService;
             LocalizationProvider = localizationProvider;
             SharePointClientContextProvider = sharePointClientContextProvider;
@@ -62,6 +61,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             SharePointGroupService = sharePointGroupService;
             SharePointPermissionService = sharePointPermissionService;
             SettingsService = settingsService;
+            SPUSerService = spUSerService;
         }
 
         public async ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request)
@@ -108,9 +108,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             appCtx.Load(authorSPUser, us => us.Id, us => us.Title);
             await appCtx.ExecuteQueryAsync();
 
-            var (preferedLanguage, lcid) = await GetUserLangauge();
+            var language = await SPUSerService.GetLanguageAsync(appCtx, approverSPUser.LoginName, false);
+            var preferredLanguage = language.Name;
+            var lcid = (uint)language.LCID;
 
-            string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, preferedLanguage, null);
+            string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, preferredLanguage, null);
             string titleFormat = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ApprovalTaskTitle, lcid);
             string taskTitle = string.Format(titleFormat, processTitle);
 
@@ -126,13 +128,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
             var temporaryApprovalGroup = await SharePointGroupService.EnsureGroupOnWebAsync(appCtx, appCtx.Web, temporaryApprovalGroupTitle,
-                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.RestrictedReader) }, null, new List<User> { approverSPUser });
+                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, null, new List<User> { approverSPUser });
 
-            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
-            roleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
-            roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
+            Dictionary<Principal, List<RoleType>> taskItemRoleAssignments = new Dictionary<Principal, List<RoleType>>();
+            taskItemRoleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
+            taskItemRoleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
-            await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, roleAssignments);
+            await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, taskItemRoleAssignments);
 
             await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl);
 
@@ -336,13 +338,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
                 await EmailService.SendEmailAsync(emailInfo);
             }
-        }
-
-        public async ValueTask<(LanguageTag, uint)> GetUserLangauge()
-        {
-
-            //TODO- will replace this by Omnia Fx Code
-            return (LanguageTag.EnUs, (uint)1033);
         }
     }
 }

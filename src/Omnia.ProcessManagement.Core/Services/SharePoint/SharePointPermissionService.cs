@@ -33,6 +33,12 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                 item.BreakRoleInheritance(copyRoleAssignments, clearSubscopes);
             }
 
+            await EnsureListItemPermissionAsync(context, item, roleAssignments);
+        }
+
+
+        public async ValueTask EnsureListItemPermissionAsync(PortableClientContext context, ListItem item, Dictionary<Principal, List<RoleType>> roleAssignments)
+        {
             foreach (var roleAssignment in roleAssignments)
             {
                 RoleDefinitionBindingCollection collRoleDefinitionBinding = new RoleDefinitionBindingCollection(context);
@@ -45,6 +51,5 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
 
             await context.ExecuteQueryAsync();
         }
-
     }
 }
