@@ -32,6 +32,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private isLoading: boolean = false;
     private isUnpublishing: boolean = false;
     private canBeArchive: boolean = false;
+    private allowToUnpublish: boolean = false;
 
     created() {
         this.dialogModel.visible = true;
@@ -91,11 +92,11 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
             <v-card-actions class={this.processLibraryClasses.dialogFooter}>
                 <v-spacer></v-spacer>
                 <v-btn
-                    dark={!this.isLoading}
-                    disabled={this.isLoading}
+                    dark={!(this.isLoading || !this.allowToUnpublish)}
+                    disabled={this.isLoading || !this.allowToUnpublish}
                     color={this.omniaTheming.themes.primary.base}
                     loading={this.isUnpublishing}
-                    onClick={() => { this.unpublishProcess() }}>{this.loc.ProcessActions.Publish}
+                    onClick={() => { this.unpublishProcess() }}>{this.loc.ProcessActions.UnpublishProcess}
                 </v-btn>
                 <v-btn
                     disabled={this.isUnpublishing}
@@ -115,7 +116,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
                     hideCloseButton
                     model={this.dialogModel}
                     contentClass={this.omniaTheming.promoted.body.class}
-                    width={'800px'}
+                    width={'600px'}
                     position={DialogPositions.Center}>
                     <div>
                         {this.renderHeader(h)}
