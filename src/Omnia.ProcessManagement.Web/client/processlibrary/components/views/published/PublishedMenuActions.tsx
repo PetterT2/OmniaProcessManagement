@@ -6,6 +6,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
+import { UnpublishDialog } from './UnpublishDialog';
 
 interface PublishedMenuActionsProps {
     closeCallback: (isUpdate: boolean) => void;
@@ -28,6 +29,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
  
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
+    openUnpublishDialog: boolean = false;
    
     created() {
     }
@@ -42,6 +44,12 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     private refreshContextMenu() {
         this.disableButtonUpdateAction = !this.isAuthor;
+    }
+
+    private renderUnpublishDialog(h) {
+        return (
+            <UnpublishDialog closeCallback={() => { this.openUnpublishDialog = false; }} process={this.process}></UnpublishDialog>
+        )
     }
 
     render(h) {
@@ -82,11 +90,13 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                             <v-list-item-title>{this.loc.ProcessActions.MoveProcess}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
+                        <v-list-item onClick={() => { this.openUnpublishDialog = true; }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.UnpublishProcess}</v-list-item-title>
                         </v-list-item>
                     </v-list>
                 </v-menu>
+
+                {this.openUnpublishDialog && this.renderUnpublishDialog(h)}
             </div>
         );
     }

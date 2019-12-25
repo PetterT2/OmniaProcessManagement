@@ -1,11 +1,11 @@
 ﻿import Component from 'vue-class-component';
 import { VueComponentBase, OmniaTheming, DialogPositions, DialogModel, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
-import { Process, OPMEnterprisePropertyInternalNames, ProcessTypeItemSettings } from '../../../../fx/models';
+import { Process, OPMEnterprisePropertyInternalNames, ProcessTypeItemSettings, GlobalSettings } from '../../../../fx/models';
 import { Prop } from 'vue-property-decorator';
 import { Localize, Inject, Utils } from '@omnia/fx';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
-import { ProcessTypeStore } from '../../../../fx';
+import { ProcessTypeStore, SettingsStore } from '../../../../fx';
 
 interface UnpublishDialogProps {
     process: Process;
@@ -20,6 +20,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
+    @Inject(SettingsStore) settingsStore: SettingsStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -27,10 +28,10 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
 
     private dialogModel: DialogModel = { visible: false };
-    private processTypeSettings: ProcessTypeItemSettings = null;
+
     private isLoading: boolean = false;
     private isUnpublishing: boolean = false;
-    private needToArchive: boolean = false;
+    private canBeArchive: boolean = false;
 
     created() {
         this.dialogModel.visible = true;
@@ -43,11 +44,15 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private init() {
         this.isLoading = true;
         let processTypeId = this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType];
-        this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId]).then(() => {
-            var processType = this.processTypeStore.getters.byId(processTypeId);
-            if (processType) {
-                this.processTypeSettings = processType.settings as ProcessTypeItemSettings;
-            }
+        Promise.all([
+            this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings),
+            this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
+        ]).then(() => {
+            let processType = this.processTypeStore.getters.byId(processTypeId);
+            let processTypeSettings = processType ? processType.settings as ProcessTypeItemSettings : null;
+            let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
+            let defaultArchiveUrl = globalSettings ? globalSettings.archiveSiteUrl : "";
+            this.canBeArchive = processTypeSettings && processTypeSettings.archive && (!Utils.isNullOrEmpty(processTypeSettings.archive.url) || !Utils.isNullOrEmpty(defaultArchiveUrl));
             this.isLoading = false;
         })
     }
@@ -74,28 +79,32 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     }
 
     private renderBody(h) {
-        <v-container class={this.processLibraryClasses.centerDialogBody}>
-            <span>{this.needToArchive ? this.loc.Messages.ArchivePublishedProcessConfirmation : this.loc.Messages.DeletePublishedProcessConfirmation}</span>
-        </v-container>
+        return (
+            <v-container class={this.processLibraryClasses.centerDialogBody}>
+                <span>{this.canBeArchive ? this.loc.Messages.ArchivePublishedProcessConfirmation : this.loc.Messages.DeletePublishedProcessConfirmation}</span>
+            </v-container>
+        )
     }
 
     private renderFooter(h) {
-        <v-card-actions class={this.processLibraryClasses.dialogFooter}>
-            <v-spacer></v-spacer>
-            <v-btn
-                dark={!this.isLoading}
-                disabled={this.isLoading}
-                color={this.omniaTheming.themes.primary.base}
-                loading={this.isUnpublishing}
-                onClick={() => { this.unpublishProcess() }}>{this.loc.ProcessActions.Publish}
-            </v-btn>
-            <v-btn
-                disabled={this.isUnpublishing}
-                light={!this.omniaTheming.promoted.body.dark}
-                text
-                onClick={this.unpublishDialogClose}>{this.omniaUxLoc.Common.Buttons.Cancel}
-            </v-btn>
-        </v-card-actions>
+        return (
+            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
+                <v-spacer></v-spacer>
+                <v-btn
+                    dark={!this.isLoading}
+                    disabled={this.isLoading}
+                    color={this.omniaTheming.themes.primary.base}
+                    loading={this.isUnpublishing}
+                    onClick={() => { this.unpublishProcess() }}>{this.loc.ProcessActions.Publish}
+                </v-btn>
+                <v-btn
+                    disabled={this.isUnpublishing}
+                    light={!this.omniaTheming.promoted.body.dark}
+                    text
+                    onClick={this.unpublishDialogClose}>{this.omniaUxLoc.Common.Buttons.Cancel}
+                </v-btn>
+            </v-card-actions>
+        )
     }
 
     render(h) {
