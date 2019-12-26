@@ -102,7 +102,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadPermisison() {
-        this.securityService.hasWritePermissionForRole(Security.OPMRoleDefinitions.Author, {
+        this.securityService.hasPermissionForRole(Security.OPMRoleDefinitions.Author, {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {
             this.isAuthor = hasPermission;
