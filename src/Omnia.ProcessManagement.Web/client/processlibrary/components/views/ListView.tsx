@@ -53,7 +53,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
-        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
+        this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
             [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {

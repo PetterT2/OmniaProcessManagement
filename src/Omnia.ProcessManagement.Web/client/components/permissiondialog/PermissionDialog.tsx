@@ -51,7 +51,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     created() {
         this.isLoading = true;
 
-        this.securityService.hasWritePermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
+        this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
         }).then((hasPermission) => {
             this.hasPermission = hasPermission;

@@ -298,14 +298,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                     }
                     pageFile = await LoadRequiredInfoForVersioning(clientContext, serverRelativePageName);
                 }
-
-                await MigrateCDLSettings(clientContext, sitePageList, pageFile);
             }
-        }
-
-        private async ValueTask MigrateCDLSettings(PortableClientContext clientContext, List sitePageList, File pageFile)
-        {
-            //TO DO: migrate settings
         }
 
         private async ValueTask<bool> CheckInIfNeededAsync(PortableClientContext clientContext, List list, File file, string comment)

@@ -9,6 +9,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             SearchBoxPlaceholder: "Search"
         },
         Features: {
+            ArchiveProcess: {
+                Category: "Process Management",
+                Description: "Creates a library to manage archived processes in the site.",
+                Title: "Archived Processes"
+            },
             ProcessLibrary: {
                 Category: "Process Management",
                 Description: "Creates a library to manage process in the site.",
@@ -28,6 +33,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Name: "Process Management - Published",
                     Description: "System library created by Omnia to handle published of process"
                 },
+                OPMArchived: {
+                    Name: "Process Management - Archived",
+                    Description: "System library created by Omnia to handle archived process"
+                }
             },
             ContentTypes: {
                 GroupName: "Omnia Process Management",

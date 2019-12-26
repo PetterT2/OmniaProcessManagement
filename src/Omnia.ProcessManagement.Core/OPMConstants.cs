@@ -111,6 +111,12 @@ namespace Omnia.ProcessManagement.Core
                 public const string IdAsString = "73dcb5d4-b359-471c-ad8e-1e66c2f36bbd";
                 public static readonly Guid IdAsGuid = new Guid(IdAsString);
             }
+
+            public static class ArchiveProcess
+            {
+                public const string IdAsString = "2c5a48d7-7fc6-44a2-827f-ddbd99ef9c5e";
+                public static readonly Guid IdAsGuid = new Guid(IdAsString);
+            }
         }
 
         public static class SharePoint
@@ -141,6 +147,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public const string PublishList = "OPMPublishedProcesses";
                 public const string TaskList = "OPMTasks";
+                public const string ArchivedList = "OPMArchivedProcesses";
             }
 
             public static class OPMFields

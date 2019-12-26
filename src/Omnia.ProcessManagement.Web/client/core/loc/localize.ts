@@ -5,6 +5,11 @@
             SearchBoxPlaceholder: string
         },
         Features: {
+            ArchiveProcess: {
+                Category: string,
+                Description: string,
+                Title: string
+            },
             ProcessLibrary: {
                 Category: string,
                 Description: string,
@@ -24,6 +29,10 @@
                     Name: string,
                     Description: string
                 },
+                OPMArchived: {
+                    Name: string,
+                    Description: string
+                }
             },
             ContentTypes: {
                 GroupName: string,
