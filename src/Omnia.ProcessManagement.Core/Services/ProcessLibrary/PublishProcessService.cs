@@ -119,7 +119,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 var workflow = await WorkflowService.GetByProcessAsync(process.OPMProcessId, WorkflowType.Approval);
 
                 await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
-                
+
                 if (workflow.CompletedType == WorkflowCompletedType.None)
                 {
                     await WorkflowService.CompleteAsync(workflow.Id, WorkflowCompletedType.Cancelled);
@@ -135,33 +135,33 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.CancellingApprovalFailed, false);
         }
 
-        public async ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
+        public async ValueTask CompleteWorkflowAsync(WorkflowTask approvalTask, Process process)
         {
-            var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(approvalTask.Process.TeamAppId);
+            var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
 
             await TransactionRepositiory.InitTransactionAsync(async () =>
             {
                 var approvalData = approvalTask.Workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
-                var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(approvalTask.Process.TeamAppId, approvalTask.Process.OPMProcessId, approvalData.IsLimitedAccess);
+                var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(process.TeamAppId, process.OPMProcessId, approvalData.IsLimitedAccess);
 
                 await WorkflowService.CompleteAsync(approvalTask.Workflow.Id, WorkflowCompletedType.AllTasksDone);
                 await WorkflowTaskService.CompletedAsync(approvalTask.Id, approvalTask.Comment, approvalTask.TaskOutcome);
 
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
-                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.None, false);
-                    await ProcessService.PublishProcessAsync(approvalTask.Process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
+                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
+                    await ProcessService.PublishProcessAsync(process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
                 }
                 else
                 {
-                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(approvalTask.Process.OPMProcessId, ProcessWorkingStatus.None, false);
+                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
                 }
 
-                await ApprovalTaskService.CompleteSharePointTaskAsync(approvalTask, webUrl);
-                await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(approvalTask.Process.TeamAppId, approvalTask.Process.OPMProcessId, GetLimitedUsers(approvalData.IsLimitedAccess, approvalData.LimitedUsers));
+                await ApprovalTaskService.CompleteSharePointTaskAsync(approvalTask, process, webUrl);
+                await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(process.TeamAppId, process.OPMProcessId, GetLimitedUsers(approvalData.IsLimitedAccess, approvalData.LimitedUsers));
             });
 
-            await ApprovalTaskService.SendCompletedEmailAsync(approvalTask, webUrl);
+            await ApprovalTaskService.SendCompletedEmailAsync(approvalTask, process, webUrl);
         }
 
         private List<UserIdentity> GetLimitedUsers(bool isLimitedAccess, List<UserIdentity> limitedUsers)

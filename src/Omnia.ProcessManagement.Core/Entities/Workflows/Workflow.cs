@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Entities.Workflows
 {
-    internal class Workflow : ClusteredIndexAuditingEntityBase
+    internal class Workflow : OPMClusteredIndexAuditingEntityBase
     {
         [Key]
         public Guid Id { get; set; }
@@ -19,6 +19,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Workflows
         public WorkflowType Type { get; set; }
         public WorkflowCompletedType CompletedType { get; set; }
         public DateTimeOffset? DueDate { get; set; }
+        public DateTimeOffset? DeletedAt { get; set; }
         public ICollection<WorkflowTask> WorkflowTasks { get; set; }
     }
 }

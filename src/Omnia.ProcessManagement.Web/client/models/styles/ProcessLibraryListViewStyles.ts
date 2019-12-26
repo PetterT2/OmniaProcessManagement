@@ -8,4 +8,5 @@ export const ProcessLibraryListViewStyles = {} as
         menuHeader: types.NestedCSSProperties;
         publishDialogErrorFormContent?: types.NestedCSSProperties;
         permissionBtn?: types.NestedCSSProperties;
+        taskOptions?: types.NestedCSSProperties;
     }

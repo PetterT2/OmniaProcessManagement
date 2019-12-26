@@ -44,6 +44,10 @@ StyleFlow.define(ProcessLibraryListViewStyles,
             right: '12px',
             top: '0',
             marginTop: '6px'
+        },
+        taskOptions: {
+            maxWidth: "200px",
+            paddingLeft: "20px"
         }
     }
 )

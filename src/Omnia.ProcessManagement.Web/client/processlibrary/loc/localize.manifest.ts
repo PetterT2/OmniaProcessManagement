@@ -35,6 +35,11 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Completed: "Completed",
             NotStarted: "Not Started",
         },
+        TaskViews: {
+            TasksAssignedToMe: "Assigned To Me",
+            CompletedTasks: "Completed Tasks",
+            TasksAssignedByMe: "Assigned By Me",
+        },
         ProcessLibrarySettings: {
             Tabs: {
                 General: "General",
@@ -111,12 +116,9 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             MessageUpdateProcessPropertiesBeforePublishing: "You need to fill in all required properties to be able to publish a process.",
             MessageNoItem: "There are no items to show in this view.",
             MessageApprovalTaskEditingCompletedTask: "This task has been completed by <strong>{{User}}</strong> with the following comment:",
-            MessageApprovalTaskEditingCompletedTaskNoComment: "This task has been completed by <strong>{{User}}</strong>.",
-            MessageProcessOfTaskFailedToSendForApproval: "The process of this task has been failed to be sent for approval. Please delete this task and try again.",
-            MessageFailedToCancelTask: "Failed to cancel this task.",
+            MessageApprovalTaskEditingCompletedTaskNoComment: "This task has been completed by <strong>{{User}}</strong>.",            
             MessageTaskHasBeenCompletedOrCanceled: "This task has been completed or canceled.",
             MessageRequireRejectComment: "You need to submit a comment when the process is rejected.",
-            TaskIsInProcessingStatus: "The task is processing. Please wait a few seconds.",
             MessageTaskCancelledBySystem: "Task was cancelled by the system",
             MessageApprovalTaskEditingDescription: "Open the process and review the contents. When you are done, please write a comment in the text field below and select Approve or Reject",
             SyncToSharePointFailed: "This process was synced to SharePoint failed"
@@ -158,6 +160,6 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             }
         },
         TaskTitle: {
-            Approval: "Approval of process: {0}",
+            ApprovalTaskPrefix: "Approval of process",
         }
     });

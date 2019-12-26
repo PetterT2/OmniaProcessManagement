@@ -14,6 +14,7 @@ using Omnia.Fx.Users;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Core.Services.Workflows;
@@ -30,50 +31,38 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ProcessController> Logger { get; }
         IWorkflowTaskService WorkflowTaskService { get; }
-        ISharePointSiteService SharePointSiteService { get; }
-        IProcessService ProcessService { get; }
-        IOmniaContext OmniaContext { get; }
-        IUserService UserService { get; }
-
-        ITeamCollaborationAppsService TeamCollaborationAppService { get; }
-
+        ISharePointTaskService SharePointTaskService { get; }
+        IProcessSecurityService ProcessSecurityService { get; }
+        ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
         public TaskController(ILogger<ProcessController> logger,
             IWorkflowTaskService workflowTaskService,
-            IProcessService processService,
-            ISharePointSiteService sharePointSiteService,
-            IUserService userService,
-            IOmniaContext omniaContext,
-            ITeamCollaborationAppsService teamCollaborationAppService)
+            ISharePointTaskService sharePointTaskService,
+            IProcessSecurityService processSecurityService,
+            ITeamCollaborationAppsService teamCollaborationAppsService)
         {
             WorkflowTaskService = workflowTaskService;
-            SharePointSiteService = sharePointSiteService;
-            ProcessService = processService;
-            OmniaContext = omniaContext;
-            UserService = userService;
-            TeamCollaborationAppService = teamCollaborationAppService;
+            SharePointTaskService = sharePointTaskService;
+            ProcessSecurityService = processSecurityService;
+            TeamCollaborationAppsService = teamCollaborationAppsService;
             Logger = logger;
         }
 
 
-        [HttpGet, Route("{spItemId:int}")]
+        [HttpGet, Route("approval/{teamAppId:guid}/{spItemId:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<WorkflowApprovalTask>> GetWorkflowTaskAsync(int spItemId, Guid appInstanceId)
+        public async ValueTask<ApiResponse<WorkflowTask>> GetWorkflowApprovalTaskAsync(int spItemId, Guid teamAppId)
         {
             try
             {
-                var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(appInstanceId);
-                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, appInstanceId);
-                var workflowApprovalTask = new WorkflowApprovalTask(workflowTask);
-                //workflowApprovalTask.Process = await ProcessService.GetProcessesAsync(workflowTask.Workflow.OPMProcessId);
-                workflowApprovalTask.Responsible = workflowTask.AssignedUser.Equals(OmniaContext.Identity.LoginName);
-                return workflowApprovalTask.AsApiResponse();
+                //We based on the permission on SharePoint for this task item
+                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, teamAppId, true);
+                return workflowTask.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<WorkflowApprovalTask>(ex);
+                return ApiUtils.CreateErrorResponse<WorkflowTask>(ex);
             }
         }
-
     }
 }

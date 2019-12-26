@@ -144,28 +144,35 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("completeworkflow")]
         [Authorize]
-        public async ValueTask<ApiResponse> CompleteWorkflowAsync(WorkflowApprovalTask approvalTask)
+        public async ValueTask<ApiResponse> CompleteWorkflowAsync(WorkflowTask approvalTask)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(approvalTask.Process.OPMProcessId, ProcessVersionType.Draft);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(approvalTask.Workflow.OPMProcessId, ProcessVersionType.Draft);
 
                 return await securityResponse
                     .RequireApprover()
                     .DoAsync(async (teamAppId) =>
                     {
-                        if (approvalTask.Process.TeamAppId != teamAppId)
+                        //var dbWorkflow = await WorkflowService.GetAsync(approvalTask.WorkflowId);
+                        var dbWorkflowTask = await WorkflowTaskService.GetAsync(approvalTask.SPTaskId, teamAppId, false);
+                        if (dbWorkflowTask == null)
                         {
-                            throw new Exception("The TeamAppId sent from client-side is not match with the server-side value");
+                            throw new Exception($"OPM task not found");
+                        }
+                        if (dbWorkflowTask.IsCompleted)
+                        {
+                            throw new Exception($"This task has been completed");
                         }
 
-                        var dbWorkflow = await WorkflowService.GetAsync(approvalTask.WorkflowId);
-                        var dbWorkflowTask = await WorkflowTaskService.GetAsync(approvalTask.SPTaskId, teamAppId);
-
-
-                        if (dbWorkflow.OPMProcessId != approvalTask.Process.OPMProcessId)
+                        if (dbWorkflowTask.Workflow.CompletedType != WorkflowCompletedType.None)
                         {
-                            throw new Exception($"This task is not belong to process with OPMProcessId: {dbWorkflow.OPMProcessId}");
+                            throw new Exception($"This task was closed with status: {dbWorkflowTask.Workflow.CompletedType.ToString()}");
+                        }
+
+                        if (dbWorkflowTask.Workflow.OPMProcessId != approvalTask.Workflow.OPMProcessId)
+                        {
+                            throw new Exception($"This task is not belong to process with OPMProcessId: {dbWorkflowTask.Workflow.OPMProcessId}");
                         }
 
                         if (dbWorkflowTask.AssignedUser.ToLower() != OmniaContext.Identity.LoginName.ToLower())
@@ -173,9 +180,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
                             throw new Exception("This task is not belong to current user");
                         }
 
-                        approvalTask.Process = await ProcessService.GetProcessByOPMProcessIdAsync(dbWorkflow.OPMProcessId, DraftOrLatestPublishedVersionType.Draft);
+                        var process = await ProcessService.GetProcessByOPMProcessIdAsync(dbWorkflowTask.Workflow.OPMProcessId, DraftOrLatestPublishedVersionType.Draft);
 
-                        await PublishProcessService.CompleteWorkflowAsync(approvalTask);
+                        await PublishProcessService.CompleteWorkflowAsync(approvalTask, process);
+
                         return ApiUtils.CreateSuccessResponse();
                     });
             }

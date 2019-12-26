@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Omnia.Fx.DependencyInjection;
 using Omnia.Fx.Messaging;
 using Omnia.Fx.NetCore.Worker;
 using Omnia.ProcessManagement.Core;

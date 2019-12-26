@@ -1,10 +1,9 @@
-﻿import { GuidValue } from '@omnia/fx-models';
-import { MultilingualData } from '..';
+﻿import { GuidValue, MultilingualString } from '@omnia/fx-models';
 
-export interface ProcessStep extends MultilingualData {
+export interface ProcessStep {
     id: GuidValue;
     processDataHash: string;
-
+    title: MultilingualString;
     processSteps: Array<ProcessStep>;
 
     //client-side

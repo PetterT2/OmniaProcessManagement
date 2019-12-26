@@ -10,16 +10,27 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 {
-    internal class WorkflowTaskRepository : RepositoryBase<Entities.Workflows.WorkflowTask>, IWorkflowTaskRepository
+    internal class WorkflowTaskRepository : IWorkflowTaskRepository
     {
-        public WorkflowTaskRepository(OmniaPMDbContext databaseContext) : base(databaseContext)
+        OmniaPMDbContext DbContext { get; }
+        public WorkflowTaskRepository(OmniaPMDbContext databaseContext)
         {
-
+            DbContext = databaseContext;
         }
 
         public async ValueTask<WorkflowTask> CreateAsync(Guid workflowId, string assignedUser, int spItemId, Guid teamAppId)
         {
-            var workflowCreatedBy = await _dataContext.Workflows.Where(w => w.Id == workflowId).Select(w => w.CreatedBy).FirstOrDefaultAsync();
+            var workflow = await DbContext.Workflows.Where(w => w.Id == workflowId).FirstOrDefaultAsync();
+            if (workflow == null)
+            {
+                throw new Exception($"Not found workflow with id: {workflowId}");
+            }
+
+            if (workflow.CompletedType != WorkflowCompletedType.None)
+            {
+                throw new Exception($"This workflow with id: {workflowId} was completed and cannot add more task");
+            }
+
 
             Entities.Workflows.WorkflowTask entity = new Entities.Workflows.WorkflowTask();
             entity.Id = Guid.NewGuid();
@@ -28,25 +39,28 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             entity.IsCompleted = false;
             entity.SPTaskId = spItemId;
             entity.TeamAppId = teamAppId;
-            entity.CreatedBy = workflowCreatedBy;
-            await _dbSet.AddAsync(entity);
-            await _dataContext.SaveChangesAsync();
+            entity.CreatedBy = entity.ModifiedBy = workflow.CreatedBy;
+            entity.CreatedAt = entity.ModifiedAt = workflow.CreatedAt;
+
+            await DbContext.WorkflowTasks.AddAsync(entity);
+            await DbContext.SaveChangesAsync();
+
             return MapEfToModel(entity);
         }
 
         public async ValueTask SetCompletedTask(Guid workflowTaskId, string comment, TaskOutcome taskOutCome)
         {
-            var existingEntity = await _dbSet.AsTracking()
+            var existingEntity = await DbContext.WorkflowTasks.AsTracking()
                 .FirstOrDefaultAsync(x => x.Id == workflowTaskId);
             existingEntity.IsCompleted = true;
             existingEntity.Comment = comment;
             existingEntity.TaskOutcome = taskOutCome;
-            await _dataContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
         }
 
         public async ValueTask<WorkflowTask> GetAsync(int spItemId, Guid teamAppId)
         {
-            var entity = await _dbSet.Where(w => w.SPTaskId == spItemId && w.TeamAppId == teamAppId)
+            var entity = await DbContext.WorkflowTasks.Where(w => w.SPTaskId == spItemId && w.TeamAppId == teamAppId)
                 .Include(w => w.Workflow).FirstOrDefaultAsync();
             return MapEfToModel(entity);
         }
