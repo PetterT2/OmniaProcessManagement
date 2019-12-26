@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, IShape } from '../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums, DrawingShape } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
@@ -50,6 +50,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
     private shapeTitle: MultilingualString = null;
+    private freeNodes: IFabricShape[] = null;
     private textPositions = [
         {
             value: TextPosition.Above,
@@ -80,7 +81,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     ];
     private isShowAddLinkDialog: boolean = false;
     private isCreatingChildStep: boolean = false;
-    private openDrawPolygon: boolean = false;
 
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
@@ -126,7 +126,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             shapeType: this.selectedShapeType,
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            title: this.shapeTitle
+            title: this.shapeTitle,
+            nodes: this.freeNodes
         };
         if (this.changeDrawingOptionsCallback) {
             this.changeDrawingOptionsCallback(drawingOptions);
@@ -172,16 +173,22 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.onDrawingShapeOptionChanged();
     }
 
+    redrawFreeShape() {
+        this.freeNodes = null;
+        this.drawingCanvas.destroy();
+        this.initFreeFormCanvas();
+    }
+
     renderShapePreview(h) {
-        return <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+        return <div>
             {
                 this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ?
-                    <v-btn onClick={() => { this.openDrawPolygon = true; }} class={["mx-2"]} fab large>
-                        <v-icon>fa fa-draw-polygon</v-icon>
-                    </v-btn>
+                    <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.redrawFreeShape}>{this.pdLoc.Redraw}</v-btn>
                     : null
             }
-            <canvas id={this.previewCanvasId.toString()}></canvas>
+            <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+                <canvas id={this.previewCanvasId.toString()}></canvas>
+            </div>
         </div>;
     }
 
@@ -194,24 +201,50 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         return result;
     }
 
+    initDrawingCanvas() {
+        let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
+        let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
+        if (this.internalShapeDefinition.textPosition != TextPosition.Center)
+            canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+
+        this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
+            {
+                drawingShapes: [],
+                width: canvasWidth,
+                height: canvasHeight
+            });
+    }
+
+    initFreeFormCanvas() {
+        this.freeNodes = this.drawingOptions.nodes;
+        let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
+        let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
+        canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+        this.drawingCanvas = new DrawingCanvasFreeForm(this.previewCanvasId.toString(), {},
+            {
+                width: canvasWidth,
+                height: canvasHeight,
+                gridX: 20,
+                gridY: 20,
+                drawingShapes: []
+            });
+        (this.drawingCanvas as DrawingCanvasFreeForm).start(Utils.clone(this.internalShapeDefinition), this.multilingualStore.getters.stringValue(this.shapeTitle));
+    }
+
     startToDrawShape() {
         if (this.internalShapeDefinition) {
             if (this.drawingCanvas)
                 this.drawingCanvas.destroy();
             this.$nextTick(() => {
-                let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
-                let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-                if (this.internalShapeDefinition.textPosition != TextPosition.Center) {
-                    canvasWidth += this.internalShapeDefinition.fontSize;
-                    canvasHeight += this.internalShapeDefinition.fontSize;
+                if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
+                    this.initDrawingCanvas();
+                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false, 0, 0);
                 }
-                this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
-                    {
-                        drawingShapes: [],
-                        width: canvasWidth,
-                        height: canvasHeight
-                    });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false);
+                else {
+                    this.initFreeFormCanvas();
+                    if (!Utils.isNullOrEmpty(this.drawingOptions.nodes))
+                        this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, false, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.nodes);
+                }
             });
         }
     }
@@ -223,17 +256,21 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     updateDrawedShape() {
-        if (this.drawingCanvas) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false);
+        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
+            this.freeNodes = this.drawingCanvas.drawingShapes[0].shape.nodes;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
         }
+        if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
+            this.freeNodes = null;
         this.onDrawingShapeOptionChanged();
     }
 
     previewActivedShape() {
-        if (this.drawingCanvas) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, true);
+        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, true, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
         }
     }
+
     private renderShapeTypeOptions(h) {
         return <v-container class="pa-0">
             <v-row dense>
@@ -248,7 +285,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         this.renderCustomLinkOptions(h)
                         : null
                     }
-                    <omfx-multilingual-input                      
+                    <omfx-multilingual-input
                         model={this.shapeTitle}
                         onModelChange={(title) => { this.shapeTitle = title; this.updateDrawedShape(); }}
                         label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
@@ -419,7 +456,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         return <div>
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
-            {this.openDrawPolygon && this.renderFreeformDrawing(h)}
         </div>;
     }
     private renderMediaShapeDefinition(h) {
@@ -431,27 +467,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         return <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.changeShapeCallback}>{this.pdLoc.ChangeShape}</v-btn>
     }
 
-    private renderPreviewFreeformShape(shape: IShape) {
-        let newDrawingShape: DrawingShape = {
-            id: this.drawingCanvas.drawingShapes.length > 0 ? this.drawingCanvas.drawingShapes[0].id : Guid.newGuid(),
-            type: this.selectedShapeType,
-            title: this.shapeTitle,
-            shape: shape
-        };
-        this.drawingCanvas.deleteShape(this.drawingCanvas.drawingShapes[0]);
-        this.drawingCanvas.addDrawingShape(newDrawingShape, false, 0, 0);
-    }
-
-    private renderFreeformDrawing(h) {
-        return (<opm-free-form-drawing
-            shapeDefinition={this.internalShapeDefinition}
-            onClosed={() => { this.openDrawPolygon = false; }}
-            onSaved={(shape: IShape) => {
-                this.renderPreviewFreeformShape(shape);
-                this.openDrawPolygon = false;
-            }}
-        ></opm-free-form-drawing>);
-    }
     /**
         * Render 
         * @param h

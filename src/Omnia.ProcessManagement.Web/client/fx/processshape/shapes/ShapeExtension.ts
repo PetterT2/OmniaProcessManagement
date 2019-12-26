@@ -9,13 +9,17 @@ import { TextSpacingWithShape } from '../../constants';
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
     nodes: IFabricShape[];
+    left: number;
+    top: number;
     protected fabricShapes: Array<FabricShape> = [];
     protected fabricObjects: fabric.Object[] = [];
     protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
     protected originPos: { x: number, y: number } = { x: 0, y: 0 };
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number) {
+        this.left = left;
+        this.top = top;
         this.definition = definition;
         this.nodes = nodes;
         this.startPoint = { x: 0, y: 0 };
@@ -34,21 +38,26 @@ export class ShapeExtension implements Shape {
         })
     }
 
-    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
     get shapeObject(): fabric.Object[] {
         return this.fabricObjects;
     }
 
-    getShapeJson(): IShape {
-        let nodes = this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
-        this.definition = this.ensureDefinition(nodes);
+    protected getShapes(): IFabricShape[] {
+        return this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
+    }
 
+    getShapeJson(): IShape {
+        let nodes = this.getShapes();
+        this.definition = this.ensureDefinition(nodes);
         return {
             name: this.name,
             nodes: nodes,
-            definition: this.definition
+            definition: this.definition,
+            left: this.left,
+            top: this.top
         }
     }
 

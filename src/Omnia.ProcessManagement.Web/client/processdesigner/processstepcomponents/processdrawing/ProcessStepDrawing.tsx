@@ -91,7 +91,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
-        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId);
+        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId, addShapeOptions.nodes);
 
         setTimeout(() => {
             this.saveState(true);
@@ -104,7 +104,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
         let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.shapeType, drawingOptions.processStepId, drawingOptions.customLinkId);
+        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.shapeType, drawingOptions.processStepId, drawingOptions.customLinkId, drawingOptions.nodes);
 
         setTimeout(() => {
             this.saveState(true);

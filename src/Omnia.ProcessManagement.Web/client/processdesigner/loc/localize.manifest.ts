@@ -17,6 +17,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         RecentShapes: "Recent Shapes",
         SelectShape: "Select Shape",
         AddShape: "Add Shape",
+        Redraw: "Redraw",
         DeleteShape: "Delete Shape",
         ShapeType: "Shape Type",
         Search: "Search",

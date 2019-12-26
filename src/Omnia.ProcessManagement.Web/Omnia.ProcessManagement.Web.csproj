@@ -63,12 +63,6 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.css.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.manifest.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.tsx" />
-    <TypeScriptCompile Remove="client\components\freeform\IFreeFormDrawing.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\loc\localize.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
@@ -229,7 +223,6 @@
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
-    <TypeScriptCompile Remove="client\models\styles\FreeFormDrawingStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\models\styles\index.ts" />

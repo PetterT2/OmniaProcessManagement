@@ -1,13 +1,14 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShape, FabricRectShape, FabricTextShape, FabricTriangleShape, IFabricShape, FabricCircleShape, FabricEllipseShape, FabricPolygonShape, FabricShapeTypes, FabricPathShape, FabricPolylineShape, FabricLineShape } from '../fabricshape';
+import { FabricTextShape, IFabricShape, FabricShapeTypes, FabricPathShape, FabricPolylineShape, FabricLineShape } from '../fabricshape';
 import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { IShape } from './IShape';
 
 export class FreeformShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number) {
         super(definition, nodes, isActive, title, selectable, left, top);
     }
@@ -18,13 +19,11 @@ export class FreeformShape extends ShapeExtension implements Shape {
 
     protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
-        let hasLeft: boolean = (left != null && left != undefined) ? true : false;
-        let hasTop: boolean = (top != null && top != undefined) ? true : false;
-        left = left || 0; top = top || 0;
-        left = parseFloat(left.toString());
-        top = parseFloat(top.toString());
-        let pleft = left, ptop = top;
-
+        let hasPosition = (left != null && left != undefined) && (top != null && top != undefined);
+        if (hasPosition) {
+            left = parseFloat(left.toString());
+            top = parseFloat(top.toString());
+        }
         if (this.nodes) {
             var fabricGroupObjects: fabric.Object[] = [];
             var fabricTextObject: fabric.Object;
@@ -60,21 +59,27 @@ export class FreeformShape extends ShapeExtension implements Shape {
                 })
             }
 
-            let group = new fabric.Group(fabricGroupObjects, Object.assign({ selectable: selectable }, (left && top) ? { left: pleft, top: ptop } : {}));
-            group.toActiveSelection();
-            if (hasLeft)
-                group.left = left;
-            if (hasTop)
-                group.top = top;
-            if (this.definition.width)
-                group.scaleToWidth(this.definition.width);
-            if (this.definition.height)
-                group.scaleToHeight(this.definition.height);
+            let group = new fabric.Group(fabricGroupObjects, Object.assign({ selectable: selectable }, hasPosition ? { left: left, top: top } : {}));
             this.fabricObjects.push(group);
-
             if (textNode) {
-                let textPosition = this.getObjectPosition(true, group.left, group.top, group.width * group.scaleX, group.height * group.scaleY, true);
-                let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: selectable, left: textPosition.left, top: textPosition.top }, textNode.properties || {}, title));
+                let tleft = group.left + Math.floor(group.width / 2);
+                let ttop = group.top;
+                switch (this.definition.textPosition) {
+                    case TextPosition.Center:
+                        ttop += Math.floor(group.height / 2 - this.definition.fontSize / 2 - 2);
+                        break;
+                    case TextPosition.Bottom:
+                        ttop += group.height + TextSpacingWithShape;
+                        break;
+                    default:
+                        ttop = group.top - TextSpacingWithShape - this.definition.fontSize;
+                        if (ttop <= 0) {
+                            ttop = 0;
+                            this.fabricObjects[0].top = this.fabricObjects[0].top + TextSpacingWithShape + this.definition.fontSize;
+                        }
+                        break;
+                }
+                let textShape = new FabricTextShape(this.definition, isActive, Object.assign(textNode.properties || {}, { originX: 'center', selectable: false, left: tleft, top: ttop }), title);
                 this.fabricShapes.push(textShape);
                 fabricTextObject = textShape.fabricObject;
                 this.fabricObjects.push(fabricTextObject);
@@ -83,4 +88,17 @@ export class FreeformShape extends ShapeExtension implements Shape {
         }
     }
 
+    protected getShapes(): IFabricShape[] {
+        if (this.fabricObjects && this.fabricObjects.length > 0) {
+            this.left = this.fabricObjects[0].left;
+            this.top = this.fabricObjects[0].top;
+        }
+        return this.fabricShapes ? this.fabricShapes.filter(s => s.shapeNodeType != FabricShapeTypes.line).map(n => n.getShapeNodeJson()) : [];
+    }
+
+    scalePointsToDefinition(scaleX: number, scaleY: number) {
+        this.fabricShapes.forEach(s => {
+            s.scalePointsToDefinition(scaleX, scaleY);
+        })
+    }
 }
