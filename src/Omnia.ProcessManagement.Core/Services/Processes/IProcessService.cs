@@ -18,6 +18,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
+        ValueTask UnpublishProcessAsync(Guid opmProcessId, Guid processTypeId, string webUrl);
 
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);

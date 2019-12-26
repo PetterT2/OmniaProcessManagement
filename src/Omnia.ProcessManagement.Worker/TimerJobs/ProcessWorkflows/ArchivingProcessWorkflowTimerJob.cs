@@ -3,20 +3,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Messaging;
 using Omnia.ProcessManagement.Core.Services.Processes;
-using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Omnia.ProcessManagement.Worker.TimerJobs
+namespace Omnia.ProcessManagement.Worker.TimerJobs.ProcessWorkflows
 {
-    internal class SyncingToSharePointWorkflowTimerJob : BaseWorkflowTimerJob
+    internal class ArchivingProcessWorkflowTimerJob : BaseWorkflowTimerJob
     {
-        public SyncingToSharePointWorkflowTimerJob(IHostApplicationLifetime appLifetime,
+        public ArchivingProcessWorkflowTimerJob(IHostApplicationLifetime appLifetime,
             IServiceScopeFactory serviceScopeFactory,
             IMessageBus messageBus,
-            ILogger<SyncingToSharePointWorkflowTimerJob> logger) : base(appLifetime,
+            ILogger<ArchivingProcessWorkflowTimerJob> logger) : base(appLifetime,
                 serviceScopeFactory,
                 messageBus,
                 logger,
@@ -38,14 +39,14 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Syncing to SharePoint for process with OPMProcessId: {process.OPMProcessId} failed: {ex.Message} - {ex.StackTrace}");
+                Logger.LogError($"Archiving process with OPMProcessId: {process.OPMProcessId} failed: {ex.Message} - {ex.StackTrace}");
 
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var processService = scope.ServiceProvider.GetRequiredService<IProcessService>();
-                    await processService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SyncingToSharePointFailed);
+                    await processService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.ArchivingFailed);
                 }
-                Logger.LogError($"process with OPMProcessId: {process.OPMProcessId} was updated to working status {ProcessWorkingStatus.SyncingToSharePointFailed.ToString()}");
+                Logger.LogError($"process with OPMProcessId: {process.OPMProcessId} was updated to working status {ProcessWorkingStatus.ArchivingFailed.ToString()}");
             }
         }
     }
