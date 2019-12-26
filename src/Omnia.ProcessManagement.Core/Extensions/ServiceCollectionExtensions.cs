@@ -39,6 +39,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
 
             //Services
             services.AddScopedWithSingeltonRef<IProcessLibraryFeatureService, ProcessLibraryFeatureService>();
+            services.AddScopedWithSingeltonRef<IArchiveProcessFeatureService, ArchiveProcessFeatureService>();
 
             services.AddScopedWithSingeltonRef<IProcessTemplateService, ProcessTemplateService>();
             services.AddScopedWithSingeltonRef<IProcessService, ProcessService>();
