@@ -5,7 +5,7 @@ export * from './processactions';
 export * from './enums';
 export * from './processtypes';
 export * from './drawingdefinitions';
-export * from './MultilingualData';
 export * from './settings';
 export * from './workflows';
 export * from './security';
+export * from './sharepointtasks';

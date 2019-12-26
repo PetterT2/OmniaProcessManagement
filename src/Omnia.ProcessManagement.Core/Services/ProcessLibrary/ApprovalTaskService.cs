@@ -113,8 +113,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var lcid = (uint)language.LCID;
 
             string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, preferredLanguage, null);
-            string titleFormat = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ApprovalTaskTitle, lcid);
-            string taskTitle = string.Format(titleFormat, processTitle);
+            string titleFormat = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ApprovalTaskTitlePrefix, lcid);
+            string taskTitle = titleFormat + ": " + processTitle;
 
             Dictionary<string, dynamic> keyValuePairs = new Dictionary<string, object>();
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Title, taskTitle);
@@ -123,6 +123,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverSPUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, authorSPUser.Id);
+            
             List taskList = await SharePointListService.GetListByUrlAsync(appCtx, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = await SharePointListService.AddListItemAsync(appCtx, taskList, keyValuePairs);
 
@@ -171,7 +172,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        public async ValueTask CompleteSharePointTaskAsync(WorkflowApprovalTask approvalTask, string webUrl)
+        public async ValueTask CompleteSharePointTaskAsync(WorkflowTask approvalTask, Process process, string webUrl)
         {
             PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
@@ -196,7 +197,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             roleAssignments.Add(approvalUser, new List<RoleType> { RoleType.Reader });
 
             await SharePointPermissionService.BreakListItemPermissionAsync(appContext, taskItem, false, false, roleAssignments);
-            string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + approvalTask.Process.OPMProcessId.ToString().ToLower();
+            string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
             await SharePointGroupService.EnsureRemoveGroupOnWebAsync(appContext, appContext.Web, temporaryApprovalGroupTitle);
         }
 
@@ -272,7 +273,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        public async ValueTask SendCompletedEmailAsync(WorkflowApprovalTask task, string webUrl)
+        public async ValueTask SendCompletedEmailAsync(WorkflowTask task, Process process, string webUrl)
         {
             PortableClientContext appCtx = SharePointClientContextProvider.CreateClientContext(webUrl, true);
             string emailTemplate = string.Empty;
@@ -323,7 +324,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 emailInfo.UseMultilingualTokenInfo(OmniaScopedContext.BusinessProfileId)
                    .AddTokenMultilingualValues(new Dictionary<string, MultilingualString>
                    {
-                        {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ProcessTitle, task.Process.RootProcessStep.Title }
+                        {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ProcessTitle, process.RootProcessStep.Title }
                    });
 
                 emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {

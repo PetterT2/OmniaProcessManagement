@@ -31,6 +31,11 @@
             Completed: string,
             NotStarted: string
         },
+        TaskViews: {
+            TasksAssignedToMe: string,
+            CompletedTasks: string,
+            TasksAssignedByMe: string,
+        },
         ProcessLibrarySettings: {
             Tabs: {
                 General: string,
@@ -107,10 +112,7 @@
             MessageApprovalTaskEditingCompletedTask: string,
             MessageApprovalTaskEditingCompletedTaskNoComment: string,
             MessageRequireRejectComment: string,
-            MessageProcessOfTaskFailedToSendForApproval: string,
-            MessageFailedToCancelTask: string,
             MessageTaskHasBeenCompletedOrCanceled: string,
-            TaskIsInProcessingStatus: string,
             MessageTaskCancelledBySystem: string,
             MessageApprovalTaskEditingDescription: string,
             SyncToSharePointFailed: string
@@ -151,7 +153,7 @@
             }
         },
         TaskTitle: {
-            Approval: string
+            ApprovalTaskPrefix: string
         }
     }
 }

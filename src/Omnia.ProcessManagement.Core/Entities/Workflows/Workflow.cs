@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Entities.Workflows
 {
-    internal class Workflow : ClusteredIndexAuditingEntityBase
+    internal class Workflow : OPMClusteredIndexAuditingEntityBase
     {
         [Key]
         public Guid Id { get; set; }

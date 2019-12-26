@@ -1,7 +1,7 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Utils as omniaUtils, Utils, Injectable } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
 import { AxiosRequestConfig } from 'axios';
-import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow, WorkflowApprovalTask } from '../../fx/models';
+import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow, WorkflowTask } from '../../fx/models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class PublishProcessService {
@@ -59,7 +59,7 @@ export class PublishProcessService {
         });
     }
 
-    public completeApprovalTask = (workflowTask: WorkflowApprovalTask): Promise<void> => {
+    public completeApprovalTask = (workflowTask: WorkflowTask): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<void>>(`/api/publish/completeworkflow`, workflowTask).then(response => {
                 if (response.data.success) {

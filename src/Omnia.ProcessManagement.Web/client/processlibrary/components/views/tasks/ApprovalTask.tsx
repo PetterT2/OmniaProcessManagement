@@ -10,7 +10,7 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, TaskService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, WorkflowApprovalTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
+import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
@@ -36,14 +36,13 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
-    
+
 
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
-    private task: WorkflowApprovalTask = null;
+    private task: WorkflowTask = null;
     private taskId: string = "";
     private completedTaskDescription: string;
     private dateFormat: string = "YYYY-MM-DD";
-    private resolveTaskErrorMessage: string = "";
     private errorMessage: string = "";
 
     private isLoadingTask: boolean = false;
@@ -64,8 +63,8 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
         this.isLoadingTask = true;
         this.taskId = WebUtils.getQs(UrlParameters.TaskId);
-        this.taskService.getById(parseInt(this.taskId), this.opmContext.teamAppId)
-            .then((data: WorkflowApprovalTask) => {
+        this.taskService.getApprovalTaskById(parseInt(this.taskId), this.opmContext.teamAppId)
+            .then((data) => {
                 this.task = data;
                 if (this.task != null) {
                     this.setTaskDescription();
@@ -82,11 +81,11 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         if (this.task.isCompleted) {
             if (this.task.comment && this.task.comment.length > 0) {
                 this.completedTaskDescription = this.loc.Messages.MessageApprovalTaskEditingCompletedTask;
-                this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedTo.displayName);
+                this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedUserDisplayName);
             }
             else {
                 this.completedTaskDescription = this.loc.Messages.MessageApprovalTaskEditingCompletedTaskNoComment;
-                this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedTo.displayName);
+                this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedUserDisplayName);
             }
         }
     }
@@ -130,39 +129,15 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private checkTaskIsInApprovalStatus(): boolean {
-        return this.task && this.task.process && this.task.process.processWorkingStatus == ProcessWorkingStatus.SentForApproval && this.task.responsible && !this.task.isCompleted;
+        return this.task && this.task.sharePointTask.isCurrentResponsible && !this.task.isCompleted;
     }
 
-    private checkValidToShowTaskContent(): boolean {
-        if (!this.task.isCompleted && this.task.workflow.completedType != WorkflowCompletedType.Cancelled) {
-            if (this.task.process.processWorkingStatus == ProcessWorkingStatus.SendingForApprovalFailed) {
-                this.resolveTaskErrorMessage = this.loc.Messages.MessageProcessOfTaskFailedToSendForApproval;
-                return false;
-            }
-            if (this.task.process.processWorkingStatus == ProcessWorkingStatus.CancellingApprovalFailed) {
-                this.resolveTaskErrorMessage = this.loc.Messages.MessageFailedToCancelTask;
-                return false;
-            }
-            return true;
-        }
-        else {
-            this.resolveTaskErrorMessage = this.loc.Messages.MessageTaskHasBeenCompletedOrCanceled;
-            return false;
-        }
-    }
 
     private allowToApproval() {
-        return this.task && !this.task.isCompleted && this.task.responsible && this.task.workflow.completedType == WorkflowCompletedType.None;
+        return this.task && !this.task.isCompleted && this.task.sharePointTask.isCurrentResponsible && this.task.workflow.completedType == WorkflowCompletedType.None;
     }
 
     renderBody(h) {
-        if (this.task && this.task.process && this.task.process.processWorkingStatus == ProcessWorkingStatus.SendingForApproval) {
-            return (
-                <div class="mt-3 mb-3">
-                    <span class={this.processLibraryClasses.error}>{this.loc.Messages.TaskIsInProcessingStatus}</span>
-                </div>
-            )
-        }
         if (this.task.workflow.completedType == WorkflowCompletedType.Cancelled) {
             return (
                 <div>
@@ -173,7 +148,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         if (this.task.isCompleted) {
             return (
                 <div>
-                    <p><span domProps-innerHTML={this.completedTaskDescription}></span></p>
+                    <p domProps-innerHTML={this.completedTaskDescription}></p>
                     <p v-show={this.task.comment && this.task.comment.length > 0}>{"\"" + this.task.comment + "\""}</p>
                 </div>
             )
@@ -181,30 +156,29 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         return (
             <div>
                 {
-                    !this.task.responsible ?
+                    !this.task.sharePointTask.isCurrentResponsible ?
                         this.renderTaskInfoForm(h) :
                         <div>
-                            {
-                                this.checkValidToShowTaskContent() ?
-                                    <div>
-                                        <div><p>{this.task.process.rootProcessStep.multilingualTitle}</p></div>
-                                        <p><span domProps-innerHTML={this.loc.Messages.MessageApprovalTaskEditingDescription}></span></p>
-                                        <p>{this.task.author.displayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
-                                        {Utils.isNullOrEmpty(this.task.workflow.comment) ? null : <p> {"\"" + this.task.workflow.comment + "\""}</p>}
 
-                                        <v-textarea
-                                            v-model={this.task.comment}
-                                            label={this.coreLoc.Columns.Comment}
-                                        ></v-textarea>
-                                        {
-                                            this.emptyCommentError ?
-                                                <div><span class={this.processLibraryClasses.error}>{this.loc.Messages.MessageRequireRejectComment}</span></div>
-                                                : null
-                                        }
-                                    </div>
-                                    :
-                                    <span class={this.processLibraryClasses.error}>{this.resolveTaskErrorMessage}</span>
-                            }
+                            <div>
+                                <div><p>{this.task.sharePointTask.title}</p></div>
+
+                                <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}></p>
+                                <p>{this.task.createdByUserDisplayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
+                                {
+                                    Utils.isNullOrEmpty(this.task.workflow.comment) ? null : <p>{"\"" + this.task.workflow.comment + "\""}</p>
+                                }
+
+                                <v-textarea
+                                    v-model={this.task.comment}
+                                    label={this.coreLoc.Columns.Comment}
+                                ></v-textarea>
+                                {
+                                    this.emptyCommentError ?
+                                        <div><span class={this.processLibraryClasses.error}>{this.loc.Messages.MessageRequireRejectComment}</span></div>
+                                        : null
+                                }
+                            </div>
 
                             {
                                 this.hasError ?
@@ -221,12 +195,12 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     renderTaskInfoForm(h) {
         return (
             <div>
-                <div><p>{this.task.process.rootProcessStep.multilingualTitle}</p></div>
+                <div><p>{this.task.sharePointTask.title}</p></div>
                 <p>
-                    <b>{this.coreLoc.Columns.AssignedTo + ": "}</b>{this.task.assignedTo.displayName}
+                    <b>{this.coreLoc.Columns.AssignedTo + ": "}</b>{this.task.assignedUserDisplayName}
                 </p>
                 <p>
-                    <b>{this.coreLoc.Columns.CreatedBy + ": "}</b>{this.task.author.displayName}
+                    <b>{this.coreLoc.Columns.CreatedBy + ": "}</b>{this.task.createdByUserDisplayName}
                 </p>
                 <p>
                     <b>{this.coreLoc.Columns.Status + ": "}</b>{this.loc.TaskStatus.NotStarted}

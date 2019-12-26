@@ -44,4 +44,16 @@
         CustomLink = 0,
         Heading = 1
     }
+
+    export enum TaskContentType {
+        Undefined = 0,
+        ApprovalTask = 1,
+    }
+
+    export enum TaskViewType {
+        AssignedToMe = 1,
+        AssignedByMe = 2,
+        CompletedTasks = 3
+    }
+
 }

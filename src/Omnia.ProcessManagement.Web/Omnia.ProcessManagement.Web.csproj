@@ -110,7 +110,6 @@
     <TypeScriptCompile Remove="client\fx\models\data\enums\Enums.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\enums\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\MultilingualData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processactions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processactions\ProcessActionModel.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
@@ -138,12 +137,16 @@
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\CSOMSharePointTaskResponse.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\GraphSharePointTaskResponse.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\SharePointTask.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\SharePointTaskRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\PublishProcessWithApprovalRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\PublishProcessWithoutApprovalRequest.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\Workflow.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowApprovalData.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowApprovalTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowData.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\workflows\WorkflowTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\index.ts" />
@@ -153,6 +156,9 @@
     <TypeScriptCompile Remove="client\fx\models\navigation\NavigationNodeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationData.ts" />
     <TypeScriptCompile Remove="client\fx\models\navigation\ProcessStepNavigationNode.ts" />
+    <TypeScriptCompile Remove="client\fx\models\paging\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\paging\IPagingServerQuery.ts" />
+    <TypeScriptCompile Remove="client\fx\models\paging\PagingServerQuery.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessBooleanPropertyInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessDatetimePropertyInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\processes\ProcessNumberPropertyInfo.ts" />
@@ -182,6 +188,7 @@
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
     <TypeScriptCompile Remove="client\fx\services\PermissionService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
+    <TypeScriptCompile Remove="client\fx\services\SharePointTaskService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
@@ -421,6 +428,21 @@
     <None Update="client\fx\models\components\index.ts">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\fx\models\data\sharepointtasks\CSOMSharePointTaskResponse.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\sharepointtasks\GraphSharePointTaskResponse.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\sharepointtasks\SharePointTask.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\sharepointtasks\SharePointTaskRequest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\sharepointtasks\index.ts">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\fx\models\data\workflows\index.ts">
       <SubType>Code</SubType>
     </None>
@@ -433,9 +455,6 @@
     <None Update="client\fx\models\data\workflows\WorkflowApprovalData.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\models\data\workflows\WorkflowApprovalTask.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\data\workflows\WorkflowTask.ts">
       <SubType>Code</SubType>
     </None>
@@ -443,6 +462,15 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\Constants.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\paging\IPagingServerQuery.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\paging\PagingServerQuery.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\paging\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessNumberPropertyInfo.ts">

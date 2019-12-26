@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.ProcessManagement.Core.Services.SharePoint.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,5 +46,27 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
 
             return spList;
         }
+
+        public async ValueTask<ListItemCollection> GetListItemsAsync(PortableClientContext context, List list, string queryParams, string viewFields, string scope,
+         string pagingInfo, string orderBy, bool orderAscending, int? rowsPerPage = null)
+        {
+            CamlQuery camlQuery = new CamlQuery
+            {
+                ViewXml = SharePointCamlHelper.ParseCamlViewQuery(queryParams, viewFields, scope, orderBy, orderAscending, rowsPerPage)
+            };
+
+            if (!string.IsNullOrEmpty(pagingInfo))
+            {
+                var position = new ListItemCollectionPosition { PagingInfo = pagingInfo };
+                camlQuery.ListItemCollectionPosition = position;
+            }
+
+            ListItemCollection listItems = list.GetItems(camlQuery);
+            context.Load(listItems);
+            await context.ExecuteQueryAsync();
+
+            return listItems;
+        }
+
     }
 }

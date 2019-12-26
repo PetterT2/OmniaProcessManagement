@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Omnia.Fx.Contexts;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Workflows;
 using System;
@@ -11,19 +12,25 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 {
-    internal class WorkflowRepository : RepositoryBase<Entities.Workflows.Workflow>, IWorkflowRepository
+    internal class WorkflowRepository : IWorkflowRepository
     {
-        public WorkflowRepository(OmniaPMDbContext databaseContext) : base(databaseContext) { }
+        OmniaPMDbContext DbContext { get; }
+        IOmniaContext OmniaContext { get; }
+        public WorkflowRepository(OmniaPMDbContext databaseContext, IOmniaContext omniaContext)
+        {
+            DbContext = databaseContext;
+            OmniaContext = omniaContext;
+        }
 
         public async ValueTask CompleteAsync(Guid id, WorkflowCompletedType completedType)
         {
-            var existingEntity = await _dbSet.AsTracking()
+            var existingEntity = await DbContext.Workflows.AsTracking()
                 .FirstOrDefaultAsync(x => x.Id == id && x.CompletedType == WorkflowCompletedType.None);
-            
+
             if (existingEntity != null)
             {
                 existingEntity.CompletedType = completedType;
-                await _dataContext.SaveChangesAsync();
+                await DbContext.SaveChangesAsync();
             }
         }
 
@@ -32,8 +39,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             try
             {
                 var entity = MapModelToEf(workflow);
-                await _dbSet.AddAsync(entity);
-                await _dataContext.SaveChangesAsync();
+                DbContext.Workflows.Add(entity);
+                await DbContext.SaveChangesAsync();
 
                 var model = MapEfToModel(entity);
                 return model;
@@ -52,7 +59,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 
         public async ValueTask<Workflow> GetByProcessAsync(Guid opmProcessId, WorkflowType workflowType)
         {
-            var existingEntity = await _dbSet.Where(x => x.DeletedAt == null && x.OPMProcessId == opmProcessId && x.Type == workflowType)
+            var existingEntity = await DbContext.Workflows.Where(x => x.OPMProcessId == opmProcessId && x.Type == workflowType)
                 .OrderByDescending(p => p.ClusteredId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
             var model = MapEfToModel(existingEntity, true);
             return model;
@@ -60,7 +67,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
 
         public async ValueTask<Workflow> GetAsync(Guid workflowId)
         {
-            var entity = await _dbSet.Where(w => w.Id == workflowId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
+            var entity = await DbContext.Workflows.Where(w => w.Id == workflowId).Include(w => w.WorkflowTasks).FirstOrDefaultAsync();
             return MapEfToModel(entity, true);
         }
 
@@ -99,6 +106,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
             entity.CompletedType = model.CompletedType;
             entity.Type = model.WorkflowData.Type;
             entity.JsonValue = JsonConvert.SerializeObject(model.WorkflowData);
+            entity.CreatedBy = entity.ModifiedBy = OmniaContext.Identity.LoginName;
+            entity.CreatedAt = entity.ModifiedAt = DateTimeOffset.UtcNow;
+
             return entity;
         }
 
@@ -115,6 +125,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Workflows
                 model.Comment = entity.Comment;
                 model.SPTaskId = entity.SPTaskId;
                 model.TeamAppId = entity.TeamAppId;
+                model.CreatedAt = entity.CreatedAt;
+                model.CreatedBy = entity.CreatedBy;
             }
 
             return model;

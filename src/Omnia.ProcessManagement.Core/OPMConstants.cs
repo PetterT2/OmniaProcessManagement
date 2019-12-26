@@ -115,6 +115,11 @@ namespace Omnia.ProcessManagement.Core
 
         public static class SharePoint
         {
+            public static class CamlQueryString
+            {
+                public const string ScopeRecursive = "Scope='Recursive'";
+            }
+
             public static class SharepointType
             {
                 public const string Text = "Text";
@@ -149,6 +154,12 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_Comment = "OPMComment";
             }
 
+            public static class TaskStatus
+            {
+                public const string Completed = "Completed";
+                public const string Cancel = "Cancel";
+            }
+
             public static class SharePointFields
             {
                 public const string ContentTypeId = "ContentTypeId";
@@ -164,6 +175,14 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_Assigned_To = "AssignedTo";
                 public const string Fields_PercentComplete = "PercentComplete";
                 public const string Fields_Author = "Author";
+                public const string Fields_ID = "ID";
+                public const string Fields_Title = "Title";
+                public const string Fields_Author_LookupId = "AuthorLookupId";
+                public const string Fields_Editor = "Editor";
+                public const string Fields_Assigned_To_LookupId = "AssignedToLookupId";
+                public const string Fields_Predecessors = "Predecessors";
+                public const string Fields_TaskDescription = "Body";
+                public const string Fields_FileLeafRef = "FileLeafRef";
             }
         }
 
@@ -200,12 +219,12 @@ namespace Omnia.ProcessManagement.Core
             public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
-            public static readonly string ApprovalTaskTitle = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.Approval");
+            public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");
         }
 
         public static class OPMContentTypeId
         {
-            public const string CTApprovalTaskStringId = "0x010048629609aa6e4577b841268aa6afda0f";
+            public const string CTApprovalTaskStringId = "0x010048629609AA6E4577B841268AA6AFDA0F";
         }
 
         public static class EmailTemplates

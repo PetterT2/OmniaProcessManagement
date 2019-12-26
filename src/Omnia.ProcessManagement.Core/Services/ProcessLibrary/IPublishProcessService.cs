@@ -11,7 +11,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     {
         ValueTask PublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request);
         ValueTask PublishProcessWithApprovalAsync(PublishProcessWithApprovalRequest request);
-        ValueTask CompleteWorkflowAsync(WorkflowApprovalTask approvalTask);
+        ValueTask CompleteWorkflowAsync(WorkflowTask approvalTask, Process process);
 
 
         ValueTask ProcessSendingForApprovalAsync(Process process);

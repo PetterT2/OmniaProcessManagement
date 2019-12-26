@@ -90,13 +90,13 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetClusteredIndex<Setting>(modelBuilder, d => new { d.Key });
 
-            SetClusteredIndex<Workflow>(modelBuilder, d => new { d.Id });
+            SetOPMClusteredIndex<Workflow>(modelBuilder, d => new { d.Id });
             modelBuilder.Entity<Workflow>()
                .HasIndex(c => new { c.OPMProcessId })
                .IsUnique()
                .HasFilter($"[CompletedType] = {(int)WorkflowCompletedType.None}");
 
-            SetClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
+            SetOPMClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
 
 
 

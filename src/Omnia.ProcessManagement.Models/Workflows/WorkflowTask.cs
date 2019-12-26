@@ -1,5 +1,6 @@
 ﻿using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.SharePointTasks;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -64,5 +65,7 @@ namespace Omnia.ProcessManagement.Models.Workflows
         public string CreatedBy { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
+
+        public SharePointTask SharePointTask { get; set; }
     }
 }

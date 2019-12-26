@@ -1,6 +1,7 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
 import { Workflow } from './Workflow';
 import { TaskOutcome } from '..';
+import { SharePointTask } from '../sharepointtasks';
 
 export interface WorkflowTask {
     id: GuidValue,
@@ -12,5 +13,10 @@ export interface WorkflowTask {
     taskOutCome: TaskOutcome,
     createdAt: string,
     createdBy: string,
-    workflow: Workflow
+    workflow: Workflow,
+    sharePointTask: SharePointTask;
+
+    //client-side
+    assignedUserDisplayName: string,
+    createdByUserDisplayName: string,
 }

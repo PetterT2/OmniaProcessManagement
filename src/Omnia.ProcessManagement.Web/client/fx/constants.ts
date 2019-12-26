@@ -29,3 +29,15 @@ export const ShapeTemplatesConstants = {
         }
     }
 }
+
+export const SharePointFieldsConstants = {
+    get Modified() { return "Modified" },
+    get ModifiedBy() { return "Editor" },
+    get Title() { return "Title" },
+    get FileName() { return "FileName" },
+    get FileLeafRef() { return "FileLeafRef" },
+    get Status() { return "Status" },
+    get AssignedTo() { return "AssignedTo" },
+    get DueDate() { return "DueDate" },
+    get ID() { return "ID" }
+}
