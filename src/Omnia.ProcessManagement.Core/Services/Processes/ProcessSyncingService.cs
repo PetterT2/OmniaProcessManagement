@@ -221,8 +221,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 }
             }
 
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] = processActionModel.Process.OPMProcessId;
             fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = JsonConvert.SerializeObject(processActionModel);
-            fileItem["Title"] = processTitle;
+            fileItem[OPMConstants.SharePoint.SharePointFields.Title] = processTitle;
             fileItem.Update();
             await ctx.ExecuteQueryAsync();
         }
