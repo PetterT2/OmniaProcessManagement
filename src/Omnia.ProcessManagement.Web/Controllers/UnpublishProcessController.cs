@@ -32,7 +32,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet]
         [Authorize]
-        public async ValueTask<ApiResponse> UnpublishProcess(Guid opmProcessId, Guid processTypeId, string webUrl)
+        public async ValueTask<ApiResponse> UnpublishProcess(Guid opmProcessId)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .DoAsync(async (teamAppId) =>
                     {
-                        await UnpublishProcessService.UnpublishProcessAsync(opmProcessId, processTypeId, webUrl);
+                        await UnpublishProcessService.UnpublishProcessAsync(opmProcessId);
                         return ApiUtils.CreateSuccessResponse();
                     });
 

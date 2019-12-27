@@ -1,5 +1,6 @@
 ﻿using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,12 +19,17 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             TransactionRepositiory = transactionRepositiory;
         }
 
-        public async ValueTask UnpublishProcessAsync(Guid opmProcessId, Guid processTypeId, string webUrl)
+        public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
         {
             await TransactionRepositiory.InitTransactionAsync(async () =>
             {
-                await ProcessService.UnpublishProcessAsync(opmProcessId, processTypeId, webUrl);
+                await ProcessService.UnpublishProcessAsync(opmProcessId);
             });
+        }
+
+        public async ValueTask ProcessArchivingAsync(Process process)
+        {
+
         }
     }
 }
