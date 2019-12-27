@@ -57,14 +57,15 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             path = path.substr(`${RouteOptions.latestPublishedInGlobalRenderer}`.length);
             routeOption = RouteOptions.latestPublishedInGlobalRenderer;
         }
-        else if (path.startsWith(RouteOptions.draftInBlockRenderer)) {
-            path = path.substr(`${RouteOptions.draftInBlockRenderer}`.length);
-            routeOption = RouteOptions.draftInBlockRenderer;
-        }
         else if (path.startsWith(RouteOptions.draftInGlobalRenderer)) {
             path = path.substr(`${RouteOptions.draftInGlobalRenderer}`.length);
             routeOption = RouteOptions.draftInGlobalRenderer;
         }
+        else if (path.startsWith(RouteOptions.draftInBlockRenderer)) {
+            path = path.substr(`${RouteOptions.draftInBlockRenderer}`.length);
+            routeOption = RouteOptions.draftInBlockRenderer;
+        }
+        
 
         if (path) {
             context = {
