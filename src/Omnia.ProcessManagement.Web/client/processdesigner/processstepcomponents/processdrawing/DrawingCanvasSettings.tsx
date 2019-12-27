@@ -9,10 +9,10 @@ import { TabRenderer } from '../../core';
 import { ProcessDesignerStore } from '../../stores';
 import { CurrentProcessStore } from '../../../fx';
 import { CanvasDefinition } from '../../../fx/models';
-import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import './DrawingCanvasSettings.css';
 import { classes } from 'typestyle';
 import { ProcessDesignerLocalization } from '../../loc/localize';
+import { InternalOPMTopics } from '../../../fx/messaging/InternalOPMTopics';
 
 export interface DrawingCanvasSettingsProps {
 }
@@ -159,7 +159,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
 
     onSettingsChanged() {
         //The canvas drawing can only re-draw based on publish Topic technique
-        InternalOPMTopics.onEditingCanvasDefinitionChange.publish(this.editingCanvasDefinition);
+        InternalOPMTopics.onEditingCanvasDefinitionChanged.publish(this.editingCanvasDefinition);
     }
 
     /**

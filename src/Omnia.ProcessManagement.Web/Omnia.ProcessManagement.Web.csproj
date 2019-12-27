@@ -72,7 +72,6 @@
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
-    <TypeScriptCompile Remove="client\core\messaging\InternalOPMTopics.ts" />
     <TypeScriptCompile Remove="client\core\styles\DialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\core\styles\index.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
@@ -84,7 +83,8 @@
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\index.ts" />
-    <TypeScriptCompile Remove="client\fx\messaging\opmPublishTopic.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\InternalOPMTopics.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\PublicOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
@@ -347,9 +347,6 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\security\security.manifest.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\index.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\LibraryStore.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricImageShape.ts" />
@@ -376,6 +373,9 @@
     <None Include="client\fx\contexts\opm.contexts.manifest.js" />
     <None Include="client\fx\contexts\OPMContext.js" />
     <None Include="client\fx\contexts\OPMContextProvider.js" />
+    <None Include="client\fx\messaging\index.js" />
+    <None Include="client\fx\messaging\InternalOPMTopics.js" />
+    <None Include="client\fx\messaging\PublicOPMTopics.js" />
     <None Include="client\fx\models\contexts\index.js" />
     <None Include="client\fx\models\contexts\OPMContext.js" />
     <None Include="gulpfile.js" />

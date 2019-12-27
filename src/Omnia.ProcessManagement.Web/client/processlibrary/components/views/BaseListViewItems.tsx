@@ -14,14 +14,14 @@ import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields }
 import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { FilterDialog } from './dialogs/FilterDialog';
-import { LibraryStore } from '../../stores';
 import { OPMContext } from '../../../fx/contexts';
 import { SecurityService } from '@omnia/fx/services';
+import { InternalOPMTopics } from '../../../fx/messaging/InternalOPMTopics';
 declare var moment;
 
 interface BaseListViewItemsProps {
     displaySettings: ProcessLibraryDisplaySettings;
-    versionType: ProcessVersionType;
+    versionType: ProcessVersionType.Draft | ProcessVersionType.LatestPublished;
     processListViewComponentKey: ProcessListViewComponentKey;
 }
 
@@ -30,7 +30,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
-    @Prop() versionType: ProcessVersionType;
+    @Prop() versionType: ProcessVersionType.Draft | ProcessVersionType.LatestPublished;
     @Prop() processListViewComponentKey: ProcessListViewComponentKey;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -42,7 +42,6 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(UserStore) private userStore: UserStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
     @Inject(TermStore) private termStore: TermStore;
-    @Inject(LibraryStore) libraryStore: LibraryStore;
     @Inject(OPMContext) opmContext: OPMContext;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -80,17 +79,31 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             this.dateFormat = regionalSettings.dateFormat;
         }
         this.isLoading = true;
+       
         this.refreshStatusInterval = setInterval(() => {
             this.refreshStatus();
         }, 5000);
-        this.subcriptionHandler.add(this.libraryStore.mutations.forceReloadProcessStatus.onCommited((versionType: ProcessVersionType) => {
-            if (versionType == this.versionType) {
+
+        this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
+            this.initProcesses();
+            this.initSubscription();
+
+          
+        });
+    }
+
+    initSubscription() {
+        this.subcriptionHandler.add(InternalOPMTopics.onProcessWorkingStatusChanged.subscribe((versionType) => {
+            if (this.versionType == versionType) {
                 this.refreshStatus(true);
             }
         }));
-        this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
-            this.initProcesses();
-        });
+
+        this.subcriptionHandler.add(InternalOPMTopics.onProcessChanged.subscribe((versionType) => {
+            if (this.versionType == versionType) {
+                this.initProcesses();
+            }
+        }))
     }
 
     mounted() {

@@ -10,7 +10,7 @@ import { Process, ProcessVersionType } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMUtils, ProcessService } from '../../../../fx';
 import { ProcessLibraryStyles } from '../../../../models';
-import { LibraryStore } from '../../../stores';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 declare var moment;
 
 interface PublishDialogProps {
@@ -29,7 +29,6 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
-    @Inject(LibraryStore) libraryStore: LibraryStore;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
@@ -53,7 +52,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
     retrySync() {
         this.isRetrying = true;
         this.processService.syncToSharePoint(this.process.opmProcessId).then(() => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.LatestPublished);
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.LatestPublished);
             this.isRetrying = false;
             this.close();
 

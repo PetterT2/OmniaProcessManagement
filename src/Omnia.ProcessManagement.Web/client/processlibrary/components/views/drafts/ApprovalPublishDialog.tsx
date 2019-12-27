@@ -14,8 +14,8 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { DefaultDateFormat } from '../../../Constants';
 import { OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
-import { LibraryStore } from '../../../stores';
 import { ProcessLibraryStyles } from '../../../../models';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 declare var moment;
 
 interface PublishDialogProps {
@@ -44,7 +44,6 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
     @Inject(UserService) private omniaUserService: UserService;
     @Inject(PublishProcessService) private publishProcessService: PublishProcessService;
     @Inject(OmniaContext) omniaCtx: OmniaContext;
-    @Inject(LibraryStore) libraryStore: LibraryStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -123,7 +122,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
     private cancelApproval() {
         this.isCancelling = true;
         this.publishProcessService.cancelWorkflow(this.process.opmProcessId).then(() => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
 
             this.isCancelling = false;
             this.closeCallback();

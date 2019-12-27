@@ -16,7 +16,7 @@ import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterpriseProper
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessTypeStore, OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
-import { LibraryStore } from '../../../stores';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 
 interface PublishDialogProps {
     process: Process;
@@ -38,7 +38,6 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     @Inject(EnterprisePropertySetStore) enterprisePropertySetStore: EnterprisePropertySetStore;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
-    @Inject(LibraryStore) libraryStore: LibraryStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -219,7 +218,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
 
             this.isPublishingOrSending = false;
             this.closeCallback();
@@ -249,7 +248,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
 
         this.publishProcessService.publishProcessWithApproval(request).then((result) => {
-            this.libraryStore.mutations.forceReloadProcessStatus.commit(ProcessVersionType.Draft);
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
 
             this.isPublishingOrSending = false;
             this.closeCallback();

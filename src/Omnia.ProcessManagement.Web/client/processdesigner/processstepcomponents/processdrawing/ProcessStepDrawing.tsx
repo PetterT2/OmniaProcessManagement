@@ -11,11 +11,11 @@ import { ProcessStepDrawingStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
-import { InternalOPMTopics } from '../../../core/messaging/InternalOPMTopics';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
 import { component } from 'vue-tsx-support';
 import { background } from 'csx';
+import { InternalOPMTopics } from '../../../fx/messaging/InternalOPMTopics';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -41,7 +41,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private canvasDefinition: CanvasDefinition = null;
     
     created() {
-        this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChange.subscribe(this.onCanvasDefinitionChanged);
+        this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChanged.subscribe(this.onCanvasDefinitionChanged);
         this.initCanvasDefinition();
     }
 

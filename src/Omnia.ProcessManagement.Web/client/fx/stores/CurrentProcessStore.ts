@@ -2,8 +2,9 @@
 import { Injectable, Inject, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType } from '../models';
 import { OPMUtils } from '../utils';
+import { InternalOPMTopics } from '../messaging/InternalOPMTopics';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
@@ -229,6 +230,7 @@ export class CurrentProcessStore extends Store {
                     }).catch(reject);
                 })
             }).then((processReferenceToUse) => {
+                InternalOPMTopics.onProcessChanged.publish(ProcessVersionType.Draft);
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         }),
@@ -341,7 +343,7 @@ export class CurrentProcessStore extends Store {
                             if (hasShortcut) {
                                 this.currentLoadedProcessDataJsonDict[shortcutProcessStepId] = shortcutProcessDataJson;
                             }
-                            
+
                             resolve(null);
 
                         }).catch(reject);

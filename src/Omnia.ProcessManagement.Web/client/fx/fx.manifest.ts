@@ -9,6 +9,7 @@ Composer
             "./index.js",
             "./models/**/*.js",
             "./routing/**/*.js",
+            "./messaging/**/*.js",
             "./services/**/*.js",
             "./stores/**/*.js",
             "./constants.js",
