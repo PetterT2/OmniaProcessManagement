@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { IFabricShape, FabricShapeType } from './IFabricShape';
+import { IFabricShape, FabricShapeTypes } from './IFabricShape';
 import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
 
@@ -17,6 +17,8 @@ export class FabricShapeExtension implements FabricShape {
         this.properties["originX"] = "left";
         this.properties["originY"] = "top";
         this.properties["hoverCursor"] = "pointer";
+        this.properties["strokeUniform"] = true;
+        this.properties['strokeWidth'] = 1;
         if (properties) {
             Object.keys(properties).forEach(key => {
                 this.properties[key] = properties[key];
@@ -42,7 +44,7 @@ export class FabricShapeExtension implements FabricShape {
             opt['top'] = options['top'];
             opt['fill'] = options['fill'];
             opt['stroke'] = options['stroke'];
-            opt['strokeWidth'] = options['strokeWidth'];
+            opt['strokeWidth'] = 1;
             opt['width'] = options['width'] * options['scaleX'];
             opt['height'] = options['height'] * options['scaleY'];
             opt['angle'] = options['angle'];
@@ -53,6 +55,10 @@ export class FabricShapeExtension implements FabricShape {
     protected getSpecificProperties(): { [k: string]: any } {
         let prop = {};
         return prop;
+    }
+
+    scalePointsToDefinition(scaleX: number, scaleY: number) {
+      
     }
 
     getShapeNodeJson(): IFabricShape {

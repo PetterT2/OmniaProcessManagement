@@ -1,7 +1,7 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Utils as omniaUtils, Utils, Injectable } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
 import { AxiosRequestConfig } from 'axios';
-import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow, WorkflowApprovalTask } from '../../fx/models';
+import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow } from '../../fx/models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class UnpublishProcessService {
@@ -12,12 +12,10 @@ export class UnpublishProcessService {
     constructor() {
     }
 
-    public unpublishProcess = (opmProcessId: string, processTypeId: string, webUrl: string) => {
+    public unpublishProcess = (opmProcessId: string) => {
         return new Promise<boolean>((resolve, reject) => {
             let params = {
-                opmProcessId: opmProcessId,
-                processTypeId: processTypeId,
-                webUrl: webUrl
+                opmProcessId: opmProcessId
             }
             this.httpClient.get<IHttpApiOperationResult<boolean>>('/api/unpublish', { params: params }).then(response => {
                 if (response.data.success) {

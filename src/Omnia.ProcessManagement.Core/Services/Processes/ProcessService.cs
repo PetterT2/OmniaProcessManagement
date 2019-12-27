@@ -61,7 +61,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask UnpublishProcessAsync(Guid opmProcessId, Guid processTypeId, string webUrl)
+        public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
         {
             await ProcessRepository.UnpublishProcessAsync(opmProcessId);
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Archiving });

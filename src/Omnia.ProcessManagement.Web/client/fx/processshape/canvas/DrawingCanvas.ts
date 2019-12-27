@@ -4,6 +4,8 @@ import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition } from '../../models';
 import { Utils } from '@omnia/fx';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { IFabricShape } from '../fabricshape';
 
 export class DrawingCanvas implements CanvasDefinition {
     imageBackgroundUrl?: string;
@@ -124,7 +126,9 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
+        title: MultilingualString, isActive?: boolean, left?: number, top?: number,
+        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
         if (!definition.shapeTemplate)
             return;
         let position = this.correctDefinition(definition, left, top);
@@ -134,8 +138,10 @@ export class DrawingCanvas implements CanvasDefinition {
                 type: type,
                 shape: {
                     name: definition.shapeTemplate.name,
-                    nodes: null,
-                    definition: definition
+                    nodes: nodes,
+                    definition: definition,
+                    left: position.left,
+                    top: position.top
                 },
                 title: title
             };
@@ -145,42 +151,39 @@ export class DrawingCanvas implements CanvasDefinition {
             if (type == DrawingShapeTypes.CustomLink) {
                 (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
             }
-            this.addShapeFromTemplateClassName(drawingShape, isActive, position.left, position.top);
+            this.addShapeFromTemplateClassName(drawingShape, isActive);
         }
     }
 
-    addDrawingShape(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
+    addDrawingShape(drawingShape: DrawingShape, isActive?: boolean) {
         if (this.canvasObject) {
-            this.addShapeFromTemplateClassName(drawingShape, isActive, left, top);
+            this.addShapeFromTemplateClassName(drawingShape, isActive);
         }
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
             if (definition.shapeTemplate) {
+                this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + definition.fontSize)
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
                 if (oldShapeIndex > -1) {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
-
-                    let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    let currentLeft = fabricShapeObject.left;
-                    let currentTop = fabricShapeObject.top;
-
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
-
-
+                    let position = this.correctDefinition(definition, left, top);
                     currentDrawingShape.title = title;
                     currentDrawingShape.shape = {
                         name: definition.shapeTemplate.name,
-                        nodes: null,
-                        definition: definition
+                        nodes: definition.shapeTemplate.name == ShapeTemplatesConstants.Freeform.name ? currentDrawingShape.shape.nodes : null,
+                        definition: definition,
+                        left: position.left,
+                        top: position.top
                     };
                     resolved = false;
 
-                    this.addShapeFromTemplateClassName(currentDrawingShape, isActive, currentLeft, currentTop).then((readyDrawingShape: DrawingShape) => {
+                    this.addShapeFromTemplateClassName(currentDrawingShape, isActive).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
                 }
@@ -191,7 +194,8 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    updateShape(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, type: DrawingShapeTypes, processStepId?: GuidValue, customLinkId?: GuidValue) {
+    updateShape(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString,
+        type: DrawingShapeTypes, processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
@@ -220,12 +224,14 @@ export class DrawingCanvas implements CanvasDefinition {
                     }
                     currentDrawingShape.shape = {
                         name: definition.shapeTemplate.name,
-                        nodes: null,
-                        definition: definition
+                        nodes: nodes,
+                        definition: definition,
+                        left: currentLeft,
+                        top: currentTop
                     };
                     resolved = false;
 
-                    this.addShapeFromTemplateClassName(currentDrawingShape, false, currentLeft, currentTop).then((readyDrawingShape: DrawingShape) => {
+                    this.addShapeFromTemplateClassName(currentDrawingShape, false).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
                 }
@@ -244,10 +250,10 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean, left?: number, top?: number) {
+    protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean) {
         let readyDrawingShape = Utils.clone(drawingShape);
 
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, isActive, readyDrawingShape.title, this.selectable, left, top);
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, isActive, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top);
 
         return new Promise<DrawingShape>((resolve, reject) => {
             newShape.ready().then((result) => {

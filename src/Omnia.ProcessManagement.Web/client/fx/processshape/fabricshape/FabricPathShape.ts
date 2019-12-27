@@ -44,4 +44,27 @@ export class FabricPathShape extends FabricShapeExtension implements FabricShape
     get shapeNodeType() {
         return FabricShapeTypes.path;
     }
+
+    scalePointsToDefinition(scaleX: number, scaleY: number) {
+        let matrix = [scaleX, 0, 0, scaleY, 0, 0];
+        let newPath: Array<any> = [];
+        let points: Array<fabric.Point> = [];
+        let path = (this.fabricObject as fabric.Path).path;
+        path.forEach(p => {
+            points.push(new fabric.Point(p[1], p[2]));
+            if ((p as any).length > 4)
+                points.push(new fabric.Point(p[3], p[4]));
+        })
+        points = points.map(p => { return fabric.util.transformPoint(p, matrix); })
+        newPath.push([path[0][0], points[0].x, points[0].y]);
+        for (var i = 1; i < points.length - 2; i++) {
+            newPath.push(['Q', points[i].x, points[i].y, points[i + 1].x, points[i + 1].y]);
+        }
+        newPath.push([path[path.length - 1][0], points[points.length - 1].x, points[points.length - 1].y]);
+        (this.fabricObject as fabric.Path).path = newPath;
+
+        let position = fabric.util.transformPoint(new fabric.Point(this.fabricObject.left, this.fabricObject.top), matrix);
+        this.fabricObject.left = position.x;
+        this.fabricObject.top = position.y;
+    }
 }

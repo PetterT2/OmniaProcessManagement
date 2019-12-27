@@ -75,7 +75,9 @@ export class MediaShape extends ShapeExtension implements Shape {
         return {
             name: this.name,
             nodes: this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [],
-            definition: this.definition
+            definition: this.definition,
+            left: this.left,
+            top: this.top
         }
     }
 

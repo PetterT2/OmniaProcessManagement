@@ -8,12 +8,16 @@ export declare abstract class Shape implements IShape {
     definition: DrawingShapeDefinition;
     name: string;
     nodes: IFabricShape[];
+    left: number;
+    top: number;
     readonly shapeObject: fabric.Object[];
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number, grouping?: boolean);
     abstract ready(): Promise<boolean>;
     abstract getShapeJson(): IShape;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
+    abstract finishScaled(obj: fabric.Object);
+    abstract getObjectPosition(isText: boolean, left: number, top: number, width: number, height: number, isCenter?: boolean): { left: number, top: number };
 }
 
 export interface Shape {

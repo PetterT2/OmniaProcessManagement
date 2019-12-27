@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Messaging;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
@@ -21,7 +22,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs.ProcessWorkflows
                 serviceScopeFactory,
                 messageBus,
                 logger,
-                ProcessWorkingStatus.SyncingToSharePoint,
+                ProcessWorkingStatus.Archiving,
                 DraftOrLatestPublishedVersionType.LatestPublished)
         {
 
@@ -33,8 +34,8 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs.ProcessWorkflows
             {
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
-                    var processSyncingService = scope.ServiceProvider.GetRequiredService<IProcessSyncingService>();
-                    await processSyncingService.SyncToSharePointAsync(process);
+                    var unpublishProcessService = scope.ServiceProvider.GetRequiredService<IUnpublishProcessService>();
+                    await unpublishProcessService.ProcessArchivingAsync(process);
                 }
             }
             catch (Exception ex)

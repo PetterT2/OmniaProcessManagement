@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
-import { CurrentProcessStore } from '../../../../fx';
+import { CurrentProcessStore, ShapeTemplatesConstants } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../../../fx/models';
@@ -16,7 +16,7 @@ import { ProcessStepDesignerItem } from '../../../designeritems/ProcessStepDesig
 import { ProcessStepShortcutDesignerItem } from '../../../designeritems/ProcessStepShortcutDesignerItem';
 
 export interface ShapeSettingsProps {
-    
+
 }
 
 const StaticTabNames = {
@@ -64,7 +64,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     initSelectedShape() {
         this.selectedShape = this.processDesignerStore.getters.shapeToEditSettings();
         this.isShowChangeShape = false;
-        this.lockedSubmitShapeSettings = true;        
+        this.lockedSubmitShapeSettings = true;
 
         this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
         this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
@@ -74,7 +74,8 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             customLinkId: this.selectedCustomLinkId,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
-            title: this.selectedShape.title
+            title: this.selectedShape.title,
+            nodes: this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ? this.selectedShape.shape.nodes : null
         };
         this.previousProcessStepId = this.selectedProcessStepId;
 
@@ -124,10 +125,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         }
         return result;
     }
-        
-    onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {        
-        this.drawingShapeOptions = drawingOptions;
 
+    onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
+        let nodes = this.drawingShapeOptions.nodes;
+        this.drawingShapeOptions = drawingOptions;
+        if (Utils.isArrayNullOrEmpty(drawingOptions.nodes) && this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
+            this.drawingShapeOptions.nodes = nodes;
         if (this.lockedSubmitShapeSettings) {
             this.lockedSubmitShapeSettings = false;
             return;
@@ -142,13 +145,13 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         else {
             this.timeWatchToSaveChanges();
         }
-        
+
     }
 
     timeWatchToSaveChanges() {
         this.timewatchId = Utils.timewatch(this.autoUpdatingTimewatch, () => {
             this.validateAndSubmitChanges(false);
-        }, 1500);        
+        }, 1500);
     }
 
     validateAndSubmitChanges(isClosed: boolean) {
@@ -203,7 +206,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         </v-card>;
 
     }
-    
+
     onShapeSelected(selectedShapeDefinition: DrawingShapeDefinition) {
         let id = this.drawingShapeOptions.id;
         this.drawingShapeOptions = {
@@ -240,9 +243,9 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
                     </v-tab-item>
                 })
             }
-            
+
         </v-tabs>
-            
+
     }
 
     /**
