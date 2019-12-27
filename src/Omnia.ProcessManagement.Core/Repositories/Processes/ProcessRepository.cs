@@ -211,6 +211,27 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
+        public async ValueTask<Process> UnpublishProcessAsync(Guid opmProcessId)
+        {
+            return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
+            {
+                var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
+                var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
+
+                if (draftProcessWithProcessDataIdHash != null)
+                {
+                    throw new ProcessCannotBeArchivedWhenDraftVersionExists(opmProcessId);
+                }
+
+                latestPublishedProcess.ProcessWorkingStatus = ProcessWorkingStatus.Archiving;
+
+                await DbContext.SaveChangesAsync();
+                var process = MapEfToModel(latestPublishedProcess);
+
+                return process;
+            });
+        }
+
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
             var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(actionModel.Process.OPMProcessId, ProcessVersionType.CheckedOut, true);

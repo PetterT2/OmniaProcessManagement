@@ -44,6 +44,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
 
             services.AddScopedWithSingeltonRef<IProcessTemplateService, ProcessTemplateService>();
             services.AddScopedWithSingeltonRef<IProcessService, ProcessService>();
+            services.AddScopedWithSingeltonRef<IUnpublishProcessService, UnpublishProcessService>();
             services.AddScopedWithSingeltonRef<ISharePointSiteService, SharePointSiteService>();
             services.AddScopedWithSingeltonRef<IProcessSecurityService, ProcessSecurityService>();
             services.AddScopedWithSingeltonRef<IProcessTypeService, ProcessTypeService>();

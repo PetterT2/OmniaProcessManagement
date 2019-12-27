@@ -16,7 +16,6 @@ using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Workflows;

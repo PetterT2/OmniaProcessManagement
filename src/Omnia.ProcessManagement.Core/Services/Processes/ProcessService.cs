@@ -61,6 +61,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
+        public async ValueTask UnpublishProcessAsync(Guid opmProcessId, Guid processTypeId, string webUrl)
+        {
+            await ProcessRepository.UnpublishProcessAsync(opmProcessId);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Archiving });
+        }
+
         public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
         {
             var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash, versionType);
@@ -71,7 +77,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             var processData = await ProcessRepository.GetProcessByProcessStepIdAsync(processStepId, versionType);
             return processData;
-
         }
 
         public async ValueTask<Process> GetProcessByIdAsync(Guid processId)

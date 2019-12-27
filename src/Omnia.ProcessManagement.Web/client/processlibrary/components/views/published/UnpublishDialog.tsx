@@ -32,7 +32,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private isLoading: boolean = false;
     private isUnpublishing: boolean = false;
     private canBeArchive: boolean = false;
-    private allowToUnpublish: boolean = false;
+    private allowToUnpublish: boolean = true;
 
     created() {
         this.dialogModel.visible = true;
