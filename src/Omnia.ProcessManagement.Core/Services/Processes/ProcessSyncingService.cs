@@ -154,23 +154,21 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 FolderUrl = $"{folderItem.Folder.ServerRelativeUrl}"
             });
 
-            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = JsonConvert.SerializeObject(processActionModel);
-
-            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, process, enterprisePropertyDict);
+            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, processActionModel, enterprisePropertyDict);
             await ctx.ExecuteQueryAsync();
 
             return folderItem;
         }
 
-        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
+            var process = processActionModel.Process;
+
             var language = CultureUtils.GetCultureInfo((int)ctx.Web.Language);
             var processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, language.Name, null);
 
             var (userValuesMapToSharePointFieldInternalNameDict, termCollectionMapToSharePointFieldInternalNameDict, termStoreDefaultLanguage) =
                 await PrepareSharePointFieldDataAsync(ctx, process, enterprisePropertyDict);
-
-
 
             foreach (var property in process.RootProcessStep.EnterpriseProperties)
             {
@@ -223,6 +221,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 }
             }
 
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = JsonConvert.SerializeObject(processActionModel);
             fileItem["Title"] = processTitle;
             fileItem.Update();
             await ctx.ExecuteQueryAsync();
