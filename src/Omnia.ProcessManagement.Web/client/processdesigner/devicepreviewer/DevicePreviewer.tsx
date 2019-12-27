@@ -1,13 +1,16 @@
 ﻿import * as tsx from 'vue-tsx-support';
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Prop, Emit, Inject } from 'vue-property-decorator';
+import { Prop, Emit } from 'vue-property-decorator';
+import { Inject } from '@omnia/fx';
 import 'vue-tsx-support/enable-check';
 import { Guid } from '@omnia/fx-models';
 import { DisplayBreakPointFactory } from '../factory/BreakPointFactory';
-import { DisplayBreakPoint } from '../../models/processdesigner';
+import { DisplayBreakPoint, ProcessDesignerUrlParameters } from '../../models/processdesigner';
 import { DevicePreviewerStyles } from './DevicePreviewer.css';
 import { OmniaTheming } from '@omnia/fx/ux';
+import { CurrentProcessStore } from '../../fx/stores';
+import { ProcessDesignerStore } from '../stores';
 
 export interface DevicePreviewerProps {
 }
@@ -15,6 +18,9 @@ export interface DevicePreviewerProps {
 @Component
 export default class DevicePreviewerComponent extends tsx.Component<DevicePreviewerProps>
 {
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+
     private iFrameId = Guid.newGuid().toString();
     private model = {
         currentDisplayBreakPoint: DisplayBreakPointFactory.breakPoints()[DisplayBreakPointFactory.breakPoints().length - 1],
@@ -32,7 +38,16 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
         document.body.className = document.body.className.replace(/opm-processdesigner-preview-mode/g, "");
     }
 
-  
+    private createIframeUrl() {
+        var currentProcess = this.currentProcessStore.getters.referenceData();
+        var previewPageUrl = this.currentProcessStore.getters.previewPageUrl();
+        let url = previewPageUrl + "?" + ProcessDesignerUrlParameters.previewMode + "=true";
+        if (currentProcess) {
+            url += `&${ProcessDesignerUrlParameters.processId}=${currentProcess.process.id}`;
+        }
+        return url;
+    }
+
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {
         this.model.currentDisplayBreakPoint = displayBreakPoint;
     }
@@ -77,7 +92,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
      * @param h
      */
     public render(h) {
-        //window.setTimeout(this.resizeIframeToContent, 700);
+        window.setTimeout(this.resizeIframeToContent, 700);
         return <v-content column>
             <v-layout align-center column class={DevicePreviewerStyles.fullScreen}>
                 <div class={DevicePreviewerStyles.deviceToolbarWrapper}>
@@ -89,7 +104,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
                     </v-toolbar>
                 </div>
                 <div class={DevicePreviewerStyles.deviceWrapper(this.model.currentDisplayBreakPoint, this.model.iFrame.height)}>
-                    
+                    <iframe id={this.iFrameId} src={this.createIframeUrl()} scrolling="no" height={this.model.iFrame.height} sandbox="allow-same-origin allow-scripts" class={DevicePreviewerStyles.iFrame}></iframe>
                 </div>
             </v-layout>
         </v-content>

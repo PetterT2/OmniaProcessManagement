@@ -10,3 +10,4 @@ export * from './ShapeDefinitionSelection';
 export * from './AddShapeOptions';
 export * from './ProcessEditingLink';
 export * from './ShapeTypeCreationOption';
+export * from './Constants';

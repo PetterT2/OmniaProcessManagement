@@ -11,6 +11,7 @@ import { ProcessLibraryConfigurationFactory } from '../../factory/ProcessLibrary
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../../Constants';
+import { CurrentProcessStore } from '../../../fx';
 
 interface DisplayFieldsTabProps {
     isPublished: boolean;
@@ -28,6 +29,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(LocalizationService) private localizationService: LocalizationService;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -120,6 +122,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     }
 
     private updateBlockData() {
+        this.currentProcessStore.mutations.setPreviewPageUrl.commit(this.libraryDisplaySettings.previewPageUrl);
         this.settingsService.setValue(this.settingsKey, this.blockData);
     }
 
@@ -192,6 +195,11 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                         <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
                         :
                         <div>
+                            {
+                                this.isPublished ?
+                                    null
+                                    : <v-text-field onChange={() => { this.updateBlockData(); }} type="text" v-model={this.libraryDisplaySettings.previewPageUrl} label={this.loc.ProcessLibrarySettings.PreviewPageUrl} ></v-text-field>
+                            }
                             <v-select label={this.loc.ProcessLibrarySettings.Paging} item-value="id" item-text="title" items={this.pagingTypes} v-model={this.libraryDisplaySettings.pagingType} onChange={() => { this.updateBlockData(); }}></v-select>
 
                             {

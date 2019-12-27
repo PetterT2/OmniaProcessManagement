@@ -19,6 +19,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     @Prop() styles: typeof ProcessLibraryStyles | any;
 
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+  
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
     // -------------------------------------------------------------------------

@@ -4,4 +4,5 @@ export * from './ProcessLibraryListViewStyles';
 export * from './GlobalProcessRendererStyles';
 export * from './IColor';
 export * from './GenericNodeStyles';
-export * from './PermissionDialogStyles';
+export * from './PermissionDialogStyles'; 
+export * from './ProcessRendererStyles';

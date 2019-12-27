@@ -212,6 +212,7 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ActionButton.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\AddShapeOptions.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\AddShapeStep.ts" />
+    <TypeScriptCompile Remove="client\models\processdesigner\Constants.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\DisplayActionButton.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\DisplayBreakPoint.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\index.ts" />
@@ -229,6 +230,7 @@
     <TypeScriptCompile Remove="client\models\styles\PermissionDialogStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
@@ -239,6 +241,9 @@
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\factory\BreakPointFactory.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\ActionsMenu.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processrenderer\ProcessRenderer.manifest.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\processrenderer\ProcessRenderer.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processrenderer\ProcessRenderercss.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\ProcessContent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\index.ts" />

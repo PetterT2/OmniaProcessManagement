@@ -52,7 +52,8 @@
             Column: string,
             ShowSearchBox: string,
             PageSize: string,
-            Paging: string
+            Paging: string,
+            PreviewPageUrl: string
         },
         Filter: {
             FilterBy: string,

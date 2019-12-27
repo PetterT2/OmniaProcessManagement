@@ -8,7 +8,7 @@ import { StyleFlow, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalizat
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import './ListView.css';
 import { IListViewComponent } from './IListView';
-import { OPMUtils } from '../../../fx';
+import { OPMUtils, CurrentProcessStore } from '../../../fx';
 import { UrlParameters } from '../../Constants';
 import { TasksView } from './tasks/TasksView';
 import { BaseListViewItems } from './BaseListViewItems';
@@ -26,6 +26,8 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(SecurityService) securityService: SecurityService;
     @Inject(OPMContext) opmContext: OPMContext;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+
     private selectingTab = 'tab-drafts';
     private tabPrefix = 'tab-';
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
@@ -53,6 +55,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
+        this.currentProcessStore.mutations.setPreviewPageUrl.commit(this.viewSettings.draftTabDisplaySettings.previewPageUrl);
         this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
             [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()

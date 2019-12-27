@@ -56,7 +56,8 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Column: "Column",
             ShowSearchBox: "Show Search Box",
             PageSize: "Page Size",
-            Paging: "Paging"
+            Paging: "Paging",
+            PreviewPageUrl: "Preview Page Url"
         },
         Filter: {
             FilterBy: "Filter by",
