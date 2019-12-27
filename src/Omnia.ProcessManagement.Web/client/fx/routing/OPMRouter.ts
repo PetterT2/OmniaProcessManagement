@@ -9,7 +9,8 @@ import { MultilingualStore } from '@omnia/fx/store';
 const processVersionLabels = {
     [ProcessVersionType.Draft]: 'draft',
     [ProcessVersionType.CheckedOut]: 'checked out',
-    [ProcessVersionType.Published]: 'published'
+    [ProcessVersionType.Published]: 'published',
+    [ProcessVersionType.LatestPublished]: 'latest published'
 }
 
 @Injectable({ lifetime: InstanceLifetimes.Singelton })
@@ -35,8 +36,11 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
         if (routeContext && routeContext.processStepId) {
             contextPath = routeContext.processStepId.toString().toLowerCase();
+            let routeOptionSegment = routeContext.routeOption.toString();
+            if (!routeOptionSegment.endsWith('/'))
+                routeOptionSegment += '/';
 
-            contextPath = routeContext.routeOption.toString() + '/' + contextPath;
+            contextPath = routeContext.routeOption.toString() + contextPath;
         }
         return contextPath;
     }
@@ -46,17 +50,22 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     */
     protected resolveRouteFromPath(path: string): OPMRoute {
         let context: OPMRoute = null;
-        let routeOption: RouteOptions = RouteOptions.normal;
+        let routeOption: RouteOptions = RouteOptions.latestPublishedInBlockRenderer;
         path = path.toLowerCase();
 
-        if (path.startsWith(RouteOptions.previewDraft)) {
-            path = path.substr(`${RouteOptions.previewDraft}/`.length);
-            routeOption = RouteOptions.previewDraft;
+        if (path.startsWith(RouteOptions.latestPublishedInGlobalRenderer)) {
+            path = path.substr(`${RouteOptions.latestPublishedInGlobalRenderer}`.length);
+            routeOption = RouteOptions.latestPublishedInGlobalRenderer;
         }
-        if (path.startsWith(RouteOptions.viewLatestPublishedInGlobal)) {
-            path = path.substr(`${RouteOptions.viewLatestPublishedInGlobal}/`.length);
-            routeOption = RouteOptions.viewLatestPublishedInGlobal;
+        else if (path.startsWith(RouteOptions.draftInBlockRenderer)) {
+            path = path.substr(`${RouteOptions.draftInBlockRenderer}`.length);
+            routeOption = RouteOptions.draftInBlockRenderer;
         }
+        else if (path.startsWith(RouteOptions.draftInGlobalRenderer)) {
+            path = path.substr(`${RouteOptions.draftInGlobalRenderer}`.length);
+            routeOption = RouteOptions.draftInGlobalRenderer;
+        }
+
         if (path) {
             context = {
                 processStepId: new Guid(path),
@@ -84,7 +93,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             if (routeOption === undefined || routeOption === null) {
-                routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.normal;
+                routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.latestPublishedInBlockRenderer;
             }
             let title = this.multilingualStore.getters.stringValue(processStep.title);
 
@@ -168,17 +177,21 @@ OPMRouter.onNavigate.subscribe(ctx => {
 })
 
 if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-    let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.previewDraft ? ProcessVersionType.Draft : ProcessVersionType.Published;
+    let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.latestPublishedInBlockRenderer ||
+        OPMRouter.routeContext.route.routeOption == RouteOptions.latestPublishedInGlobalRenderer ? ProcessVersionType.LatestPublished : ProcessVersionType.Draft;
+
     OPMRouter.navigateWithCurrentRoute(versionType);
 }
 
 currentProcessStore.actions.addProcessStep.onDispatched((result, title, navigateTo) => {
     if (navigateTo) {
-        OPMRouter.navigate(result.process, result.processStep);
+        let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
+        currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence);
     }
 })
 
 currentProcessStore.actions.deleteProcessStep.onDispatched(() => {
-    let currentReference = currentProcessStore.getters.referenceData();
-    OPMRouter.navigate(currentReference.process, currentReference.current.parentProcessStep);
+    let currentReferenceData = currentProcessStore.getters.referenceData();
+    let processRefrerence = OPMUtils.generateProcessReference(currentReferenceData.process, currentReferenceData.current.parentProcessStep.id);
+    currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence);
 })

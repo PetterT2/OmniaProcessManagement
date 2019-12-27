@@ -1,9 +1,11 @@
 ﻿import { TokenBasedRoute, GuidValue } from '@omnia/fx-models';
 
 export enum RouteOptions {
-    normal = "",
-    viewLatestPublishedInGlobal = "view",
-    previewDraft = "preview"
+    latestPublishedInBlockRenderer = "",
+    latestPublishedInGlobalRenderer = "g/",
+
+    draftInBlockRenderer = "preview/",
+    draftInGlobalRenderer = "preview/g/"
 }
 
 export interface OPMRoute extends TokenBasedRoute {

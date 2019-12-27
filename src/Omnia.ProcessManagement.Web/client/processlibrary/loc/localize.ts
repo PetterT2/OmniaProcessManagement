@@ -136,6 +136,11 @@
             ApprovalDueDate: string,
             Comment: string,
         },
+        ReadRights: {
+            Label: string,
+            DefaultReaders: string,
+            LimitReadAccess: string
+        },
         EmailTemplates: {
             SendForApproval: {
                 SubjectTemplate: string,

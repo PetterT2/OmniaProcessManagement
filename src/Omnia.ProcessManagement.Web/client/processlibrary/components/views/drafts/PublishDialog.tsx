@@ -62,6 +62,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     private selectedApprover: UserIdentity;
     private availableApprovers: Array<User> = [];
     private processAccessType: Enums.ProcessViewEnums.ProcessAccessTypes = Enums.ProcessViewEnums.ProcessAccessTypes.DefaultReaderGroup;
+    private limitReadAccessUsers: Array<UserIdentity> = [];
+
     private hasError: boolean = false;
     private errorMessage: string = "";
     private formatter = {
@@ -215,6 +217,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private publishProcess() {
+        this.isPublishingOrSending = true;
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
@@ -234,7 +237,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
             isRevisionPublishing: this.versionPublishingType == Enums.WorkflowEnums.VersionPublishingTypes.NewRevision,
             comment: this.comment,
             isLimitedAccess: (this.processAccessType == Enums.ProcessViewEnums.ProcessAccessTypes.LimitedAccess) ? true : false,
-            limitedUsers: [],
+            limitedUsers: this.limitReadAccessUsers,
             notifiedUsers: [],
             isReadReceiptRequired: false
         };
@@ -369,6 +372,50 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
             </div>
         )
     }
+
+    private renderReadRightsSetting(h) {
+        return (
+            <v-expansion-panels>
+                <v-expansion-panel>
+                    <v-expansion-panel-header>{this.loc.ReadRights.Label}</v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                        <v-card>
+                            <v-card-text>
+                                <v-radio-group v-model={this.processAccessType} onChange={(newVal) => { this.processAccessType = newVal; }}>
+                                    <v-radio label={this.loc.ReadRights.DefaultReaders} v-model={Enums.ProcessViewEnums.ProcessAccessTypes.DefaultReaderGroup}></v-radio>
+                                    <v-radio label={this.loc.ReadRights.LimitReadAccess} v-model={Enums.ProcessViewEnums.ProcessAccessTypes.LimitedAccess}></v-radio>
+                                    {
+                                        (this.processAccessType == Enums.ProcessViewEnums.ProcessAccessTypes.LimitedAccess) ?
+                                            <div>
+                                                <omfx-people-picker principalType={UserPrincipalType.All}
+                                                    dark={this.omniaTheming.promoted.body.dark}
+                                                    model={this.limitReadAccessUsers}
+                                                    label=""
+                                                    multiple
+                                                    disabled={false}
+                                                    onModelChange={(model) => {
+                                                        this.limitReadAccessUsers = model;
+                                                    }}>
+                                                </omfx-people-picker>
+                                                <omfx-field-validation
+                                                    useValidator={this.validator}
+                                                    checkValue={this.limitReadAccessUsers}
+                                                    rules={
+                                                        new FieldValueValidation().IsArrayRequired().getRules()
+                                                    }>
+                                                </omfx-field-validation>
+                                            </div>
+                                            : null
+                                    }
+                                </v-radio-group>
+                            </v-card-text>
+                        </v-card>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        )
+    }
+
 
     private renderPublishVersionOptions(h) {
         return (

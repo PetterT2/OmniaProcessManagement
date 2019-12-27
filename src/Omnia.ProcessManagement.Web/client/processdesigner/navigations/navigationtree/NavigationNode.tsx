@@ -99,13 +99,13 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
                 //Ensure savestate before navigating to another process step
                 this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
-                    OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
+                    this.processDesignerStore.actions.setProcessToShow.dispatch(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
                         this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                     });
                 })
             }
             else {
-                OPMRouter.navigate(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
+                this.processDesignerStore.actions.setProcessToShow.dispatch(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
                     this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                 });
             }
