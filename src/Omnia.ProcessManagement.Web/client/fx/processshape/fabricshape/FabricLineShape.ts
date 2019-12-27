@@ -22,4 +22,13 @@ export class FabricLineShape extends FabricShapeExtension implements FabricShape
     get shapeNodeType() {
         return FabricShapeTypes.line;
     }
+
+    scalePointsToDefinition(scaleX: number, scaleY: number) {
+        let matrix = [scaleX, 0, 0, scaleY, 0, 0]
+        let options = this.fabricObject.toJSON();
+        let newPoint1 = fabric.util.transformPoint(new fabric.Point(options["x1"], options["y1"]), matrix);
+        let newPoint2 = fabric.util.transformPoint(new fabric.Point(options["x2"], options["y2"]), matrix);
+        let newPoint3 = fabric.util.transformPoint(new fabric.Point(options["left"], options["top"]), matrix);
+        (this.fabricObject as fabric.Line).set({ left: newPoint3.x, top: newPoint3.y, x1: newPoint1.x, x2: newPoint2.x, y1: newPoint1.y, y2: newPoint2.y });
+    }
 }

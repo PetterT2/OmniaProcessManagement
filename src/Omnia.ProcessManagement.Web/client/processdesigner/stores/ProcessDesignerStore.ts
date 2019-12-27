@@ -4,11 +4,11 @@ import { FormValidator, VueComponentBase } from '@omnia/fx/ux';
 import { InstanceLifetimes, IMessageBusSubscriptionHandler, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessDesignerSettingsStore } from './ProcessDesignerSettingsStore';
 import { ProcessDesignerTabStore } from './ProcessDesignerTabStore';
-import { CurrentProcessStore } from '../../fx';
+import { CurrentProcessStore, OPMUtils } from '../../fx';
 import { IProcessDesignerItem, ActionItem, DisplayModes, DrawingShapeOptions } from '../../models/processdesigner';
 import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { DrawingShape, ShapeDefinition } from '../../fx/models';
+import { DrawingShape, ShapeDefinition, Process, ProcessStep } from '../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
@@ -20,7 +20,7 @@ export class ProcessDesignerStore extends Store {
     @Inject(ProcessDesignerTabStore) tabs: ProcessDesignerTabStore;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
 
-//    private savePageStateManager: SavePageStateManager = new SavePageStateManager();//todo: important!
+    //    private savePageStateManager: SavePageStateManager = new SavePageStateManager();//todo: important!
 
     /**
      * State
@@ -39,7 +39,7 @@ export class ProcessDesignerStore extends Store {
     selectingShape = this.state<DrawingShape>(null);
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
-   
+
     constructor() {
         super({ id: "0c263d6c-4ab2-4345-b9f3-8b3919de1b5f" });
     }
@@ -51,7 +51,7 @@ export class ProcessDesignerStore extends Store {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
     }
-        
+
 
     getters = {
         isEditMode: (): boolean => {
@@ -123,7 +123,7 @@ export class ProcessDesignerStore extends Store {
 
         }),
         deleteSelectingDrawingShape: this.mutation(() => {
-            
+
         }),
         setSelectedShapeToEdit: this.mutation((selectedShape: DrawingShape) => {
             this.selectedShape.mutate(selectedShape);
@@ -178,12 +178,12 @@ export class ProcessDesignerStore extends Store {
             return new Promise<null>((resolve, reject) => {
                 let currentProcess = this.currentProcessStore.getters.referenceData();
                 if (!currentProcess.current.processData.canvasDefinition) {
-                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();                    
+                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
                 }
 
                 let defaultShowContentNavigation: boolean = false;
                 if (this.editmode.state) {
-                    defaultShowContentNavigation =  this.settings.showContentNavigation.state;
+                    defaultShowContentNavigation = this.settings.showContentNavigation.state;
                 }
 
                 this.actions.showDesigner.dispatch(true).then(() => {
@@ -226,6 +226,14 @@ export class ProcessDesignerStore extends Store {
                     }).catch(reject);
                 }, timewatchDuration);
             })
+        }),
+        setProcessToShow: this.action((process: Process, processStep: ProcessStep): Promise<null> => {
+            let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
+            if (processRefrerence) {
+                return this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence)
+            }
+
+            throw `Process step with id ${processStep.id} not found in process with id ${process.id}`;
         })
     }
 

@@ -1,4 +1,4 @@
-﻿import { IFabricShape, FabricShapeType } from './IFabricShape';
+﻿import { IFabricShape, FabricShapeTypes } from './IFabricShape';
 import { fabric } from 'fabric';
 import { DrawingShapeDefinition } from '../../models';
 
@@ -6,8 +6,9 @@ export declare abstract class FabricShape implements IFabricShape {
     constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
+    abstract scalePointsToDefinition(scaleX: number, scaleY: number);
     abstract getShapeNodeJson(): IFabricShape;
-    abstract readonly shapeNodeType: FabricShapeType;
+    abstract readonly shapeNodeType: FabricShapeTypes;
 }
 
 export interface FabricShape {

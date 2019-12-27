@@ -855,6 +855,23 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return internalProcesses;
         }
 
+        public async ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId)
+        {
+            var processDataDict = new Dictionary<Guid, ProcessData>();
+
+            var allProcessData = await DbContext.ProcessData
+               .Where(p => p.ProcessId == processId)
+               .ToListAsync();
+
+            foreach (var item in allProcessData)
+            {
+                var processData = MapEfToModel(item);
+                processDataDict[item.ProcessStepId] = processData;
+            }
+
+            return processDataDict;
+        }
+
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
         {
             var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, false);

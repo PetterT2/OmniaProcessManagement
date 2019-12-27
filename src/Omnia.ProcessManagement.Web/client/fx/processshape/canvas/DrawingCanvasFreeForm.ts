@@ -1,10 +1,10 @@
 ﻿import { fabric } from 'fabric';
-import { FreeformShape, ShapeExtension } from '../shapes';
+import { FreeformShape, ShapeExtension, IShape } from '../shapes';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
 import { DrawingCanvasEditor } from './DrawingCanvasEditor';
 import { DrawingShapeDefinition } from '../../models';
-import { Guid } from '@omnia/fx-models';
-import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape } from '../fabricshape';
+import { Guid, MultilingualString, GuidValue } from '@omnia/fx-models';
+import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape, IFabricShape } from '../fabricshape';
 
 export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements CanvasDefinition {
     private polylineShape: fabric.Polyline = null;
@@ -18,13 +18,14 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private isDrawingFree: boolean = false;
     private isMouseDown: boolean = false;
     private shapeDefinition: DrawingShapeDefinition;
+    private shapeTitle: string;
 
-    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => {}) {
+    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, callback?: (drawingShape: DrawingShape) => void) {
         super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, callback);
-        this.init();
     }
 
     private init() {
+        this.drawingShapes = [];
         this.polylineShape = null;
         this.points = [];
         this.lines = [];
@@ -45,11 +46,9 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
                 this.canvasObject.on('mouse:up', (options) => {
                     if (!this.isDrawing)
                         return;
-
                     if (this.isDrawingFree) {
                         this.addLine(options, this.shapeDefinition.borderColor);
                     }
-                    this.canvasObject.selection = true;
                     this.isDrawingFree = false;
                     this.isMouseDown = false;
                 });
@@ -109,30 +108,37 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private finishDrawing() {
         if (this.isInRootPointZone()) {
             this.createFreeFromShape();
-
             this.canvasObject.isDrawingMode = false;
             this.isDrawing = false;
-            this.init();
-            this.canvasObject.renderAll();
-            this.canvasObject.selection = true;
             this.canvasObject.renderAll();
         }
     }
 
     private isInRootPointZone() {
+        let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path' && object.path.length > 2;
+        });
+
         var space = 5;
-        return this.lines.length > 2 && this.x >= this.lines[0].x1 - space && this.x <= this.lines[0].x1 + space
-            && this.y >= this.lines[0].y1 - space && this.y <= this.lines[0].y1 + space;
+        return (this.lines.length > 2 && this.compareInZone(this.x, this.lines[0].x1, space)
+            && this.compareInZone(this.y, this.lines[0].y1, space)
+            || (pathsObject.length > 0 && this.compareInZone(pathsObject[0].toObject().path[0][1], pathsObject[pathsObject.length - 1].toObject().path[pathsObject[pathsObject.length - 1].toObject().path.length - 1][1], space)
+                && this.compareInZone(pathsObject[0].toObject().path[0][2], pathsObject[pathsObject.length - 1].toObject().path[pathsObject[pathsObject.length - 1].toObject().path.length - 1][2], space)));
+    }
+
+    private compareInZone(p: number, targetP: number, space: number) {
+        return p >= targetP - space && p <= targetP + space;
     }
 
     private createFreeFromShape() {
-        let lineDefinition: DrawingShapeDefinition = Object.assign({}, this.shapeDefinition);
-        lineDefinition.activeBorderColor = this.shapeDefinition.activeBackgroundColor;
-        lineDefinition.borderColor = this.shapeDefinition.backgroundColor;
         let nodes: Array<FabricShapeExtension> = [];
         let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
             return object.type == 'path' && object.path.length > 2;
         });
+        let lineDefinition: DrawingShapeDefinition = Object.assign({}, this.shapeDefinition);
+        lineDefinition.activeBorderColor = this.shapeDefinition.activeBackgroundColor;
+        lineDefinition.borderColor = this.shapeDefinition.backgroundColor;
+
         pathsObject.forEach((object) => {
             let objectJson = object.toObject();
             nodes.push(new FabricPathShape(this.shapeDefinition, false, objectJson));
@@ -145,19 +151,23 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             id: Guid.newGuid(),
             type: DrawingShapeTypes.Undefined,
             title: null,
-            shape: new FreeformShape(this.shapeDefinition, nodes, false, null, true)
+            shape: new FreeformShape(this.shapeDefinition, nodes, false, this.shapeTitle, true)
         };
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
         });
 
-        pathsObject.forEach((object) => {
+        this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path';
+        }).forEach((object) => {
             this.canvasObject.remove(object);
         });
         this.canvasObject.remove(this.polylineShape);
 
         (drawingShape.shape as ShapeExtension).shapeObject.forEach(s => this.canvasObject.add(s));
+        this.drawingShapes = [];
         this.drawingShapes.push(drawingShape);
+        this.drawingShapes[0].shape.nodes = (drawingShape.shape as FreeformShape).getShapeJson().nodes;
     }
 
     private setStartingPoint(options) {
@@ -219,11 +229,17 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         return Math.abs(result);
     }
 
-    start(shapeDefinition: DrawingShapeDefinition) {
+    protected setActiveObject(drawingShapeResult: DrawingShape) {
+        
+    }
+
+    start(shapeDefinition: DrawingShapeDefinition, title: string) {
+        this.init();
         this.shapeDefinition = shapeDefinition;
+        this.shapeDefinition.borderColor = this.shapeDefinition.borderColor || '#000';
         this.canvasObject.isDrawingMode = true;
         this.canvasObject.freeDrawingBrush.color = this.shapeDefinition.borderColor;
         this.canvasObject.freeDrawingBrush.width = this.strokeWidth;
+        this.shapeTitle = title;
     }
-
 }

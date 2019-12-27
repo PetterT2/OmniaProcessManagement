@@ -140,6 +140,11 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             ApprovalDueDate: "Approval Due Date",
             Comment: "Comment",
         },
+        ReadRights: {
+            Label: "Read Rights",
+            DefaultReaders: "Default Readers",
+            LimitReadAccess: "Limit Read Access"
+        },
         EmailTemplates: {
             SendForApproval: {
                 SubjectTemplate: "Approve or reject the publishing of the process {{ProcessTitle}}",

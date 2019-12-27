@@ -5,4 +5,6 @@ export interface IShape {
     name: string;
     nodes: IFabricShape[];
     definition: DrawingShapeDefinition;
+    left: number;
+    top: number;
 }

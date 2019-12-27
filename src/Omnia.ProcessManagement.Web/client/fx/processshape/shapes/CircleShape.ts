@@ -34,23 +34,10 @@ export class CircleShape extends ShapeExtension implements Shape {
             }
         }
         else if (this.definition) {
-            left = left || 0; top = top || 0;
-            left = parseFloat(left.toString());
-            top = parseFloat(top.toString());
-            let cleft = left, ctop = top, tleft = left + Math.floor(this.definition.width / 2), ttop = top;
-            switch (this.definition.textPosition) {
-                case TextPosition.Center:
-                    ttop += Math.floor(this.definition.width / 2 - this.definition.fontSize / 2 - 2);
-                    break;
-                case TextPosition.Bottom:
-                    ttop += this.definition.width + TextSpacingWithShape;
-                    break;
-                default:
-                    ctop += this.definition.fontSize + TextSpacingWithShape;
-                    break;
-            }
-            this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: cleft, top: ctop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: tleft, top: ttop, selectable: false }, title));
+            let circlePosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
+            let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, true);
+            this.fabricShapes.push(new FabricCircleShape(this.definition, isActive, { left: circlePosition.left, top: circlePosition.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: false }, title));
         }
         this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

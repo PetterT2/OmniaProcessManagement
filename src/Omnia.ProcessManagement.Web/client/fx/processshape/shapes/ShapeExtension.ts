@@ -1,20 +1,25 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { DrawingShapeDefinition } from '../../models';
+import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { IShape } from './IShape';
-import { IFabricShape, FabricShape, FabricShapeType, FabricShapeTypes } from '../fabricshape';
+import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
+import { TextSpacingWithShape } from '../../constants';
 
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
     nodes: IFabricShape[];
+    left: number;
+    top: number;
     protected fabricShapes: Array<FabricShape> = [];
     protected fabricObjects: fabric.Object[] = [];
     protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
     protected originPos: { x: number, y: number } = { x: 0, y: 0 };
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number) {
+        this.left = left;
+        this.top = top;
         this.definition = definition;
         this.nodes = nodes;
         this.startPoint = { x: 0, y: 0 };
@@ -33,21 +38,26 @@ export class ShapeExtension implements Shape {
         })
     }
 
-    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(isActive: boolean, title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
     get shapeObject(): fabric.Object[] {
         return this.fabricObjects;
     }
 
-    getShapeJson(): IShape {
-        let nodes = this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
-        this.definition = this.ensureDefinition(nodes);
+    protected getShapes(): IFabricShape[] {
+        return this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
+    }
 
+    getShapeJson(): IShape {
+        let nodes = this.getShapes();
+        this.definition = this.ensureDefinition(nodes);
         return {
             name: this.name,
             nodes: nodes,
-            definition: this.definition
+            definition: this.definition,
+            left: this.left,
+            top: this.top
         }
     }
 
@@ -62,20 +72,43 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
+    finishScaled(object: fabric.Object) {
+        let textPosition = this.getObjectPosition(true, object.left, object.top, object.width * object.scaleX, object.height * object.scaleY, true);
+        this.fabricObjects[1].set({
+            left: textPosition.left,
+            top: textPosition.top
+        });
+    }
+
+    getObjectPosition(isText: boolean, left: number, top: number, width: number, height: number, isCenter?: boolean) {
+        left = left || 0; top = top || 0;
+        left = parseFloat(left.toString());
+        top = parseFloat(top.toString());
+        let polygonleft = left, polygontop = top, tleft = isCenter ? left + Math.floor(width / 2) : left + TextSpacingWithShape, ttop = top;
+        switch (this.definition.textPosition) {
+            case TextPosition.Center:
+                ttop += Math.floor(height / 2 - this.definition.fontSize / 2 - 2);
+                break;
+            case TextPosition.Bottom:
+                ttop += height + TextSpacingWithShape;
+                break;
+            default:
+                polygontop += this.definition.fontSize + TextSpacingWithShape;
+                break;
+        }
+        return isText ? { left: tleft, top: ttop } : { left: polygonleft, top: polygontop };
+    }
+
     addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
         if (this.fabricObjects.length < 2 || this.fabricObjects.findIndex(f => f == null) > -1)
             return;
         let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
         let left0 = this.fabricObjects[0].left; let top0 = this.fabricObjects[0].top;
-        let scaleX0 = this.fabricObjects[0].scaleX;
-        let scaleY0 = this.fabricObjects[0].scaleY;
 
         this.fabricObjects[0].on({
             "mousedown": (e) => {
                 left = this.fabricObjects[1].left; top = this.fabricObjects[1].top;
                 left0 = this.fabricObjects[0].left; top0 = this.fabricObjects[0].top;
-                scaleX0 = this.fabricObjects[0].scaleX;
-                scaleY0 = this.fabricObjects[0].scaleY;
                 this.startPoint = canvas.getPointer(e.e);
                 this.originPos = { x: this.fabricObjects[1].left, y: this.fabricObjects[1].top };
             },
@@ -104,16 +137,8 @@ export class ShapeExtension implements Shape {
 
                 this.fabricObjects[1].setCoords();
             },
-            "scaling": (e) => {
-                let isScaleLeft = e.target.left != left0 || e.target.top != top0;
-                let oLeft = isScaleLeft ? (e.target.left - left0) / 2 + left : ((this.fabricObjects[0].scaleX - scaleX0) * this.fabricObjects[0].width) / 2 + left;
-                if (this.fabricObjects[1].originX == 'left') {
-                    oLeft = isScaleLeft ? (e.target.left - left0) + left : left;
-                }
-                this.fabricObjects[1].set({
-                    left: oLeft,
-                    top: isScaleLeft ? (e.target.top - top0) / 2 + top : ((this.fabricObjects[0].scaleY - scaleY0) * this.fabricObjects[0].height) / 2 + top
-                });
+            "scaled": (e) => {
+                this.finishScaled(e.target);
             }
         })
 

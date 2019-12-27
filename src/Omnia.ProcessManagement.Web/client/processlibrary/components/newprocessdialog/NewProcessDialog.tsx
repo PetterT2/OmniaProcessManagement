@@ -119,7 +119,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
             };
             this.processStore.actions.createDraft.dispatch(model).then((newProcess: Process) => {
                 this.isSaving = false;
-                OPMRouter.navigate(newProcess, newProcess.rootProcessStep, RouteOptions.normal)
+                this.processDesignerStore.actions.setProcessToShow.dispatch(newProcess, newProcess.rootProcessStep)
                     .then(() => {
                         this.currentProcessStore.actions.checkOut.dispatch().then(() => {
                             ProcessDesignerUtils.openProcessDesigner();

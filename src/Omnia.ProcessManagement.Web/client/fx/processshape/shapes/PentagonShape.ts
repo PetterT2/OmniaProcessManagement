@@ -62,30 +62,24 @@ export class PentagonShape extends ShapeExtension implements Shape {
             this.initExistingNodes(title, this.definition, isActive, selectable);
         }
         else if (this.definition) {
-            left = left || 0; top = top || 0;
-            left = parseFloat(left.toString());
-            top = parseFloat(top.toString());
-            let recleft = left, rectop = top, tleft = recleft + TextSpacingWithShape, ttop = top;
-
-            switch (this.definition.textPosition) {
-                case TextPosition.Center:
-                    ttop += Math.floor(this.definition.height / 2 - this.definition.fontSize / 2 - 2);
-                    break;
-                case TextPosition.Bottom:
-                    ttop += this.definition.height + TextSpacingWithShape;
-                    break;
-                default:
-                    rectop += this.definition.fontSize + TextSpacingWithShape;
-                    break;
-            }
+            let pentagonPosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
+            let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, false);
 
             let points = this.calculatePoints();
-            this.fabricShapes.push(new FabricPolygonShape(this.definition, isActive, { points: points, left: recleft, top: rectop, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: tleft, top: ttop, selectable: false }, title));
+            this.fabricShapes.push(new FabricPolygonShape(this.definition, isActive, { points: points, left: pentagonPosition.left, top: pentagonPosition.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
 
             this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
         }
+    }
+
+    finishScaled(object: fabric.Object) {
+        let textPosition = this.getObjectPosition(true, object.left, object.top, object.width * object.scaleX, object.height * object.scaleY, false);
+        this.fabricObjects[1].set({
+            left: textPosition.left,
+            top: textPosition.top
+        });
     }
 
     private calculatePoints() {

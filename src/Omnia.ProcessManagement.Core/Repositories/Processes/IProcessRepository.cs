@@ -38,6 +38,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);
         ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType);
-        
+        ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
     }
 }

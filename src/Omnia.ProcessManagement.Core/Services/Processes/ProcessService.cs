@@ -124,7 +124,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
-           await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
+            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
         }
 
@@ -157,6 +157,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType)
         {
             return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash, versionType);
+        }
+
+        async ValueTask<Dictionary<Guid, ProcessData>> IProcessService.GetAllProcessDataAsync(Guid processId)
+        {
+            return await ProcessRepository.GetAllProcessDataAsync(processId);
         }
     }
 }

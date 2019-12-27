@@ -30,12 +30,16 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         this.addEventListener();
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean) {
+    protected setActiveObject(drawingShapeResult: DrawingShape) {
+        if (drawingShapeResult) {
+            this.canvasObject.setActiveObject((drawingShapeResult.shape as Shape).shapeObject[0]);
+        }
+    }
+
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.updateShapeDefinition(id, definition, title, isActive).then((drawingShapeResult: DrawingShape) => {
-                if (drawingShapeResult) {
-                    this.canvasObject.setActiveObject((drawingShapeResult.shape as Shape).shapeObject[0]);
-                }
+            super.updateShapeDefinition(id, definition, title, isActive, left, top).then((drawingShapeResult: DrawingShape) => {
+                this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);
 

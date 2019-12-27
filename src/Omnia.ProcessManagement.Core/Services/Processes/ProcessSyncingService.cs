@@ -75,14 +75,23 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await TransactionRepository.InitTransactionAsync(async () =>
             {
                 await ProcessService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None);
+                var processDataDict = await ProcessService.GetAllProcessDataAsync(process.Id);
                 var spUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
 
-                await SyncToSharePointAsync(spUrl, process);
+                var processActionModel = new ProcessActionModel()
+                {
+                    Process = process,
+                    ProcessData = processDataDict
+                };
+
+                await SyncToSharePointAsync(spUrl, processActionModel);
             });
         }
 
-        private async ValueTask SyncToSharePointAsync(string spUrl, Process process)
+        private async ValueTask SyncToSharePointAsync(string spUrl, ProcessActionModel processActionModel)
         {
+            var process = processActionModel.Process;
+
             var ctx = SharePointClientContextProvider.CreateClientContext(spUrl, true);
 
             List<Microsoft.SharePoint.Client.User> limitedReadAccessUser = null;
@@ -119,7 +128,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
             }
 
-            var folderItem = await SyncProcessToPublishedListAsync(ctx, publishedList, process, enterprisePropertyDict);
+            var folderItem = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
 
             if (limitedReadAccessUser != null)
             {
@@ -131,8 +140,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             }
         }
 
-        private async ValueTask<ListItem> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask<ListItem> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
+            var process = processActionModel.Process;
+
             var folderItem = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
             var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
 
@@ -143,21 +154,21 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 FolderUrl = $"{folderItem.Folder.ServerRelativeUrl}"
             });
 
-            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, process, enterprisePropertyDict);
+            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, processActionModel, enterprisePropertyDict);
             await ctx.ExecuteQueryAsync();
 
             return folderItem;
         }
 
-        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, Process process, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
+            var process = processActionModel.Process;
+
             var language = CultureUtils.GetCultureInfo((int)ctx.Web.Language);
             var processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, language.Name, null);
 
             var (userValuesMapToSharePointFieldInternalNameDict, termCollectionMapToSharePointFieldInternalNameDict, termStoreDefaultLanguage) =
                 await PrepareSharePointFieldDataAsync(ctx, process, enterprisePropertyDict);
-
-
 
             foreach (var property in process.RootProcessStep.EnterpriseProperties)
             {
@@ -210,7 +221,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 }
             }
 
-            fileItem["Title"] = processTitle;
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] = processActionModel.Process.OPMProcessId;
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = JsonConvert.SerializeObject(processActionModel);
+            fileItem[OPMConstants.SharePoint.SharePointFields.Title] = processTitle;
             fileItem.Update();
             await ctx.ExecuteQueryAsync();
         }
@@ -270,7 +283,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 if (enterpriseProperty?.EnterprisePropertyDataType?.IndexedType == PropertyIndexedType.Taxonomy)
                 {
                     var termIds = new List<Guid>();
-                    if(property.Value.ToString() != "")
+                    if (property.Value.ToString() != "")
                     {
                         if (property.Key == OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName)
                         {

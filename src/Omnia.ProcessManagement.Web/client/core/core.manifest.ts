@@ -6,8 +6,7 @@ Composer
     .registerResources({
         resourcePaths: [
             "../models/**/*.js",
-            "./loc/**/*.js",
-            "./messaging/InternalOPMTopics.js",
+            "./loc/**/*.js"
         ]
     });
 //Composer

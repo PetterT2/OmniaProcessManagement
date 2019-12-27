@@ -63,12 +63,6 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.css.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.manifest.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\FreeFormDrawing.tsx" />
-    <TypeScriptCompile Remove="client\components\freeform\IFreeFormDrawing.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\components\freeform\loc\localize.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
@@ -78,7 +72,6 @@
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
-    <TypeScriptCompile Remove="client\core\messaging\InternalOPMTopics.ts" />
     <TypeScriptCompile Remove="client\core\styles\DialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\core\styles\index.ts" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
@@ -90,7 +83,8 @@
     <TypeScriptCompile Remove="client\fx\fx.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\index.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\index.ts" />
-    <TypeScriptCompile Remove="client\fx\messaging\opmPublishTopic.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\InternalOPMTopics.ts" />
+    <TypeScriptCompile Remove="client\fx\messaging\PublicOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
@@ -229,7 +223,6 @@
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
-    <TypeScriptCompile Remove="client\models\styles\FreeFormDrawingStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\models\styles\index.ts" />
@@ -354,9 +347,6 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\security\security.manifest.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\index.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\LibraryStore.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\stores\ProcessDesignerStore.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricImageShape.ts" />
@@ -383,6 +373,9 @@
     <None Include="client\fx\contexts\opm.contexts.manifest.js" />
     <None Include="client\fx\contexts\OPMContext.js" />
     <None Include="client\fx\contexts\OPMContextProvider.js" />
+    <None Include="client\fx\messaging\index.js" />
+    <None Include="client\fx\messaging\InternalOPMTopics.js" />
+    <None Include="client\fx\messaging\PublicOPMTopics.js" />
     <None Include="client\fx\models\contexts\index.js" />
     <None Include="client\fx\models\contexts\OPMContext.js" />
     <None Include="gulpfile.js" />

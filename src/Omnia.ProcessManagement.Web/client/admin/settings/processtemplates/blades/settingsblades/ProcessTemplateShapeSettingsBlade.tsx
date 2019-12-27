@@ -129,7 +129,6 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     needToShowShapeSettings(): boolean {
         return !(this.editingShape as DrawingShapeDefinition).shapeTemplate || ((this.editingShape as DrawingShapeDefinition).shapeTemplate &&
-            (this.editingShape as DrawingShapeDefinition).shapeTemplate.name != ShapeTemplatesConstants.Freeform.name &&
             (this.editingShape as DrawingShapeDefinition).shapeTemplate.name != ShapeTemplatesConstants.Media.name);
     }
 

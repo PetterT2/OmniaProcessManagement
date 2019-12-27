@@ -61,7 +61,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     }
 
     private editProcess() {
-        OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.normal)
+        this.processDesignerStore.actions.setProcessToShow.dispatch(this.process, this.process.rootProcessStep)
             .then(() => {
                 this.currentProcessStore.actions.checkOut.dispatch().then(() => {
                     ProcessDesignerUtils.openProcessDesigner();
