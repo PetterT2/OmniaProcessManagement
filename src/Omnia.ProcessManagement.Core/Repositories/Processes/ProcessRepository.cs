@@ -355,6 +355,27 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
+        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
+        {
+            await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
+            {
+
+                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefault();
+                if (process == null)
+                {
+                    throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
+                }
+
+                EnsureValidProcessWorkingStatusForLatestPublished(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
+                process.ProcessWorkingStatus = newProcessWorkingStatus;
+                process.VersionType = newVersionType;
+
+                await DbContext.SaveChangesAsync();
+
+                return true;
+            });
+        }
+
         private async ValueTask<T> InitConcurrencyLockForActionAsync<T>(Guid opmProcessId, Func<ValueTask<T>> action)
         {
             try

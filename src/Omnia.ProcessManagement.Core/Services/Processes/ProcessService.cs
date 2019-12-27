@@ -128,6 +128,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
         }
 
+        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
+        {
+            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
+            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
+        }
+
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)
         {
             var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsedAsync(processId, deletingProcessStepIds);

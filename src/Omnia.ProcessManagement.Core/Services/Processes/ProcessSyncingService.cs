@@ -392,8 +392,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ctx.Load(folderItem.Folder, f => f.ServerRelativeUrl);
             await ctx.ExecuteQueryAsync();
 
-
-
             return folderItem;
 
         }

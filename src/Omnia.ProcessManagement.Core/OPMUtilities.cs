@@ -1,7 +1,9 @@
-﻿using Omnia.Fx.Models.Language;
+﻿using Microsoft.SharePoint.Client;
+using Omnia.Fx.Models.Language;
 using Omnia.Fx.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Omnia.ProcessManagement.Core
@@ -32,6 +34,20 @@ namespace Omnia.ProcessManagement.Core
             string orderByQuery = string.Format("orderby=fields/{0}", sortBy);
             if (!sortAsc) orderByQuery += " desc";
             return orderByQuery;
+        }
+
+        public static void CopyStream(ClientResult<Stream> source, Stream destination)
+        {
+            int position = 1;
+            int bufferSize = 200000;
+            byte[] readBuffer = new byte[bufferSize];
+            while (position > 0)
+            {
+                position = source.Value.Read(readBuffer, 0, bufferSize);
+                destination.Write(readBuffer, 0, position);
+                readBuffer = new byte[bufferSize];
+            }
+            destination.Flush();
         }
     }
 }

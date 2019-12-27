@@ -35,7 +35,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs.ProcessWorkflows
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var unpublishProcessService = scope.ServiceProvider.GetRequiredService<IUnpublishProcessService>();
-                    await unpublishProcessService.ProcessArchivingAsync(process);
+                    await unpublishProcessService.ProcessUnpublishingAsync(process);
                 }
             }
             catch (Exception ex)
