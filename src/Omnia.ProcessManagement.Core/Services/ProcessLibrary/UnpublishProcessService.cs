@@ -1,8 +1,21 @@
-﻿using Omnia.ProcessManagement.Core.Repositories.Transaction;
+﻿using Microsoft.SharePoint.Client;
+using Omnia.Fx.Models.Extensions;
+using Omnia.Fx.SharePoint.Client;
+using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.Settings;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessTypes;
+using Omnia.ProcessManagement.Models.Settings;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,13 +23,29 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 {
     internal class UnpublishProcessService : IUnpublishProcessService
     {
+        ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
         IProcessService ProcessService { get; }
-        ITransactionRepository TransactionRepositiory { get; }
+        ITransactionRepository TransactionRepository { get; }
+        IProcessTypeService ProcessTypeService { get; }
+        ISettingsService SettingsService { get; }
+        ISharePointClientContextProvider SharePointClientContextProvider { get; }
+        ISharePointListService SharePointListService { get; }
 
-        public UnpublishProcessService(ITransactionRepository transactionRepositiory, IProcessService processService)
+        public UnpublishProcessService(ITransactionRepository transactionRepositiory, 
+            IProcessService processService,
+            ITeamCollaborationAppsService teamCollaborationAppsService,
+            IProcessTypeService processTypeService,
+            ISettingsService settingsService,
+            ISharePointClientContextProvider sharePointClientContextProvider,
+            ISharePointListService sharePointListService)
         {
             ProcessService = processService;
-            TransactionRepositiory = transactionRepositiory;
+            TransactionRepository = transactionRepositiory;
+            TeamCollaborationAppsService = teamCollaborationAppsService;
+            ProcessTypeService = processTypeService;
+            SettingsService = settingsService;
+            SharePointClientContextProvider = sharePointClientContextProvider;
+            SharePointListService = sharePointListService;
         }
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
@@ -24,9 +53,59 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await ProcessService.UnpublishProcessAsync(opmProcessId);
         }
 
-        public async ValueTask ProcessArchivingAsync(Process process)
+        public async ValueTask ProcessUnpublishingAsync(Process process)
         {
+            await TransactionRepository.InitTransactionAsync(async () =>
+            {
+                await ProcessService.UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(process.OPMProcessId, ProcessWorkingStatus.None, ProcessVersionType.Archived);
+                var spUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
+                await ProcessUnpublishingAsync(spUrl, process);
+            });
+        }
 
+        private async ValueTask ProcessUnpublishingAsync(string webUrl, Process process)
+        {
+            if (Guid.TryParse(process.RootProcessStep.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid processTypeId))
+            {
+                var processCtx = SharePointClientContextProvider.CreateClientContext(webUrl, true);
+                processCtx.Load(processCtx.Web);
+                processCtx.Load(processCtx.Web, w => w.Language);
+                var publishedList = await SharePointListService.GetListByUrlAsync(processCtx, OPMConstants.SharePoint.ListUrl.PublishList, true);
+                var opmProcessIdFolder = await SharePointListService.GetChildFolderAsync(processCtx, publishedList.RootFolder, process.OPMProcessId.ToString("N"), true);
+
+                var processTypes = await ProcessTypeService.GetByIdsAsync(processTypeId);
+                ProcessType processType = processTypes.FirstOrDefault();
+                var archiveSetting = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>().Archive;
+                GlobalSettings globalSettings = await SettingsService.GetAsync<GlobalSettings>();
+                if(archiveSetting != null && (!string.IsNullOrEmpty(globalSettings.ArchiveSiteUrl) || !string.IsNullOrEmpty(archiveSetting.Url)))
+                {
+                    string archiveSiteUrl = !string.IsNullOrEmpty(archiveSetting.Url) ? archiveSetting.Url : globalSettings.ArchiveSiteUrl;
+                    var archiveCtx = SharePointClientContextProvider.CreateClientContext(archiveSiteUrl, true);
+                    var archivedList = await SharePointListService.GetListByUrlAsync(archiveCtx, OPMConstants.SharePoint.ListUrl.ArchivedList, true);
+                    var archivedProcessIdFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedList.RootFolder, process.OPMProcessId.ToString("N"));
+                    var latestPublishedProcessFolder = await SharePointListService.GetFirstFolderInFolder(processCtx, opmProcessIdFolder);
+                    //await CopyContentToArchiveFolder(processCtx, archiveCtx, opmProcessIdFolder, archivedProcessIdFolder);
+                }
+                await SharePointListService.DeleteFolder(processCtx, opmProcessIdFolder);
+            }
+        }
+
+        // When adding more content to the opmProcessIdFolder in the future we need to update this function to ensure that it copy enough content
+        private async ValueTask CopyContentToArchiveFolder(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder latestPublishedProcessFolder, Folder archivedProcessIdFolder)
+        {
+            Folder archivedLatestPublishedProcessFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, latestPublishedProcessFolder.Name);
+            foreach(Microsoft.SharePoint.Client.File file in latestPublishedProcessFolder.Files)
+            {
+                ClientResult<Stream> fileStream = file.OpenBinaryStream();
+                sourceCtx.Load(file);
+                await sourceCtx.ExecuteQueryAsync();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    OPMUtilities.CopyStream(fileStream, memoryStream);
+                    string fileName = Path.GetFileName(file.ServerRelativeUrl);
+                    Microsoft.SharePoint.Client.File archivedFile = await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream);
+                }
+            }
         }
     }
 }

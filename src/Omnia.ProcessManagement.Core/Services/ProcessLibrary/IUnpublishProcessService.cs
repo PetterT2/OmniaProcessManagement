@@ -9,6 +9,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     public interface IUnpublishProcessService
     {
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
-        ValueTask ProcessArchivingAsync(Process process);
+        ValueTask ProcessUnpublishingAsync(Process process);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.ProcessManagement.Core.Extensions;
 using Omnia.ProcessManagement.Core.Services.SharePoint.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +39,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             string authorityUrl = webUri.GetLeftPart(UriPartial.Authority);
             string serverRelativeUrl = context.Url.Replace(authorityUrl, "");
             List spList = context.Web.GetList(serverRelativeUrl + "/" + listUrl);
-            context.Load(spList, l => l.RootFolder.ServerRelativeUrl, l => l.Id, l => l.Title);
+            context.Load(spList, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl, l => l.Id, l => l.Title);
             if (loadFields)
             {
                 context.Load(spList.Fields);
@@ -68,5 +70,105 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             return listItems;
         }
 
+        public async ValueTask<Folder> GetChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool includeFiles = false, bool includeParentFolders = true, bool includeChildFolders = true)
+        {
+            Folder folder = null;
+
+            try
+            {
+                if (includeParentFolders)
+                {
+                    context.Load(parentFolder.Folders);
+                    await context.ExecuteQueryAsync();
+                }
+
+                folder = parentFolder.Folders.FirstOrDefault(f => f.Name == folderUrl);
+                context.Load(folder, f => f.ServerRelativeUrl);
+                if (includeFiles)
+                {
+                    context.Load(folder.Files);
+                }
+                if (includeChildFolders)
+                {
+                    context.Load(folder.Folders);
+                }
+                await context.ExecuteQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                // Return null if folder not found, do not throw exception
+                folder = null;
+            }
+
+            return folder;
+        }
+
+        public async ValueTask<Microsoft.SharePoint.Client.Folder> GetFirstFolderInFolder(PortableClientContext clientContext, Folder parentFolder)
+        {
+            Microsoft.SharePoint.Client.Folder folder = null;
+
+            clientContext.Load(parentFolder.Folders);
+            await clientContext.ExecuteQueryAsync();
+
+            if (parentFolder.Folders.Count > 0)
+            {
+                folder = parentFolder.Folders[0];
+                clientContext.Load(folder, f => f.ListItemAllFields, f => f.Name);
+                await clientContext.ExecuteQueryAsync();
+            }
+
+            return folder;
+        }
+
+        public async ValueTask DeleteFolder(PortableClientContext clientContext, Folder folder)
+        {
+            if (!folder.IsObjectPropertyInstantiated("Folders") || !folder.IsObjectPropertyInstantiated("Files"))
+            {
+                if (!folder.IsObjectPropertyInstantiated("Folders")) clientContext.Load(folder.Folders);
+                if (!folder.IsObjectPropertyInstantiated("Files")) clientContext.Load(folder.Files);
+                await clientContext.ExecuteQueryAsync();
+            }
+            foreach (var childFolder in folder.Folders.ToList())
+            {
+                await DeleteFolder(clientContext, childFolder);
+            }
+
+            folder.DeleteObject();
+            await clientContext.ExecuteQueryAsync();
+        }
+
+        public async ValueTask<Folder> EnsureChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool needToLoadItemFields = false)
+        {
+            if (parentFolder.PropertyInstantiationNeeded(f => f.Folders))
+            {
+                await parentFolder.Context.ExecuteQueryAsync();
+            }
+
+            Folder folder = parentFolder.Folders.Add(folderUrl);
+            context.Load(folder, f => f.ServerRelativeUrl);
+            context.Load(folder.Files);
+            if (needToLoadItemFields)
+                context.Load(folder.ListItemAllFields);
+            await context.ExecuteQueryAsync();
+            return folder;
+        }
+
+        public async ValueTask<Microsoft.SharePoint.Client.File> UploadDocumentAsync(Web web, Folder targetFolder, string fileName, Stream stream, bool overwrite = false, bool includeListItem = false)
+        {
+            string fileServerRelativeUrl = targetFolder.ServerRelativeUrl + '/' + fileName;
+            stream.Seek(0, SeekOrigin.Begin);
+            FileCreationInformation newFile = new FileCreationInformation();
+            newFile.ContentStream = stream;
+            newFile.Url = fileServerRelativeUrl;
+            newFile.Overwrite = overwrite;
+            Microsoft.SharePoint.Client.File uploadFile = targetFolder.Files.Add(newFile);
+            if (includeListItem)
+            {
+                web.Context.Load(uploadFile.ListItemAllFields);
+                web.Context.Load(uploadFile, f => f.ServerRelativeUrl);
+            }
+            await web.Context.ExecuteQueryAsync();
+            return uploadFile;
+        }
     }
 }
