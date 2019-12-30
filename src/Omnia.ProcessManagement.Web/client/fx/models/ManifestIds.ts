@@ -20,7 +20,6 @@ export class OPMResourceManifests {
     public static get ProcessDesignerShapeSettingsPanel(): Guid { return new Guid("686ddca5-8634-43fb-bd09-9f00fae47a39"); }
     public static get ProcessDesignerShapePickerCore(): Guid { return new Guid("a7258ae7-67fb-4dec-a487-de66102ae3aa"); }
     public static get ProcessDesignerCreateTask(): Guid { return new Guid("292697b2-1b4b-472d-bf18-460212cd7ea8"); }
-    public static get ProcessDesignerProcessRenderer(): Guid { return new Guid("89cb2867-627a-433b-a349-1a6100e7c057"); }
 }
 
 export class OPMWebComponentManifests {
