@@ -8,9 +8,9 @@ namespace Omnia.ProcessManagement.Models.Enums
     {
         Draft = 0,
         CheckedOut = 1,
-        Published = 2,
+        Published = 2, // Should be changed to Archived??
         LatestPublished = 3,
-        Archived = 4
+        Archived = 4 // Should be removed?
     }
 
     public enum DraftOrLatestPublishedVersionType

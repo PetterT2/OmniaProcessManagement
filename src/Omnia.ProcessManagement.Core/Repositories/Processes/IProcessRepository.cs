@@ -24,6 +24,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrLatestPublishedVersionType versionType);
+        ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrLatestPublishedVersionType versionType);

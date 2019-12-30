@@ -5,7 +5,7 @@ import { Prop } from 'vue-property-decorator';
 import { Localize, Inject, Utils } from '@omnia/fx';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
-import { ProcessTypeStore, SettingsStore } from '../../../../fx';
+import { ProcessTypeStore, SettingsStore, ProcessService } from '../../../../fx';
 
 interface UnpublishDialogProps {
     process: Process;
@@ -21,6 +21,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
     @Inject(SettingsStore) settingsStore: SettingsStore;
+    @Inject(ProcessService) processService: ProcessService;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -46,14 +47,15 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
         this.isLoading = true;
         let processTypeId = this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType];
         Promise.all([
+            this.processService.checkIfDraftExists(this.process.opmProcessId.toString()),
             this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings),
             this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
-        ]).then(() => {
+        ]).then((result) => {
             let processType = this.processTypeStore.getters.byId(processTypeId);
             let processTypeSettings = processType ? processType.settings as ProcessTypeItemSettings : null;
             let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
             let defaultArchiveUrl = globalSettings ? globalSettings.archiveSiteUrl : "";
-            this.canBeArchive = processTypeSettings && processTypeSettings.archive && (!Utils.isNullOrEmpty(processTypeSettings.archive.url) || !Utils.isNullOrEmpty(defaultArchiveUrl));
+            this.canBeArchive = !result[0] && processTypeSettings && processTypeSettings.archive && (!Utils.isNullOrEmpty(processTypeSettings.archive.url) || !Utils.isNullOrEmpty(defaultArchiveUrl));
             this.isLoading = false;
         })
     }
