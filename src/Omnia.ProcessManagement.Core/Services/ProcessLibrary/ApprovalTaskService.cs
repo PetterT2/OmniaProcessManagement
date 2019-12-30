@@ -137,7 +137,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, taskItemRoleAssignments);
 
-            await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl);
+            await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl, process.RootProcessStep.Id);
 
             return taskListItem.Id;
         }
@@ -201,12 +201,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             await SharePointGroupService.EnsureRemoveGroupOnWebAsync(appContext, appContext.Web, temporaryApprovalGroupTitle);
         }
 
-        private async ValueTask SendForApprovalEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData, User approverSPUser, User authorSPUser, string processTitle, string taskTitle, int taskListItemId, string webUrl)
+        private async ValueTask SendForApprovalEmailAsync(Workflow workflow, WorkflowApprovalData workflowApprovalData,
+            User approverSPUser, User authorSPUser, string processTitle, string taskTitle, int taskListItemId, string webUrl, Guid processId)
         {
             if (!string.IsNullOrEmpty(approverSPUser.Email))
             {
                 string taskLink = string.Format(OPMConstants.OPMPages.ApprovalTaskUrl, webUrl, taskListItemId);
-                string processLink = string.Format(OPMConstants.OPMPages.ProcessPreviewUrl, webUrl);
+                string processLink = string.Format(OPMConstants.OPMPages.ProcessPreviewUrl, webUrl, processId);
 
                 var emailInfo = new EmailInfo();
                 emailInfo.Subject = OPMConstants.EmailTemplates.SendForApproval.SubjectLocalizedKey;

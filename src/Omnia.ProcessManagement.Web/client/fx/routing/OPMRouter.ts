@@ -68,6 +68,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         
 
         if (path) {
+            path = path.split('&')[0];
             context = {
                 processStepId: new Guid(path),
                 routeOption: routeOption

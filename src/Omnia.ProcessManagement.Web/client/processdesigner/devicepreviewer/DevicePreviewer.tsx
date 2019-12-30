@@ -2,11 +2,11 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
-import { Inject } from '@omnia/fx';
+import { Inject, Utils } from '@omnia/fx';
 import 'vue-tsx-support/enable-check';
 import { Guid } from '@omnia/fx-models';
 import { DisplayBreakPointFactory } from '../factory/BreakPointFactory';
-import { DisplayBreakPoint, ProcessDesignerUrlParameters } from '../../models/processdesigner';
+import { DisplayBreakPoint } from '../../models/processdesigner';
 import { DevicePreviewerStyles } from './DevicePreviewer.css';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { CurrentProcessStore } from '../../fx/stores';
@@ -41,11 +41,14 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     private createIframeUrl() {
         var currentProcess = this.currentProcessStore.getters.referenceData();
         var previewPageUrl = this.currentProcessStore.getters.previewPageUrl();
-        let url = previewPageUrl + "?" + ProcessDesignerUrlParameters.previewMode + "=true";
-        if (currentProcess) {
-            url += `&${ProcessDesignerUrlParameters.processId}=${currentProcess.process.id}`;
+        if (Utils.isNullOrEmpty(previewPageUrl)) {
+            previewPageUrl = location.protocol + '//' + location.host + location.pathname + `#/@pm/preview/g/${currentProcess.current.processStep.id}`;
         }
-        return url;
+
+        if (currentProcess) {
+            previewPageUrl += `/@pm/preview/${currentProcess.current.processStep.id}`;
+        }
+        return previewPageUrl;
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {

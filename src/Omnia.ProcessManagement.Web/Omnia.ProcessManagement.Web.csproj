@@ -212,7 +212,6 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ActionButton.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\AddShapeOptions.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\AddShapeStep.ts" />
-    <TypeScriptCompile Remove="client\models\processdesigner\Constants.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\DisplayActionButton.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\DisplayBreakPoint.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\index.ts" />
