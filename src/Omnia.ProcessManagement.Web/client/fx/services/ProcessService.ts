@@ -15,6 +15,19 @@ export class ProcessService {
     constructor() {
     }
 
+    public checkIfDraftExists = (opmProcessId: string) => {
+        return new Promise<boolean>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<boolean>>('/api/processes/checkifdraftexist/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     public createDraftProcess = (processActionModel: ProcessActionModel) => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/createdraft', processActionModel).then((response) => {

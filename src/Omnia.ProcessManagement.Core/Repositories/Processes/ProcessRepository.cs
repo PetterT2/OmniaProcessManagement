@@ -672,6 +672,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask<bool> CheckIfDraftExist(Guid opmProcessId)
+        {
+            var process = await DbContext.Processes
+                    .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Draft)
+                    .FirstOrDefaultAsync();
+            return process != null ? true : false;
+        }
+
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
             return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>

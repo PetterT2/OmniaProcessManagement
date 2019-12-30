@@ -116,6 +116,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return workingStatusDict;
         }
 
+        public async ValueTask<bool> CheckIfDraftExist(Guid opmProcessId)
+        {
+            return await ProcessRepository.CheckIfDraftExist(opmProcessId);
+        }
+
         public async ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion)
         {
             await ProcessRepository.UpdateDraftProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus, allowEixstingCheckedOutVersion);

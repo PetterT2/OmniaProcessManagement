@@ -394,5 +394,21 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse(ex);
             }
         }
+
+        [HttpGet, Route("checkifdraftexist/{opmProcessId:guid}")]
+        [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
+        public async ValueTask<ApiResponse<bool>> CheckIfDraftExist(Guid opmProcessId)
+        {
+            try
+            {
+                var result = await ProcessService.CheckIfDraftExist(opmProcessId);
+                return ApiUtils.CreateSuccessResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<bool>(ex);
+            }
+        }
     }
 }
