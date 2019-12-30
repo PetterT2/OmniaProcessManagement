@@ -160,6 +160,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         {
                             throw new Exception($"OPM task not found");
                         }
+                        if (dbWorkflowTask.Workflow.WorkflowData.Type != WorkflowType.Approval)
+                        {
+                            throw new Exception($"This task is not approval task");
+                        }
                         if (dbWorkflowTask.IsCompleted)
                         {
                             throw new Exception($"This task has been completed");

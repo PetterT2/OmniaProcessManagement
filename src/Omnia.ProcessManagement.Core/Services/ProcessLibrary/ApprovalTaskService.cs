@@ -123,7 +123,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverSPUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, authorSPUser.Id);
-            
+
             List taskList = await SharePointListService.GetListByUrlAsync(appCtx, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = await SharePointListService.AddListItemAsync(appCtx, taskList, keyValuePairs);
 
@@ -174,7 +174,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         public async ValueTask CompleteSharePointTaskAsync(WorkflowTask approvalTask, Process process, string webUrl)
         {
-            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl);
+            PortableClientContext appContext = SharePointClientContextProvider.CreateClientContext(webUrl, true);
             List taskList = await SharePointListService.GetListByUrlAsync(appContext, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskItem = taskList.GetItemById(approvalTask.SPTaskId);
             appContext.Load(taskItem,
