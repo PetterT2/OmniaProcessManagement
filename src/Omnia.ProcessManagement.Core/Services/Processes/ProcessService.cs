@@ -131,7 +131,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
         {
             await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
+            await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)

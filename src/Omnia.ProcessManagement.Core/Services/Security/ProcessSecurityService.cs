@@ -113,8 +113,9 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             var queryInput = new PermissionBindingsByResourcesQueryInput();
             queryInput.Resources.Add(SecurityResourceIdResourceHelper.GenerateResource(opmProcessId));
             queryInput.IncludeGroups = true;
+            queryInput.IncludeUsers = true;
 
-            var permissionBindings = await RoleService.GetIdentityPermissionBindingsForCurrentServiceAsync(queryInput);
+            var permissionBindings = await RoleService.GetIdentityPermissionBindingsForCurrentExtensionAsync(queryInput);
 
             var identities = permissionBindings.Where(p => p.UserDefinedRules == null || p.UserDefinedRules.Count == 0)
                 .Select(p => new UserIdentity { Uid = p.Identity })
@@ -184,7 +185,8 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             {
                 throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
             }
-            else {
+            else
+            {
                 ctx.Load(authorGroup.Users);
             }
 
