@@ -6,6 +6,7 @@ using Omnia.Fx.Messaging;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
+using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -15,12 +16,11 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
     internal class ProcessService : IProcessService
     {
         IProcessRepository ProcessRepository { get; }
-        IMessageBus MessageBus { get; }
-
-        public ProcessService(IProcessRepository processRepository, IMessageBus messageBus)
+        ITransactionRepository TransactionRepository { get; }
+        public ProcessService(IProcessRepository processRepository, ITransactionRepository transactionRepository)
         {
             ProcessRepository = processRepository;
-            MessageBus = messageBus;
+            TransactionRepository = transactionRepository;
         }
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
@@ -57,14 +57,14 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
         {
             var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.SyncingToSharePoint });
+            await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.SyncingToSharePoint);
             return process;
         }
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
         {
             await ProcessRepository.UnpublishProcessAsync(opmProcessId);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Archiving });
+            await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.Archiving);
         }
 
         public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
@@ -119,13 +119,13 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion)
         {
             await ProcessRepository.UpdateDraftProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus, allowEixstingCheckedOutVersion);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
+            await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 
         public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
             await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
-            await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { newProcessWorkingStatus });
+            await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)

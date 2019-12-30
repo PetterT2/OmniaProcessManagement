@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Omnia.Fx.Contexts;
 using Omnia.Fx.Localization;
+using Omnia.Fx.Messaging;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.Models.Users;
 using Omnia.Fx.SharePoint.Client;
@@ -32,7 +33,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         IProcessRepository ProcessRepository { get; }
         ITransactionRepository TransactionRepositiory { get; }
         ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
-        IOmniaContext OmniaContext { get; }
 
         public PublishProcessService(IProcessService processService,
             IApprovalTaskService approvalTaskService,
@@ -40,8 +40,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             IWorkflowTaskService workflowTaskService,
             IProcessSecurityService processSecurityService,
             ITransactionRepository transactionRepositiory,
-            ITeamCollaborationAppsService teamCollaborationAppsService,
-            IOmniaContext omniaContext)
+            ITeamCollaborationAppsService teamCollaborationAppsService)
         {
             ProcessService = processService;
             ApprovalTaskService = approvalTaskService;
@@ -50,7 +49,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             ProcessSecurityService = processSecurityService;
             TransactionRepositiory = transactionRepositiory;
             TeamCollaborationAppsService = teamCollaborationAppsService;
-            OmniaContext = omniaContext;
         }
 
         public async ValueTask PublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request)

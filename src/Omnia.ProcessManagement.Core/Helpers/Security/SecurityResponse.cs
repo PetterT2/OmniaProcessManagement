@@ -308,7 +308,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             {
                 if (Process.VersionType == ProcessVersionType.Published || Process.VersionType == ProcessVersionType.LatestPublished)
                 {
-                    DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SecurityResourceId, Process.SecurityResourceId);
+                    DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SecurityResourceId, Process.SecurityResourceId.ToString());
                 }
 
                 DynamicScopedContextProvider.SetParameter(Omnia.Fx.Constants.Parameters.Apps.AppInstanceId, TeamAppId.ToString());

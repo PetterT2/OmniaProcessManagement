@@ -1,4 +1,5 @@
-﻿using Omnia.ProcessManagement.Models.Settings;
+﻿using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Settings;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,5 +18,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
     {
         ValueTask<T> InitTransactionAsync<T>(Func<ValueTask<T>> action);
         ValueTask InitTransactionAsync(Func<ValueTask> action);
+
+        ValueTask PublishWorkingStatusChangedAsync(ProcessWorkingStatus processWorkingStatus);
     }
 }

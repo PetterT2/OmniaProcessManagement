@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Omnia.Fx.Messaging;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Settings;
 using System;
 using System.Collections.Generic;
@@ -10,10 +12,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
 {
     internal class TransactionRepositiory : ITransactionRepository
     {
+        ProcessWorkingStatus? ProcessWorkingStatus { get; set; }
+
         OmniaPMDbContext DbContext;
-        public TransactionRepositiory(OmniaPMDbContext databaseContext)
+        IMessageBus MessageBus { get; }
+        public TransactionRepositiory(OmniaPMDbContext databaseContext, IMessageBus messageBus)
         {
             DbContext = databaseContext;
+            MessageBus = messageBus;
         }
 
         public async ValueTask<T> InitTransactionAsync<T>(Func<ValueTask<T>> action)
@@ -22,6 +28,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
             {
                 var result = await action();
                 await transaction.CommitAsync();
+
+                if (ProcessWorkingStatus.HasValue)
+                {
+                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Value });
+                }
+
                 return result;
             }
         }
@@ -30,16 +42,25 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             using (var transaction = DbContext.Database.BeginTransaction())
             {
-                try
+
+                await action();
+                await transaction.CommitAsync();
+
+                if (ProcessWorkingStatus.HasValue)
                 {
-                    await action();
-                    await transaction.CommitAsync();
+                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Value });
                 }
-                catch(Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
+            }
+        }
+
+        public async ValueTask PublishWorkingStatusChangedAsync(ProcessWorkingStatus processWorkingStatus)
+        {
+            if (DbContext.Database.CurrentTransaction != null)
+            {
+                ProcessWorkingStatus = processWorkingStatus;
+            }
+            else {
+                await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { processWorkingStatus });
             }
         }
     }

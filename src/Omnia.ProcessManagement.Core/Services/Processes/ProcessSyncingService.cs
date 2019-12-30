@@ -100,7 +100,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             var (enterpriseProperties, cache) = await EnterprisePropertyService.GetAllAsync();
             var enterprisePropertyDict = enterpriseProperties.ToDictionary(e => e.InternalName, e => e);
 
-            if (process.SecurityResourceId == process.OPMProcessId.ToString())
+            if (process.SecurityResourceId == process.OPMProcessId)
             {
                 limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
 

@@ -1024,6 +1024,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
+            model.SecurityResourceId = processEf.SecurityResourceId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
             model.CreatedAt = processEf.CreatedAt;
             model.CreatedBy = processEf.CreatedBy;

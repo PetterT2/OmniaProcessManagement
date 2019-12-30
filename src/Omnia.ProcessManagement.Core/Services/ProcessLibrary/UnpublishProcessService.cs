@@ -21,10 +21,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
         {
-            await TransactionRepositiory.InitTransactionAsync(async () =>
-            {
-                await ProcessService.UnpublishProcessAsync(opmProcessId);
-            });
+            await ProcessService.UnpublishProcessAsync(opmProcessId);
         }
 
         public async ValueTask ProcessArchivingAsync(Process process)

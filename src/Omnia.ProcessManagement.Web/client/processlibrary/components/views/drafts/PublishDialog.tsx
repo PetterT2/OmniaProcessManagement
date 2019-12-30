@@ -369,6 +369,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                         </omfx-field-validation>
                     ]
                 }
+                {this.renderReadRightsSetting(h)}
             </div>
         )
     }
