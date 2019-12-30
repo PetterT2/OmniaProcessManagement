@@ -163,7 +163,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                             <div>
                                 <div><p>{this.task.sharePointTask.title}</p></div>
 
-                                <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}></p>
+                                <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}</p>
                                 <p>{this.task.createdByUserDisplayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
                                 {
                                     Utils.isNullOrEmpty(this.task.workflow.comment) ? null : <p>{"\"" + this.task.workflow.comment + "\""}</p>
