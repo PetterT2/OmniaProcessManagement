@@ -2,13 +2,18 @@
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
-import { DrawingShapeDefinition } from '../../models';
-import { Utils } from '@omnia/fx';
+import { DrawingShapeDefinition, ImageRef } from '../../models';
+import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { IFabricShape } from '../fabricshape';
+import { ImageService } from '../../services';
+import { CurrentProcessStore } from '../../stores';
 
 export class DrawingCanvas implements CanvasDefinition {
-    imageBackgroundUrl?: string;
+    @Inject(ImageService) imageService: ImageService;
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+
+    backgroundImageRef?: ImageRef;
     width: number;
     height: number;
     gridX?: number;
@@ -35,7 +40,7 @@ export class DrawingCanvas implements CanvasDefinition {
         shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
 
         return {
-            imageBackgroundUrl: this.imageBackgroundUrl,
+            backgroundImageRef: this.backgroundImageRef,
             width: this.width,
             height: this.height,
             gridX: this.gridX,
@@ -53,8 +58,10 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     private renderBackgroundImage(definition?: CanvasDefinition) {
-        if (definition && definition.imageBackgroundUrl) {
-            fabric.Image.fromURL(definition.imageBackgroundUrl, (img) => {
+        if (definition && definition.backgroundImageRef) {
+            let currentProcess = this.currentProcessStore.getters.referenceData().process;
+            let backgroundUrl = this.imageService.generateImageUrl(currentProcess, definition.backgroundImageRef);
+            fabric.Image.fromURL(backgroundUrl, (img) => {
                 img.scaleToWidth(this.canvasObject.getWidth());
                 img.scaleToHeight(this.canvasObject.getHeight());
                 this.canvasObject.setBackgroundImage(img, this.canvasObject.renderAll.bind(this.canvasObject), {

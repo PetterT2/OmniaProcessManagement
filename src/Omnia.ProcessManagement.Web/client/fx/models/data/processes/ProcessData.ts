@@ -10,8 +10,6 @@ export interface ProcessData {
     links: Array<Link>; //TODO
     tasks: any; //TODO
 
-    canvasDefinitionJSON?: string;
-
 
     createdBy: string;
     modifiedBy: string;

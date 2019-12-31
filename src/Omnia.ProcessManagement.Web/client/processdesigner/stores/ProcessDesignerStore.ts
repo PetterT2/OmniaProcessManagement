@@ -37,6 +37,8 @@ export class ProcessDesignerStore extends Store {
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     selectedShape = this.state<DrawingShape>(null);
     selectingShape = this.state<DrawingShape>(null);
+
+    private previewPageUrl = this.state<string>("");
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
@@ -65,6 +67,9 @@ export class ProcessDesignerStore extends Store {
         },
         selectingShape: (): DrawingShape => {
             return this.selectingShape.state;
+        },
+        previewPageUrl: (): string => {
+            return this.previewPageUrl.state;
         }
     }
 
@@ -130,6 +135,9 @@ export class ProcessDesignerStore extends Store {
         }),
         setSelectingShape: this.mutation((selectingShape: DrawingShape) => {
             this.selectingShape.mutate(selectingShape);
+        }),
+        setPreviewPageUrl: this.mutation((url: string) => {
+            this.previewPageUrl.mutate(url);
         })
     }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Omnia.ProcessManagement.Models.Images;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,7 +7,7 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
 {
     public class CanvasDefinition
     {
-        public string BackgroundImageUrl { get; set; }
+        public ImageRef BackgroundImageRef { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
         public int GridX { get; set; }
