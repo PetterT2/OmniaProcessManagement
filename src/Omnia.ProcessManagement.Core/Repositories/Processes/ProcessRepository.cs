@@ -83,29 +83,29 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
             {
-                var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+                var checkedOutProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
-                if (checkedOutProcessWithProcessDataIdHash != null && checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != this.OmniaContext.Identity.LoginName)
+                if (checkedOutProcess != null && checkedOutProcess.CheckedOutBy.ToLower() != this.OmniaContext.Identity.LoginName)
                 {
-                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcess.CheckedOutBy);
                 }
 
-                var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
+                var draftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, true);
 
-                if (draftProcessWithProcessDataIdHash == null)
+                if (draftProcess == null)
                 {
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
 
-                EnsureNoActiveWorkflowForDraft(draftProcessWithProcessDataIdHash.Process);
+                EnsureNoActiveWorkflowForDraft(draftProcess);
 
-                if (checkedOutProcessWithProcessDataIdHash != null)
+                if (checkedOutProcess != null)
                 {
-                    EnsureRemovingExistingProcess(checkedOutProcessWithProcessDataIdHash);
+                    DbContext.Processes.Remove(checkedOutProcess);
                 }
-                if (draftProcessWithProcessDataIdHash != null)
+                if (draftProcess != null)
                 {
-                    EnsureRemovingExistingProcess(draftProcessWithProcessDataIdHash);
+                    DbContext.Processes.Remove(draftProcess);
                 }
 
                 await DbContext.SaveChangesAsync();
@@ -152,34 +152,32 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
             {
-                var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
-                var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
-
-                var checkedOutProcess = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.CheckedOut).FirstOrDefaultAsync();
-
-                if (draftProcessWithProcessDataIdHash == null)
-                {
-                    throw new ProcessDraftVersionNotFoundException(opmProcessId);
-                }
-
+                var checkedOutProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.CheckedOut, false);
                 if (checkedOutProcess != null)
                 {
                     if (checkedOutProcess.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
                     {
                         throw new ProcessCheckedOutByAnotherUserException(checkedOutProcess.CheckedOutBy);
                     }
-
-
                     throw new Exception("There is a checked out version for this process");
                 }
 
-                var processEf = draftProcessWithProcessDataIdHash.Process;
+                var latestPublishedProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.LatestPublished, true);
+                var draftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, true);
 
-                processEf.CheckedOutBy = "";
-                processEf.VersionType = ProcessVersionType.LatestPublished;
-                processEf.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
 
-                RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+                if (draftProcess == null)
+                {
+                    throw new ProcessDraftVersionNotFoundException(opmProcessId);
+                }
+
+
+
+                draftProcess.CheckedOutBy = "";
+                draftProcess.VersionType = ProcessVersionType.LatestPublished;
+                draftProcess.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
+
+                RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(draftProcess.JsonValue);
 
                 var edition = 1;
                 var revision = 0;
@@ -196,17 +194,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision);
 
                 rootProcessStep.Comment = comment;
-                processEf.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
-                processEf.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
+                draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
+                draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
 
-                processEf.SecurityResourceId = securityResourceId;
+                draftProcess.SecurityResourceId = securityResourceId;
 
                 await DbContext.SaveChangesAsync();
 
                 var rawSql = GenerateUpdateRelatedWorkflowEditionRowSql(opmProcessId, edition);
                 await DbContext.ExecuteSqlCommandAsync(rawSql);
 
-                var process = MapEfToModel(processEf);
+                var process = MapEfToModel(draftProcess);
                 return process;
             });
         }
@@ -274,28 +272,31 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
             {
-                var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+                var checkedOutProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
-                if (checkedOutProcessWithProcessDataIdHash == null)
+                if (checkedOutProcess == null)
                 {
                     throw new ProcessCheckedOutVersionNotFoundException(opmProcessId);
                 }
-                else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+                else if (checkedOutProcess.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
                 {
-                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcess.CheckedOutBy);
                 }
 
-                var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
-                EnsureRemovingExistingProcess(existingDraftProcessWithProcessDataIdHash);
+                var existingDraftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, true);
+                if (existingDraftProcess != null)
+                {
+                    DbContext.Processes.Remove(existingDraftProcess);
+                }
 
-                checkedOutProcessWithProcessDataIdHash.Process.VersionType = ProcessVersionType.Draft;
-                checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy = "";
-                checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
-                checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
+                checkedOutProcess.VersionType = ProcessVersionType.Draft;
+                checkedOutProcess.CheckedOutBy = "";
+                checkedOutProcess.ModifiedAt = DateTimeOffset.UtcNow;
+                checkedOutProcess.ModifiedBy = OmniaContext.Identity.LoginName;
 
                 await DbContext.SaveChangesAsync();
 
-                var process = MapEfToModel(checkedOutProcessWithProcessDataIdHash.Process);
+                var process = MapEfToModel(checkedOutProcess);
                 return process;
             });
         }
@@ -533,14 +534,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         }
 
-        private void EnsureRemovingExistingProcess(ProcessWithProcessDataIdHash processWithProcessDataIdHash)
-        {
-            if (processWithProcessDataIdHash != null)
-            {
-                processWithProcessDataIdHash.AllProcessDataIdHash.ForEach(content => RemoveProcessData(content.Id, processWithProcessDataIdHash.Process.Id));
-                DbContext.Processes.Remove(processWithProcessDataIdHash.Process);
-            }
-        }
+
 
         private void RemoveProcessData(Guid id, Guid processId)
         {
@@ -688,22 +682,23 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                        .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Draft)
                        .SingleOrDefaultAsync();
 
-                var checkedOutProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
+                var checkedOutProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.CheckedOut, true);
 
-                if (checkedOutProcessWithProcessDataIdHash == null)
+                if (checkedOutProcess == null)
                 {
                     throw new ProcessCheckedOutVersionNotFoundException(opmProcessId);
                 }
-                else if (checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+                else if (checkedOutProcess.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
                 {
-                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcessWithProcessDataIdHash.Process.CheckedOutBy);
+                    throw new ProcessCheckedOutByAnotherUserException(checkedOutProcess.CheckedOutBy);
                 }
                 else if (draftProcess == null)
                 {
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
 
-                EnsureRemovingExistingProcess(checkedOutProcessWithProcessDataIdHash);
+                DbContext.Processes.Remove(checkedOutProcess);
+
                 await DbContext.SaveChangesAsync();
 
                 var process = MapEfToModel(draftProcess);
@@ -882,74 +877,60 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
         {
-            var existingDraftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, false);
+            var existingDraftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, false);
 
-            if (existingDraftProcessWithProcessDataIdHash == null)
+            if (existingDraftProcess == null)
             {
                 throw new ProcessDraftVersionNotFoundException(opmProcessId);
             }
 
-            var clonedProcess = await CloneProcessAsync(existingDraftProcessWithProcessDataIdHash, ProcessVersionType.CheckedOut);
-
+            var clonedProcess = await CloneProcessAsync(existingDraftProcess, ProcessVersionType.CheckedOut);
 
             return clonedProcess;
-
         }
 
-        private async ValueTask<Entities.Processes.Process> CloneProcessAsync(ProcessWithProcessDataIdHash processWithProcessDataIdHash, ProcessVersionType versionType)
+        private async ValueTask<Entities.Processes.Process> CloneProcessAsync(Entities.Processes.Process process, ProcessVersionType versionType)
         {
-            var checkedOutProcess = new Entities.Processes.Process();
-            checkedOutProcess.Id = Guid.NewGuid();
-            checkedOutProcess.OPMProcessId = processWithProcessDataIdHash.Process.OPMProcessId;
-            checkedOutProcess.EnterpriseProperties = processWithProcessDataIdHash.Process.EnterpriseProperties;
-            checkedOutProcess.TeamAppId = processWithProcessDataIdHash.Process.TeamAppId;
-            checkedOutProcess.VersionType = versionType;
-            checkedOutProcess.CreatedAt = processWithProcessDataIdHash.Process.CreatedAt;
-            checkedOutProcess.CreatedBy = processWithProcessDataIdHash.Process.CreatedBy;
-            checkedOutProcess.ModifiedAt = processWithProcessDataIdHash.Process.ModifiedAt;
-            checkedOutProcess.ModifiedBy = processWithProcessDataIdHash.Process.ModifiedBy;
+            var clonedProcess = new Entities.Processes.Process();
+            clonedProcess.Id = Guid.NewGuid();
+            clonedProcess.OPMProcessId = process.OPMProcessId;
+            clonedProcess.EnterpriseProperties = process.EnterpriseProperties;
+            clonedProcess.TeamAppId = process.TeamAppId;
+            clonedProcess.VersionType = versionType;
+            clonedProcess.CreatedAt = process.CreatedAt;
+            clonedProcess.CreatedBy = process.CreatedBy;
+            clonedProcess.ModifiedAt = process.ModifiedAt;
+            clonedProcess.ModifiedBy = process.ModifiedBy;
+            clonedProcess.JsonValue = process.JsonValue;
 
             if (versionType == ProcessVersionType.CheckedOut)
             {
-                checkedOutProcess.CheckedOutBy = OmniaContext.Identity.LoginName;
+                clonedProcess.CheckedOutBy = OmniaContext.Identity.LoginName;
             }
 
-            var rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processWithProcessDataIdHash.Process.JsonValue);
 
-            StringBuilder sqlStrBuilder = new StringBuilder();
-            var existingProcessDataIdHastSet = processWithProcessDataIdHash.AllProcessDataIdHash.Select(c => c.Id).ToHashSet();
-            UpdateProcessStepRecursive(checkedOutProcess.Id, processWithProcessDataIdHash.Process.Id, rootProcessStep, existingProcessDataIdHastSet, sqlStrBuilder);
-
-            checkedOutProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
-
-            DbContext.Processes.Add(checkedOutProcess);
+            DbContext.Processes.Add(clonedProcess);
             await DbContext.SaveChangesAsync();
 
-            await DbContext.ExecuteSqlCommandAsync(sqlStrBuilder.ToString());
+            var cloneProcessDataRawSql = GenerateCloneProcessDataRawSql(clonedProcess.Id, process.Id);
+            await DbContext.ExecuteSqlCommandAsync(cloneProcessDataRawSql);
 
-            return checkedOutProcess;
+            var rawSql = GenerateCloneImagesRawSql(clonedProcess.Id, process.Id);
+            await DbContext.ExecuteSqlCommandAsync(rawSql);
+
+            return clonedProcess;
         }
 
-        private void UpdateProcessStepRecursive(Guid processId, Guid oldProcessId, ProcessStep processStep,
-            HashSet<Guid> existingProcessDataIdHastSet, StringBuilder sqlStrBuilder)
+        private async ValueTask<Entities.Processes.Process> GetProcessAsync(Guid opmProcessId, ProcessVersionType versionType, bool tracking)
         {
+            var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
 
-            var processData = existingProcessDataIdHastSet.Contains(processStep.Id);
-            if (processData == false)
-            {
-                throw new ProcessDataNotFoundException(processStep.Id);
-            }
+            var process = await processes
+                       .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType)
+                       .OrderByDescending(p => p.ClusteredId)
+                       .FirstOrDefaultAsync();
 
-
-            sqlStrBuilder.Append(GenerateCloneProcessDataRawSql(processStep.Id, processId, oldProcessId));
-
-            if (processStep.ProcessSteps != null)
-            {
-                foreach (var childProcessItem in processStep.ProcessSteps)
-                {
-                    UpdateProcessStepRecursive(processId, oldProcessId, childProcessItem, existingProcessDataIdHastSet, sqlStrBuilder);
-                }
-            }
+            return process;
         }
 
         private async ValueTask<ProcessWithProcessDataIdHash> GetProcessWithProcessDataIdHashAsync(Guid opmProcessId, ProcessVersionType versionType, bool tracking)
@@ -969,7 +950,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return processWithProcessDataIdHash;
         }
 
-        private string GenerateCloneProcessDataRawSql(Guid processStepId, Guid newProcessId, Guid oldProcessId)
+        private string GenerateCloneProcessDataRawSql(Guid newProcessId, Guid oldProcessId)
         {
             #region Names
             var tableName = nameof(DbContext.ProcessData);
@@ -985,7 +966,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
 
             #region SQL
-            return @$"INSERT INTO {tableName} ({processStepIdColumnName}, {processIdColumnName},{hashColumnName}, {jsonValueColumnName}, {referenceProcessStepIdsColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{processStepId}', '{newProcessId}', pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{referenceProcessStepIdsColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processStepIdColumnName} = '{processStepId}' AND {processIdColumnName} = '{oldProcessId}'";
+            return @$"INSERT INTO {tableName} ({processIdColumnName}, {processStepIdColumnName}, {hashColumnName}, {jsonValueColumnName}, {referenceProcessStepIdsColumnName}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{newProcessId}', pd.{processStepIdColumnName}, pd.{hashColumnName}, pd.{jsonValueColumnName}, pd.{referenceProcessStepIdsColumnName}, pd.{createdAtColumnName}, pd.{createdByColumnName}, pd.{modifiedAtColumnName}, pd.{modifiedByColumnName} FROM {tableName} pd WHERE {processIdColumnName} = '{oldProcessId}'";
+            #endregion
+        }
+
+        private string GenerateCloneImagesRawSql(Guid newProcessId, Guid oldProcessId)
+        {
+            #region Names
+            var tableName = nameof(DbContext.Images);
+            var processIdColumn = nameof(Entities.Images.Image.ProcessId);
+            var fileNameColumn = nameof(Entities.Images.Image.FileName);
+            var contentColumn = nameof(Entities.Images.Image.Content);
+            var hashColumn = nameof(Entities.Images.Image.Hash);
+            var createdAtColumnName = nameof(Entities.Images.Image.CreatedAt);
+            var modifiedAtColumnName = nameof(Entities.Images.Image.ModifiedAt);
+            var createdByColumnName = nameof(Entities.Images.Image.CreatedBy);
+            var modifiedByColumnName = nameof(Entities.Images.Image.ModifiedBy);
+            #endregion
+
+            #region SQL
+            return @$"INSERT INTO {tableName} ({processIdColumn}, {fileNameColumn}, {contentColumn}, {hashColumn}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{newProcessId}', im.{fileNameColumn}, im.{contentColumn}, im.{hashColumn}, im.{createdAtColumnName}, im.{createdByColumnName}, im.{modifiedAtColumnName}, im.{modifiedByColumnName} FROM {tableName} im WHERE {processIdColumn} = '{oldProcessId}'";
             #endregion
         }
 

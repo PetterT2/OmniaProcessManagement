@@ -20,11 +20,13 @@ namespace Omnia.ProcessManagement.Core
             public static Guid SqlDBUniqueId => new Guid("dec4dab9-2ab3-4720-9cee-d00da62a507f");
         }
 
+        public readonly static string ImageTempFolder = "OPMTempImages";
+
         public static class Messaging
         {
             public static class Topics
             {
-                public static readonly Topic<List<ProcessWorkingStatus>> OnProcessWorkingStatusUpdated= new Topic<List<ProcessWorkingStatus>>("OmniaProcessManagement", "OnProcessWorkingStatusUpdated");
+                public static readonly Topic<List<ProcessWorkingStatus>> OnProcessWorkingStatusUpdated = new Topic<List<ProcessWorkingStatus>>("OmniaProcessManagement", "OnProcessWorkingStatusUpdated");
                 public static readonly Topic<Dictionary<string, string>> OmniaTokenKeyUpdatedProcessType = new Topic<Dictionary<string, string>>("OmniaProcessManagement", "UpdateUserOmniaTokenKeyInWorker");
                 public static readonly Topic<List<ProcessType>> OnProcessTypesUpdated = new Topic<List<ProcessType>>("OmniaProcessManagement", "OnProcessTypesUpdated");
                 public static readonly Topic<StringBuilder> OnSettingsUpdated = new Topic<StringBuilder>("OmniaProcessManagement", "OnSettingsUpdated");
@@ -275,7 +277,7 @@ namespace Omnia.ProcessManagement.Core
                     public static readonly string TaskTitle = "TaskTitle";
                     public static readonly string TaskLink = "TaskLink";
                     public static readonly string StartDate = "StartDate";
-                    public static readonly string Message= "Message";
+                    public static readonly string Message = "Message";
                 }
             }
 

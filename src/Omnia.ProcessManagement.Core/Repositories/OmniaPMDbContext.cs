@@ -4,6 +4,7 @@ using Omnia.Fx.Contexts;
 using Omnia.Fx.Contexts.Scoped;
 using Omnia.Fx.NetCore.Repositories.EntityFramework;
 using Omnia.ProcessManagement.Core.Entities;
+using Omnia.ProcessManagement.Core.Entities.Images;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
@@ -55,6 +56,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Workflow> Workflows { get; set; }
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
+        public DbSet<Image> Images { get; set; }
 
 
         //Views
@@ -79,7 +81,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
             modelBuilder.Entity<ProcessData>()
                  .HasOne(p => p.Process)
                  .WithMany(p => p.ProcessData)
-                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+                 .IsRequired(true).OnDelete(DeleteBehavior.Cascade);
 
             SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
             SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
@@ -98,6 +100,12 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetOPMClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
 
+            modelBuilder.Entity<Image>().HasKey(i => new { i.ProcessId, i.FileName });
+            SetClusteredIndex<Image>(modelBuilder, i => new { i.ProcessId, i.FileName });
+            modelBuilder.Entity<Image>()
+                .HasOne(p => p.Process)
+                .WithMany(p => p.Images)
+                .IsRequired(true).OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();

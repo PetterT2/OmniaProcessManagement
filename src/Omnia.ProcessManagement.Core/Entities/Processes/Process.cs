@@ -1,4 +1,5 @@
 ﻿using Omnia.Fx.NetCore.Repositories.EntityFramework.Entities;
+using Omnia.ProcessManagement.Core.Entities.Images;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
@@ -22,5 +23,6 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
+        public ICollection<Image> Images { get; set; }
     }
 }

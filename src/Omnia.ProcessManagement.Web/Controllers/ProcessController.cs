@@ -218,7 +218,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("draft/workingstatus")]
         [Authorize]
-        public async ValueTask<ApiResponse<Dictionary<Guid,ProcessWorkingStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
+        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
         {
             try
             {
@@ -233,7 +233,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<Dictionary<Guid,ProcessWorkingStatus>>(ex);
+                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessWorkingStatus>>(ex);
             }
         }
 
@@ -269,7 +269,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.Draft)
                     .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
@@ -295,7 +295,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
+                    .OrRequireApprover(ProcessVersionType.Draft)
                     .OrRequireReader(ProcessVersionType.LatestPublished)
                     .DoAsync(async () =>
                     {
