@@ -83,18 +83,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     var archiveCtx = SharePointClientContextProvider.CreateClientContext(archiveSiteUrl, true);
                     var archivedList = await SharePointListService.GetListByUrlAsync(archiveCtx, OPMConstants.SharePoint.ListUrl.ArchivedList, true);
                     var archivedProcessIdFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedList.RootFolder, process.OPMProcessId.ToString("N"));
-                    var latestPublishedProcessFolder = await SharePointListService.GetFirstFolderInFolder(processCtx, opmProcessIdFolder);
-                    //await CopyContentToArchiveFolder(processCtx, archiveCtx, opmProcessIdFolder, archivedProcessIdFolder);
+                    var imageFolder = await SharePointListService.GetChildFolderAsync(processCtx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Image, true);
+                    await CopyContentToArchive(processCtx, archiveCtx, opmProcessIdFolder, imageFolder, archivedProcessIdFolder);
                 }
                 await SharePointListService.DeleteFolder(processCtx, opmProcessIdFolder);
             }
         }
 
-        // When adding more content to the opmProcessIdFolder in the future we need to update this function to ensure that it copy enough content
-        private async ValueTask CopyContentToArchiveFolder(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder latestPublishedProcessFolder, Folder archivedProcessIdFolder)
+        private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, Folder imageFolder, 
+            Folder archivedProcessIdFolder)
         {
-            Folder archivedLatestPublishedProcessFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, latestPublishedProcessFolder.Name);
-            foreach(Microsoft.SharePoint.Client.File file in latestPublishedProcessFolder.Files)
+            Folder archivedLatestPublishedProcessFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, opmProcessIdFolder.Name);
+            foreach(Microsoft.SharePoint.Client.File file in opmProcessIdFolder.Files)
             {
                 ClientResult<Stream> fileStream = file.OpenBinaryStream();
                 sourceCtx.Load(file);
@@ -103,7 +103,24 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 {
                     OPMUtilities.CopyStream(fileStream, memoryStream);
                     string fileName = Path.GetFileName(file.ServerRelativeUrl);
-                    Microsoft.SharePoint.Client.File archivedFile = await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream);
+                    await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream);
+                }
+            }
+
+            if(imageFolder != null && imageFolder.Files.Count > 0)
+            {
+                Folder archivedImageFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Image);
+                foreach (Microsoft.SharePoint.Client.File imageFile in imageFolder.Files)
+                {
+                    ClientResult<Stream> fileStream = imageFile.OpenBinaryStream();
+                    sourceCtx.Load(imageFile);
+                    await sourceCtx.ExecuteQueryAsync();
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        OPMUtilities.CopyStream(fileStream, memoryStream);
+                        string fileName = Path.GetFileName(imageFile.ServerRelativeUrl);
+                        await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedImageFolder, fileName, memoryStream);
+                    }
                 }
             }
         }

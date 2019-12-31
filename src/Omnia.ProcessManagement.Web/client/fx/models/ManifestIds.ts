@@ -37,9 +37,13 @@ export class OPMWebComponentManifests {
 
     public static get GlobalProcessRenderer(): Guid { return new Guid('a7b2e5ed-a754-41ca-afae-f32325abb91e'); }
     public static get BlockProcessRenderer(): Guid { return new Guid('cce87e73-70bc-4ce1-a128-1cd674c2a278'); }
-   
+
     public static get PermissionDialog(): Guid { return new Guid('5b7169cd-7003-4cf6-a86e-4a7a38250ec3'); }
     public static get ProcessStepPicker(): Guid { return new Guid('5a0c11c9-9691-47a1-9f7d-2aedfc8dbce7'); }
+
+    public static get ContentBlockCore(): Guid { return new Guid('1a53363e-2727-4d5a-afcf-c1bcba10c608'); }
+    public static get ContentBlock(): Guid { return new Guid('dbb39473-aea9-445d-a032-701bda353439'); }
+    public static get ContentBlockSettings(): Guid { return new Guid('ba9c1472-bcf7-4925-8cc8-900993b43caa'); }
 
 }
 

@@ -152,6 +152,11 @@ namespace Omnia.ProcessManagement.Core
                 public const string ArchivedList = "OPMArchivedProcesses";
             }
 
+            public static class FolderUrl
+            {
+                public const string Image = "Image";
+            }
+
             public static class OPMFields
             {
                 public const string Fields_ProcessType = "OPMProcessType";

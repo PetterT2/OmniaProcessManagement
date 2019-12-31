@@ -6,3 +6,4 @@ export * from './IColor';
 export * from './GenericNodeStyles';
 export * from './PermissionDialogStyles'; 
 export * from './ProcessRendererStyles';
+export * from './ContentBlockStyles';

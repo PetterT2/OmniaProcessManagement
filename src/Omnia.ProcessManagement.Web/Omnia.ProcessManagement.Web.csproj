@@ -94,6 +94,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
@@ -225,6 +229,7 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ShapeTypeCreationOption.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
@@ -368,6 +373,13 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\IContentBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.ts" />
     <None Include="client\components\permissiondialog\IPermissionDialog.js" />
     <None Include="client\components\permissiondialog\loc\localize.js" />
     <None Include="client\components\permissiondialog\loc\localize.manifest.js" />
@@ -425,6 +437,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\images\ImageRef.ts">

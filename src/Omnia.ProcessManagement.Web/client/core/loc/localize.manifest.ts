@@ -89,6 +89,13 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             BlockProcessRenderer: {
                 Title: "Process Renderer",
                 Description: ""
+            },
+            Content: {
+                Title: "Content",
+                Description: ""
+            },
+            ViewProcess: {
+                Title: "View Process"
             }
         },
         BlockCategories: {
