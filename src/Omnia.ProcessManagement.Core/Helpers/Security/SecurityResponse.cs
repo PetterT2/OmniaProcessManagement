@@ -27,8 +27,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     {
         IOnlyTeamAppIdSecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
         IOnlyTeamAppIdSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
-        ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
-        ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
+        ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
     }
 
     public interface ISecurityResponse
@@ -48,12 +47,9 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         ISecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
-        ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action);
-        ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action);
-        ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, ValueTask<ApiResponse<T>>> action);
-        ValueTask<ApiResponse> DoAsync(Func<Guid, ValueTask<ApiResponse>> action);
-        internal ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action);
-        internal ValueTask<ApiResponse> DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action);
+        ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
+        ValueTask<T> DoAsync<T>(Func<Guid, ValueTask<T>> action);
+        internal ValueTask<T> DoAsync<T>(Func<Guid, InternalProcess, ValueTask<T>> action);
     }
 
     internal class SecurityResponse : ISecurityResponse, ISecurityResponseHandler, IOnlyTeamAppIdSecurityResponse, IOnlyTeamAppIdSecurityResponseHandler
@@ -169,7 +165,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return RequireApprover(versionTypes);
         }
 
-        async ValueTask<ApiResponse<T>> ISecurityResponseHandler.DoAsync<T>(Func<Guid, InternalProcess, ValueTask<ApiResponse<T>>> action)
+        async ValueTask<T> ISecurityResponseHandler.DoAsync<T>(Func<Guid, InternalProcess, ValueTask<T>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();
@@ -177,13 +173,14 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             var isAuthorized = await ValidateAuthorized();
             if (!isAuthorized)
             {
-                return ApiUtils.CreateUnauthorizedResponse<T>();
+                throw new Exception("Forbidden");
             }
 
             return await action(TeamAppId, Process);
         }
 
-        async ValueTask<ApiResponse> ISecurityResponseHandler.DoAsync(Func<Guid, InternalProcess, ValueTask<ApiResponse>> action)
+
+        public async ValueTask<T> DoAsync<T>(Func<Guid, ValueTask<T>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();
@@ -191,27 +188,14 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             var isAuthorized = await ValidateAuthorized();
             if (!isAuthorized)
             {
-                return ApiUtils.CreateUnauthorizedResponse();
-            }
-
-            return await action(TeamAppId, Process);
-        }
-
-        public async ValueTask<ApiResponse<T>> DoAsync<T>(Func<Guid, ValueTask<ApiResponse<T>>> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException();
-
-            var isAuthorized = await ValidateAuthorized();
-            if (!isAuthorized)
-            {
-                return ApiUtils.CreateUnauthorizedResponse<T>();
+                throw new Exception("Forbidden");
             }
 
             return await action(TeamAppId);
         }
 
-        public async ValueTask<ApiResponse> DoAsync(Func<Guid, ValueTask<ApiResponse>> action)
+        
+        public async ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();
@@ -219,40 +203,13 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             var isAuthorized = await ValidateAuthorized();
             if (!isAuthorized)
             {
-                return ApiUtils.CreateUnauthorizedResponse();
-            }
-
-            return await action(TeamAppId);
-        }
-
-        public async ValueTask<ApiResponse<T>> DoAsync<T>(Func<ValueTask<ApiResponse<T>>> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException();
-
-            var isAuthorized = await ValidateAuthorized();
-            if (!isAuthorized)
-            {
-                return ApiUtils.CreateUnauthorizedResponse<T>();
+                throw new Exception("Forbidden");
             }
 
             return await action();
         }
 
-        public async ValueTask<ApiResponse> DoAsync(Func<ValueTask<ApiResponse>> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException();
-
-            var isAuthorized = await ValidateAuthorized();
-            if (!isAuthorized)
-            {
-                return ApiUtils.CreateUnauthorizedResponse();
-            }
-
-            return await action();
-        }
-
+        
         private async ValueTask<bool> ValidateAuthorized()
         {
 

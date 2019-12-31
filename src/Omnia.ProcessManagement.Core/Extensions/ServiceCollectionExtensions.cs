@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Omnia.ProcessManagement.Core.Repositories;
+using Omnia.ProcessManagement.Core.Repositories.Images;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
@@ -11,6 +12,7 @@ using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Core.Services.Features;
 using Omnia.ProcessManagement.Core.Services.Graph;
+using Omnia.ProcessManagement.Core.Services.Images;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
@@ -62,6 +64,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessSyncingService, ProcessSyncingService>();
             services.AddScopedWithSingeltonRef<ISharePointTaskService, SharePointTaskService>();
             services.AddScopedWithSingeltonRef<IGraphService, GraphService>();
+            services.AddScopedWithSingeltonRef<IImageService, ImageService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<ITransactionRepository, TransactionRepositiory>();
@@ -72,6 +75,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ISettingsRepository, SettingsRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
+            services.AddScopedWithSingeltonRef<IImageRepository, ImageRepository>();
 
             services.AddAutoMapper();
             return services;

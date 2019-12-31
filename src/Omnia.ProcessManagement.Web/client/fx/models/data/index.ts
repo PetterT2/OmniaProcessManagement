@@ -9,3 +9,4 @@ export * from './settings';
 export * from './workflows';
 export * from './security';
 export * from './sharepointtasks';
+export * from './images';

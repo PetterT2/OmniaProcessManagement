@@ -4,3 +4,4 @@ export * from './ProcessTypeService';
 export * from './SettingsService';
 export * from './PermissionService';
 export * from './SharePointTaskService';
+export * from './ImageService';
