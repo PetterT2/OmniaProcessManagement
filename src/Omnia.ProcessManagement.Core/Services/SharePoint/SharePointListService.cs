@@ -103,23 +103,6 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             return folder;
         }
 
-        public async ValueTask<Microsoft.SharePoint.Client.Folder> GetFirstFolderInFolder(PortableClientContext clientContext, Folder parentFolder)
-        {
-            Microsoft.SharePoint.Client.Folder folder = null;
-
-            clientContext.Load(parentFolder.Folders);
-            await clientContext.ExecuteQueryAsync();
-
-            if (parentFolder.Folders.Count > 0)
-            {
-                folder = parentFolder.Folders[0];
-                clientContext.Load(folder, f => f.ListItemAllFields, f => f.Name);
-                await clientContext.ExecuteQueryAsync();
-            }
-
-            return folder;
-        }
-
         public async ValueTask DeleteFolder(PortableClientContext clientContext, Folder folder)
         {
             if (!folder.IsObjectPropertyInstantiated("Folders") || !folder.IsObjectPropertyInstantiated("Files"))
