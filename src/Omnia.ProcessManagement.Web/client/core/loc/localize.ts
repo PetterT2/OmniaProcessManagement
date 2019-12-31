@@ -85,6 +85,13 @@
             BlockProcessRenderer: {
                 Title: string,
                 Description: string
+            },
+            Content: {
+                Title: string,
+                Description: string
+            },
+            ViewProcess: {
+                Title: string
             }
         },
         BlockCategories: {
