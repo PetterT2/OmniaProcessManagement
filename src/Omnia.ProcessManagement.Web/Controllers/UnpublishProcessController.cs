@@ -36,7 +36,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Archived);
 
                 return await securityResponse
                     .RequireAuthor()

@@ -70,7 +70,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
             modelBuilder.Entity<Process>()
                .HasIndex(c => new { c.OPMProcessId, c.VersionType })
                .IsUnique()
-               .HasFilter($"[VersionType] != {(int)ProcessVersionType.Published}"); 
+               .HasFilter($"[VersionType] != {(int)ProcessVersionType.Archived}"); 
 
             modelBuilder.Entity<ProcessData>()
                 .HasKey(pd => new { pd.ProcessStepId, pd.ProcessId });

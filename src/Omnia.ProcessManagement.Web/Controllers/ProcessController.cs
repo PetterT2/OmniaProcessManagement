@@ -202,7 +202,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                         {
                             Public = true,
-                            MaxAge = versionType == ProcessVersionType.LatestPublished || versionType == ProcessVersionType.Published ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
+                            MaxAge = versionType == ProcessVersionType.LatestPublished || versionType == ProcessVersionType.Archived ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
                         };
 
 

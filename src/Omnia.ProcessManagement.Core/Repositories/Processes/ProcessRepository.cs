@@ -186,7 +186,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 if (latestPublishedProcess != null)
                 {
-                    latestPublishedProcess.VersionType = ProcessVersionType.Published;
+                    latestPublishedProcess.VersionType = ProcessVersionType.Archived;
 
                     var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(latestPublishedProcess);
                     edition = isRevision ? latestEdition : latestEdition + 1;
@@ -567,7 +567,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
         {
-            if (versionType == ProcessVersionType.Published)
+            if (versionType == ProcessVersionType.Archived)
                 throw new Exception("Not supported get published version");
 
             var process = await DbContext.Processes
@@ -755,7 +755,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
 
-            if (versionType == ProcessVersionType.Published)
+            if (versionType == ProcessVersionType.Archived)
                 throw new Exception("This function is not supported to get published version");
 
             var internalProcess = await DbContext.Processes

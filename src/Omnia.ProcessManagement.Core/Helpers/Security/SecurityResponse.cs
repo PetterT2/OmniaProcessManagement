@@ -306,7 +306,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             }
             else
             {
-                if (Process.VersionType == ProcessVersionType.Published || Process.VersionType == ProcessVersionType.LatestPublished)
+                if (Process.VersionType == ProcessVersionType.Archived || Process.VersionType == ProcessVersionType.LatestPublished)
                 {
                     DynamicScopedContextProvider.SetParameter(OPMConstants.Security.Parameters.SecurityResourceId, Process.SecurityResourceId.ToString());
                 }
