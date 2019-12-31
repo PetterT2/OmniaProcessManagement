@@ -83,7 +83,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     var archiveCtx = SharePointClientContextProvider.CreateClientContext(archiveSiteUrl, true);
                     var archivedList = await SharePointListService.GetListByUrlAsync(archiveCtx, OPMConstants.SharePoint.ListUrl.ArchivedList, true);
                     var archivedProcessIdFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedList.RootFolder, process.OPMProcessId.ToString("N"));
-                    var imageFolder = await SharePointListService.GetChildFolderAsync(processCtx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Image, true);
+                    var imageFolder = await SharePointListService.GetChildFolderAsync(processCtx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images, true);
                     await CopyContentToArchive(processCtx, archiveCtx, opmProcessIdFolder, imageFolder, archivedProcessIdFolder);
                 }
                 await SharePointListService.DeleteFolder(processCtx, opmProcessIdFolder);
@@ -109,7 +109,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             if(imageFolder != null && imageFolder.Files.Count > 0)
             {
-                Folder archivedImageFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Image);
+                Folder archivedImageFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images);
                 foreach (Microsoft.SharePoint.Client.File imageFile in imageFolder.Files)
                 {
                     ClientResult<Stream> fileStream = imageFile.OpenBinaryStream();
