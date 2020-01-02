@@ -1,4 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
@@ -63,7 +65,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             });
         }
 
-        private async ValueTask ProcessUnpublishingAsync(string webUrl, Process process)
+        public async ValueTask ProcessUnpublishingAsync(string webUrl, Process process)
         {
             if (Guid.TryParse(process.RootProcessStep.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid processTypeId))
             {
@@ -79,45 +81,60 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 GlobalSettings globalSettings = await SettingsService.GetAsync<GlobalSettings>();
                 if(archiveSetting != null && (!string.IsNullOrEmpty(globalSettings.ArchiveSiteUrl) || !string.IsNullOrEmpty(archiveSetting.Url)))
                 {
+                    var publishedFile = await SharePointListService.GetFirstFileInFolder(processCtx, opmProcessIdFolder);
                     string archiveSiteUrl = !string.IsNullOrEmpty(archiveSetting.Url) ? archiveSetting.Url : globalSettings.ArchiveSiteUrl;
                     var archiveCtx = SharePointClientContextProvider.CreateClientContext(archiveSiteUrl, true);
                     var archivedList = await SharePointListService.GetListByUrlAsync(archiveCtx, OPMConstants.SharePoint.ListUrl.ArchivedList, true);
-                    var archivedProcessIdFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedList.RootFolder, process.OPMProcessId.ToString("N"));
+                    string archiveFolderName = GenerateArchiveFolderName(publishedFile, process.OPMProcessId);
+                    var archivedProcessIdFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedList.RootFolder, archiveFolderName);
                     var imageFolder = await SharePointListService.GetChildFolderAsync(processCtx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images, true);
-                    await CopyContentToArchive(processCtx, archiveCtx, opmProcessIdFolder, imageFolder, archivedProcessIdFolder);
+                    await CopyContentToArchive(processCtx, archiveCtx, opmProcessIdFolder, publishedFile, imageFolder, archivedProcessIdFolder);
                 }
                 await SharePointListService.DeleteFolder(processCtx, opmProcessIdFolder);
             }
         }
 
-        private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, Folder imageFolder, 
-            Folder archivedProcessIdFolder)
+        private string GenerateArchiveFolderName(Microsoft.SharePoint.Client.File publishedFile, Guid opmProcessId)
+        {
+            int edition = GetIntValue(publishedFile.ListItemAllFields, OPMConstants.SharePoint.OPMFields.Fields_Edition);
+            int revision = GetIntValue(publishedFile.ListItemAllFields, OPMConstants.SharePoint.OPMFields.Fields_Revision);
+
+            return opmProcessId.ToString("N") + "-" + edition.ToString() + (revision > 0 ? "-" + revision.ToString() : "");
+        }
+
+        private int GetIntValue(ListItem listItem, string propertyName)
+        {
+            if (!listItem.FieldValues.ContainsKey(propertyName) || listItem[propertyName] == null)
+                return 0;
+            return int.Parse(listItem[propertyName].ToString());
+        }
+
+        private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, 
+            Microsoft.SharePoint.Client.File publishedFile, Folder imageFolder, Folder archivedProcessIdFolder)
         {
             Folder archivedLatestPublishedProcessFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, opmProcessIdFolder.Name);
-            foreach(Microsoft.SharePoint.Client.File file in opmProcessIdFolder.Files)
+
+            ClientResult<Stream> publishedFileStream = publishedFile.OpenBinaryStream();
+            sourceCtx.Load(publishedFile);
+            await sourceCtx.ExecuteQueryAsync();
+            using (MemoryStream memoryStream = new MemoryStream())
             {
-                ClientResult<Stream> fileStream = file.OpenBinaryStream();
-                sourceCtx.Load(file);
-                await sourceCtx.ExecuteQueryAsync();
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    OPMUtilities.CopyStream(fileStream, memoryStream);
-                    string fileName = Path.GetFileName(file.ServerRelativeUrl);
-                    await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream);
-                }
+                OPMUtilities.CopyStream(publishedFileStream, memoryStream);
+                string fileName = Path.GetFileName(publishedFile.ServerRelativeUrl);
+                await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream);
             }
 
-            if(imageFolder != null && imageFolder.Files.Count > 0)
+            if (imageFolder != null && imageFolder.Files.Count > 0)
             {
                 Folder archivedImageFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images);
                 foreach (Microsoft.SharePoint.Client.File imageFile in imageFolder.Files)
                 {
-                    ClientResult<Stream> fileStream = imageFile.OpenBinaryStream();
+                    ClientResult<Stream> imageStream = imageFile.OpenBinaryStream();
                     sourceCtx.Load(imageFile);
                     await sourceCtx.ExecuteQueryAsync();
                     using (MemoryStream memoryStream = new MemoryStream())
                     {
-                        OPMUtilities.CopyStream(fileStream, memoryStream);
+                        OPMUtilities.CopyStream(imageStream, memoryStream);
                         string fileName = Path.GetFileName(imageFile.ServerRelativeUrl);
                         await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedImageFolder, fileName, memoryStream);
                     }

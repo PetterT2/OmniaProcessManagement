@@ -10,5 +10,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
     {
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
         ValueTask ProcessUnpublishingAsync(Process process);
+        ValueTask ProcessUnpublishingAsync(string webUrl, Process process);
     }
 }
