@@ -39,7 +39,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("{processId:guid}/{fileName}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ImageRef>> AddImageAsync([FromBody] string imageBase64, Guid processId, string fileName)
+        public async ValueTask<ApiResponse<string>> AddImageAsync([FromBody] string imageBase64, Guid processId, string fileName)
         {
             try
             {
@@ -50,13 +50,15 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .DoAsync(async () =>
                     {
                         var imageRef = await ImageService.AddImageAsync(processId, fileName, imageBase64);
-                        return imageRef.AsApiResponse();
+                        var imageUrl = "";
+
+                        return imageUrl.AsApiResponse();
                     });
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<ImageRef>(ex);
+                return ApiUtils.CreateErrorResponse<string>(ex);
             }
         }
 

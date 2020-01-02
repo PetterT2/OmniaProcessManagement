@@ -7,7 +7,7 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
 {
     public class CanvasDefinition
     {
-        public ImageRef BackgroundImageRef { get; set; }
+        public string BackgroundImageUrl { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
         public int GridX { get; set; }

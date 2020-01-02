@@ -1,8 +1,7 @@
 ﻿import { DrawingShape } from './DrawingShape';
-import { ImageRef } from '../images';
 
 export interface ICanvasDefinition {
-    backgroundImageRef?: ImageRef;
+    backgroundImageUrl?: string;
     width: number;
     height: number;
     gridX?: number;

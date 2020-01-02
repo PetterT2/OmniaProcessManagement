@@ -39,7 +39,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
                 fileCount++;
             }
 
-            var hash = CommonUtils.CreateMd5Hash(imageBase64);
+            //var hash = CommonUtils.CreateMd5Hash(imageBase64);
+            //We create the hash from a new guid. So even upload a same image two times will have the different hash
+            var hash = CommonUtils.CreateMd5Hash(Guid.NewGuid().ToString());
             var image = new Entities.Images.Image()
             {
                 ProcessId = processId,
