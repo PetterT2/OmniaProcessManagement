@@ -8,14 +8,13 @@ namespace Omnia.ProcessManagement.Models.Enums
     {
         Draft = 0,
         CheckedOut = 1,
-        Archived = 2, // Should be changed to Archived??
-        LatestPublished = 3,
-        //Archived = 4 // Should be removed?
+        Archived = 2,
+        Published = 3
     }
 
-    public enum DraftOrLatestPublishedVersionType
+    public enum DraftOrPublishedVersionType
     {
         Draft = ProcessVersionType.Draft,
-        LatestPublished = ProcessVersionType.LatestPublished
+        Published = ProcessVersionType.Published
     }
 }

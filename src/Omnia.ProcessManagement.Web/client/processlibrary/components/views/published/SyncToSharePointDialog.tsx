@@ -52,7 +52,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
     retrySync() {
         this.isRetrying = true;
         this.processService.syncToSharePoint(this.process.opmProcessId).then(() => {
-            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.LatestPublished);
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Published);
             this.isRetrying = false;
             this.close();
 

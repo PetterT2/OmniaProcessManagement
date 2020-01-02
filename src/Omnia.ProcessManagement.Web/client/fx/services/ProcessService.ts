@@ -170,12 +170,12 @@ export class ProcessService {
         })
     }
 
-    public getLatestPublishedProcessesBySite = (teamAppId: GuidValue) => {
+    public getPublishedProcessesBySite = (teamAppId: GuidValue) => {
         return new Promise<Array<Process>>((resolve, reject) => {
             let params = {
                 teamAppId: teamAppId
             };
-            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/latestpublished`, { params: params }).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/published`, { params: params }).then((response) => {
                 if (response.data.success) {
                     let processes = response.data.data;
                     this.generateClientSideData(processes);
@@ -202,12 +202,12 @@ export class ProcessService {
         });
     }
 
-    public getLatestPublishedProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>) => {
+    public getPublishedProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>) => {
         let params = {
             teamAppId: teamAppId
         };
         return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/latestpublished/workingstatus`, opmProcessIds, { params: params }).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/published/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

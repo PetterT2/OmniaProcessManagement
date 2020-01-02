@@ -18,7 +18,7 @@ namespace Omnia.ProcessManagement.Models.Exceptions
         {
         }
 
-        public ProcessWorkingStatusCannotBeUpdatedException(ProcessWorkingStatus newProcessWorkingStatus, DraftOrLatestPublishedVersionType versionType, Exception? innerException = null) :
+        public ProcessWorkingStatusCannotBeUpdatedException(ProcessWorkingStatus newProcessWorkingStatus, DraftOrPublishedVersionType versionType, Exception? innerException = null) :
             base(string.Format(NewStatusNotValidMsg, newProcessWorkingStatus.ToString(), versionType.ToString()))
         {
         }

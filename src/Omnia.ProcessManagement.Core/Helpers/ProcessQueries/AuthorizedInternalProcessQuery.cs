@@ -10,7 +10,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
     internal class AuthorizedInternalProcessQuery : AuthorizedProcessQuery
     {
-        public AuthorizedInternalProcessQuery(DraftOrLatestPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
+        public AuthorizedInternalProcessQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
             : base(versionType, authorizedResource)
         {
         }

@@ -22,7 +22,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             };
         }
 
-        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, DraftOrLatestPublishedVersionType versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
         {
             var securityTrimming = "";
             var versionTrimming = $" AND {ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
@@ -55,14 +55,14 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
                     connectPart = " OR ";
                 }
-                if (approverAndReviewerOPMProcessIds.Any() && versionType == DraftOrLatestPublishedVersionType.Draft)
+                if (approverAndReviewerOPMProcessIds.Any() && versionType == DraftOrPublishedVersionType.Draft)
                 {
                     var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimming}";
                     connectPart = " OR ";
 
                 }
-                if (resources.ReaderSecurityResourceIds.Any() && versionType == DraftOrLatestPublishedVersionType.LatestPublished)
+                if (resources.ReaderSecurityResourceIds.Any() && versionType == DraftOrPublishedVersionType.Published)
                 {
                     var readerTrimming = $"{GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";

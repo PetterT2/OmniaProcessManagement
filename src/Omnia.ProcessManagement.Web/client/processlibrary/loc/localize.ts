@@ -8,7 +8,7 @@
         },
         ProcessNoItem: {
             Draft: string,
-            LatestPublished: string
+            Published: string
         },
         ProcessStatuses: {
             SendingForReview: string,

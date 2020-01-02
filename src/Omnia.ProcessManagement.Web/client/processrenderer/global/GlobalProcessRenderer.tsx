@@ -25,7 +25,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
     get hidden(): boolean {
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
-            (OPMRouter.routeContext.route.routeOption != RouteOptions.latestPublishedInGlobalRenderer &&
+            (OPMRouter.routeContext.route.routeOption != RouteOptions.publishedInGlobalRenderer &&
                 OPMRouter.routeContext.route.routeOption != RouteOptions.draftInGlobalRenderer) ? true : false
     }
 

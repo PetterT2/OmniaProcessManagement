@@ -166,7 +166,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new Exception("There is a checked out version for this process");
                 }
 
-                var latestPublishedProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.LatestPublished, true);
+                var publishedProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Published, true);
                 var draftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, true);
 
 
@@ -178,7 +178,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
 
                 draftProcess.CheckedOutBy = "";
-                draftProcess.VersionType = ProcessVersionType.LatestPublished;
+                draftProcess.VersionType = ProcessVersionType.Published;
                 draftProcess.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
 
                 RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(draftProcess.JsonValue);
@@ -186,11 +186,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 var edition = 1;
                 var revision = 0;
 
-                if (latestPublishedProcess != null)
+                if (publishedProcess != null)
                 {
-                    latestPublishedProcess.VersionType = ProcessVersionType.Archived;
+                    publishedProcess.VersionType = ProcessVersionType.Archived;
 
-                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(latestPublishedProcess);
+                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(publishedProcess);
                     edition = isRevision ? latestEdition : latestEdition + 1;
                     revision = isRevision ? latestRevision + 1 : 0;
                 }
@@ -217,7 +217,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
             {
-                var latestPublishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefaultAsync();
+                var publishedProcess = await DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
                 var draftProcessWithProcessDataIdHash = await GetProcessWithProcessDataIdHashAsync(opmProcessId, ProcessVersionType.Draft, true);
 
                 if (draftProcessWithProcessDataIdHash != null)
@@ -225,10 +225,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new ProcessCannotBeArchivedWhenDraftVersionExists(opmProcessId);
                 }
 
-                latestPublishedProcess.ProcessWorkingStatus = ProcessWorkingStatus.Archiving;
+                publishedProcess.ProcessWorkingStatus = ProcessWorkingStatus.Archiving;
 
                 await DbContext.SaveChangesAsync();
-                var process = MapEfToModel(latestPublishedProcess);
+                var process = MapEfToModel(publishedProcess);
 
                 return process;
             });
@@ -330,7 +330,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     }
                 }
 
-                EnsureValidProcessWorkingStatusForDraft(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
+                EnsureValidProcessWorkingStatusForDraftProcess(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
 
                 process.ProcessWorkingStatus = newProcessWorkingStatus;
 
@@ -340,18 +340,18 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
+        public async ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
             await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
             {
 
-                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefault();
+                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefault();
                 if (process == null)
                 {
-                    throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
                 }
 
-                EnsureValidProcessWorkingStatusForLatestPublished(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
+                EnsureValidProcessWorkingStatusForPublishedProcess(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
                 process.ProcessWorkingStatus = newProcessWorkingStatus;
 
                 await DbContext.SaveChangesAsync();
@@ -360,18 +360,18 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
+        public async ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
         {
             await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
             {
 
-                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.LatestPublished).FirstOrDefault();
+                var process = DbContext.Processes.AsTracking().Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefault();
                 if (process == null)
                 {
-                    throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
                 }
 
-                EnsureValidProcessWorkingStatusForLatestPublished(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
+                EnsureValidProcessWorkingStatusForPublishedProcess(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
                 process.ProcessWorkingStatus = newProcessWorkingStatus;
                 process.VersionType = newVersionType;
 
@@ -581,7 +581,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrLatestPublishedVersionType versionType)
+        public async ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType)
         {
             var processes = new List<Process>();
             var processVersionType = (ProcessVersionType)versionType;
@@ -647,7 +647,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrLatestPublishedVersionType versionType)
+        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType)
         {
             var processVersionType = (ProcessVersionType)versionType;
             var process = await DbContext.Processes
@@ -656,13 +656,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             if (process == null)
             {
-                if (versionType == DraftOrLatestPublishedVersionType.Draft)
+                if (versionType == DraftOrPublishedVersionType.Draft)
                 {
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
                 else
                 {
-                    throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
                 }
             }
 
@@ -781,9 +781,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 {
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
-                if (versionType == ProcessVersionType.LatestPublished)
+                if (versionType == ProcessVersionType.Published)
                 {
-                    throw new ProcessLatestPublishedVersionNotFoundException(opmProcessId);
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
                 }
             }
 
@@ -1101,7 +1101,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.Revision.InternalName] = revision;
         }
 
-        private void EnsureValidProcessWorkingStatusForLatestPublished(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)
+        private void EnsureValidProcessWorkingStatusForPublishedProcess(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)
         {
             var acceptOldProcessWorkingStatus = new List<ProcessWorkingStatus>();
             switch (newProcessWorkingStatus)
@@ -1116,7 +1116,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePointFailed);
                     break;
                 default:
-                    throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrLatestPublishedVersionType.LatestPublished);
+                    throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrPublishedVersionType.Published);
             }
 
             if (acceptOldProcessWorkingStatus.Count > 0 && !acceptOldProcessWorkingStatus.Contains(oldProcessWorkingStatus))
@@ -1147,7 +1147,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             //}
         }
 
-        private void EnsureValidProcessWorkingStatusForDraft(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)
+        private void EnsureValidProcessWorkingStatusForDraftProcess(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)
         {
             var acceptOldProcessWorkingStatus = new List<ProcessWorkingStatus>();
             switch (newProcessWorkingStatus)
@@ -1195,7 +1195,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.CancellingApproval);
                     break;
                 default:
-                    throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrLatestPublishedVersionType.Draft);
+                    throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrPublishedVersionType.Draft);
             }
 
             if (acceptOldProcessWorkingStatus.Count > 0 && !acceptOldProcessWorkingStatus.Contains(oldProcessWorkingStatus))

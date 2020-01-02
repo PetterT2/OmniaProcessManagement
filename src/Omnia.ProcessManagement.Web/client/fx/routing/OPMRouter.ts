@@ -9,8 +9,8 @@ import { MultilingualStore } from '@omnia/fx/store';
 const processVersionLabels = {
     [ProcessVersionType.Draft]: 'draft',
     [ProcessVersionType.CheckedOut]: 'checked out',
-    [ProcessVersionType.Published]: 'published',
-    [ProcessVersionType.LatestPublished]: 'latest published'
+    [ProcessVersionType.Archived]: 'published',
+    [ProcessVersionType.Published]: 'latest published'
 }
 
 @Injectable({ lifetime: InstanceLifetimes.Singelton })
@@ -50,12 +50,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     */
     protected resolveRouteFromPath(path: string): OPMRoute {
         let context: OPMRoute = null;
-        let routeOption: RouteOptions = RouteOptions.latestPublishedInBlockRenderer;
+        let routeOption: RouteOptions = RouteOptions.publishedInBlockRenderer;
         path = path.toLowerCase();
 
-        if (path.startsWith(RouteOptions.latestPublishedInGlobalRenderer)) {
-            path = path.substr(`${RouteOptions.latestPublishedInGlobalRenderer}`.length);
-            routeOption = RouteOptions.latestPublishedInGlobalRenderer;
+        if (path.startsWith(RouteOptions.publishedInGlobalRenderer)) {
+            path = path.substr(`${RouteOptions.publishedInGlobalRenderer}`.length);
+            routeOption = RouteOptions.publishedInGlobalRenderer;
         }
         else if (path.startsWith(RouteOptions.draftInGlobalRenderer)) {
             path = path.substr(`${RouteOptions.draftInGlobalRenderer}`.length);
@@ -95,7 +95,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             if (routeOption === undefined || routeOption === null) {
-                routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.latestPublishedInBlockRenderer;
+                routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
             }
             let title = this.multilingualStore.getters.stringValue(processStep.title);
 
@@ -179,8 +179,8 @@ OPMRouter.onNavigate.subscribe(ctx => {
 })
 
 if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-    let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.latestPublishedInBlockRenderer ||
-        OPMRouter.routeContext.route.routeOption == RouteOptions.latestPublishedInGlobalRenderer ? ProcessVersionType.LatestPublished : ProcessVersionType.Draft;
+    let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.publishedInBlockRenderer ||
+        OPMRouter.routeContext.route.routeOption == RouteOptions.publishedInGlobalRenderer ? ProcessVersionType.Published : ProcessVersionType.Draft;
 
     OPMRouter.navigateWithCurrentRoute(versionType);
 }
