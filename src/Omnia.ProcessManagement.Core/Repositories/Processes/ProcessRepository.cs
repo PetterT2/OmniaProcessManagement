@@ -109,6 +109,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
 
                 await DbContext.SaveChangesAsync();
+
+                var rawSql = GenerateDeleteRelatedWorkflowRawSql(opmProcessId);
+                await DbContext.ExecuteSqlCommandAsync(rawSql);
+
                 return true;
             });
         }
@@ -201,7 +205,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 await DbContext.SaveChangesAsync();
 
-                var rawSql = GenerateUpdateRelatedWorkflowEditionRowSql(opmProcessId, edition);
+                var rawSql = GenerateUpdateRelatedWorkflowEditionRawSql(opmProcessId, edition);
                 await DbContext.ExecuteSqlCommandAsync(rawSql);
 
                 var process = MapEfToModel(draftProcess);
@@ -989,7 +993,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
         }
 
-        private string GenerateUpdateRelatedWorkflowEditionRowSql(Guid opmProcessId, int edition)
+        private string GenerateDeleteRelatedWorkflowRawSql(Guid opmProcessId)
+        {
+            #region Names
+            var tableName = nameof(DbContext.Workflows);
+            var editionColumnName = nameof(Entities.Workflows.Workflow.Edition);
+            var opmProcessIdColumnName = nameof(Entities.Workflows.Workflow.OPMProcessId);
+            #endregion
+
+            #region SQL
+            return @$"DELETE {tableName} WHERE {opmProcessIdColumnName} = '{opmProcessId}' AND {editionColumnName} = 0";
+            #endregion
+        }
+
+        private string GenerateUpdateRelatedWorkflowEditionRawSql(Guid opmProcessId, int edition)
         {
             #region Names
             var tableName = nameof(DbContext.Workflows);
