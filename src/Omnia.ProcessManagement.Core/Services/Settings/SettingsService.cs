@@ -16,6 +16,11 @@ namespace Omnia.ProcessManagement.Core.Services.Settings
 {
     internal class SettingsService : ISettingsService
     {
+        //Instead of scanning assembly that cause the timming issue on linux. 
+        //We are defining all the settings type here so we just go through this without scanning assembly
+        private static List<Type> _allSettingsType = new List<Type>() { typeof(GlobalSettings) };
+        private static List<Type> _allDynamicSettingsType = new List<Type>() { typeof(SiteGroupIdSettings) };
+
         private static object _lock = new object();
         private static bool _ensuredSubscribeSettingsChanges = false;
         private static Dictionary<string, Type> _settingTypes = null;
@@ -51,8 +56,7 @@ namespace Omnia.ProcessManagement.Core.Services.Settings
                 {
                     if (_settingTypes == null)
                     {
-                        var settingTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
-                            .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(Setting)) && x != typeof(DynamicKeySetting) && !x.IsSubclassOf(typeof(DynamicKeySetting))).ToList();
+                        var settingTypes = _allSettingsType;
 
                         if (settingTypes.Count > 0)
                         {
@@ -62,13 +66,14 @@ namespace Omnia.ProcessManagement.Core.Services.Settings
                                 Setting setting = (Setting)Activator.CreateInstance(settingType);
                                 _settingTypes.Add(setting.Key, settingType);
                             }
+
+                            _allSettingsType.Clear();
                         }
                     }
 
                     if (_dynamicKeySettingTypes == null)
                     {
-                        var dynamicKeySettingTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
-                            .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(DynamicKeySetting))).ToList();
+                        var dynamicKeySettingTypes = _allDynamicSettingsType;
 
                         if (dynamicKeySettingTypes.Count > 0)
                         {
@@ -78,6 +83,8 @@ namespace Omnia.ProcessManagement.Core.Services.Settings
                                 var setting = (DynamicKeySetting)Activator.CreateInstance(dynamicKeySettingType, "");
                                 _dynamicKeySettingTypes.Add(setting.Key, dynamicKeySettingType);
                             }
+
+                            _allDynamicSettingsType.Clear();
                         }
                     }
                 }
