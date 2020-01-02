@@ -191,7 +191,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.LatestPublished)
+                    .OrRequireReader(ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var processData = await ProcessService.GetProcessDataAsync(processStepId, hash, versionType);
@@ -202,7 +202,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                         {
                             Public = true,
-                            MaxAge = versionType == ProcessVersionType.LatestPublished || versionType == ProcessVersionType.Archived ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
+                            MaxAge = versionType == ProcessVersionType.Published || versionType == ProcessVersionType.Archived ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
                         };
 
 
@@ -223,7 +223,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.Draft, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Draft, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -237,14 +237,14 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("latestpublished/workingstatus")]
+        [HttpPost, Route("published/workingstatus")]
         [Authorize]
-        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetLatestPublishedProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
+        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetPublishedProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
         {
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.LatestPublished, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Published, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -270,7 +270,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.LatestPublished)
+                    .OrRequireReader(ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
@@ -296,7 +296,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
                     .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.LatestPublished)
+                    .OrRequireReader(ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);
@@ -317,7 +317,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.Draft, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Draft, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
@@ -329,14 +329,14 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("latestpublished")]
+        [HttpGet, Route("published")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<Process>>> GetLatestPublishedProcessesAsync(Guid teamAppId)
+        public async ValueTask<ApiResponse<List<Process>>> GetPublishedProcessesAsync(Guid teamAppId)
         {
             try
             {
                 var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrLatestPublishedVersionType.LatestPublished, authorizedResource);
+                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Published, authorizedResource);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
@@ -378,13 +378,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.LatestPublished);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
 
                 return await securityResponse
                    .RequireAuthor()
                    .DoAsync(async () =>
                    {
-                       await ProcessService.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, ProcessWorkingStatus.SyncingToSharePoint);
+                       await ProcessService.UpdatePublishedProcessWorkingStatusAsync(opmProcessId, ProcessWorkingStatus.SyncingToSharePoint);
                        return ApiUtils.CreateSuccessResponse();
                    });
             }

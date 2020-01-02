@@ -21,7 +21,7 @@ declare var moment;
 
 interface BaseListViewItemsProps {
     displaySettings: ProcessLibraryDisplaySettings;
-    versionType: ProcessVersionType.Draft | ProcessVersionType.LatestPublished;
+    versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     processListViewComponentKey: ProcessListViewComponentKey;
 }
 
@@ -30,7 +30,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
-    @Prop() versionType: ProcessVersionType.Draft | ProcessVersionType.LatestPublished;
+    @Prop() versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     @Prop() processListViewComponentKey: ProcessListViewComponentKey;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -140,7 +140,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                     .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
             }
             else {
-                this.processService.getLatestPublishedProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
+                this.processService.getPublishedProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
                     .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
             }
 
@@ -172,7 +172,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     private loadProcesses() {
         let getProcesses = () => this.versionType == ProcessVersionType.Draft ?
             this.processService.getDraftProcessesBySite(this.request.teamAppId) :
-            this.processService.getLatestPublishedProcessesBySite(this.request.teamAppId)
+            this.processService.getPublishedProcessesBySite(this.request.teamAppId)
 
         getProcesses().then((processes) => {
             this.allProcesses = processes as Array<DisplayProcess>;

@@ -40,7 +40,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                 .RequireAuthor()
                 .OrRequireApprover(ProcessVersionType.Draft)
                 .OrRequireReviewer(ProcessVersionType.Draft, ProcessVersionType.CheckedOut)
-                .OrRequireReader(ProcessVersionType.LatestPublished)
+                .OrRequireReader(ProcessVersionType.Published)
                 .DoAsync(async (_, process) =>
                 {
                     var bytes = await EnsureTempImageAsync(process, imageRef);

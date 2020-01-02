@@ -78,7 +78,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             await TransactionRepository.InitTransactionAsync(async () =>
             {
-                await ProcessService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None);
+                await ProcessService.UpdatePublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None);
                 var processDataDict = await ProcessService.GetAllProcessDataAsync(process.Id);
                 var spUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
 

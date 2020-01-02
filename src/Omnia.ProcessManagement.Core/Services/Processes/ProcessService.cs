@@ -85,7 +85,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrLatestPublishedVersionType versionType)
+        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType)
         {
             var process = await ProcessRepository.GetProcessByOPMProcessIdAsync(opmProcessId, versionType);
             return process;
@@ -101,7 +101,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetAuthorizedProcessesAsync(processQuery);
         }
 
-        public async ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrLatestPublishedVersionType vesionType)
+        public async ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType vesionType)
         {
             return await ProcessRepository.GetProcessesByWorkingStatusAsync(processWorkingStatus, vesionType);
         }
@@ -127,15 +127,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 
-        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
+        public async ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus)
         {
-            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
+            await ProcessRepository.UpdatePublishedProcessWorkingStatusAsync(opmProcessId, newProcessWorkingStatus);
             await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 
-        public async ValueTask UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
+        public async ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType)
         {
-            await ProcessRepository.UpdateLatestPublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
+            await ProcessRepository.UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
             await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
         }
 

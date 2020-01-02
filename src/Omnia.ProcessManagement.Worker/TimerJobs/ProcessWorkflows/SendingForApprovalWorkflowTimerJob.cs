@@ -30,7 +30,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
                 messageBus,
                 logger,
                 ProcessWorkingStatus.SendingForApproval,
-                DraftOrLatestPublishedVersionType.Draft)
+                DraftOrPublishedVersionType.Draft)
         {
 
         }

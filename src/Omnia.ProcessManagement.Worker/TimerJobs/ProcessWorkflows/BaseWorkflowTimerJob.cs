@@ -34,7 +34,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
         };
 
         protected IServiceScopeFactory ServiceScopeFactory { get; }
-        protected DraftOrLatestPublishedVersionType VersionType { get; }
+        protected DraftOrPublishedVersionType VersionType { get; }
         protected ProcessWorkingStatus ProcessWorkingStatus { get; }
         protected ILogger<BaseWorkflowTimerJob> Logger { get; }
 
@@ -48,7 +48,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             IMessageBus messageBus,
             ILogger<BaseWorkflowTimerJob> logger,
             ProcessWorkingStatus processWorkingStatus,
-            DraftOrLatestPublishedVersionType versionType) : base(appLifetime)
+            DraftOrPublishedVersionType versionType) : base(appLifetime)
         {
             Logger = logger;
             ServiceScopeFactory = serviceScopeFactory;

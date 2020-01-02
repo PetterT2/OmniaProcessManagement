@@ -20,7 +20,7 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
     get hidden(): boolean {
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
-            (OPMRouter.routeContext.route.routeOption != RouteOptions.latestPublishedInBlockRenderer &&
+            (OPMRouter.routeContext.route.routeOption != RouteOptions.publishedInBlockRenderer &&
                 OPMRouter.routeContext.route.routeOption != RouteOptions.draftInBlockRenderer) ? true : false
     }
 

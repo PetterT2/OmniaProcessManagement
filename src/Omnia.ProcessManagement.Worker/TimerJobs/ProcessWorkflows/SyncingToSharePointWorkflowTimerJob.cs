@@ -21,7 +21,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
                 messageBus,
                 logger,
                 ProcessWorkingStatus.SyncingToSharePoint,
-                DraftOrLatestPublishedVersionType.LatestPublished)
+                DraftOrPublishedVersionType.Published)
         {
 
         }
@@ -43,7 +43,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var processService = scope.ServiceProvider.GetRequiredService<IProcessService>();
-                    await processService.UpdateLatestPublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SyncingToSharePointFailed);
+                    await processService.UpdatePublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SyncingToSharePointFailed);
                 }
                 Logger.LogError($"process with OPMProcessId: {process.OPMProcessId} was updated to working status {ProcessWorkingStatus.SyncingToSharePointFailed.ToString()}");
             }

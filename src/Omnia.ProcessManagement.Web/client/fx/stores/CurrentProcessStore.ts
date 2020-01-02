@@ -118,7 +118,7 @@ export class CurrentProcessStore extends Store {
 
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
-    private previewPageUrl = this.state<string>("");
+
 
     private currentLoadedProcessDataDict: IdDict<ProcessData> = {};
 
@@ -136,16 +136,11 @@ export class CurrentProcessStore extends Store {
     }
 
     public getters = {
-        referenceData: () => this.currentProcessReferenceData.state,
-        previewPageUrl: (): string => {
-            return this.previewPageUrl.state;
-        }
+        referenceData: () => this.currentProcessReferenceData.state
     }
 
     mutations = {
-        setPreviewPageUrl: this.mutation((url: string) => {
-            this.previewPageUrl.mutate(url);
-        })
+       
     }
 
     public actions = {

@@ -14,6 +14,7 @@ import { TasksView } from './tasks/TasksView';
 import { BaseListViewItems } from './BaseListViewItems';
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../../fx/contexts';
+import { ProcessDesignerStore } from '../../../processdesigner/stores';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
@@ -27,6 +28,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     @Inject(SecurityService) securityService: SecurityService;
     @Inject(OPMContext) opmContext: OPMContext;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDeisgnerStore: ProcessDesignerStore;
 
     private selectingTab = 'tab-drafts';
     private tabPrefix = 'tab-';
@@ -55,7 +57,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
-        this.currentProcessStore.mutations.setPreviewPageUrl.commit(this.viewSettings.draftTabDisplaySettings.previewPageUrl);
+        this.processDeisgnerStore.mutations.setPreviewPageUrl.commit(this.viewSettings.draftTabDisplaySettings.previewPageUrl);
         this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
             [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
@@ -157,7 +159,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab-item>
                     <v-tab-item id="tab-published">
                         {this.selectingTab == "tab-published" ?
-                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.LatestPublished} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
+                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                 </v-tabs>

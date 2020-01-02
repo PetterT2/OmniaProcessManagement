@@ -12,7 +12,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
         },
         ProcessNoItem: {
             Draft: "There are no draft processes to show",
-            LatestPublished: "There are no published processes to show"
+            Published: "There are no published processes to show"
         },
         ProcessStatuses: {
             SendingForApproval: "Sending for Approval",
