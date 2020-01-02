@@ -153,5 +153,22 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             await web.Context.ExecuteQueryAsync();
             return uploadFile;
         }
+
+        public async ValueTask<Microsoft.SharePoint.Client.File> GetFirstFileInFolder(PortableClientContext clientContext, Folder parentFolder)
+        {
+            Microsoft.SharePoint.Client.File file = null;
+
+            clientContext.Load(parentFolder.Files);
+            await clientContext.ExecuteQueryAsync();
+
+            if (parentFolder.Files.Count > 0)
+            {
+                file = parentFolder.Files[0];
+                clientContext.Load(file, f => f.ListItemAllFields, f => f.Name, f => f.ServerRelativeUrl);
+                await clientContext.ExecuteQueryAsync();
+            }
+
+            return file;
+        }
     }
 }

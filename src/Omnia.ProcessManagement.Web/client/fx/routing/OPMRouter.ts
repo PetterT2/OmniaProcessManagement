@@ -9,7 +9,7 @@ import { MultilingualStore } from '@omnia/fx/store';
 const processVersionLabels = {
     [ProcessVersionType.Draft]: 'draft',
     [ProcessVersionType.CheckedOut]: 'checked out',
-    [ProcessVersionType.Published]: 'published',
+    [ProcessVersionType.Archived]: 'archived',
     [ProcessVersionType.LatestPublished]: 'latest published'
 }
 

@@ -7,7 +7,7 @@
 export enum ProcessVersionType {
     Draft = 0,
     CheckedOut = 1,
-    Published = 2,
+    Archived = 2,
     LatestPublished = 3
 }
 

@@ -20,6 +20,7 @@ using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
+using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
@@ -46,6 +47,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ISharePointPermissionService SharePointPermissionService { get; }
         ISettingsService SettingsService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
+        IUnpublishProcessService UnpublishProcessService { get; }
 
         public ProcessSyncingService(IProcessService processService, ITransactionRepository transactionRepository,
             ITeamCollaborationAppsService teamCollaborationAppsService, ISharePointClientContextProvider sharePointClientContextProvider,
@@ -53,7 +55,8 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ISharePointEntityProvider sharePointEntityProvider, ILocalizationProvider localizationProvider,
             IMultilingualHelper multilingualHelper, ISharePointPermissionService sharePointPermissionService,
             IProcessSecurityService processSecurityService, ISettingsService settingsService,
-            ISharePointGroupService sharePointGroupService)
+            ISharePointGroupService sharePointGroupService,
+            IUnpublishProcessService unpublishProcessService)
         {
             ProcessService = processService;
             TransactionRepository = transactionRepository;
@@ -68,6 +71,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ProcessSecurityService = processSecurityService;
             SettingsService = settingsService;
             SharePointGroupService = sharePointGroupService;
+            UnpublishProcessService = unpublishProcessService;
         }
 
         public async ValueTask SyncToSharePointAsync(Process process)
@@ -103,7 +107,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             if (process.SecurityResourceId == process.OPMProcessId)
             {
                 limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
-
 
                 var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
 
@@ -383,6 +386,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 var folder = ctx.Web.GetFolderByServerRelativeUrl($"{ctx.Web.ServerRelativeUrl}/{OPMConstants.SharePoint.ListUrl.PublishList}/{folderName}");
                 ctx.Load(folder);
                 await ctx.ExecuteQueryAsync();
+
+                // Archive previos edition
+                await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
+
                 folder.DeleteObject();
                 await ctx.ExecuteQueryAsync();
 
@@ -408,6 +415,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return folderItem;
 
         }
+
 
         private async ValueTask<bool> EnsureSharePointFieldsAsync(PortableClientContext appContext, List<string> internalNames,
             Microsoft.SharePoint.Client.List listWithFields, string listRelativeUrl, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
