@@ -174,9 +174,17 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     redrawFreeShape() {
-        this.freeNodes = null;
-        this.drawingCanvas.destroy();
-        this.initFreeFormCanvas();
+        this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch().then(() => {
+            this.freeNodes = null;
+            this.drawingCanvas.destroy();
+            let processTemplate = this.processTemplateStore.getters.processTemplates().find(p => p.settings.shapeDefinitions.find(d => (d as DrawingShapeDefinition).shapeTemplate && (d as DrawingShapeDefinition).shapeTemplate.id == this.drawingOptions.shapeDefinition.shapeTemplate.id) != null);
+            if (processTemplate != null) {
+                let shapeDefinition: DrawingShapeDefinition = processTemplate.settings.shapeDefinitions.find(d => d.id == this.drawingOptions.shapeDefinition.id) as DrawingShapeDefinition;
+                this.internalShapeDefinition.width = shapeDefinition.width;
+                this.internalShapeDefinition.height = shapeDefinition.height;
+            }
+            this.initFreeFormCanvas();
+        });
     }
 
     renderShapePreview(h) {
@@ -186,7 +194,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.redrawFreeShape}>{this.pdLoc.Redraw}</v-btn>
                     : null
             }
-            <div onMouseover={this.previewActivedShape} onMouseleave={this.updateDrawedShape} class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+            <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
                 <canvas id={this.previewCanvasId.toString()}></canvas>
             </div>
         </div>;
@@ -212,7 +220,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 drawingShapes: [],
                 width: canvasWidth,
                 height: canvasHeight
-            });
+            }, true);
     }
 
     initFreeFormCanvas() {
@@ -227,7 +235,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 gridX: 20,
                 gridY: 20,
                 drawingShapes: []
-            });
+            }, true);
+        (this.drawingCanvas as DrawingCanvasFreeForm).setSelectingShapeCallback((selectedShape) => {
+            if (selectedShape != null) {
+                this.freeNodes = selectedShape.shape.nodes;
+                this.onDrawingShapeOptionChanged();
+            }
+        });
         (this.drawingCanvas as DrawingCanvasFreeForm).start(Utils.clone(this.internalShapeDefinition), this.multilingualStore.getters.stringValue(this.shapeTitle));
     }
 
@@ -238,12 +252,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             this.$nextTick(() => {
                 if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
                     this.initDrawingCanvas();
-                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, false, 0, 0);
+                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, 0, 0);
                 }
                 else {
                     this.initFreeFormCanvas();
                     if (!Utils.isNullOrEmpty(this.drawingOptions.nodes))
-                        this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, false, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.nodes);
+                        this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.nodes);
                 }
             });
         }
@@ -258,7 +272,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             this.freeNodes = this.drawingCanvas.drawingShapes[0].shape.nodes;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
         }
         if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
             this.freeNodes = null;
@@ -267,7 +281,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     previewActivedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, true, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
         }
     }
 

@@ -9,19 +9,13 @@ import { GuidValue, MultilingualString } from '@omnia/fx-models';
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     private onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
     private onDrawingChanged: () => void;
-    private onSelectingShape: (shape: DrawingShape) => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
-
-    constructor(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: () => void) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition);
+   
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: () => void) {
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover);
         this.onClickEditShapeSettings = onClickEditShapeSettings;
         this.onDrawingChanged = onDrawingChanged;
-    }
-
-    setSelectingShapeCallback(onSelectingShape) {
-        this.onSelectingShape = onSelectingShape;
-        this.onSelectingShape(null);
     }
 
     protected initShapes(elementId: string, options?: fabric.ICanvasOptions, definition?: CanvasDefinition) {
@@ -36,9 +30,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         }
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.updateShapeDefinition(id, definition, title, isActive, left, top).then((drawingShapeResult: DrawingShape) => {
+            super.updateShapeDefinition(id, definition, title, left, top).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);
@@ -64,6 +58,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     protected addEventListener() {
         if (this.canvasObject == null)
             return;
+       
         let ctx = this.canvasObject.getContext();
         ctx.font = '900 0px "Font Awesome 5 Pro"';
         ctx.fillText("", 0, 0);

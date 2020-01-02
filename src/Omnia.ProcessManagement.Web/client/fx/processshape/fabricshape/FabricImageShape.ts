@@ -6,8 +6,8 @@ import { FabricShape } from './FabricShape';
 
 export class FabricImageShape extends FabricShapeExtension implements FabricShape {
     imageUrl?: string;
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        super(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        super(definition, properties);
         if (properties) {
             this.imageUrl = this.properties['imageUrl'];
         }

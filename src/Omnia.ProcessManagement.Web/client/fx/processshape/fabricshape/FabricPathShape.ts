@@ -6,13 +6,15 @@ import { FabricShape } from './FabricShape';
 import { SimplifyPath } from '../shapes/SimplifyPath';
 
 export class FabricPathShape extends FabricShapeExtension implements FabricShape {
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        super(definition, isActive, properties);
-        this.fabricObject = new fabric.Path(this.getSimplifyPaths(this.properties['path']), this.properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }, notSimplify?: boolean) {
+        super(definition, properties);
+        this.fabricObject = new fabric.Path(!notSimplify ? this.getSimplifyPaths(this.properties['path']) : this.properties['path'], this.properties);
     }
 
     private getSimplifyPaths(path: Array<any>) {
         if (path) {
+            if (path.length < 20)
+                return path;
             let newPath: Array<any> = [];
             let simplifyPath: SimplifyPath = new SimplifyPath();
             let points: Array<{ x: number, y: number }> = [];

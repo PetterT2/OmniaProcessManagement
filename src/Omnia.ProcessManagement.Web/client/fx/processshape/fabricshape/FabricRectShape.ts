@@ -5,8 +5,8 @@ import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
 export class FabricRectShape extends FabricShapeExtension implements FabricShape {
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        super(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        super(definition, properties);
         this.fabricObject = new fabric.Rect(this.properties);
     }
 

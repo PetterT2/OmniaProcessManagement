@@ -5,8 +5,8 @@ import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
 
 export class FabricCircleShape extends FabricShapeExtension implements FabricShape {
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        super(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        super(definition, properties);
         this.initCircleProperties(definition);
     }
 

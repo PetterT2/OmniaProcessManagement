@@ -2,13 +2,13 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { IMessageBusSubscriptionHandler } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
 import './ContentBlock.css';
 import { ContentBlockStyles } from '../../models';
 import { ContentBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
-import { ContentBlockData } from '../../fx/models';
+import { ContentBlockData, ProcessReferenceData } from '../../fx/models';
 import { CurrentProcessStore } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 
@@ -30,6 +30,7 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     content: string;
     contentClasses = StyleFlow.use(ContentBlockStyles, this.styles);
+    currentProcessStepId: GuidValue;
 
     created() {
         this.init();
@@ -56,7 +57,10 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
             });
         });
 
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
+        this.initContent(this.currentProcessStore.getters.referenceData());
+    }
+
+    initContent(currentReferenceData: ProcessReferenceData) {
         if (currentReferenceData && currentReferenceData.current.processData.content) {
             this.content = this.multilingualStore.getters.stringValue(currentReferenceData.current.processData.content);
         }
@@ -76,6 +80,9 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     renderContent(h) {
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
+        if (currentReferenceData && this.currentProcessStepId != currentReferenceData.current.processStep.id)
+            this.initContent(currentReferenceData);
         return (
             <div domProps-innerHTML={this.content}></div>
         )

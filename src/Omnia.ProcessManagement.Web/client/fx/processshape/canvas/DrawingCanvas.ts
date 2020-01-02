@@ -6,6 +6,7 @@ import { DrawingShapeDefinition } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { IFabricShape } from '../fabricshape';
+import { setTimeout } from 'timers';
 
 export class DrawingCanvas implements CanvasDefinition {
 
@@ -17,17 +18,27 @@ export class DrawingCanvas implements CanvasDefinition {
     drawingShapes: DrawingShape[];
     protected selectable = false;
     protected canvasObject: fabric.Canvas;
+    protected onSelectingShape: (shape: DrawingShape) => void;
+
     private lineColor = '#ccc';
     private defaultPosition = 10;
+    private isSetHover: boolean = false;
 
-    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean) {
         this.drawingShapes = [];
+        this.isSetHover = isSetHover || false;
         this.initShapes(elementId, options, definition);
         this.renderBackgroundImage(definition);
     }
 
     destroy() {
-        this.canvasObject.dispose();
+        if (this.canvasObject && !Utils.isArrayNullOrEmpty(this.canvasObject._objects))
+            this.canvasObject.dispose();
+    }
+
+    setSelectingShapeCallback(onSelectingShape: (shape: DrawingShape) => void) {
+        this.onSelectingShape = onSelectingShape;
+        this.onSelectingShape(null);
     }
 
     getCanvasDefinitionJson(): CanvasDefinition {
@@ -42,6 +53,13 @@ export class DrawingCanvas implements CanvasDefinition {
             gridX: this.gridX,
             gridY: this.gridY,
             drawingShapes: shapes
+        }
+    }
+
+    setSelectedShape(drawingShape: DrawingShape) {
+        if (drawingShape) {
+            (drawingShape.shape as Shape).setSelectedShape(true);
+            this.canvasObject.renderAll();
         }
     }
 
@@ -79,6 +97,16 @@ export class DrawingCanvas implements CanvasDefinition {
     protected initShapes(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
         this.selectable = false;
         this.renderGridView(elementId, options, definition);
+        this.addEventListener();
+    }
+
+    protected addEventListener() {
+        this.canvasObject.on('mouse:down', (options) => {
+            let findShape = this.drawingShapes.find(s => (s.shape as Shape).isHover());
+            if (findShape != null && this.onSelectingShape) {
+                this.onSelectingShape(findShape);
+            }
+        });
     }
 
     protected renderGridView(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
@@ -128,7 +156,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
-        title: MultilingualString, isActive?: boolean, left?: number, top?: number,
+        title: MultilingualString, left?: number, top?: number,
         processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
         if (!definition.shapeTemplate)
             return;
@@ -152,17 +180,17 @@ export class DrawingCanvas implements CanvasDefinition {
             if (type == DrawingShapeTypes.CustomLink) {
                 (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
             }
-            this.addShapeFromTemplateClassName(drawingShape, isActive);
+            this.addShapeFromTemplateClassName(drawingShape);
         }
     }
 
-    addDrawingShape(drawingShape: DrawingShape, isActive?: boolean) {
+    addDrawingShape(drawingShape: DrawingShape) {
         if (this.canvasObject) {
-            this.addShapeFromTemplateClassName(drawingShape, isActive);
+            this.addShapeFromTemplateClassName(drawingShape);
         }
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isActive?: boolean, left?: number, top?: number) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
@@ -184,7 +212,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     };
                     resolved = false;
 
-                    this.addShapeFromTemplateClassName(currentDrawingShape, isActive).then((readyDrawingShape: DrawingShape) => {
+                    this.addShapeFromTemplateClassName(currentDrawingShape).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
                 }
@@ -232,7 +260,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     };
                     resolved = false;
 
-                    this.addShapeFromTemplateClassName(currentDrawingShape, false).then((readyDrawingShape: DrawingShape) => {
+                    this.addShapeFromTemplateClassName(currentDrawingShape).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
                 }
@@ -251,11 +279,10 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    protected addShapeFromTemplateClassName(drawingShape: DrawingShape, isActive?: boolean) {
+    protected addShapeFromTemplateClassName(drawingShape: DrawingShape) {
         let readyDrawingShape = Utils.clone(drawingShape);
 
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, isActive, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top);
-
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top);
         return new Promise<DrawingShape>((resolve, reject) => {
             newShape.ready().then((result) => {
                 if (result) {
@@ -267,6 +294,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     private addShapeToCanvas(drawingShape: DrawingShape, newShape: Shape) {
+        newShape.setAllowHover(this.isSetHover);
         newShape.addEventListener(this.canvasObject, this.gridX, this.gridY);
         newShape.shapeObject.forEach(s => this.canvasObject.add(s));
         drawingShape.shape = newShape;

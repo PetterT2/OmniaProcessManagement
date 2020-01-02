@@ -9,9 +9,9 @@ import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { Point } from 'fabric/fabric-impl';
 
 export class PentagonShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number) {
-        super(definition, nodes, isActive, title, selectable, left, top);
+        super(definition, nodes, title, selectable, left, top);
     }
 
     get name() {
@@ -37,19 +37,18 @@ export class PentagonShape extends ShapeExtension implements Shape {
         return basicShapeJSON;
     }
 
-    private initExistingNodes(title: MultilingualString, recDefinition: DrawingShapeDefinition,
-        isActive: boolean, selectable: boolean) {
+    private initExistingNodes(title: MultilingualString, recDefinition: DrawingShapeDefinition, selectable: boolean) {
         var fabricGroupObjects: fabric.Object[] = [];
         var fabricTextObject: fabric.Object;
         let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
         let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
         if (polygonNode) {
-            let rectShape = new FabricPolygonShape(recDefinition, isActive, Object.assign({ selectable: selectable }, polygonNode.properties || {}));
+            let rectShape = new FabricPolygonShape(recDefinition, Object.assign({ selectable: selectable }, polygonNode.properties || {}));
             this.fabricShapes.push(rectShape);
             fabricGroupObjects.push(rectShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, isActive, Object.assign({ selectable: false }, textNode.properties || {}), title);
+            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: false }, textNode.properties || {}), title);
             this.fabricShapes.push(textShape);
             fabricTextObject = textShape.fabricObject;
         }
@@ -57,17 +56,17 @@ export class PentagonShape extends ShapeExtension implements Shape {
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
-    protected initNodes(isActive: boolean, title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
-            this.initExistingNodes(title, this.definition, isActive, selectable);
+            this.initExistingNodes(title, this.definition, selectable);
         }
         else if (this.definition) {
             let pentagonPosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
             let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, false);
 
             let points = this.calculatePoints();
-            this.fabricShapes.push(new FabricPolygonShape(this.definition, isActive, { points: points, left: pentagonPosition.left, top: pentagonPosition.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, isActive, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
+            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: pentagonPosition.left, top: pentagonPosition.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
 
             this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
@@ -83,7 +82,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
     }
 
     private calculatePoints() {
-        let triangleWidth = Math.floor(this.definition.height / 2);        
+        let triangleWidth = Math.floor(this.definition.height / 2);
         let points: Array<{ x: number; y: number }> = [
             { x: 0, y: 0 },
             { x: this.definition.width - triangleWidth, y: 0 },

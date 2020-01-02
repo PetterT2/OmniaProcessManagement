@@ -8,11 +8,11 @@ export class FabricShapeExtension implements FabricShape {
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
 
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        this.initProperties(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        this.initProperties(definition, properties);
     }
 
-    private initProperties(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
+    private initProperties(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
         this.properties = {};
         this.properties["originX"] = "left";
         this.properties["originY"] = "top";
@@ -27,8 +27,8 @@ export class FabricShapeExtension implements FabricShape {
         if (definition) {
             this.properties["width"] = definition.width;
             this.properties["height"] = definition.height;
-            this.properties["fill"] = isActive ? definition.activeBackgroundColor : definition.backgroundColor;
-            this.properties["stroke"] = isActive ? definition.activeBorderColor : definition.borderColor;
+            this.properties["fill"] = definition.backgroundColor;
+            this.properties["stroke"] = definition.borderColor;
         }
     }
 

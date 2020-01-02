@@ -39,7 +39,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private tempInterval = null;
     private canvasDefinition: CanvasDefinition = null;
-    
+
     created() {
         this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChanged.subscribe(this.onCanvasDefinitionChanged);
         this.initCanvasDefinition();
@@ -82,16 +82,16 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         this.initDrawingCanvas();
     }
 
-    private initDrawingCanvas() {     
+    private initDrawingCanvas() {
         setTimeout(() => {
-            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, this.onClickEditShape, this.onShapeChangeByUser);
+            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false, this.onClickEditShape, this.onShapeChangeByUser);
             this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
         }, 300);
         //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
 
     private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
-        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, false, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId, addShapeOptions.nodes);
+        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId, addShapeOptions.nodes);
 
         setTimeout(() => {
             this.saveState(true);
@@ -160,7 +160,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
                 v-model={this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show}>
                 {this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show ? <opm-processdesigner-drawingcanvas-settings></opm-processdesigner-drawingcanvas-settings> : null}
-            </v-navigation-drawer>            
+            </v-navigation-drawer>
         );
         components.push(this.renderAddShapePanel(h));
         components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
@@ -183,7 +183,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 <div style={{ height: '100%' }}>
                     <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>
                 </div>
-            </omfx-dialog>;            
+            </omfx-dialog>;
         }
     }
     private renderEditShapeSettingsPanel(h, backgroundColor: string) {
@@ -216,7 +216,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             </v-btn>
         </div>;
     }
-     
+
     private showCanvasSettings() {
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
     }
@@ -225,7 +225,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         * Render 
         * @param h
         */
-    render(h) {     
+    render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>

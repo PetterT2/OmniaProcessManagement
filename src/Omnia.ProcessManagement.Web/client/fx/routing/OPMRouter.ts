@@ -26,7 +26,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
     constructor() {
         super('pm')
-    }
+    }    
 
     /**
     * Implement abstract function

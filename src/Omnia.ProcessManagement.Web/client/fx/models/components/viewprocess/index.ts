@@ -1,3 +1,2 @@
-﻿export * from './ContentBlockData';
-export * from './ContentBlockDataData';
-export * from './ContentBlockSettings';
+﻿export * from './contentblock';
+export * from './drawingblock';

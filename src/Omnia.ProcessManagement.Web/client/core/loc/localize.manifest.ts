@@ -94,6 +94,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 Title: "Content",
                 Description: ""
             },
+            Drawing: {
+                Title: "Drawing",
+                Description: ""
+            },
             ViewProcess: {
                 Title: "View Process"
             }

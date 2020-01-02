@@ -5,8 +5,8 @@ import { FabricShape } from './FabricShape';
 import { FabricShapeExtension } from './FabricShapeExtention';
 
 export class FabricEllipseShape extends FabricShapeExtension implements FabricShape {    
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }) {
-        super(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
+        super(definition, properties);
         this.initEllipseProperties(definition);
     }
 
