@@ -131,7 +131,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
             }
 
-            var folderItem = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
+            var folder = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
 
             if (limitedReadAccessUser != null)
             {
@@ -139,28 +139,29 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 limitedReadAccessUser.ForEach(user => roleAssignments.Add(user, new List<RoleType> { RoleType.Reader }));
                 roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
-                await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folderItem, false, false, roleAssignments);
+                await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folder.ListItemAllFields, false, false, roleAssignments);
             }
         }
 
-        private async ValueTask<ListItem> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var process = processActionModel.Process;
 
-            var folderItem = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
+            var opmProcessIdFolder = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
             var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
 
-            var fileItem = publishedList.AddItem(new ListItemCreationInformation
-            {
-                UnderlyingObjectType = FileSystemObjectType.File,
-                LeafName = fileName,
-                FolderUrl = $"{folderItem.Folder.ServerRelativeUrl}"
-            });
-
-            await UpdateProcessFileItemAsync(ctx, publishedList, fileItem, processActionModel, enterprisePropertyDict);
+            FileCreationInformation newFile = new FileCreationInformation();
+            newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); ;
+            newFile.Overwrite = true;
+            newFile.Content = new byte[0];
+            Microsoft.SharePoint.Client.File addedFile = opmProcessIdFolder.Files.Add(newFile);
+            ctx.Load(addedFile);
             await ctx.ExecuteQueryAsync();
 
-            return folderItem;
+            await UpdateProcessFileItemAsync(ctx, publishedList, addedFile.ListItemAllFields, processActionModel, enterprisePropertyDict);
+            await ctx.ExecuteQueryAsync();
+
+            return opmProcessIdFolder;
         }
 
         private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
@@ -378,19 +379,20 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         }
 
 
-        private async ValueTask<ListItem> EnsureNewProcessFolderAsync(PortableClientContext ctx, List publishedList, Process process)
+        private async ValueTask<Folder> EnsureNewProcessFolderAsync(PortableClientContext ctx, List publishedList, Process process)
         {
             var folderName = process.OPMProcessId.ToString("N").ToLower();
             try
             {
-                var folder = ctx.Web.GetFolderByServerRelativeUrl($"{ctx.Web.ServerRelativeUrl}/{OPMConstants.SharePoint.ListUrl.PublishList}/{folderName}");
-                ctx.Load(folder);
+                var existedFolder = ctx.Web.GetFolderByServerRelativeUrl($"{ctx.Web.ServerRelativeUrl}/{OPMConstants.SharePoint.ListUrl.PublishList}/{folderName}");
+                ctx.Load(existedFolder, f => f.Files);
                 await ctx.ExecuteQueryAsync();
 
                 // Archive previos edition
-                await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
+                if(existedFolder.Files.Count > 0)
+                    await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
 
-                folder.DeleteObject();
+                existedFolder.DeleteObject();
                 await ctx.ExecuteQueryAsync();
 
             }
@@ -402,20 +404,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 }
             }
 
-            var folderItem = publishedList.AddItem(new ListItemCreationInformation
-            {
-                UnderlyingObjectType = FileSystemObjectType.Folder,
-                LeafName = folderName
-            });
-            folderItem["Title"] = folderName;
-            folderItem.Update();
-            ctx.Load(folderItem.Folder, f => f.ServerRelativeUrl);
-            await ctx.ExecuteQueryAsync();
+            var newFolder = await SharePointListService.EnsureChildFolderAsync(ctx, publishedList.RootFolder, folderName, true);
 
-            return folderItem;
-
+            return newFolder;
         }
-
 
         private async ValueTask<bool> EnsureSharePointFieldsAsync(PortableClientContext appContext, List<string> internalNames,
             Microsoft.SharePoint.Client.List listWithFields, string listRelativeUrl, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)

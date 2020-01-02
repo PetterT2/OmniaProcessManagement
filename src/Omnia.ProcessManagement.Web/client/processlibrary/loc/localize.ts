@@ -24,7 +24,10 @@
             CancellingApprovalFailed: string,
 
             SyncingToSharePoint: string
-            SyncingToSharePointFailed: string
+            SyncingToSharePointFailed: string,
+
+            Archiving: string,
+            ArchivingFailed: string
         },
         TaskStatus: {
             Cancel: string,
@@ -89,7 +92,8 @@
             MoveProcess: string,
             UnpublishProcess: string,
             SyncToSharePoint: string,
-            RetrySyncToSharePoint: string
+            RetrySyncToSharePoint: string,
+            Archive: string
         },
         SortText: {
             Direction: string,
@@ -118,7 +122,8 @@
             MessageTaskHasBeenCompletedOrCanceled: string,
             MessageTaskCancelledBySystem: string,
             MessageApprovalTaskEditingDescription: string,
-            SyncToSharePointFailed: string
+            SyncToSharePointFailed: string,
+            ArchiveProcessFailed: string
 
         },
         ProcessType: string,

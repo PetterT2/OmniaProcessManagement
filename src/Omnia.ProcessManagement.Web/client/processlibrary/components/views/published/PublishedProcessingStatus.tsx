@@ -7,6 +7,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
 import { Enums, Process, ProcessWorkingStatus } from '../../../../fx/models';
 import { SyncToSharePointDialog } from './SyncToSharePointDialog';
+import { ArchiveToSharePointDialog } from './ArchiveToSharePointDialog';
 
 interface PublishedProcessingStatusProps {
     closeCallback: (isUpdate: boolean) => void;
@@ -30,6 +31,7 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
 
     selectedProcess: Process;
     openApprovalPublishDialog: boolean = false;
+    openArchiveToSharePointDialog: boolean = false;
 
     processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
 
@@ -54,6 +56,15 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
         )
     }
 
+    renderArchiveToSharePointDialog(h) {
+        return (
+            <ArchiveToSharePointDialog closeCallback={() => { this.openArchiveToSharePointDialog = false; }}
+                process={this.selectedProcess}
+                isAuthor={this.isAuthor}>
+            </ArchiveToSharePointDialog>
+        )
+    }
+
     renderStatus(h) {
         let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]];
         let className = this.redLabel ? "red--text" : "";
@@ -62,6 +73,11 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
                 return <a class={className} onClick={() => {
                     this.selectedProcess = this.process;
                     this.openApprovalPublishDialog = true;
+                }}>{statusName}</a>;
+            case ProcessWorkingStatus.ArchivingFailed:
+                return <a class={className} onClick={() => {
+                    this.selectedProcess = this.process;
+                    this.openArchiveToSharePointDialog = true;
                 }}>{statusName}</a>;
             default:
                 return <div class={className}>{statusName}</div>;
@@ -73,6 +89,7 @@ export class PublishedProcessingStatus extends VueComponentBase<PublishedProcess
             <div>
                 {this.renderStatus(h)}
                 {this.openApprovalPublishDialog && this.renderApprovalPublishDialog(h)}
+                {this.openArchiveToSharePointDialog && this.renderArchiveToSharePointDialog(h)}
             </div>
         )
     }

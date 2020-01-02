@@ -303,6 +303,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\ListView.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\published\ArchiveToSharePointDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedMenuActions.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedProcessingStatus.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedView.manifest.ts" />

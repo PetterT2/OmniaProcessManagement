@@ -34,7 +34,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     }
 
     [SPList(relativeUrl: OPMConstants.SharePoint.ListUrl.PublishList, Title = "$Localize:OPM.Core.Features.Lists.OPMPublished.Name;",
-           ListTemplate = ListTemplateType.GenericList,
+           ListTemplate = ListTemplateType.DocumentLibrary,
            Description = "$Localize:OPM.Core.Features.Lists.OPMPublished.Description;",
            EnableVersioning = false, EnableMinorVersions = false, EnableFolderCreation = true)]
     public class OPMPublished : ListBase, IListBase
@@ -60,9 +60,9 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     }
 
     [SPList(relativeUrl: OPMConstants.SharePoint.ListUrl.ArchivedList, Title = "$Localize:OPM.Core.Features.Lists.OPMArchived.Name;",
-           ListTemplate = ListTemplateType.GenericList,
+           ListTemplate = ListTemplateType.DocumentLibrary,
            Description = "$Localize:OPM.Core.Features.Lists.OPMArchived.Description;",
-           EnableVersioning = false, EnableMinorVersions = false, EnableFolderCreation = true)]
+           EnableVersioning = false, EnableMinorVersions = false)]
     public class OPMArchived : ListBase, IListBase
     {
         public IEnumerable<ContentTypeBase> ContentTypes
