@@ -100,6 +100,10 @@
             Tasks: {
                 Title: string,
                 Description: string
+            },
+            Links: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {

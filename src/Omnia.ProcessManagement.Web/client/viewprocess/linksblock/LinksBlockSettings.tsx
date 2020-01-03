@@ -3,25 +3,25 @@ import { SettingsService, SettingsServiceConstructor } from '@omnia/fx/services'
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { IContentBlockSettingsComponent } from './IContentBlockSettings';
-import { ContentBlockLocalization } from './loc/localize';
+import { ILinksBlockSettingsComponent } from './ILinksBlockSettings';
+import { LinksBlockLocalization } from './loc/localize';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux"
 import { MultilingualStore } from '@omnia/fx/store';
-import { ContentBlockData, ContentBlockDataData } from '../../fx/models';
+import { LinksBlockData, LinksBlockDataData } from '../../fx/models';
 
 @Component
-export class ContentBlockSettingsComponent extends Vue implements IWebComponentInstance, IContentBlockSettingsComponent {
+export class LinksBlockSettingsComponent extends Vue implements IWebComponentInstance, ILinksBlockSettingsComponent {
     @Prop() public settingsKey: string;
 
-    @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<ContentBlockData>;
+    @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<LinksBlockData>;
     @Inject(MultilingualStore) multiLIngualStore: MultilingualStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    @Localize(ContentBlockLocalization.namespace) private loc: ContentBlockLocalization.locInterface;
+    @Localize(LinksBlockLocalization.namespace) private loc: LinksBlockLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
 
-    blockData: ContentBlockData = null;
+    blockData: LinksBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
   
     mounted() {
@@ -35,16 +35,16 @@ export class ContentBlockSettingsComponent extends Vue implements IWebComponentI
                 .subscribe(this.setBlockData)
 
             this.setBlockData(blockData || {
-                data: {} as ContentBlockDataData,
+                data: {} as LinksBlockDataData,
                 settings: {
                     title: { isMultilingualString: true }
                 }
-            } as ContentBlockData);
+            } as LinksBlockData);
         });
 
     }
 
-    setBlockData(blockData: ContentBlockData) {
+    setBlockData(blockData: LinksBlockData) {
         this.blockData = blockData;
     }
 
@@ -68,7 +68,7 @@ export class ContentBlockSettingsComponent extends Vue implements IWebComponentI
                 <v-row no-gutters>
                     <v-col cols="12">
                         <omfx-multilingual-input
-                            label={this.loc.ContentBlockSettings.Title}
+                            label={this.loc.LinksBlockSettings.Title}
                             model={this.blockData.settings.title}
                             onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
                         </omfx-multilingual-input>
@@ -92,5 +92,5 @@ export class ContentBlockSettingsComponent extends Vue implements IWebComponentI
 }
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, ContentBlockSettingsComponent);
+    vueCustomElement(manifest.elementName, LinksBlockSettingsComponent);
 });

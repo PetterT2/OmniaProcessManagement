@@ -2,4 +2,5 @@
 
 export interface DrawingBlockSettings {
     title: MultilingualString;
+    spacing?: SpacingSetting;
 }

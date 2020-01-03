@@ -62,6 +62,7 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
 
     initContent(currentReferenceData: ProcessReferenceData) {
         if (currentReferenceData && currentReferenceData.current.processData.content) {
+            this.currentProcessStepId = currentReferenceData.current.processStep.id;
             this.content = this.multilingualStore.getters.stringValue(currentReferenceData.current.processData.content);
         }
     }
@@ -89,19 +90,19 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     render(h) {
-         return (
-            <div>
+        return (
+            <aside>
                 {
                     !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                         !this.hasContentValue() ?
+                        !this.hasContentValue() ?
                             <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.Blocks.Content.Title}></wcm-empty-block-view>
                             :
-                            <div>
+                            <div class={this.contentClasses.blockPadding(this.blockData.settings.spacing)}>
                                 <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
                                 <div key={this.componentUniqueKey}>{this.renderContent(h)}</div>
                             </div>
                 }
-            </div>
+            </aside>
         );
     }
 }

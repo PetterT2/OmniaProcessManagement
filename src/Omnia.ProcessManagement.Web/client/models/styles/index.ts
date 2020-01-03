@@ -9,3 +9,4 @@ export * from './ProcessRendererStyles';
 export * from './ContentBlockStyles';
 export * from './DrawingBlockStyles';
 export * from './TasksBlockStyles';
+export * from './LinksBlockStyles';
