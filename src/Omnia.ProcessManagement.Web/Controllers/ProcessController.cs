@@ -391,6 +391,29 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpPost, Route("triggerarchive/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse> TriggerArchiveAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .DoAsync(async () =>
+                   {
+                       await ProcessService.UpdatePublishedProcessWorkingStatusAsync(opmProcessId, ProcessWorkingStatus.Archiving);
+                       return ApiUtils.CreateSuccessResponse();
+                   });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse(ex);
+            }
+        }
+
         [HttpGet, Route("checkifdraftexist/{opmProcessId:guid}")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
         public async ValueTask<ApiResponse<bool>> CheckIfDraftExist(Guid opmProcessId)

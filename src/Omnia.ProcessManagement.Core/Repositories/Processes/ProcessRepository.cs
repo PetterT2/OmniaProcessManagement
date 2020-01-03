@@ -1108,12 +1108,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 case ProcessWorkingStatus.None:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePoint);
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.Archiving);
                     break;
                 case ProcessWorkingStatus.SyncingToSharePointFailed:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePoint);
                     break;
                 case ProcessWorkingStatus.SyncingToSharePoint:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.SyncingToSharePointFailed);
+                    break;
+                case ProcessWorkingStatus.ArchivingFailed:
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.Archiving);
                     break;
                 default:
                     throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrPublishedVersionType.Published);

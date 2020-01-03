@@ -6,6 +6,7 @@ import { Localize, Inject, Utils } from '@omnia/fx';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
 import { ProcessTypeStore, SettingsStore, ProcessService } from '../../../../fx';
+import { UnpublishProcessService } from '../../../services';
 
 interface UnpublishDialogProps {
     process: Process;
@@ -22,6 +23,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
     @Inject(SettingsStore) settingsStore: SettingsStore;
     @Inject(ProcessService) processService: ProcessService;
+    @Inject(UnpublishProcessService) unpublishProcessService: UnpublishProcessService;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
@@ -66,7 +68,10 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     }
 
     private unpublishProcess() {
-
+        this.isUnpublishing = true;
+        this.unpublishProcessService.unpublishProcess(this.process.opmProcessId.toString()).then((data) => {
+            this.unpublishDialogClose();
+        })
     }
 
     renderHeader(h) {
@@ -98,7 +103,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
                     disabled={this.isLoading || !this.allowToUnpublish}
                     color={this.omniaTheming.themes.primary.base}
                     loading={this.isUnpublishing}
-                    onClick={() => { this.unpublishProcess() }}>{this.loc.ProcessActions.UnpublishProcess}
+                    onClick={() => { this.unpublishProcess(); }}>{this.loc.ProcessActions.UnpublishProcess}
                 </v-btn>
                 <v-btn
                     disabled={this.isUnpublishing}

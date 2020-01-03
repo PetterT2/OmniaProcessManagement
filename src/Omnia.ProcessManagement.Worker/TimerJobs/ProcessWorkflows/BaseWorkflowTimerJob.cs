@@ -30,7 +30,8 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             [ProcessWorkingStatus.SendingForReview] = DateTimeOffset.UtcNow,
             [ProcessWorkingStatus.CancellingApproval] = DateTimeOffset.UtcNow,
             [ProcessWorkingStatus.CancellingReview] = DateTimeOffset.UtcNow,
-            [ProcessWorkingStatus.SyncingToSharePoint] = DateTimeOffset.UtcNow
+            [ProcessWorkingStatus.SyncingToSharePoint] = DateTimeOffset.UtcNow,
+            [ProcessWorkingStatus.Archiving] = DateTimeOffset.UtcNow
         };
 
         protected IServiceScopeFactory ServiceScopeFactory { get; }

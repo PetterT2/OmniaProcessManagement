@@ -240,6 +240,19 @@ export class ProcessService {
         })
     }    
 
+    public triggerArchive = (opmProcessId: GuidValue) => {
+        return new Promise<void>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<void>>('/api/processes/triggerarchive/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    resolve();
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     private generateClientSideData = (processes: Array<Process>) => {
         return this.omniaContext.user.then((user) => {
             let currentUserLoginName = user.loginName.toLowerCase();

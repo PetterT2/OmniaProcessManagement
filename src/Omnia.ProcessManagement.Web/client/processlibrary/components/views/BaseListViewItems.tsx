@@ -331,7 +331,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             status == ProcessWorkingStatus.CancellingApprovalFailed ||
             status == ProcessWorkingStatus.SendingForReviewFailed ||
             status == ProcessWorkingStatus.CancellingReviewFailed ||
-            status == ProcessWorkingStatus.SyncingToSharePointFailed) {
+            status == ProcessWorkingStatus.SyncingToSharePointFailed ||
+            status == ProcessWorkingStatus.ArchivingFailed) {
             return true;
         }
         else {

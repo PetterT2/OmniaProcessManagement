@@ -66,10 +66,10 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 w => w.ServerRelativeUrl,
                 w => w.Title);
             await ctx.ExecuteQueryAsync();
-            await EnsureArchiveListAsync(ctx);
+            await EnsureArchiveLibraryAsync(ctx);
         }
 
-        private async ValueTask EnsureArchiveListAsync(PortableClientContext clientContext)
+        private async ValueTask EnsureArchiveLibraryAsync(PortableClientContext clientContext)
         {
             string contentTypeGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ContentTypeGroupName, clientContext.Web.Language);
             string fieldGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.FieldGroupName, clientContext.Web.Language);
@@ -78,7 +78,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             EnsureContentTypes(context, contentTypeGroupName);
             context.EnsureList<OPMArchived>();
             await context.ExecuteAsync();
-            Logger.Log(LogLevel.Information, "Ensured Archived ContentTypes, List, Fields");
+            Logger.Log(LogLevel.Information, "Ensured Archived ContentTypes, Library, Fields");
         }
 
         private void EnsureFields(ISharePointEntityContext context, string fieldGroupName)
