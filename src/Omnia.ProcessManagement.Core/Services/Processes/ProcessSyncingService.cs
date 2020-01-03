@@ -98,25 +98,8 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var ctx = SharePointClientContextProvider.CreateClientContext(spUrl, true);
 
-            List<Microsoft.SharePoint.Client.User> limitedReadAccessUser = null;
-            Microsoft.SharePoint.Client.Group authorGroup = null;
-
             var (enterpriseProperties, cache) = await EnterprisePropertyService.GetAllAsync();
             var enterprisePropertyDict = enterpriseProperties.ToDictionary(e => e.InternalName, e => e);
-
-            if (process.SecurityResourceId == process.OPMProcessId)
-            {
-                limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
-
-                var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
-
-                if (siteGroupIdSettings == null)
-                    throw new Exception("Missing Process Author SharePoint group");
-
-                authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
-                if (authorGroup == null)
-                    throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
-            }
 
             var publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
 
@@ -133,8 +116,19 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var folder = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
 
-            if (limitedReadAccessUser != null)
+            if (process.SecurityResourceId == process.OPMProcessId)
             {
+                var limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
+
+                var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
+
+                if (siteGroupIdSettings == null)
+                    throw new Exception("Missing Process Author SharePoint group");
+
+                var authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
+                if (authorGroup == null)
+                    throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
+
                 Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
                 limitedReadAccessUser.ForEach(user => roleAssignments.Add(user, new List<RoleType> { RoleType.Reader }));
                 roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
@@ -389,7 +383,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 await ctx.ExecuteQueryAsync();
 
                 // Archive previos edition
-                if(existedFolder.Files.Count > 0)
+                if (existedFolder.Files.Count > 0)
                     await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
 
                 existedFolder.DeleteObject();
