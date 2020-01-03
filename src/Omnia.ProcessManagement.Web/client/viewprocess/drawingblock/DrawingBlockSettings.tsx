@@ -19,7 +19,8 @@ export class DrawingBlockSettingsComponent extends Vue implements IWebComponentI
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
     @Localize(DrawingBlockLocalization.namespace) private loc: DrawingBlockLocalization.locInterface;
- 
+    @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
+
     blockData: DrawingBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
   
@@ -62,17 +63,30 @@ export class DrawingBlockSettingsComponent extends Vue implements IWebComponentI
             )
         }
 
-        let dark = this.omniaTheming.promoted.body.dark;
         return (
-            <v-card dark={dark}>
-                <v-card-text>
-                    <omfx-multilingual-input
-                        label={this.loc.DrawingBlockSettings.Title}
-                        model={this.blockData.settings.title}
-                        onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
-                    </omfx-multilingual-input>
-                </v-card-text>
-            </v-card>
+            <v-container>
+                <v-row no-gutters>
+                    <v-col cols="12">
+                        <omfx-multilingual-input
+                            label={this.loc.DrawingBlockSettings.Title}
+                            model={this.blockData.settings.title}
+                            onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
+                        </omfx-multilingual-input>
+                    </v-col>
+                    <v-col cols="12">
+                        <div class="mb-1">
+                            {this.uxLoc.Common.Padding}
+                        </div>
+                        <omfx-spacing-picker
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.promoted.body.dark ? this.omniaTheming.promoted.body.text.base : this.omniaTheming.promoted.body.primary.base}
+                            individualSelection
+                            model={this.blockData.settings.spacing}
+                            onModelChange={(val) => { this.blockData.settings.spacing = val; this.updateSettings(); }}>
+                        </omfx-spacing-picker>
+                    </v-col>
+                </v-row>
+            </v-container>
         );
     }
 }

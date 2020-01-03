@@ -7,7 +7,6 @@ using Omnia.Fx.NetCore.Worker;
 using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -79,7 +78,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             return Task.CompletedTask;
         }
 
-        protected abstract ValueTask HandleAsync(IServiceScopeFactory serviceScopeFactory, Process process);
+        protected abstract ValueTask HandleAsync(IServiceScopeFactory serviceScopeFactory, Models.Processes.Process process);
 
         private async Task TimerRun()
         {

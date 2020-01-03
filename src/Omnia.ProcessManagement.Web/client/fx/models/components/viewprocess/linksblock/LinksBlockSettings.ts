@@ -1,6 +1,6 @@
 ﻿import { MultilingualString, SpacingSetting } from '@omnia/fx-models';
 
-export interface TasksBlockSettings {
+export interface LinksBlockSettings {
     title: MultilingualString;
     spacing?: SpacingSetting;
 }

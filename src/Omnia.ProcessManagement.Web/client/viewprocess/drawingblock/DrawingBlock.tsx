@@ -152,18 +152,18 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
     render(h) {
         return (
-            <div>
+            <aside>
                 {
                     !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
                         Utils.isNullOrEmpty(this.canvasDefinition) ?
                             <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.Blocks.Drawing.Title}></wcm-empty-block-view>
                             :
-                            <div>
+                            <div class={this.drawingClasses.blockPadding(this.blockData.settings.spacing)}>
                                 <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
                                 <div key={this.componentUniqueKey}>{this.renderDrawing(h)}</div>
                             </div>
                 }
-            </div>
+            </aside>
         );
     }
 }

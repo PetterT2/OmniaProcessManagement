@@ -94,6 +94,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockDataData.ts" />
@@ -242,6 +246,7 @@
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\models\styles\index.ts" />
+    <TypeScriptCompile Remove="client\models\styles\LinksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\PermissionDialogStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
@@ -383,6 +388,13 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\ITasksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.ts" />
@@ -461,6 +473,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\linksblock\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\tasksblock\index.ts">
@@ -722,6 +737,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\styles\LinksBlockStyles.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\content\index.ts">

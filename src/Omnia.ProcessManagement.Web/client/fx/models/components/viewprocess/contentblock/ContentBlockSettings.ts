@@ -2,4 +2,5 @@
 
 export interface ContentBlockSettings {
     title: MultilingualString;
+    spacing?: SpacingSetting;
 }

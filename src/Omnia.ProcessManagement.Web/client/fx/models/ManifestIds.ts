@@ -52,5 +52,9 @@ export class OPMWebComponentManifests {
     public static get TasksBlockCore(): Guid { return new Guid('3249afe7-e336-4197-8010-7ccaed401425'); }
     public static get TasksBlock(): Guid { return new Guid('47614dde-ea27-47e1-8cb5-29971d4f7516'); }
     public static get TasksBlockSettings(): Guid { return new Guid('3c40a1a1-4ee9-46ef-85cf-93aa11a3771a'); }
+
+    public static get LinksBlockCore(): Guid { return new Guid('b6392893-9c30-4223-a58f-3d216d96b3b8'); }
+    public static get LinksBlock(): Guid { return new Guid('7227e805-61f8-4ffc-9ed9-657a4ce21bb1'); }
+    public static get LinksBlockSettings(): Guid { return new Guid('8f058d05-1a9b-4ea1-a6cc-87fae540bd91'); }
 }
 

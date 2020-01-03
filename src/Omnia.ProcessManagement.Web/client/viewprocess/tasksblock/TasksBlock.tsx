@@ -62,7 +62,9 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
 
     initTasks(currentReferenceData: ProcessReferenceData) {
         if (currentReferenceData && currentReferenceData.current.processData.tasks) {
+            this.currentProcessStepId = currentReferenceData.current.processStep.id;
             this.tasks = currentReferenceData.current.processData.tasks;
+            this.tasks.forEach(t => t.multilingualTitle = this.multilingualStore.getters.stringValue(t.title));
         }
     }
 
@@ -76,8 +78,8 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
 
         return (
             <v-list-item>
-                <v-list-item-action>
-                    <v-icon>check</v-icon>
+                <v-list-item-action class="mr-2">
+                    <v-icon size='14'>check</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
                     <v-list-item-title class="pa-1">{ele.multilingualTitle}</v-list-item-title>
@@ -99,18 +101,18 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
 
     render(h) {
         return (
-            <div>
+            <aside>
                 {
                     !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
                         Utils.isArrayNullOrEmpty(this.tasks) ?
                             <wcm-empty-block-view dark={false} icon={"fa fa-tasks"} text={this.corLoc.Blocks.Tasks.Title}></wcm-empty-block-view>
                             :
-                            <div>
+                            <div class={this.tasksClasses.blockPadding(this.blockData.settings.spacing)}>
                                 <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
                                 <div key={this.componentUniqueKey}>{this.renderTasks(h)}</div>
                             </div>
                 }
-            </div>
+            </aside>
         );
     }
 }
