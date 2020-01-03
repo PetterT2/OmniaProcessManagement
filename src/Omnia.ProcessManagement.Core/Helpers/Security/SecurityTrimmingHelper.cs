@@ -1,4 +1,6 @@
-﻿using Omnia.ProcessManagement.Core.Entities.Processes;
+﻿using Omnia.Fx.Contexts;
+using Omnia.ProcessManagement.Core.Entities.Processes;
+using Omnia.ProcessManagement.Core.Repositories;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Security;
 using System;
@@ -11,6 +13,11 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     public class SecurityTrimmingHelper
     {
         public readonly static string ProcessTableAlias = "P";
+        public readonly static string ProcessTableName = nameof(OmniaPMDbContext.Processes);
+
+        public readonly static string ImageTableAlias = "I";
+        public readonly static string ImageTableName = nameof(OmniaPMDbContext.Images);
+
         public static List<Guid> Roles()
         {
             return new List<Guid>()
@@ -22,17 +29,92 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             };
         }
 
-        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, Guid opmProcessId, IOmniaContext omniaContext)
         {
             var securityTrimming = "";
-            var versionTrimming = $" AND {ProcessTableAlias}.[{nameof(Process.VersionType)}] = {(int)versionType}";
 
-            var connectPart = "";
-            var limitedOPMProcessIdTrimming = "";
-            var limitedTeamAppIdTrimming = "";
 
             if (resources != null)
             {
+                var draftVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.Draft)}";
+                var publishedVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.Published)}";
+                var checkedOutVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)}";
+                var notCheckedOutVersionTrimming = $" AND  {ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
+
+
+                var connectPart = "";
+
+                var authorTeamAppIds = resources.AuthorTeamAppIds.Distinct().ToList();
+
+                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
+                var approverOPMProcessIds = TrimByLimitedIds(resources.ApproverOPMProcessIds, new List<Guid> { opmProcessId });
+                var reviewerOPMProcessIds = TrimByLimitedIds(resources.ReviewerOPMProcessIds, new List<Guid> { opmProcessId });
+
+                var approverAndReviewerOPMProcessIds = new List<Guid>();
+                approverAndReviewerOPMProcessIds.AddRange(approverOPMProcessIds);
+                approverAndReviewerOPMProcessIds.AddRange(reviewerOPMProcessIds);
+                approverAndReviewerOPMProcessIds = approverAndReviewerOPMProcessIds.Distinct().ToList();
+
+
+                var opmProcessIdTrimming = $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId })}";
+
+                if (authorTeamAppIds.Any())
+                {
+                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
+                    var authorTrimmingCombineWithNotCheckedOutVersion = $"({authorTrimming} AND {notCheckedOutVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithNotCheckedOutVersion }";
+                    connectPart = " OR ";
+                }
+                if (authorTeamAppIds.Any())
+                {
+                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
+                    var authorTrimmingCombineWithCheckedOutVersion = $"({authorTrimming} AND {checkedOutVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithCheckedOutVersion}";
+                    connectPart = " OR ";
+                }
+                if (approverAndReviewerOPMProcessIds.Any())
+                {
+                    var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
+                    var approverAndReviewerTrimmingCombineWithDraftVersion = $"({approverAndReviewerTrimming} AND {draftVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimmingCombineWithDraftVersion}";
+                    connectPart = " OR ";
+                }
+                if (reviewerOPMProcessIds.Any())
+                {
+                    var reviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
+                    var reviewerTrimmingCombineWithCheckedOutVersion = $"({reviewerTrimming} AND {checkedOutVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{reviewerTrimmingCombineWithCheckedOutVersion}";
+                    connectPart = " OR ";
+                }
+                if (readerSecurityResourceIds.Any())
+                {
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds)}";
+                    var readerTrimmingCombineWithPublishedVersion = $"({readerTrimming} AND {publishedVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimmingCombineWithPublishedVersion}";
+                    connectPart = " OR ";
+                }
+
+                if (securityTrimming != "")
+                {
+                    securityTrimming = $"({securityTrimming}){opmProcessIdTrimming}";
+                }
+            }
+
+            return securityTrimming;
+        }
+
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds, List<Guid> limitedOPMProcessIds)
+        {
+            var securityTrimming = "";
+
+            if (resources != null)
+            {
+                var versionTrimming = $" AND {GenerateVersionTrimming((int)versionType)}";
+
+                var connectPart = "";
+                var limitedOPMProcessIdTrimming = "";
+                var limitedTeamAppIdTrimming = "";
+
                 var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
                 var authorTeamAppIds = TrimByLimitedIds(resources.AuthorTeamAppIds, limitedTeamAppIds);
                 var approverAndReviewerOPMProcessIds = new List<Guid>();
@@ -62,9 +144,9 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     connectPart = " OR ";
 
                 }
-                if (resources.ReaderSecurityResourceIds.Any() && versionType == DraftOrPublishedVersionType.Published)
+                if (readerSecurityResourceIds.Any() && versionType == DraftOrPublishedVersionType.Published)
                 {
-                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(resources.ReaderSecurityResourceIds)}";
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds)}";
                     securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
                     connectPart = " OR ";
                 }
@@ -76,6 +158,16 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             }
 
             return securityTrimming;
+        }
+
+        private static string GenerateCheckedOutByTrimming(string loginName)
+        {
+            return $"{ProcessTableAlias}.[{nameof(Process.CheckedOutBy)}] = '{loginName}'";
+        }
+
+        private static string GenerateVersionTrimming(params int[] processVersionTypes)
+        {
+            return $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] IN ({string.Join(", ", processVersionTypes)})";
         }
 
         private static List<Guid> TrimByLimitedIds(List<Guid> ids, List<Guid> limitedIds)

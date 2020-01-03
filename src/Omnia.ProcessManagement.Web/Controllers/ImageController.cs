@@ -43,17 +43,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
-                return await securityResponse
-                    .RequireAuthor(ProcessVersionType.CheckedOut)
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut)
-                    .DoAsync(async () =>
-                    {
-                        var imageRef = await ImageService.AddImageAsync(processId, fileName, imageBase64);
-                        var imageUrl = "";
+                var imageRef = await ImageService.AddAuthroziedImageAsync(processId, fileName, imageBase64);
+                var imageUrl = $"https://{Request.Host.Value}/api/images/{imageRef.OPMProcessId}/{imageRef.Hash}/{imageRef.FileName}";
 
-                        return imageUrl.AsApiResponse();
-                    });
+                return imageUrl.AsApiResponse();
             }
             catch (Exception ex)
             {
@@ -62,29 +55,28 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("{opmProcessId:guid}/{versionType:int}/{fileName}/{hash}")]
+        [HttpGet, Route("{opmProcessId:guid}/{hash}/{fileName}")]
         [Authorize]
-        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, ProcessVersionType versionType, string fileName, string hash)
+        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, string fileName, string hash)
         {
             try
             {
                 var imageRef = new ImageRef()
                 {
                     FileName = fileName,
-                    Hash = hash
+                    Hash = hash,
+                    OPMProcessId = opmProcessId
                 };
 
-                var bytes = await ImageService.GetAuthroziedImageAsync(opmProcessId, versionType, imageRef);
+                var fileStream = await ImageService.GetAuthroziedImageAsync(imageRef);
 
-                //For published version, we can cache the value like forever
-                //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {
                     Public = true,
-                    MaxAge = versionType == ProcessVersionType.Published || versionType == ProcessVersionType.Archived ? TimeSpan.FromDays(365) : TimeSpan.FromDays(1)
+                    MaxAge = TimeSpan.FromDays(365)
                 };
 
-                return File(bytes, GetFileContentType(fileName), fileName);
+                return File(fileStream, GetFileContentType(fileName), fileName);
             }
             catch (Exception ex)
             {

@@ -63,7 +63,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .DoAsync(async (teamAppId) =>
+                    .DoAsync(async (teamAppId, _) =>
                     {
                         await PublishProcessService.PublishProcessAsync(teamAppId, request);
                         return ApiUtils.CreateSuccessResponse();
@@ -152,7 +152,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireApprover()
-                    .DoAsync(async (teamAppId) =>
+                    .DoAsync(async (teamAppId, _) =>
                     {
                         //var dbWorkflow = await WorkflowService.GetAsync(approvalTask.WorkflowId);
                         var dbWorkflowTask = await WorkflowTaskService.GetAsync(approvalTask.SPTaskId, teamAppId, false);

@@ -8,6 +8,7 @@ using Omnia.Fx.Models.Users;
 using Omnia.Fx.Security;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.SharePoint.Services.Principal;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
@@ -15,6 +16,7 @@ using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
+using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.Security;
 using Omnia.ProcessManagement.Models.Settings;
@@ -58,6 +60,20 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             PrincipalService = principalService;
             SettingsService = settingsService;
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
+        }
+
+        public async ValueTask<AuthorizedProcessQuery> InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType versionType)
+        {
+            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
+            var authorizedProcessQuery = new AuthorizedProcessQuery(versionType, authorizedResource);
+            return authorizedProcessQuery;
+        }
+
+        public async ValueTask<AuthorizedImageQuery> InitAuthorizedImageQueryAsync(ImageRef imageRef, bool loadContent)
+        {
+            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
+            var authorizedProcessQuery = new AuthorizedImageQuery(authorizedResource, imageRef, OmniaContext, loadContent);
+            return authorizedProcessQuery;
         }
 
         public IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)

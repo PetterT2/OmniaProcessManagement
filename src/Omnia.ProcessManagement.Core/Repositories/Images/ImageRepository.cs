@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Helpers.ImageHerlpers;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Images;
 using System;
@@ -18,7 +19,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             DBContext = databaseContext;
         }
 
-        public async ValueTask<ImageRef> AddImageAsync(Guid processId, string fileName, string imageBase64)
+        public async ValueTask<ImageRef> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes)
         {
             fileName = ImageHelper.GetValidFileName(fileName);
 
@@ -26,7 +27,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             var fileExtension = Path.GetExtension(fileName);
 
             var similarFileNames = await DBContext.Images
-                .Where(i => i.ProcessId == processId && i.FileName.StartsWith(fileNameWithoutExtension))
+                .Where(i => i.ProcessId == internalProcess.Id && i.FileName.StartsWith(fileNameWithoutExtension))
                 .Select(i => i.FileName)
                 .ToListAsync();
             var similarFileNamesHashset = similarFileNames.Select(f => f.ToLower()).ToHashSet();
@@ -40,12 +41,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             }
 
             //var hash = CommonUtils.CreateMd5Hash(imageBase64);
-            //We create the hash from a new guid. So even upload a same image two times will have the different hash
+            //Instead of creating hash base on the image cotent, we create the hash from a new guid. So even upload a same image two times will have the different hash
+
             var hash = CommonUtils.CreateMd5Hash(Guid.NewGuid().ToString());
             var image = new Entities.Images.Image()
             {
-                ProcessId = processId,
-                Content = Convert.FromBase64String(imageBase64),
+                ProcessId = internalProcess.Id,
+                Content = bytes,
                 FileName = fileName,
                 Hash = hash
             };
@@ -56,23 +58,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             var imageRef = new ImageRef()
             {
                 FileName = fileName,
-                Hash = hash
+                Hash = hash,
+                OPMProcessId = internalProcess.OPMProcessId
             };
 
             return imageRef;
         }
 
-        public async ValueTask<byte[]> GetImageAsync(Guid opmProcessId, ImageRef imageRef)
+        public async ValueTask<(ImageRef, byte[])> GetImageAsync(AuthorizedImageQuery authorizedImageQuery)
         {
-            var image = await DBContext.Images.Where(i => i.FileName == imageRef.FileName && i.Hash == imageRef.Hash && i.Process.OPMProcessId == opmProcessId)
-                .FirstOrDefaultAsync();
-
+            var sql = authorizedImageQuery.GetQuery();
+            var image = await DBContext.Images.FromSqlRaw(sql).FirstOrDefaultAsync();
+            ImageRef imageRef = null;
+            byte[] bytes = null;
             if (image == null)
             {
-                throw new Exception("Image not found");
+                imageRef = authorizedImageQuery.ImageRef;
+                bytes = image.Content;
             }
 
-            return image.Content;
+            return (imageRef, bytes);
         }
     }
 }

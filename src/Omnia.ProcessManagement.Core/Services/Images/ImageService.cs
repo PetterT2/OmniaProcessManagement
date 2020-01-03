@@ -25,51 +25,48 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             ProcessSecurityService = processSecurityService;
         }
 
-        public async ValueTask<ImageRef> AddImageAsync(Guid processId, string fileName, string imageBase64)
+        public async ValueTask<ImageRef> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64)
         {
-            var imageRef = await ImageRepository.AddImageAsync(processId, fileName, imageBase64);
-            return imageRef;
-        }
-
-        public async ValueTask<byte[]> GetAuthroziedImageAsync(Guid opmProcessId, ProcessVersionType versionType, ImageRef imageRef)
-        {
-            ImageHelper.ValidateImageRef(imageRef);
-
-            var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, versionType);
+            var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
             return await securityResponse
-                .RequireAuthor()
-                .OrRequireApprover(ProcessVersionType.Draft)
-                .OrRequireReviewer(ProcessVersionType.Draft, ProcessVersionType.CheckedOut)
-                .OrRequireReader(ProcessVersionType.Published)
-                .DoAsync(async (_, process) =>
+                .RequireAuthor(ProcessVersionType.CheckedOut)
+                .OrRequireReviewer(ProcessVersionType.CheckedOut)
+                .DoAsync(async (process) =>
                 {
-                    var bytes = await EnsureTempImageAsync(process, imageRef);
-                    return bytes;
+                    var bytes = Convert.FromBase64String(imageBase64);
+                    var imageRef = await ImageRepository.AddImageAsync(process, fileName, bytes);
+
+                    var tempFolderPath = EnsureTempFolderPath(imageRef);
+                    var tempFileName = imageRef.FileName;
+                    var tempFilePath = Path.Combine(tempFolderPath, tempFileName);
+
+                    await File.WriteAllBytesAsync(tempFilePath, bytes);
+
+                    return imageRef;
                 });
         }
 
-
-        private async ValueTask<byte[]> EnsureTempImageAsync(InternalProcess internalProcess, ImageRef imageRef)
+        public async ValueTask<FileStream> GetAuthroziedImageAsync(ImageRef imageRef)
         {
-            var tempFolderPath = Path.Combine(System.IO.Path.GetTempPath(), OPMConstants.ImageTempFolder, internalProcess.OPMProcessId.ToString("N"));
-            var tempFileName = GenerateTempFileName(imageRef);
+            var tempFolderPath = EnsureTempFolderPath(imageRef);
+            var tempFileName = imageRef.FileName;
+            var tempFilePath = Path.Combine(tempFolderPath, tempFileName);
 
-            var teampFilePath = Path.Combine(tempFolderPath, tempFileName);
-
-            Directory.CreateDirectory(tempFolderPath);
-
-            byte[] bytes = null;
-            if (!File.Exists(teampFilePath))
+            if (!File.Exists(tempFilePath))
             {
 
                 var semaphoreSlim = EnsureSemaphoreSlim(tempFileName);
                 try
                 {
                     await semaphoreSlim.WaitAsync();
-                    if (!File.Exists(teampFilePath))
+                    if (!File.Exists(tempFilePath))
                     {
-                        bytes = await ImageRepository.GetImageAsync(internalProcess.OPMProcessId, imageRef);
-                        await File.WriteAllBytesAsync(teampFilePath, bytes);
+                        var bytes = await GetAuthorizedImageAsync(imageRef, true);
+                        await File.WriteAllBytesAsync(tempFilePath, bytes);
+                    }
+                    else
+                    {
+                        await GetAuthorizedImageAsync(imageRef, false);
                     }
                 }
                 finally
@@ -77,18 +74,30 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                     semaphoreSlim.Release();
                 }
             }
-
-            if (bytes == null)
+            else
             {
-                bytes = File.ReadAllBytes(teampFilePath);
+                await GetAuthorizedImageAsync(imageRef, false);
             }
 
-            return bytes;
+            return File.OpenRead(tempFilePath);
         }
 
-        private string GenerateTempFileName(ImageRef imageRef)
+        private string EnsureTempFolderPath(ImageRef imageRef)
         {
-            return $"{imageRef.Hash}_{imageRef.FileName}".ToLower();
+            var path = Path.Combine(System.IO.Path.GetTempPath(), OPMConstants.ImageTempFolder, imageRef.OPMProcessId.ToString("N"), imageRef.Hash);
+            Directory.CreateDirectory(path);
+
+            return path;
+        }
+
+        private async ValueTask<byte[]> GetAuthorizedImageAsync(ImageRef imageRef, bool loadContent)
+        {
+            var authorizedImageQuery = await ProcessSecurityService.InitAuthorizedImageQueryAsync(imageRef, loadContent);
+            var (authorizedImageRef, bytes) = await ImageRepository.GetImageAsync(authorizedImageQuery);
+            if (authorizedImageRef == null)
+                throw new FileNotFoundException("Unauthorized or Image not found");
+
+            return bytes;
         }
 
         private SemaphoreSlim EnsureSemaphoreSlim(string key)

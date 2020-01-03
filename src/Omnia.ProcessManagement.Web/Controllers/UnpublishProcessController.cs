@@ -21,9 +21,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         IProcessSecurityService ProcessSecurityService { get; }
         IUnpublishProcessService UnpublishProcessService { get; }
 
-        public UnpublishProcessController(ILogger<ProcessController> logger, 
+        public UnpublishProcessController(ILogger<ProcessController> logger,
             IProcessSecurityService processSecurityService,
-            IUnpublishProcessService unpublishProcessService) 
+            IUnpublishProcessService unpublishProcessService)
         {
             Logger = logger;
             ProcessSecurityService = processSecurityService;
@@ -40,7 +40,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .DoAsync(async (teamAppId) =>
+                    .DoAsync(async () =>
                     {
                         await UnpublishProcessService.UnpublishProcessAsync(opmProcessId);
                         return ApiUtils.CreateSuccessResponse();

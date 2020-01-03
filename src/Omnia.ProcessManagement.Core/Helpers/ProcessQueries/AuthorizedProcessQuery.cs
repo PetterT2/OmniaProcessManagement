@@ -12,7 +12,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
     public class AuthorizedProcessQuery
     {
-        private static readonly string ProcessTableName = nameof(OmniaPMDbContext.Processes);
         private List<Guid> LimitedTeamAppIds = new List<Guid>();
         private List<Guid> LimitedOPMProcessIds = new List<Guid>();
         private DraftOrPublishedVersionType VersionType { get; }
@@ -46,9 +45,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 
             var query = new StringBuilder();
             var alias = SecurityTrimmingHelper.ProcessTableAlias;
+            var tableName = SecurityTrimmingHelper.ProcessTableName;
             var nameStr = string.Join(", ", SelectColumns.Select(column => $"{alias}.[{column}]"));
 
-            query.Append($"SELECT {nameStr} FROM [{ProcessTableName}] as {alias} ");
+            query.Append($"SELECT {nameStr} FROM [{tableName}] as {alias} ");
             query.Append($"WHERE {securityTrimming}");
             return query.ToString(); ;
         }

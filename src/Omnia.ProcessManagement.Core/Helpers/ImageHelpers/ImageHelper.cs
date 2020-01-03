@@ -21,7 +21,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
 
         public static void ValidateImageRef(ImageRef imageRef)
         {
-            var fileName = imageRef.GetTempFileName();
+            var fileName = imageRef.FileName;
             var validFileName = GetValidFileName(fileName);
             if (validFileName != fileName)
                 throw new Exception($"Invalid ImageRef: {JsonConvert.SerializeObject(imageRef)}");

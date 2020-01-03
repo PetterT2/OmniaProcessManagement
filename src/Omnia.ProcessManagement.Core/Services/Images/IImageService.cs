@@ -1,13 +1,14 @@
 ﻿using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Images;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Services.Images
 {
     public interface IImageService
     {
-        ValueTask<ImageRef> AddImageAsync(Guid processId, string fileName, string imageBase64);
-        ValueTask<byte[]> GetAuthroziedImageAsync(Guid opmProcessId, ProcessVersionType versionType, ImageRef imageRef);
+        ValueTask<ImageRef> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64);
+        ValueTask<FileStream> GetAuthroziedImageAsync(ImageRef imageRef);
     }
 }

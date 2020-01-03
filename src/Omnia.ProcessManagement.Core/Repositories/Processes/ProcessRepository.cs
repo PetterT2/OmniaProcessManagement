@@ -755,7 +755,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
 
             if (versionType == ProcessVersionType.Archived)
-                throw new Exception("This function is not supported to get published version");
+                throw new Exception("This function is not supported to get archived version");
 
             var internalProcess = await DbContext.Processes
                .Where(p => p.VersionType == versionType && p.OPMProcessId == opmProcessId)

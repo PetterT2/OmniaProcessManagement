@@ -222,8 +222,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Draft, authorizedResource);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Draft);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -243,8 +242,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Published, authorizedResource);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Published);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -316,8 +314,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Draft, authorizedResource);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Draft);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
@@ -335,8 +332,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
-                var authorizedProcessQuery = new AuthorizedProcessQuery(DraftOrPublishedVersionType.Published, authorizedResource);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Published);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();

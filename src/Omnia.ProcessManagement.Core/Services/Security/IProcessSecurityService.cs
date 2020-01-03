@@ -1,7 +1,10 @@
 ﻿using Omnia.Fx.Models.Users;
 using Omnia.Fx.SharePoint.Client.Core;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Helpers.Security;
+using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.Security;
 using System;
@@ -13,12 +16,14 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 {
     public interface IProcessSecurityService
     {
+        ValueTask<AuthorizedProcessQuery> InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType versionType);
+        ValueTask<AuthorizedImageQuery> InitAuthorizedImageQueryAsync(ImageRef imageRef, bool loadContent);
+
         IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
-
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
         ValueTask<List<Microsoft.SharePoint.Client.User>> EnsureProcessLimitedReadAccessSharePointUsersAsync(PortableClientContext ctx, Guid opmProcessId);
 
