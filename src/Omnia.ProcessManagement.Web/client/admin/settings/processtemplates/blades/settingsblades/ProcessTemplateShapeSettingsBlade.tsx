@@ -78,8 +78,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     width: canvasWidth,
                     height: 230,
                     drawingShapes: []
-                });
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false);
+                },false);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
             }
         }, 500)
     }
@@ -97,10 +97,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 height: 230,
                 drawingShapes: []
             });
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, false, 0, 0);
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, 0, 0);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, false);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null);
         }
     }
 

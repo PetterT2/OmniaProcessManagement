@@ -94,9 +94,14 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\contentblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
@@ -228,6 +233,7 @@
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
@@ -372,6 +378,13 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\IDrawingBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\drawingblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.tsx" />
@@ -436,6 +449,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\drawingblock\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\contentblock\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\index.ts">

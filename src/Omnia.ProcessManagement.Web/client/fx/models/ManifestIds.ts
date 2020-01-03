@@ -45,5 +45,8 @@ export class OPMWebComponentManifests {
     public static get ContentBlock(): Guid { return new Guid('dbb39473-aea9-445d-a032-701bda353439'); }
     public static get ContentBlockSettings(): Guid { return new Guid('ba9c1472-bcf7-4925-8cc8-900993b43caa'); }
 
+    public static get DrawingBlockCore(): Guid { return new Guid('5eab070f-f79f-4d10-aef2-c6feb3c8282a'); }
+    public static get DrawingBlock(): Guid { return new Guid('7f8445de-8499-4e4e-80d6-8e3c852af367'); }
+    public static get DrawingBlockSettings(): Guid { return new Guid('c1dacea1-10f7-4543-b01b-cb85525ef3a2'); }
 }
 

@@ -1,6 +1,6 @@
 ﻿import { ShapeTemplate } from './models/data/drawingdefinitions';
 
-export const TextSpacingWithShape = 8;
+export const TextSpacingWithShape = 5;
 
 export const ShapeTemplatesConstants = {    
     get Circle(): ShapeTemplate {

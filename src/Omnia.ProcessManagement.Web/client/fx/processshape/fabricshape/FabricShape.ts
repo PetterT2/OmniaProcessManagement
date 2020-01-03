@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import { DrawingShapeDefinition } from '../../models';
 
 export declare abstract class FabricShape implements IFabricShape {
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; });
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
     abstract scalePointsToDefinition(scaleX: number, scaleY: number);

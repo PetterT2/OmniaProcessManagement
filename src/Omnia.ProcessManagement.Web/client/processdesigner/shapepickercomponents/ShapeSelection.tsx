@@ -264,7 +264,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             definitionToDraw.height = shapeIconHeight;
             definitionToDraw.fontSize = fontSize;
 
-            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, false, 0, 0);
+            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, 0, 0);
         }
     }
 

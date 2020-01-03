@@ -10,20 +10,20 @@ import { DrawingShapeDefinition } from '../../models';
 export class FabricTextShape extends FabricShapeExtension implements FabricShape {
     private multilingualStore: MultilingualStore;
 
-    constructor(definition: DrawingShapeDefinition, isActive: boolean, properties?: { [k: string]: any; }, title?: MultilingualString | string) {
-        super(definition, isActive, properties);
+    constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }, title?: MultilingualString | string) {
+        super(definition, properties);
         this.multilingualStore = ServiceContainer.createInstance(MultilingualStore);
-        this.initTextProperties(definition, isActive, title);
+        this.initTextProperties(definition, title);
     }
 
-    private initTextProperties(definition: DrawingShapeDefinition, isActive: boolean, title?: MultilingualString | string) {
+    private initTextProperties(definition: DrawingShapeDefinition, title?: MultilingualString | string) {
         if (definition) {
             this.properties["fontSize"] = definition.fontSize;
-            this.properties["fill"] = isActive ? definition.activeTextColor : definition.textColor;
+            this.properties["fill"] = definition.textColor;
             this.properties["textAlign"] = 'center';
             this.properties["fontFamily"] = 'Roboto,Arial,sans-serif';
             this.properties["fontWeight"] = 'normal';
-            this.properties['stroke'] = 0;
+            this.properties['strokeWidth'] = 0;
         }
         this.properties["hoverCursor"] = "default";
         let text = "Sample Text";

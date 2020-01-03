@@ -90,6 +90,10 @@
                 Title: string,
                 Description: string
             },
+            Drawing: {
+                Title: string,
+                Description: string
+            },
             ViewProcess: {
                 Title: string
             }

@@ -15,21 +15,35 @@ export class ShapeExtension implements Shape {
     protected fabricObjects: fabric.Object[] = [];
     protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
     protected originPos: { x: number, y: number } = { x: 0, y: 0 };
+    private allowSetHover: boolean = false;
+    private isHovering: boolean = false;
+    private isSelected: boolean = false;
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], isActive?: boolean, title?: MultilingualString | string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number) {
         this.left = left;
         this.top = top;
+        definition.width = definition.width ? parseFloat(definition.width.toString()) : 0;
+        definition.height = definition.height ? parseFloat(definition.height.toString()) : 0;
+        definition.fontSize = definition.fontSize ? parseFloat(definition.fontSize.toString()) : 0;
         this.definition = definition;
         this.nodes = nodes;
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
-        this.initNodes(isActive || false, title, selectable, left, top);
+        this.initNodes(title, selectable, left, top);
     }
 
     get name() {
         return "";
+    }
+
+    setAllowHover(allowSetHover: boolean) {
+        this.allowSetHover = allowSetHover;
+    }
+
+    isHover() {
+        return this.isHovering;
     }
 
     ready(): Promise<boolean> {
@@ -38,7 +52,7 @@ export class ShapeExtension implements Shape {
         })
     }
 
-    protected initNodes(isActive: boolean, title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
+    protected initNodes(title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
     get shapeObject(): fabric.Object[] {
@@ -99,6 +113,26 @@ export class ShapeExtension implements Shape {
         return isText ? { left: tleft, top: ttop } : { left: polygonleft, top: polygontop };
     }
 
+    setSelectedShape(isSelected: boolean) {
+        this.isSelected = isSelected;
+        this.setHover(this.fabricObjects, false);
+    }
+
+    private setHover(objects: fabric.Object[], isActive: boolean) {
+        this.isHovering = isActive;
+        objects.forEach((object) => {
+            if (object.type == 'text')
+                object.set({
+                    fill: isActive || this.isSelected ? this.definition.activeTextColor : this.definition.textColor
+                });
+            else
+                object.set({
+                    fill: isActive || this.isSelected ? this.definition.activeBackgroundColor : this.definition.backgroundColor,
+                    stroke: isActive || this.isSelected ? this.definition.activeBorderColor : this.definition.borderColor
+                });
+        });
+    }
+
     addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
         if (this.fabricObjects.length < 2 || this.fabricObjects.findIndex(f => f == null) > -1)
             return;
@@ -139,9 +173,34 @@ export class ShapeExtension implements Shape {
             },
             "scaled": (e) => {
                 this.finishScaled(e.target);
+            },
+            "mouseover": (e) => {
+                if (this.allowSetHover) {
+                    this.setHover(this.fabricObjects, true);
+                    canvas.renderAll();
+                }
+            },
+            "mouseout": (e) => {
+                if (this.allowSetHover) {
+                    this.setHover(this.fabricObjects, false);
+                    canvas.renderAll();
+                }
             }
         })
-
+        this.fabricObjects[1].on({
+            "mouseover": (e) => {
+                if (this.allowSetHover) {
+                    this.setHover(this.fabricObjects, true);
+                    canvas.renderAll();
+                }
+            },
+            "mouseout": (e) => {
+                if (this.allowSetHover) {
+                    this.setHover(this.fabricObjects, false);
+                    canvas.renderAll();
+                }
+            }
+        })
     }
 
 }
