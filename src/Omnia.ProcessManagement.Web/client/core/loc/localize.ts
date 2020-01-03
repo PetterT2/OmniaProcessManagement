@@ -96,6 +96,10 @@
             },
             ViewProcess: {
                 Title: string
+            },
+            Tasks: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {

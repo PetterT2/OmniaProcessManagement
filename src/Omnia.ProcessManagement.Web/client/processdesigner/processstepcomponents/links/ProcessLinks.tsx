@@ -159,6 +159,9 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
                         : this.orderLinks.map((link) => {
                             return (
                                 <v-list-item class={!this.isDragging && "notdragging"} >
+                                    <v-list-item-action class="mr-2">
+                                        <v-icon size='14'>fal fa-link</v-icon>
+                                    </v-list-item-action>
                                     <v-list-item-content>
                                         <v-list-item-title color={this.omniaTheming.promoted.body.onComponent.base}>{link.multilingualTitle}</v-list-item-title>
                                     </v-list-item-content>

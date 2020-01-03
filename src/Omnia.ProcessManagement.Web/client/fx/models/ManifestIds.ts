@@ -48,5 +48,9 @@ export class OPMWebComponentManifests {
     public static get DrawingBlockCore(): Guid { return new Guid('5eab070f-f79f-4d10-aef2-c6feb3c8282a'); }
     public static get DrawingBlock(): Guid { return new Guid('7f8445de-8499-4e4e-80d6-8e3c852af367'); }
     public static get DrawingBlockSettings(): Guid { return new Guid('c1dacea1-10f7-4543-b01b-cb85525ef3a2'); }
+
+    public static get TasksBlockCore(): Guid { return new Guid('3249afe7-e336-4197-8010-7ccaed401425'); }
+    public static get TasksBlock(): Guid { return new Guid('47614dde-ea27-47e1-8cb5-29971d4f7516'); }
+    public static get TasksBlockSettings(): Guid { return new Guid('3c40a1a1-4ee9-46ef-85cf-93aa11a3771a'); }
 }
 

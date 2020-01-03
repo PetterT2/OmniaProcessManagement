@@ -19,7 +19,7 @@ Composer
     .withDefinition({
         title: "$Localize:OPM.Core.Blocks.Drawing.Title;",
         description: "$Localize:OPM.Core.Blocks.Drawing.Description;",
-        icon: new FontAwesomeIcon("fa fa-font")
+        icon: new FontAwesomeIcon("fa fa-image")
     })
     .registerOmniaBlock({
         category: "$Localize:OPM.Core.Blocks.ViewProcess.Title;"
