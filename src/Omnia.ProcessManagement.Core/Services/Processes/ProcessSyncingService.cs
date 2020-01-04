@@ -20,6 +20,7 @@ using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
+using Omnia.ProcessManagement.Core.Services.Images;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
@@ -48,6 +49,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ISettingsService SettingsService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
         IUnpublishProcessService UnpublishProcessService { get; }
+        IImageService ImageService { get; }
 
         public ProcessSyncingService(IProcessService processService, ITransactionRepository transactionRepository,
             ITeamCollaborationAppsService teamCollaborationAppsService, ISharePointClientContextProvider sharePointClientContextProvider,
@@ -55,7 +57,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ISharePointEntityProvider sharePointEntityProvider, ILocalizationProvider localizationProvider,
             IMultilingualHelper multilingualHelper, ISharePointPermissionService sharePointPermissionService,
             IProcessSecurityService processSecurityService, ISettingsService settingsService,
-            ISharePointGroupService sharePointGroupService,
+            ISharePointGroupService sharePointGroupService, IImageService imageService,
             IUnpublishProcessService unpublishProcessService)
         {
             ProcessService = processService;
@@ -71,6 +73,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ProcessSecurityService = processSecurityService;
             SettingsService = settingsService;
             SharePointGroupService = sharePointGroupService;
+            ImageService = imageService;
             UnpublishProcessService = unpublishProcessService;
         }
 
@@ -80,19 +83,22 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             {
                 await ProcessService.UpdatePublishedProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None);
                 var processDataDict = await ProcessService.GetAllProcessDataAsync(process.Id);
+                var imageReferences = await ImageService.GetImageReferencesAsync(process.Id);
+
                 var spUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
 
-                var processActionModel = new ProcessActionModel()
+                var processActionModel = new ProcessWithImagesActionModel()
                 {
                     Process = process,
-                    ProcessData = processDataDict
+                    ProcessData = processDataDict,
+                    ImageReferences = imageReferences
                 };
 
                 await SyncToSharePointAsync(spUrl, processActionModel);
             });
         }
 
-        private async ValueTask SyncToSharePointAsync(string spUrl, ProcessActionModel processActionModel)
+        private async ValueTask SyncToSharePointAsync(string spUrl, ProcessWithImagesActionModel processActionModel)
         {
             var process = processActionModel.Process;
 
@@ -137,13 +143,19 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             }
         }
 
-        private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var process = processActionModel.Process;
 
             var opmProcessIdFolder = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
-            var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
 
+            //Sync the images
+            var imageFolder = await SharePointListService.EnsureChildFolderAsync(ctx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images);
+            await SyncProcessImagesAsync(ctx, imageFolder, processActionModel);
+
+            //Sync the process
+            //var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
+            var fileName = "process";
             FileCreationInformation newFile = new FileCreationInformation();
             newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); ;
             newFile.Overwrite = true;
@@ -153,12 +165,28 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ctx.ExecuteQueryAsync();
 
             await UpdateProcessFileItemAsync(ctx, publishedList, addedFile.ListItemAllFields, processActionModel, enterprisePropertyDict);
-            await ctx.ExecuteQueryAsync();
 
             return opmProcessIdFolder;
         }
 
-        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask SyncProcessImagesAsync(PortableClientContext ctx, Folder imageFolder, ProcessWithImagesActionModel processActionModel)
+        {
+            if (processActionModel.ImageReferences.Any())
+            {
+                foreach (var imageReference in processActionModel.ImageReferences)
+                {
+                    var fileName = imageReference.FileName;
+                    FileCreationInformation newFile = new FileCreationInformation();
+                    newFile.Url = String.Format("{0}/{1}", imageFolder.ServerRelativeUrl, fileName);
+                    newFile.Overwrite = true;
+                    newFile.ContentStream = await ImageService.GetImageAsync(imageReference, false);
+                    imageFolder.Files.Add(newFile);
+                }
+                await ctx.ExecuteQueryAsync();
+            }
+        }
+
+        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var process = processActionModel.Process;
 
@@ -399,7 +427,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             }
 
             var newFolder = await SharePointListService.EnsureChildFolderAsync(ctx, publishedList.RootFolder, folderName, true);
-
             return newFolder;
         }
 

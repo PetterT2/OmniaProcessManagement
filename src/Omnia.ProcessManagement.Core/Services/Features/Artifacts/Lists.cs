@@ -36,7 +36,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     [SPList(relativeUrl: OPMConstants.SharePoint.ListUrl.PublishList, Title = "$Localize:OPM.Core.Features.Lists.OPMPublished.Name;",
            ListTemplate = ListTemplateType.DocumentLibrary,
            Description = "$Localize:OPM.Core.Features.Lists.OPMPublished.Description;",
-           EnableVersioning = false, EnableMinorVersions = false, EnableFolderCreation = true)]
+           EnableVersioning = false, EnableMinorVersions = false)]
     public class OPMPublished : ListBase, IListBase
     {
         public IEnumerable<ContentTypeBase> ContentTypes

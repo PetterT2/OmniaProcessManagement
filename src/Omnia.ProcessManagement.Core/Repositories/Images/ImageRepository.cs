@@ -5,6 +5,7 @@ using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Images;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -86,6 +87,29 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
 
 
             return (imageReference, imageContent);
+        }
+
+        public async ValueTask<byte[]> GetImageContentAsync(int imageId)
+        {
+            var imageContent = await DBContext.Images.FirstOrDefaultAsync(i => i.Id == imageId);
+            return imageContent?.Content;
+
+
+        }
+        public async ValueTask<List<ImageReference>> GetImageReferencesAsync(Guid processId)
+        {
+            var result = await DBContext.ImageReferences
+                .Include(i => i.Process)
+                .Where(i => i.ProcessId == processId)
+                .Select(i => new ImageReference
+                {
+                    FileName = i.FileName,
+                    OPMProcessId = i.Process.OPMProcessId,
+                    ImageId = i.ImageId
+                })
+                .ToListAsync();
+
+            return result;
         }
     }
 }

@@ -239,11 +239,11 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 
                 //The following code may be not good. 
                 //We have the better solution implemented in Omnia. But the code is not exported in fx yet
-                foreach (var user in authorGroup.Users)
+                foreach (var user in authorGroup.Users.ToList())
                 {
                     authorGroup.Users.Remove(user);
                 }
-                foreach (var user in defaultReaderGroup.Users)
+                foreach (var user in defaultReaderGroup.Users.ToList())
                 {
                     defaultReaderGroup.Users.Remove(user);
                 }

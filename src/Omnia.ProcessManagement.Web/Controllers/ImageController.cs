@@ -68,7 +68,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     OPMProcessId = opmProcessId
                 };
 
-                var fileStream = await ImageService.GetAuthroziedImageAsync(imageRef);
+                var fileStream = await ImageService.GetImageAsync(imageRef);
 
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {

@@ -46,11 +46,13 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                 });
         }
 
-        public async ValueTask<FileStream> GetAuthroziedImageAsync(ImageReference imageRef)
+        public async ValueTask<FileStream> GetImageAsync(ImageReference imageRef, bool ensureAuthorized = true)
         {
             var tempFolderPath = EnsureTempFolderPath(imageRef);
             var tempFileName = imageRef.FileName;
             var tempFilePath = Path.Combine(tempFolderPath, tempFileName);
+
+            var isAuthorized = ensureAuthorized ? false : true;
 
             if (!File.Exists(tempFilePath))
             {
@@ -61,12 +63,12 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                     await semaphoreSlim.WaitAsync();
                     if (!File.Exists(tempFilePath))
                     {
-                        var bytes = await GetAuthorizedImageAsync(imageRef, true);
-                        await File.WriteAllBytesAsync(tempFilePath, bytes);
-                    }
-                    else
-                    {
-                        await GetAuthorizedImageAsync(imageRef, false);
+                        byte[] imageContent = null;
+                        imageContent = isAuthorized ?
+                            await GetImageAsync(imageRef) :
+                            await TryGetAuthorizedImageAsync(imageRef, true);
+
+                        await File.WriteAllBytesAsync(tempFilePath, imageContent);
                     }
                 }
                 finally
@@ -74,12 +76,19 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                     semaphoreSlim.Release();
                 }
             }
-            else
+
+            if (!isAuthorized)
             {
-                await GetAuthorizedImageAsync(imageRef, false);
+
+                await TryGetAuthorizedImageAsync(imageRef, false);
             }
 
             return File.OpenRead(tempFilePath);
+        }
+
+        public async ValueTask<List<ImageReference>> GetImageReferencesAsync(Guid processId)
+        {
+            return await ImageRepository.GetImageReferencesAsync(processId);
         }
 
         private string EnsureTempFolderPath(ImageReference imageRef)
@@ -90,7 +99,16 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             return path;
         }
 
-        private async ValueTask<byte[]> GetAuthorizedImageAsync(ImageReference imageRef, bool loadContent)
+        private async ValueTask<byte[]> GetImageAsync(ImageReference imageRef)
+        {
+            var bytes = await ImageRepository.GetImageContentAsync(imageRef.ImageId);
+            if (bytes == null)
+                throw new FileNotFoundException("Image not found");
+
+            return bytes;
+        }
+
+        private async ValueTask<byte[]> TryGetAuthorizedImageAsync(ImageReference imageRef, bool loadContent)
         {
             var authorizedImageReferenceQuery = await ProcessSecurityService.InitAuthorizedImageReferenceQueryAsync(imageRef);
             var (authorizedImageRef, bytes) = await ImageRepository.GetAuthorizedImageAsync(authorizedImageReferenceQuery, loadContent);

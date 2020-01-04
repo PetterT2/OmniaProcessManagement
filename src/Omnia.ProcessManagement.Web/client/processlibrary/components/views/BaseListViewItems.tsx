@@ -80,9 +80,9 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
         this.isLoading = true;
        
-        //this.refreshStatusInterval = setInterval(() => {
-        //    this.refreshStatus();
-        //}, 5000);
+        this.refreshStatusInterval = setInterval(() => {
+            this.refreshStatus();
+        }, 5000);
 
         this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
             this.initProcesses();
