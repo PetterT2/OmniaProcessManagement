@@ -1,6 +1,7 @@
 ﻿import { CanvasDefinition } from '../drawingdefinitions';
 import { MultilingualString } from '@omnia/fx-models';
 import { Link } from './Link';
+import { Task } from './Task';
 
 export interface ProcessData {
     canvasDefinition: CanvasDefinition;
@@ -8,7 +9,7 @@ export interface ProcessData {
 
     documents: any; //TODO
     links: Array<Link>; //TODO
-    tasks: any; //TODO
+    tasks: Array<Task>; //TODO
 
 
     createdBy: string;

@@ -1,5 +1,5 @@
 ﻿import { types } from 'typestyle';
 
-export const ContentBlockStyles = {} as {
+export const TasksBlockStyles = {} as {
     blockPadding?: types.NestedCSSProperties;
 }

@@ -1,8 +1,8 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { ContentBlockStyles } from '../../models';
+import { TasksBlockStyles } from '../../models';
 import { SpacingSetting } from '@omnia/fx-models';
 
-StyleFlow.define(ContentBlockStyles,
+StyleFlow.define(TasksBlockStyles,
     {
         blockPadding: (spacing: SpacingSetting) => {
             let paddingLeft = spacing && (spacing.left || 0)

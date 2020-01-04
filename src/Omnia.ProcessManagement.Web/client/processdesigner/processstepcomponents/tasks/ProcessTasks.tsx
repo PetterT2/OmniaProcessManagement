@@ -149,6 +149,9 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
                         : this.orderTasks.map((task) => {
                             return (
                                 <v-list-item class={!this.isDragging && "notdragging"} >
+                                    <v-list-item-action class="mr-2">
+                                        <v-icon size='14'>check</v-icon>
+                                    </v-list-item-action>
                                     <v-list-item-content>
                                         <v-list-item-title color={this.omniaTheming.promoted.body.onComponent.base}>{task.multilingualTitle}</v-list-item-title>
                                     </v-list-item-content>

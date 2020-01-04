@@ -117,6 +117,11 @@
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockSettings.ts" />
@@ -126,6 +131,9 @@
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\ContentBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\contentblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
@@ -262,11 +270,13 @@
     <TypeScriptCompile Remove="client\models\styles\GlobalProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\IColor.ts" />
     <TypeScriptCompile Remove="client\models\styles\index.ts" />
+    <TypeScriptCompile Remove="client\models\styles\LinksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\PermissionDialogStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
@@ -402,6 +412,16 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\ITasksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.tsx" />
@@ -418,6 +438,10 @@
     <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.ts" />
     <None Include="client\components\mediapicker\IMediaPicker.js" />
     <None Include="client\components\mediapicker\MediaPicker.manifest.js" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlockSettings.tsx" />
     <None Include="client\components\permissiondialog\IPermissionDialog.js" />
     <None Include="client\components\permissiondialog\loc\localize.js" />
     <None Include="client\components\permissiondialog\loc\localize.manifest.js" />
@@ -499,6 +523,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\mediapicker\MediaPicker.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\linksblock\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\tasksblock\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\drawingblock\index.ts">
@@ -757,6 +787,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingProcessStepShape.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\models\styles\LinksBlockStyles.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\content\index.ts">
