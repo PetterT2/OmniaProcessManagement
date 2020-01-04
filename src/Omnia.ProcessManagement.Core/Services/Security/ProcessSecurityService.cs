@@ -69,10 +69,10 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<AuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef)
+        public async ValueTask<AuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef, Guid opmProcessId)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
-            var authorizedProcessQuery = new AuthorizedImageReferenceQuery(authorizedResource, imageRef, OmniaContext);
+            var authorizedProcessQuery = new AuthorizedImageReferenceQuery(authorizedResource, imageRef, opmProcessId, OmniaContext);
             return authorizedProcessQuery;
         }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Helpers.ImageHerlpers;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Images;
 using Omnia.ProcessManagement.Core.Services.Processes;
@@ -43,8 +44,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var imageRef = await ImageService.AddAuthroziedImageAsync(processId, fileName, imageBase64);
-                var imageUrl = $"https://{Request.Host.Value}/api/images/{imageRef.OPMProcessId}/{imageRef.ImageId}/{imageRef.FileName}";
+                var imageRelativeApiUrl = await ImageService.AddAuthroziedImageAsync(processId, fileName, imageBase64);
+                var imageUrl = $"https://{Request.Host.Value}{imageRelativeApiUrl}";
 
                 return imageUrl.AsApiResponse();
             }
@@ -64,11 +65,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var imageRef = new ImageReference()
                 {
                     FileName = fileName,
-                    ImageId = id,
-                    OPMProcessId = opmProcessId
+                    ImageId = id
                 };
 
-                var fileStream = await ImageService.GetImageAsync(imageRef);
+                var fileStream = await ImageService.GetImageAsync(imageRef, opmProcessId);
 
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {

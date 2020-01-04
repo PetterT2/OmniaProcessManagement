@@ -16,6 +16,7 @@ using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.SharePoint.Fields.Attributes;
 using Omnia.Fx.SharePoint.Services.SharePointEntities;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Helpers.ImageHerlpers;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
@@ -27,6 +28,7 @@ using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.Settings;
@@ -146,12 +148,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var process = processActionModel.Process;
-
+            var serializedprocessActionModel = JsonConvert.SerializeObject(processActionModel);
             var opmProcessIdFolder = await EnsureNewProcessFolderAsync(ctx, publishedList, process);
 
             //Sync the images
             var imageFolder = await SharePointListService.EnsureChildFolderAsync(ctx, opmProcessIdFolder, OPMConstants.SharePoint.FolderUrl.Images);
-            await SyncProcessImagesAsync(ctx, imageFolder, processActionModel);
+            await SyncProcessImagesAsync(ctx, imageFolder, processActionModel, serializedprocessActionModel);
 
             //Sync the process
             //var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
@@ -164,29 +166,51 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             ctx.Load(addedFile);
             await ctx.ExecuteQueryAsync();
 
-            await UpdateProcessFileItemAsync(ctx, publishedList, addedFile.ListItemAllFields, processActionModel, enterprisePropertyDict);
+            await UpdateProcessFileItemAsync(ctx, publishedList, addedFile.ListItemAllFields, processActionModel, serializedprocessActionModel, enterprisePropertyDict);
 
             return opmProcessIdFolder;
         }
 
-        private async ValueTask SyncProcessImagesAsync(PortableClientContext ctx, Folder imageFolder, ProcessWithImagesActionModel processActionModel)
+        private async ValueTask SyncProcessImagesAsync(PortableClientContext ctx, Folder imageFolder, ProcessWithImagesActionModel processActionModel, string serializedprocessActionModel)
         {
             if (processActionModel.ImageReferences.Any())
             {
+                var unusedImageRefs = new List<ImageReference>();
+
                 foreach (var imageReference in processActionModel.ImageReferences)
                 {
-                    var fileName = imageReference.FileName;
-                    FileCreationInformation newFile = new FileCreationInformation();
-                    newFile.Url = String.Format("{0}/{1}", imageFolder.ServerRelativeUrl, fileName);
-                    newFile.Overwrite = true;
-                    newFile.ContentStream = await ImageService.GetImageAsync(imageReference, false);
-                    imageFolder.Files.Add(newFile);
+                    var imageRelativeApiUrl = ImageHelper.GenerateRelativeApiUrl(imageReference, processActionModel.Process.OPMProcessId);
+                    var isUsed = 
+                        serializedprocessActionModel.Contains(imageRelativeApiUrl + "\"") ||
+                        serializedprocessActionModel.Contains(imageRelativeApiUrl + "\\") ||
+                        serializedprocessActionModel.Contains(imageRelativeApiUrl + "'");
+
+                    if (isUsed)
+                    {
+                        var fileName = imageReference.FileName;
+                        FileCreationInformation newFile = new FileCreationInformation();
+                        newFile.Url = String.Format("{0}/{1}", imageFolder.ServerRelativeUrl, fileName);
+                        newFile.Overwrite = true;
+                        newFile.ContentStream = await ImageService.GetImageAsync(imageReference, processActionModel.Process.OPMProcessId, false);
+                        imageFolder.Files.Add(newFile);
+                    }
+                    else
+                    {
+                        unusedImageRefs.Add(imageReference);
+                    }
                 }
+
                 await ctx.ExecuteQueryAsync();
+
+                if (unusedImageRefs.Any())
+                {
+                    await ImageService.DeleteImageReferencesAsync(unusedImageRefs, processActionModel.Process.OPMProcessId);
+                }
             }
         }
 
-        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
+        private async ValueTask UpdateProcessFileItemAsync(PortableClientContext ctx, List publishedList, ListItem fileItem, ProcessWithImagesActionModel processActionModel, string serializedprocessActionModel,
+            Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
         {
             var process = processActionModel.Process;
 
@@ -248,7 +272,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             }
 
             fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] = processActionModel.Process.OPMProcessId;
-            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = JsonConvert.SerializeObject(processActionModel);
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = serializedprocessActionModel;
             fileItem[OPMConstants.SharePoint.SharePointFields.Title] = processTitle;
             fileItem.Update();
             await ctx.ExecuteQueryAsync();

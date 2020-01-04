@@ -18,9 +18,12 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
         private UserAuthorizedResource AuthorizedResource { get; }
         public Models.Images.ImageReference ImageRef { get; private set; }
         private IOmniaContext OmniaContext { get; }
-        public AuthorizedImageReferenceQuery(UserAuthorizedResource authorizedResource, Models.Images.ImageReference imageRef, IOmniaContext omniaContext)
+
+        private Guid OPMProcessId { get; }
+        public AuthorizedImageReferenceQuery(UserAuthorizedResource authorizedResource, Models.Images.ImageReference imageRef, Guid opmProcessId, IOmniaContext omniaContext)
         {
             ImageRef = imageRef;
+            OPMProcessId = opmProcessId;
             AuthorizedResource = authorizedResource;
             OmniaContext = omniaContext;
         }
@@ -28,7 +31,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 
         public virtual string GetQuery()
         {
-            var securityTrimming = SecurityTrimmingHelper.GenerateSecurityTrimming(AuthorizedResource, ImageRef.OPMProcessId, OmniaContext);
+            var securityTrimming = SecurityTrimmingHelper.GenerateSecurityTrimming(AuthorizedResource, OPMProcessId, OmniaContext);
 
             if (securityTrimming == string.Empty)
             {

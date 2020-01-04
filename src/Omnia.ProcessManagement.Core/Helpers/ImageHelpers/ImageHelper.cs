@@ -26,5 +26,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
             if (validFileName != fileName)
                 throw new Exception($"Invalid ImageRef: {JsonConvert.SerializeObject(imageRef)}");
         }
+
+        public static string GenerateRelativeApiUrl(ImageReference imageRef, Guid opmProcessId)
+        {
+            return $"/api/images/{opmProcessId}/{imageRef.ImageId}/{imageRef.FileName}".ToLower();
+        }
     }
 }

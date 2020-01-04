@@ -2,6 +2,7 @@
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
@@ -40,5 +41,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType);
         ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
+
+        /// <summary>
+        /// Instead of putting this method in ImageRepository, we put it here 
+        /// Because we have to use the process concurrency lock logic to do this action
+        /// </summary>
+        /// <param name="imageReferences"></param>
+        /// <returns></returns>
+        ValueTask DeleteUnusedImageReferencesAsync(List<ImageReference> imageReferences, Guid opmProcessId);
     }
 }

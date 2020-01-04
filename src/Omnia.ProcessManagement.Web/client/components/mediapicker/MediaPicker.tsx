@@ -3,7 +3,7 @@ import Component from 'vue-class-component'
 import { Prop, Watch, Emit } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, MediaPickerImageTransformerProviderResult, ImageTransformerProviderComponent, YouTubeProviderRegister, MyComputerProviderRegister, BingProviderComponentRegister, MicrosoftStreamProviderRegister, CentralImageLocationProviderComponentRegister, ItransformerConfigs, ImageSvgTransformer, MediaPickerProvider, MediaPickerProviderMediaTypes } from "@omnia/fx/ux";
-import { IOmniaContext, BusinessProfileCentralImageLocation, MediaPickerVideoProviderResult, MediaPickerProviderResult } from "@omnia/fx-models";
+import { IOmniaContext, BusinessProfileCentralImageLocation, MediaPickerVideoProviderResult, MediaPickerProviderResult, MediaPickerImageProviderResult } from "@omnia/fx-models";
 import { MediaPickerContent, MediaPickerImageContent, MediaPickerVideoContent, MediaPickerStyles } from '../../fx/models';
 import { ImageService, CurrentProcessStore } from '../../fx';
 import './MediaPicker.css';
@@ -105,17 +105,14 @@ export class MediaPickerComponent extends VueComponentBase implements IWebCompon
         return new ImageSvgTransformer(imageUrl, configuration, descriptions).getElementString();
     }
 
-    uploadImage(image: MediaPickerImageTransformerProviderResult) {
-        let imageResult: any = image; //TODO: why the name property not exisit in the interface ?!
-        let fileName = imageResult.name;
+    uploadImage(image: MediaPickerImageProviderResult) {
+        let fileName = (image as any).name + '.' + image.format;//TODO: why the name property not exisit in the interface ?!
 
-        this.imageService.uploadImage(this.currentProcessStore.getters.referenceData().process, fileName, imageResult.base64)
+        this.imageService.uploadImage(this.currentProcessStore.getters.referenceData().process, fileName, image.base64)
             .then((imageUrl) => {
                 this.content = this.content || { value: null };
                 this.content.value = {
-                    configuration: this.handleImageMediaDataConfiguration(image),
                     imageSrc: imageUrl,
-                    extraRatios: image.extraRatios,
                     description: image.description
                 }
                 this.onInternalSaved();

@@ -18,6 +18,7 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
+using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -877,6 +878,68 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
             return processDataDict;
+        }
+
+        public async ValueTask DeleteUnusedImageReferencesAsync(List<ImageReference> imageReferences, Guid opmProcessId)
+        {
+            if (imageReferences.Any())
+            {
+                //In normal case, the input data should be correctly by default
+                //The following checking is just to ensure if somewhere use this method incorrectly
+
+                //1. make sure all the process references is belong to current opmProcessId
+                var processIds = imageReferences.Select(i => i.ProcessId).Distinct().ToList();
+                if (processIds.Count > 1)
+                {
+                    throw new Exception("Delete image references of multiple process is not supported");
+                }
+
+                //2. make sure the process id & opm process id are relevant
+                var processId = processIds.First();
+                var isRelevant = await DbContext.Processes.AnyAsync(p => p.Id == processId && p.OPMProcessId == opmProcessId);
+                if (!isRelevant)
+                {
+                    throw new Exception("The ProcessId and OPMProcessId are not relevant");
+                }
+
+                await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
+                {
+                    foreach (var imageRef in imageReferences)
+                    {
+                        var imageRefEf = new Entities.Images.ImageReference()
+                        {
+                            FileName = imageRef.FileName,
+                            ImageId = imageRef.ImageId,
+                            ProcessId = imageRef.ProcessId
+                        };
+                        DbContext.ImageReferences.Attach(imageRefEf);
+                        DbContext.ImageReferences.Remove(imageRefEf);
+                    }
+                    await DbContext.SaveChangesAsync();
+
+                    var imageIds = imageReferences.Select(i => i.ImageId).ToList();
+                    var noreferenceImageIds = await DbContext.Images.Where(i => imageIds.Contains(i.Id) && !i.ImageReferences.Any())
+                        .Select(i => i.Id)
+                        .ToListAsync();
+
+                    if (noreferenceImageIds.Any())
+                    {
+                        foreach (var id in noreferenceImageIds)
+                        {
+                            var imageEf = new Entities.Images.Image()
+                            {
+                                Id = id
+                            };
+                            DbContext.Images.Attach(imageEf);
+                            DbContext.Images.Remove(imageEf);
+                        }
+                        await DbContext.SaveChangesAsync();
+                    }
+
+                    return true;
+                });
+            }
+
         }
 
         private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)

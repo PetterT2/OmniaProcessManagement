@@ -61,8 +61,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             var imageRef = new ImageReference()
             {
                 FileName = fileName,
-                OPMProcessId = internalProcess.OPMProcessId,
-                ImageId = image.Id
+                ImageId = image.Id,
+                ProcessId = internalProcess.Id
             };
 
             return imageRef;
@@ -99,13 +99,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
         public async ValueTask<List<ImageReference>> GetImageReferencesAsync(Guid processId)
         {
             var result = await DBContext.ImageReferences
-                .Include(i => i.Process)
                 .Where(i => i.ProcessId == processId)
                 .Select(i => new ImageReference
                 {
                     FileName = i.FileName,
-                    OPMProcessId = i.Process.OPMProcessId,
-                    ImageId = i.ImageId
+                    ImageId = i.ImageId,
+                    ProcessId = i.ProcessId
                 })
                 .ToListAsync();
 
