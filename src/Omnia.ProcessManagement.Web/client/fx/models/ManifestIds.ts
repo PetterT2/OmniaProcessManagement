@@ -34,6 +34,7 @@ export class OPMWebComponentManifests {
     public static get PublishedMenuActions(): Guid { return new Guid('54023b5d-2ce5-4e68-89cf-defc4ff6a327'); }
     public static get PublishedProcessingStatus(): Guid { return new Guid('bdfb6a67-ca86-481c-a7a0-a3caaf9f685e'); }
 
+    public static get MediaPicker(): Guid { return new Guid('7bb3613d-baac-408a-8ada-c195632a6be1') }
 
     public static get GlobalProcessRenderer(): Guid { return new Guid('a7b2e5ed-a754-41ca-afae-f32325abb91e'); }
     public static get BlockProcessRenderer(): Guid { return new Guid('cce87e73-70bc-4ce1-a128-1cd674c2a278'); }

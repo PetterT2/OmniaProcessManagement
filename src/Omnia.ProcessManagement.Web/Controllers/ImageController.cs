@@ -44,7 +44,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var imageRef = await ImageService.AddAuthroziedImageAsync(processId, fileName, imageBase64);
-                var imageUrl = $"https://{Request.Host.Value}/api/images/{imageRef.OPMProcessId}/{imageRef.Hash}/{imageRef.FileName}";
+                var imageUrl = $"https://{Request.Host.Value}/api/images/{imageRef.OPMProcessId}/{imageRef.ImageId}/{imageRef.FileName}";
 
                 return imageUrl.AsApiResponse();
             }
@@ -55,16 +55,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("{opmProcessId:guid}/{hash}/{fileName}")]
+        [HttpGet, Route("{opmProcessId:guid}/{id:int}/{fileName}")]
         [Authorize]
-        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, string fileName, string hash)
+        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, string fileName, int id)
         {
             try
             {
-                var imageRef = new ImageRef()
+                var imageRef = new ImageReference()
                 {
                     FileName = fileName,
-                    Hash = hash,
+                    ImageId = id,
                     OPMProcessId = opmProcessId
                 };
 

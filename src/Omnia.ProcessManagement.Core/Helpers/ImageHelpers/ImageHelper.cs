@@ -19,7 +19,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
             return fileWithoutExtension + fileExtension;
         }
 
-        public static void ValidateImageRef(ImageRef imageRef)
+        public static void ValidateImageRef(ImageReference imageRef)
         {
             var fileName = imageRef.FileName;
             var validFileName = GetValidFileName(fileName);

@@ -7,3 +7,4 @@ export * from './ShapeTypeStyles';
 export * from './CenterFullHeightDialogStyles';
 export * from './ShapeSelectionStyles';
 export * from './ProcessStepPickerStyles';
+export * from './MediaPickerStyles';

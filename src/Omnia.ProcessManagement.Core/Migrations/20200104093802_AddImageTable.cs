@@ -15,24 +15,39 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 name: "Images",
                 columns: table => new
                 {
-                    ProcessId = table.Column<Guid>(nullable: false),
-                    FileName = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedBy = table.Column<string>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(nullable: false),
                     DeletedAt = table.Column<DateTimeOffset>(nullable: true),
-                    ClusteredId = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<byte[]>(nullable: true),
-                    Hash = table.Column<string>(nullable: true)
+                    Content = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => new { x.ProcessId, x.FileName })
-                        .Annotation("SqlServer:Clustered", false);
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImageReferences",
+                columns: table => new
+                {
+                    ProcessId = table.Column<Guid>(nullable: false),
+                    FileName = table.Column<string>(nullable: false),
+                    ImageId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImageReferences", x => new { x.ProcessId, x.FileName, x.ImageId });
                     table.ForeignKey(
-                        name: "FK_Images_Processes_ProcessId",
+                        name: "FK_ImageReferences_Images_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Images",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ImageReferences_Processes_ProcessId",
                         column: x => x.ProcessId,
                         principalTable: "Processes",
                         principalColumn: "Id",
@@ -40,11 +55,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Images_ClusteredId",
-                table: "Images",
-                column: "ClusteredId",
-                unique: true)
-                .Annotation("SqlServer:Clustered", true);
+                name: "IX_ImageReferences_ImageId",
+                table: "ImageReferences",
+                column: "ImageId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ProcessData_Processes_ProcessId",
@@ -60,6 +73,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_ProcessData_Processes_ProcessId",
                 table: "ProcessData");
+
+            migrationBuilder.DropTable(
+                name: "ImageReferences");
 
             migrationBuilder.DropTable(
                 name: "Images");

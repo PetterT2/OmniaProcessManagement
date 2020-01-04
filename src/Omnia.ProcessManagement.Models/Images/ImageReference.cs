@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.Images
 {
-    public class ImageRef
+    public class ImageReference
     {
         public Guid OPMProcessId { get; set; }
         public string FileName { get; set; }
-        public string Hash { get; set; }
+        public int ImageId { get; set; }
     }
 }

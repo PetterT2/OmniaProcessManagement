@@ -25,7 +25,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             ProcessSecurityService = processSecurityService;
         }
 
-        public async ValueTask<ImageRef> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64)
+        public async ValueTask<ImageReference> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64)
         {
             var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
             return await securityResponse
@@ -46,7 +46,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                 });
         }
 
-        public async ValueTask<FileStream> GetAuthroziedImageAsync(ImageRef imageRef)
+        public async ValueTask<FileStream> GetAuthroziedImageAsync(ImageReference imageRef)
         {
             var tempFolderPath = EnsureTempFolderPath(imageRef);
             var tempFileName = imageRef.FileName;
@@ -82,20 +82,22 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             return File.OpenRead(tempFilePath);
         }
 
-        private string EnsureTempFolderPath(ImageRef imageRef)
+        private string EnsureTempFolderPath(ImageReference imageRef)
         {
-            var path = Path.Combine(System.IO.Path.GetTempPath(), OPMConstants.ImageTempFolder, imageRef.OPMProcessId.ToString("N"), imageRef.Hash);
+            var path = Path.Combine(System.IO.Path.GetTempPath(), OPMConstants.ImageTempFolder, imageRef.OPMProcessId.ToString("N"), imageRef.ImageId.ToString());
             Directory.CreateDirectory(path);
 
             return path;
         }
 
-        private async ValueTask<byte[]> GetAuthorizedImageAsync(ImageRef imageRef, bool loadContent)
+        private async ValueTask<byte[]> GetAuthorizedImageAsync(ImageReference imageRef, bool loadContent)
         {
-            var authorizedImageQuery = await ProcessSecurityService.InitAuthorizedImageQueryAsync(imageRef, loadContent);
-            var (authorizedImageRef, bytes) = await ImageRepository.GetImageAsync(authorizedImageQuery);
+            var authorizedImageReferenceQuery = await ProcessSecurityService.InitAuthorizedImageReferenceQueryAsync(imageRef);
+            var (authorizedImageRef, bytes) = await ImageRepository.GetAuthorizedImageAsync(authorizedImageReferenceQuery, loadContent);
             if (authorizedImageRef == null)
-                throw new FileNotFoundException("Unauthorized or Image not found");
+                throw new UnauthorizedAccessException("Unauthorized");
+            if (loadContent && bytes == null)
+                throw new FileNotFoundException("Image not found");
 
             return bytes;
         }

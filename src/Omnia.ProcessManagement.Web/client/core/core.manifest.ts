@@ -6,6 +6,7 @@ Composer
     .registerResources({
         resourcePaths: [
             "../models/**/*.js",
+            "../components/richtexteditorextensions/**/*.js",
             "./loc/**/*.js"
         ]
     });

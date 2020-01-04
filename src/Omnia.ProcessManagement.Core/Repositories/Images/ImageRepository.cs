@@ -19,14 +19,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             DBContext = databaseContext;
         }
 
-        public async ValueTask<ImageRef> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes)
+        public async ValueTask<ImageReference> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes)
         {
             fileName = ImageHelper.GetValidFileName(fileName);
 
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName).ToLower();
             var fileExtension = Path.GetExtension(fileName);
 
-            var similarFileNames = await DBContext.Images
+            var similarFileNames = await DBContext.ImageReferences
                 .Where(i => i.ProcessId == internalProcess.Id && i.FileName.StartsWith(fileNameWithoutExtension))
                 .Select(i => i.FileName)
                 .ToListAsync();
@@ -40,44 +40,52 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
                 fileCount++;
             }
 
-            //var hash = CommonUtils.CreateMd5Hash(imageBase64);
-            //Instead of creating hash base on the image cotent, we create the hash from a new guid. So even upload a same image two times will have the different hash
 
-            var hash = CommonUtils.CreateMd5Hash(Guid.NewGuid().ToString());
             var image = new Entities.Images.Image()
             {
-                ProcessId = internalProcess.Id,
-                Content = bytes,
-                FileName = fileName,
-                Hash = hash
+                Content = bytes
             };
+            DBContext.Images.Add(image);
 
-            DBContext.Add(image);
-            await DBContext.SaveChangesAsync();
-
-            var imageRef = new ImageRef()
+            var imageReference = new Entities.Images.ImageReference()
             {
                 FileName = fileName,
-                Hash = hash,
-                OPMProcessId = internalProcess.OPMProcessId
+                Image = image,
+                ProcessId = internalProcess.Id
+            };
+            DBContext.ImageReferences.Add(imageReference);
+
+            await DBContext.SaveChangesAsync();
+
+            var imageRef = new ImageReference()
+            {
+                FileName = fileName,
+                OPMProcessId = internalProcess.OPMProcessId,
+                ImageId = image.Id
             };
 
             return imageRef;
         }
 
-        public async ValueTask<(ImageRef, byte[])> GetImageAsync(AuthorizedImageQuery authorizedImageQuery)
+        public async ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(AuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent)
         {
             var sql = authorizedImageQuery.GetQuery();
-            var image = await DBContext.Images.FromSqlRaw(sql).FirstOrDefaultAsync();
-            ImageRef imageRef = null;
-            byte[] bytes = null;
-            if (image == null)
+            var imageReferenceEf = await DBContext.ImageReferences.FromSqlRaw(sql).FirstOrDefaultAsync();
+            ImageReference imageReference = null;
+            byte[] imageContent = null;
+
+            if (imageReferenceEf != null)
             {
-                imageRef = authorizedImageQuery.ImageRef;
-                bytes = image.Content;
+                imageReference = authorizedImageQuery.ImageRef;
+                if (loadImageContent)
+                {
+                    var image = await DBContext.Images.FirstOrDefaultAsync(i => i.Id == imageReference.ImageId);
+                    imageContent = image?.Content;
+                }
             }
 
-            return (imageRef, bytes);
+
+            return (imageReference, imageContent);
         }
     }
 }

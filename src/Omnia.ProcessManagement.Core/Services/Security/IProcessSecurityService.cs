@@ -17,7 +17,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
     public interface IProcessSecurityService
     {
         ValueTask<AuthorizedProcessQuery> InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType versionType);
-        ValueTask<AuthorizedImageQuery> InitAuthorizedImageQueryAsync(ImageRef imageRef, bool loadContent);
+        ValueTask<AuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef);
 
         IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);

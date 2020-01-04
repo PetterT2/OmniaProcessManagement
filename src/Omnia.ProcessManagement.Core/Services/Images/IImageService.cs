@@ -8,7 +8,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
 {
     public interface IImageService
     {
-        ValueTask<ImageRef> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64);
-        ValueTask<FileStream> GetAuthroziedImageAsync(ImageRef imageRef);
+        ValueTask<ImageReference> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64);
+        ValueTask<FileStream> GetAuthroziedImageAsync(ImageReference imageRef);
     }
 }

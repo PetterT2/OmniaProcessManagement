@@ -63,11 +63,31 @@
     <TypeScriptCompile Remove="client\admin\settings\processtypes\store\ProcessTypeJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
+    <TypeScriptCompile Remove="client\components\mediapicker\IMediaPicker.ts" />
+    <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.css.ts" />
+    <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.manifest.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.tsx" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\index.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\MediaPicker.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\MediaPickerConfiguration.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\MediaPickerToolbar.css.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\MediaPickerToolbar.tsx" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\index.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\MediaPickerNode.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphics.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsColorMatrix.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsComponentTransfer.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsDefinition.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFilter.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncB.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncG.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncR.ts" />
+    <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsImage.ts" />
     <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
@@ -86,6 +106,9 @@
     <TypeScriptCompile Remove="client\fx\messaging\InternalOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\PublicOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\mediapicker\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPicker.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPickerExtension.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryData.ts" />
@@ -176,6 +199,7 @@
     <TypeScriptCompile Remove="client\fx\models\shared\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\MediaPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
@@ -392,11 +416,28 @@
     <TypeScriptCompile Remove="client\viewprocess\contentblock\IContentBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.ts" />
+    <None Include="client\components\mediapicker\IMediaPicker.js" />
+    <None Include="client\components\mediapicker\MediaPicker.manifest.js" />
     <None Include="client\components\permissiondialog\IPermissionDialog.js" />
     <None Include="client\components\permissiondialog\loc\localize.js" />
     <None Include="client\components\permissiondialog\loc\localize.manifest.js" />
     <None Include="client\components\permissiondialog\PermissionDialog.css.js" />
     <None Include="client\components\permissiondialog\PermissionDialog.manifest.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\index.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\MediaPicker.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\MediaPickerConfiguration.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\MediaPickerToolbar.css.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\index.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\MediaPickerNode.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphics.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsColorMatrix.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsComponentTransfer.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsDefinition.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFilter.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncB.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncG.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncR.js" />
+    <None Include="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsImage.js" />
     <None Include="client\fx\contexts\index.js" />
     <None Include="client\fx\contexts\opm.contexts.manifest.js" />
     <None Include="client\fx\contexts\OPMContext.js" />
@@ -449,6 +490,15 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\mediapicker\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\mediapicker\MediaPickerExtension.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\mediapicker\MediaPicker.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\drawingblock\index.ts">

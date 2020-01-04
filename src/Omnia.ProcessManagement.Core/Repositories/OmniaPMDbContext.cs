@@ -57,6 +57,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<Workflow> Workflows { get; set; }
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<ImageReference> ImageReferences { get; set; }
 
 
         //Views
@@ -100,11 +101,14 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetOPMClusteredIndex<WorkflowTask>(modelBuilder, d => new { d.Id });
 
-            modelBuilder.Entity<Image>().HasKey(i => new { i.ProcessId, i.FileName });
-            SetClusteredIndex<Image>(modelBuilder, i => new { i.ProcessId, i.FileName });
-            modelBuilder.Entity<Image>()
+            modelBuilder.Entity<ImageReference>().HasKey(i => new { i.ProcessId, i.FileName, i.ImageId });
+            modelBuilder.Entity<ImageReference>()
                 .HasOne(p => p.Process)
-                .WithMany(p => p.Images)
+                .WithMany(p => p.ImageReferences)
+                .IsRequired(true).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ImageReference>()
+                .HasOne(p => p.Image)
+                .WithMany(p => p.ImageReferences)
                 .IsRequired(true).OnDelete(DeleteBehavior.Cascade);
 
 

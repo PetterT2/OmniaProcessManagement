@@ -919,7 +919,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var cloneProcessDataRawSql = GenerateCloneProcessDataRawSql(clonedProcess.Id, process.Id);
             await DbContext.ExecuteSqlCommandAsync(cloneProcessDataRawSql);
 
-            var rawSql = GenerateCloneImagesRawSql(clonedProcess.Id, process.Id);
+            var rawSql = GenerateCloneImageReferencesRawSql(clonedProcess.Id, process.Id);
             await DbContext.ExecuteSqlCommandAsync(rawSql);
 
             return clonedProcess;
@@ -974,22 +974,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
         }
 
-        private string GenerateCloneImagesRawSql(Guid newProcessId, Guid oldProcessId)
+        private string GenerateCloneImageReferencesRawSql(Guid newProcessId, Guid oldProcessId)
         {
             #region Names
-            var tableName = nameof(DbContext.Images);
-            var processIdColumn = nameof(Entities.Images.Image.ProcessId);
-            var fileNameColumn = nameof(Entities.Images.Image.FileName);
-            var contentColumn = nameof(Entities.Images.Image.Content);
-            var hashColumn = nameof(Entities.Images.Image.Hash);
-            var createdAtColumnName = nameof(Entities.Images.Image.CreatedAt);
-            var modifiedAtColumnName = nameof(Entities.Images.Image.ModifiedAt);
-            var createdByColumnName = nameof(Entities.Images.Image.CreatedBy);
-            var modifiedByColumnName = nameof(Entities.Images.Image.ModifiedBy);
+            var tableName = nameof(DbContext.ImageReferences);
+            var processIdColumn = nameof(Entities.Images.ImageReference.ProcessId);
+            var fileNameColumn = nameof(Entities.Images.ImageReference.FileName);
+            var imageIdColumn = nameof(Entities.Images.ImageReference.ImageId);
             #endregion
 
             #region SQL
-            return @$"INSERT INTO {tableName} ({processIdColumn}, {fileNameColumn}, {contentColumn}, {hashColumn}, {createdAtColumnName}, {createdByColumnName}, {modifiedAtColumnName},{modifiedByColumnName}) SELECT '{newProcessId}', im.{fileNameColumn}, im.{contentColumn}, im.{hashColumn}, im.{createdAtColumnName}, im.{createdByColumnName}, im.{modifiedAtColumnName}, im.{modifiedByColumnName} FROM {tableName} im WHERE {processIdColumn} = '{oldProcessId}'";
+            return @$"INSERT INTO {tableName} ({processIdColumn}, {fileNameColumn}, {imageIdColumn}) SELECT '{newProcessId}', im.{fileNameColumn}, im.{imageIdColumn} FROM {tableName} im WHERE {processIdColumn} = '{oldProcessId}'";
             #endregion
         }
 

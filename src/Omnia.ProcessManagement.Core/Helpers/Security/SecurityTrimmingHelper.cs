@@ -15,8 +15,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         public readonly static string ProcessTableAlias = "P";
         public readonly static string ProcessTableName = nameof(OmniaPMDbContext.Processes);
 
-        public readonly static string ImageTableAlias = "I";
-        public readonly static string ImageTableName = nameof(OmniaPMDbContext.Images);
+        public readonly static string ImageReferenceTableAlias = "IR";
+        public readonly static string ImageReferenceTableName = nameof(OmniaPMDbContext.ImageReferences);
 
         public static List<Guid> Roles()
         {
@@ -36,10 +36,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
             if (resources != null)
             {
-                var draftVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.Draft)}";
-                var publishedVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.Published)}";
-                var checkedOutVersionTrimming = $" AND {GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)}";
-                var notCheckedOutVersionTrimming = $" AND  {ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
+                var draftVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Draft)}";
+                var publishedVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Published)}";
+                var checkedOutVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)}";
+                var notCheckedOutVersionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
 
 
                 var connectPart = "";
@@ -61,15 +61,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 if (authorTeamAppIds.Any())
                 {
                     var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
-                    var authorTrimmingCombineWithNotCheckedOutVersion = $"({authorTrimming} AND {notCheckedOutVersionTrimming})";
-                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithNotCheckedOutVersion }";
-                    connectPart = " OR ";
-                }
-                if (authorTeamAppIds.Any())
-                {
-                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds)}";
-                    var authorTrimmingCombineWithCheckedOutVersion = $"({authorTrimming} AND {checkedOutVersionTrimming})";
-                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithCheckedOutVersion}";
+                    var authorTrimmingCombineWithVersion = $"({authorTrimming} AND ({notCheckedOutVersionTrimming} OR {checkedOutVersionTrimming}))";
+                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithVersion }";
                     connectPart = " OR ";
                 }
                 if (approverAndReviewerOPMProcessIds.Any())
@@ -81,7 +74,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 }
                 if (reviewerOPMProcessIds.Any())
                 {
-                    var reviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
+                    var reviewerTrimming = $"{GeneratePermissionForOPMProcessIds(reviewerOPMProcessIds)}";
                     var reviewerTrimmingCombineWithCheckedOutVersion = $"({reviewerTrimming} AND {checkedOutVersionTrimming})";
                     securityTrimming = $"{securityTrimming}{connectPart}{reviewerTrimmingCombineWithCheckedOutVersion}";
                     connectPart = " OR ";

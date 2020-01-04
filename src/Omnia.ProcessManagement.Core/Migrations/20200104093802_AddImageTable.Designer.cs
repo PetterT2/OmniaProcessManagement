@@ -10,7 +10,7 @@ using Omnia.ProcessManagement.Core.Repositories;
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    [Migration("20191231093218_AddImageTable")]
+    [Migration("20200104093802_AddImageTable")]
     partial class AddImageTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,15 +23,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Images.Image", b =>
                 {
-                    b.Property<Guid>("ProcessId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("ClusteredId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<byte[]>("Content")
@@ -46,23 +40,33 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Hash")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ProcessId", "FileName")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("ClusteredId")
-                        .IsUnique()
-                        .HasAnnotation("SqlServer:Clustered", true);
+                    b.HasKey("Id");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Images.ImageReference", b =>
+                {
+                    b.Property<Guid>("ProcessId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProcessId", "FileName", "ImageId");
+
+                    b.HasIndex("ImageId");
+
+                    b.ToTable("ImageReferences");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ProcessTemplates.ProcessTemplate", b =>
@@ -492,10 +496,16 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("WorkflowTasks");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Images.Image", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Images.ImageReference", b =>
                 {
+                    b.HasOne("Omnia.ProcessManagement.Core.Entities.Images.Image", "Image")
+                        .WithMany("ImageReferences")
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Omnia.ProcessManagement.Core.Entities.Processes.Process", "Process")
-                        .WithMany("Images")
+                        .WithMany("ImageReferences")
                         .HasForeignKey("ProcessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

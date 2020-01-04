@@ -6,11 +6,12 @@ import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
 import { ProcessReferenceData } from '../../../fx/models';
 import {
-    OmniaTheming, VueComponentBase, RichTextEditorExtension
+    OmniaTheming, VueComponentBase, RichTextEditorExtension, RichTextEditorUtils, ExtendedElementsEditorExtension
 } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 import { ProcessDesignerStore } from '../../stores';
 import { Prop } from 'vue-property-decorator';
+import { MediaPickerEditorExtension, MediaPickerConfiguration } from '../../../components/richtexteditorextensions/MediaPicker';
 
 export class ProcessContentTabRenderer extends TabRenderer {
     private isProcessStepShortcut: boolean = false;
@@ -38,15 +39,27 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private isLoading = false;
+    extensions: Array<RichTextEditorExtension> = [];
+
 
     created() {
         this.isLoading = true
-        setTimeout(() => { this.isLoading = false; }, 100)
+        setTimeout(() => {
+            this.setupEditorExtension();
+            this.isLoading = false;
+        }, 100)
     }
 
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
+    }
+
+    setupEditorExtension() {
+        this.extensions = RichTextEditorUtils.getDefaultRTFExtensions()
+            .filter(e => !(e instanceof ExtendedElementsEditorExtension));
+        this.extensions.push(new ExtendedElementsEditorExtension({ allowDivision: false }));
+        this.extensions.push(new MediaPickerEditorExtension(new MediaPickerConfiguration().getConfig()));
     }
 
     onContentChanged(content) {
@@ -78,6 +91,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
                 {
                     this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="paragraph"></v-skeleton-loader> :
                         <omfx-multilingual-input
+                            domProps-forceExtensions={this.extensions}
                             multipleLines={true}
                             richText={true}
                             model={processStepData.content}

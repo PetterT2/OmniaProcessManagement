@@ -9,7 +9,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
 {
     internal interface IImageRepository
     {
-        ValueTask<ImageRef> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes);
-        ValueTask<(ImageRef, byte[])> GetImageAsync(AuthorizedImageQuery authorizedImageQuery);
+        ValueTask<ImageReference> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes);
+        ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(AuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent);
     }
 }
