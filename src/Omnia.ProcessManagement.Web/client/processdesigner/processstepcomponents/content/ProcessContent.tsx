@@ -64,12 +64,8 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
 
     onContentChanged(content) {
         let referenceData = this.currentProcessStepReferenceData;
-        var currentContent = JSON.stringify(referenceData.processData.content);
-        var newContent = JSON.stringify(content);
-        if (currentContent != newContent) {
-            referenceData.processData.content = JSON.parse(JSON.stringify(content));
-            this.processDesignerStore.actions.saveState.dispatch();
-        }
+        referenceData.processData.content = content;
+        this.processDesignerStore.actions.saveState.dispatch();
     }
 
     get currentProcessStepReferenceData() {

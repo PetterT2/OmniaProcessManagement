@@ -42,6 +42,7 @@ export class ProcessDesignerStore extends Store {
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
 
+    private latestTimeCallSaveState: number = 0;
     constructor() {
         super({ id: "0c263d6c-4ab2-4345-b9f3-8b3919de1b5f" });
     }
@@ -226,10 +227,19 @@ export class ProcessDesignerStore extends Store {
         saveState: this.action((timewatch: boolean = true, refreshContentNavigation?: boolean): Promise<null> => {
             return new Promise<null>((resolve, reject) => {
                 let timewatchDuration = timewatch ? 2000 : 0;
+
+                let currentTimeCallSaveState = new Date().getTime();
+                this.latestTimeCallSaveState = currentTimeCallSaveState;
+
                 this.mutations.setHasDataChangedState.commit(true);
                 Utils.timewatch(this.contentChangedTimewatchId, () => {
                     this.currentProcessStore.actions.saveState.dispatch().then(() => {
-                        this.mutations.setHasDataChangedState.commit(false);
+
+                        //If there is any newer state come while saving a previous state.
+                        //We should keep the flag on
+                        if (this.latestTimeCallSaveState == currentTimeCallSaveState) {
+                            this.mutations.setHasDataChangedState.commit(false);
+                        }
                         resolve();
                     }).catch(reject);
                 }, timewatchDuration);

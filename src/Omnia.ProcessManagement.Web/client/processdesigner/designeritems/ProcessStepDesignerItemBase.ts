@@ -22,11 +22,14 @@ export class ProcessStepDesignerItemBase {
     public onSaveAsDraft() {
         if (this.formValidator.validateAll()) {
             TabManager.addLoadingToButton(this as any, ActionButtonIds.saveasdraft);
-            this.currentProcessStore.actions.checkIn.dispatch().then(() => {
-                TabManager.removeLoadingFromButton(this as any, ActionButtonIds.saveasdraft);
-                this.handleCloseDesinger();
-                ProcessDesignerUtils.closeProcessDesigner();
+            this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
+                this.currentProcessStore.actions.checkIn.dispatch().then(() => {
+                    TabManager.removeLoadingFromButton(this as any, ActionButtonIds.saveasdraft);
+                    this.handleCloseDesinger();
+                    ProcessDesignerUtils.closeProcessDesigner();
+                });
             });
+
             return new Promise<any>(() => {
             });
         }
