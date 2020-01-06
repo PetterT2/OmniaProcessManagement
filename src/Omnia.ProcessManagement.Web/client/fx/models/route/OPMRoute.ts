@@ -2,10 +2,10 @@
 
 export enum RouteOptions {
     publishedInBlockRenderer = "",
-    publishedInGlobalRenderer = "g/",
+    publishedInGlobalRenderer = "/g",
 
-    draftInBlockRenderer = "preview/",
-    draftInGlobalRenderer = "preview/g/"
+    previewInBlockRenderer = "/preview",
+    previewInGlobalRenderer = "/preview/g"
 }
 
 export interface OPMRoute extends TokenBasedRoute {

@@ -172,7 +172,7 @@ export class ProcessStore extends Store {
 
             });
         }),
-        loadProcessByProcessStepId: this.action((processStepId: GuidValue, versionType: ProcessVersionType) => {
+        loadPublishedProcessByProcessStepId: this.action((processStepId: GuidValue) => {
             return new Promise<Process>((resolve, reject) => {
 
                 let processId = this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()];
@@ -180,11 +180,11 @@ export class ProcessStore extends Store {
                     this.ensureProcess(processId).then(() => {
                         let processCacheKey = this.getProcessCacheKey(processId);
                         let process = this.processDict.state[processCacheKey];
-                        if (process.versionType === versionType) {
+                        if (process.versionType === ProcessVersionType.Published) {
                             resolve(process);
                         }
                         else {
-                            this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                            this.processService.getPublishedProcessByProcessStepId(processStepId).then(process => {
                                 this.internalMutations.addOrUpdateProcess(process);
                                 resolve(process);
                             }).catch(reject);
@@ -192,11 +192,19 @@ export class ProcessStore extends Store {
                     }).catch(reject)
                 }
                 else {
-                    this.processService.getProcessByProcessStepId(processStepId, versionType).then(process => {
+                    this.processService.getPublishedProcessByProcessStepId(processStepId).then(process => {
                         this.internalMutations.addOrUpdateProcess(process);
                         resolve(process);
                     }).catch(reject);
                 }
+            })
+        }),
+        loadPreviewProcessByProcessStepId: this.action((processStepId: GuidValue) => {
+            return new Promise<Process>((resolve, reject) => {
+                this.processService.getPreviewProcessByProcessStepId(processStepId).then(process => {
+                    this.internalMutations.addOrUpdateProcess(process);
+                    resolve(process);
+                }).catch(reject);
             })
         }),
         deleteDraftProcess: this.action((process: Process) => {

@@ -28,10 +28,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
-        ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery);
+        ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds);
-        ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(AuthorizedProcessQuery processQuery);
+        ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery);
         ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
         internal ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         internal ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);

@@ -27,7 +27,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
-        ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds);
        
@@ -35,7 +34,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
 
-        ValueTask<List<InternalProcess>> GetInternalProcessesAsync(AuthorizedInternalProcessQuery processQuery);
+        ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery);
+        ValueTask<List<InternalProcess>> GetAuthorizedInternalProcessesAsync(IAuthorizedInternalProcessQuery processQuery);
+
         ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);
         ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType);

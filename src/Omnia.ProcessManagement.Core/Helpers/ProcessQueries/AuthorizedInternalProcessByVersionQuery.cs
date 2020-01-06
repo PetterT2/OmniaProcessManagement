@@ -8,9 +8,9 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    internal class AuthorizedInternalProcessQuery : AuthorizedProcessQuery
+    internal class AuthorizedInternalProcessByVersionQuery : BaseAuthorizedProcessByVersionQuery, IAuthorizedInternalProcessQuery
     {
-        public AuthorizedInternalProcessQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
+        public AuthorizedInternalProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
             : base(versionType, authorizedResource)
         {
         }

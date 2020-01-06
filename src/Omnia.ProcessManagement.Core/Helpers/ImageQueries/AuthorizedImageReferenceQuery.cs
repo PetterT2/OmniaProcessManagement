@@ -31,7 +31,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 
         public virtual string GetQuery()
         {
-            var securityTrimming = SecurityTrimmingHelper.GenerateSecurityTrimming(AuthorizedResource, OPMProcessId, OmniaContext);
+            var securityTrimming = SecurityTrimmingHelper.GenerateSecurityTrimming(AuthorizedResource, OmniaContext, OPMProcessId);
 
             if (securityTrimming == string.Empty)
             {

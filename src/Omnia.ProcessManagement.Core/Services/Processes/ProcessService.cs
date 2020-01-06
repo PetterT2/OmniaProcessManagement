@@ -96,7 +96,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
         }
 
-        public async ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery)
         {
             return await ProcessRepository.GetAuthorizedProcessesAsync(processQuery);
         }
@@ -106,10 +106,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetProcessesByWorkingStatusAsync(processWorkingStatus, vesionType);
         }
 
-        public async ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(AuthorizedProcessQuery processQuery)
+        public async ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery)
         {
             var internalProcessQuery = processQuery.ConvertToAuthorizedInternalProcessQuery();
-            var internalProcesses = await ProcessRepository.GetInternalProcessesAsync(internalProcessQuery);
+            var internalProcesses = await ProcessRepository.GetAuthorizedInternalProcessesAsync(internalProcessQuery);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
 
             var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => p.ProcessWorkingStatus);
