@@ -176,8 +176,8 @@ export default class MediaPicker extends NodeExtension {
                                 v-on:click="handleDelete">
                                 <v-icon>delete</v-icon>
                             </v-btn>
-                       </div>
-                       <div v-else omfxmpc="video" :style="node.attrs.style" v-html="content.html" ></div>
+                            <div v-if="content.target === 'video'" omfxmpc="video" :style="node.attrs.style" v-html="content.html"></div>
+                        </div>
                       `
 
         } as any
