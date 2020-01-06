@@ -82,7 +82,7 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
                 {
                     ele.linkType == Enums.LinkType.CustomLink ?
                         <v-list-item-action class="mr-2">
-                            <v-icon size='14'>fal fa-link</v-icon>
+                            <i class={"ms-Icon ms-Icon--Link pl-1"}></i>
                         </v-list-item-action>
                         : null
                 }
