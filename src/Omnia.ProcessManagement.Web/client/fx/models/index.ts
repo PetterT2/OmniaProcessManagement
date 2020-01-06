@@ -9,3 +9,4 @@ export * from './shared';
 export * from './contexts';
 export * from './Constants';
 export * from './paging';
+export * from './messaging';
