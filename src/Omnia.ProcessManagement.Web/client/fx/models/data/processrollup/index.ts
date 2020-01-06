@@ -1,1 +1,1 @@
-﻿export * from "./RollupProcess";
+﻿export * from './RollupProcess';

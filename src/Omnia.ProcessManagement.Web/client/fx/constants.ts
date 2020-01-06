@@ -41,3 +41,10 @@ export const SharePointFieldsConstants = {
     get DueDate() { return "DueDate" },
     get ID() { return "ID" }
 }
+
+export const ProcessRollupConstants = {
+    get searchBoxInternalName() { return "40faa61d-27f9-4385-be4a-3dfa76d4d68e" },
+    get fulltextInternalName() { return "d4a220c4-a804-46a8-bd91-ec5d790ffa57" },
+}
+
+export const DefaultDateFormat = "YYYY-MM-DD";

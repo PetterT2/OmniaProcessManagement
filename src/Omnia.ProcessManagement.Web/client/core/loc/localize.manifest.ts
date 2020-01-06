@@ -108,6 +108,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Links: {
                 Title: "Links",
                 Description: ""
+            },
+            ProcessRollup: {
+                Title: "Process Rollup",
+                Description: "Use this block to roll up processes with filter and refiner possibilities on the result."
             }
         },
         BlockCategories: {

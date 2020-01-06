@@ -118,6 +118,16 @@
     <TypeScriptCompile Remove="client\fx\models\auditinginformation\AuditingInformation.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessListViewComponentKey.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBooleanPropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupDatePropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupFilter.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupPersonPropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTaxonomyPropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTextPropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupUISearchboxFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockData.ts" />
@@ -273,6 +283,7 @@
     <TypeScriptCompile Remove="client\models\processrollup\index.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ListViewColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewSettings.ts" />
+    <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
@@ -284,6 +295,7 @@
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessRendererStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessRollupStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
@@ -403,6 +415,7 @@
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />
+    <TypeScriptCompile Remove="client\processrollup\components\FilterComponent.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\ProcessRollup.css.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\ProcessRollup.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\ProcessRollup.tsx" />
@@ -410,11 +423,11 @@
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\DisplayTab.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\FilterTab.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\GeneralTab.tsx" />
-    <TypeScriptCompile Remove="client\processrollup\components\settingstabs\ProcessRollupSettingsTabs.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\QueryTab.tsx" />
-    <TypeScriptCompile Remove="client\processrollup\components\views\IProcessRollupViewInterface.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\List.css.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\List.manifest.ts" />
+    <TypeScriptCompile Remove="client\processrollup\components\views\List\ListSettings.css.ts" />
+    <TypeScriptCompile Remove="client\processrollup\components\views\List\ListSettings.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\ListView.tsx" />
     <TypeScriptCompile Remove="client\processrollup\factory\ProcessRollupConfigurationFactory.ts" />
     <TypeScriptCompile Remove="client\processrollup\loc\localize.manifest.ts" />

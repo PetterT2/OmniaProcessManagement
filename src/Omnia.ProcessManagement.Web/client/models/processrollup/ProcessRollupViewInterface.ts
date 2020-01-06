@@ -1,5 +1,5 @@
 ﻿import { EnterprisePropertyDefinition, SpacingSetting } from '@omnia/fx-models';
-import { RollupProcess, ProcessRollupViewSettings } from '../../../fx/models';
+import { ProcessRollupViewSettings, RollupProcess } from '../../fx/models';
 
 
 export interface IProcessRollupViewInterface<T extends ProcessRollupViewSettings> {

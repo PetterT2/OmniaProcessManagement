@@ -26,6 +26,28 @@
             DefaultReaderGroup = 0,
             LimitedAccess = 1
         }
+
+        export enum Positions {
+            Top = 1,
+            Left = 2,
+            Right = 3
+        }
+
+        export enum DatePeriods {
+            OneWeekFromToday = 1,
+            TwoWeeksFromToday = 2,
+            OneMonthFromToday = 3
+        }
+
+        export enum RefinerOrderBy {
+            Count = 1,
+            Alphabetic = 2
+        }
+
+        export enum BooleamFilterOption {
+            Yes = 1,
+            No = 2
+        }
     }
     export enum ShapeTypes {
         None = 0,

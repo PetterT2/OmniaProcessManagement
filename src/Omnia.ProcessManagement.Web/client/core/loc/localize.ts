@@ -104,6 +104,10 @@
             Links: {
                 Title: string,
                 Description: string
+            },
+            ProcessRollup: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {
