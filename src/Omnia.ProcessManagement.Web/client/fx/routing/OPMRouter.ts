@@ -26,7 +26,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
     constructor() {
         super('pm')
-    }    
+    }
 
     /**
     * Implement abstract function
@@ -35,12 +35,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         let contextPath = '';
 
         if (routeContext && routeContext.processStepId) {
-            contextPath = routeContext.processStepId.toString().toLowerCase();
-            let routeOptionSegment = routeContext.routeOption.toString();
-            if (!routeOptionSegment.endsWith('/'))
-                routeOptionSegment += '/';
-
-            contextPath = routeContext.routeOption.toString() + contextPath;
+            contextPath = routeContext.processStepId.toString() + routeContext.routeOption.toString();
+            contextPath = contextPath.toLowerCase();
         }
         return contextPath;
     }
@@ -53,19 +49,19 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         let routeOption: RouteOptions = RouteOptions.publishedInBlockRenderer;
         path = path.toLowerCase();
 
-        if (path.startsWith(RouteOptions.publishedInGlobalRenderer)) {
-            path = path.substr(`${RouteOptions.publishedInGlobalRenderer}`.length);
+        if (path.endsWith(RouteOptions.previewInGlobalRenderer)) {
+            path = path.replace(RouteOptions.previewInGlobalRenderer, '');
+            routeOption = RouteOptions.previewInGlobalRenderer;
+        }
+        else if (path.endsWith(RouteOptions.previewInBlockRenderer)) {
+            path = path.replace(RouteOptions.previewInBlockRenderer, '');
+            routeOption = RouteOptions.previewInBlockRenderer;
+        }
+        else if (path.endsWith(RouteOptions.publishedInGlobalRenderer)) {
+            path = path.replace(RouteOptions.publishedInGlobalRenderer, '');
             routeOption = RouteOptions.publishedInGlobalRenderer;
         }
-        else if (path.startsWith(RouteOptions.draftInGlobalRenderer)) {
-            path = path.substr(`${RouteOptions.draftInGlobalRenderer}`.length);
-            routeOption = RouteOptions.draftInGlobalRenderer;
-        }
-        else if (path.startsWith(RouteOptions.draftInBlockRenderer)) {
-            path = path.substr(`${RouteOptions.draftInBlockRenderer}`.length);
-            routeOption = RouteOptions.draftInBlockRenderer;
-        }
-        
+
 
         if (path) {
             path = path.split('&')[0];
@@ -92,16 +88,14 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            if (routeOption === undefined || routeOption === null) {
-                routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
-            }
+
             let title = this.multilingualStore.getters.stringValue(processStep.title);
+            let routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
 
             if (this.currentProcessId == process.id.toString().toLowerCase() &&
                 this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
-                this.currentRouteOption == routeOption &&
                 this.currentTitle == title) {
 
                 resolve();
@@ -109,7 +103,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             else {
                 this.currentProcessId = process.id.toString().toLowerCase();
                 this.currentProcessStepId = processStep.id.toString().toLowerCase();
-                this.currentRouteOption = routeOption;
                 this.currentTitle = title;
 
                 this.protectedNavigate(title, { routeOption: routeOption, processStepId: processStep.id }, { versionType: process.versionType });
@@ -140,12 +133,16 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         })
     }
 
-    public navigateWithCurrentRoute(processVersionType: ProcessVersionType): Promise<void> {
+    public navigateWithCurrentRoute(preview: boolean): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
 
+            let loadProcessPromise: Promise<Process> = preview ?
+                this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId) :
+                this.processStore.actions.loadPublishedProcessByProcessStepId.dispatch(newProcessStepId)
+
             if (newProcessStepId) {
-                this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, processVersionType).then((process) => {
+                loadProcessPromise.then((process) => {
 
                     //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
                     //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
@@ -153,7 +150,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
                     this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
-                    let reason = `Cannot find valid ${processVersionLabels[processVersionType]}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
+                    let versionLabel = preview ? 'preview' : 'published';
+                    let reason = `Cannot find valid ${versionLabel}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
                     console.warn(reason);
                     reject(reason);
                 })
@@ -171,7 +169,11 @@ const currentProcessStore: CurrentProcessStore = ServiceContainer.createInstance
 
 OPMRouter.onNavigate.subscribe(ctx => {
     if (ctx.route && ctx.stateData) {
-        OPMRouter.navigateWithCurrentRoute(ctx.stateData.versionType);
+        let preview = ctx.route.routeOption == RouteOptions.previewInBlockRenderer ||
+            ctx.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
+
+        OPMRouter.navigateWithCurrentRoute(preview);
+        //OPMRouter.navigateWithCurrentRoute(ctx.stateData.versionType);
     }
     else {
         OPMRouter.clearRoute();
@@ -179,10 +181,10 @@ OPMRouter.onNavigate.subscribe(ctx => {
 })
 
 if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-    let versionType = OPMRouter.routeContext.route.routeOption == RouteOptions.publishedInBlockRenderer ||
-        OPMRouter.routeContext.route.routeOption == RouteOptions.publishedInGlobalRenderer ? ProcessVersionType.Published : ProcessVersionType.Draft;
+    let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+        OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
 
-    OPMRouter.navigateWithCurrentRoute(versionType);
+    OPMRouter.navigateWithCurrentRoute(preview);
 }
 
 currentProcessStore.actions.addProcessStep.onDispatched((result, title, navigateTo) => {

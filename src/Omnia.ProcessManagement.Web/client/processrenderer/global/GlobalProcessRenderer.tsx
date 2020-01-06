@@ -26,7 +26,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
             (OPMRouter.routeContext.route.routeOption != RouteOptions.publishedInGlobalRenderer &&
-                OPMRouter.routeContext.route.routeOption != RouteOptions.draftInGlobalRenderer) ? true : false
+                OPMRouter.routeContext.route.routeOption != RouteOptions.previewInGlobalRenderer) ? true : false
     }
 
     //TODO: Complete the render process function

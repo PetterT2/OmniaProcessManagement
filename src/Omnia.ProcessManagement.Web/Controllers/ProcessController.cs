@@ -222,7 +222,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Draft);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Draft);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -242,7 +242,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Published);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Published);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
 
@@ -256,24 +256,53 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("byprocessstep/{processStepId:guid}/{versionType:int}")]
+        [HttpGet, Route("byprocessstep/{processStepId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<Process>> GetPublishedProcessByProcessStepIdAsync(Guid processStepId)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, versionType);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, ProcessVersionType.Published);
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReader()
                     .DoAsync(async () =>
                     {
-                        var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, versionType);
+                        var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, ProcessVersionType.Published);
                         return processData.AsApiResponse();
                     });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
+        [HttpGet, Route("byprocessstep/{processStepId:guid}/preview")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> GetPreviewProcessByProcessStepIdAsync(Guid processStepId)
+        {
+            try
+            {
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithOPMProcessIdQueryAsync(processStepId);
+                var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
+
+                var process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
+                if (process == null)
+                {
+                    process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
+                }
+                if (process == null)
+                {
+                    process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Published);
+                }
+
+                if (process == null)
+                    throw new Exception($"Unauthorized or process step id: {processStepId} not found");
+
+                return process.AsApiResponse();
             }
             catch (Exception ex)
             {
@@ -314,7 +343,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Draft);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Draft);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
@@ -332,7 +361,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType.Published);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Published);
                 authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();

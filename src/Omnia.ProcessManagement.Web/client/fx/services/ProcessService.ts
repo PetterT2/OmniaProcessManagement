@@ -138,9 +138,23 @@ export class ProcessService {
         })
     }
 
-    public getProcessByProcessStepId = (processStepId: GuidValue, versionType: ProcessVersionType) => {
+    public getPublishedProcessByProcessStepId = (processStepId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/${versionType}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}`).then((response) => {
+                if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public getPreviewProcessByProcessStepId = (processStepId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/preview`).then((response) => {
                 if (response.data.success) {
                     this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);

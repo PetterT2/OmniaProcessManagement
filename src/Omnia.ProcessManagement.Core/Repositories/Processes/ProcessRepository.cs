@@ -593,25 +593,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return processes;
         }
 
-        public async ValueTask<List<Process>> GetAuthorizedProcessesAsync(AuthorizedProcessQuery processQuery)
-        {
-            var processes = new List<Process>();
-
-            var sqlQuery = processQuery.GetQuery();
-
-            if (sqlQuery != string.Empty)
-            {
-                var processEfs = await DbContext
-                .AlternativeProcessEFView
-                .FromSqlRaw(sqlQuery)
-                .ToListAsync();
-
-                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
-            }
-
-            return processes;
-        }
-
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)
         {
             var remaningReferenceProcessStepIds = await DbContext.ProcessData
@@ -733,7 +714,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<List<InternalProcess>> GetInternalProcessesAsync(AuthorizedInternalProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery)
+        {
+            var processes = new List<Process>();
+
+            var sqlQuery = processQuery.GetQuery();
+
+            if (sqlQuery != string.Empty)
+            {
+                var processEfs = await DbContext
+                .AlternativeProcessEFView
+                .FromSqlRaw(sqlQuery)
+                .ToListAsync();
+
+                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
+            }
+
+            return processes;
+        }
+
+        public async ValueTask<List<InternalProcess>> GetAuthorizedInternalProcessesAsync(IAuthorizedInternalProcessQuery processQuery)
         {
             var processes = new List<InternalProcess>();
 

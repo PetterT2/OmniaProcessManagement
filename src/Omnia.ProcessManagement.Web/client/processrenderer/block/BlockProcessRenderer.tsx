@@ -21,7 +21,7 @@ export class BlockProcessRendererComponent extends Vue implements IWebComponentI
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
             (OPMRouter.routeContext.route.routeOption != RouteOptions.publishedInBlockRenderer &&
-                OPMRouter.routeContext.route.routeOption != RouteOptions.draftInBlockRenderer) ? true : false
+                OPMRouter.routeContext.route.routeOption != RouteOptions.previewInBlockRenderer) ? true : false
     }
 
     //TODO: Complete the render process function

@@ -62,10 +62,17 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
-        public async ValueTask<AuthorizedProcessQuery> InitAuthorizedProcessQueryAsync(DraftOrPublishedVersionType versionType)
+        public async ValueTask<AuthorizedProcessByVersionQuery> InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType versionType)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
-            var authorizedProcessQuery = new AuthorizedProcessQuery(versionType, authorizedResource);
+            var authorizedProcessQuery = new AuthorizedProcessByVersionQuery(versionType, authorizedResource);
+            return authorizedProcessQuery;
+        }
+
+        public async ValueTask<AuthorizedProcessByProcessStepIdQuery> InitAuthorizedProcessWithOPMProcessIdQueryAsync(Guid processStepId)
+        {
+            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
+            var authorizedProcessQuery = new AuthorizedProcessByProcessStepIdQuery(processStepId, authorizedResource, OmniaContext);
             return authorizedProcessQuery;
         }
 

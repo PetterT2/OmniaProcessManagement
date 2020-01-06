@@ -19,6 +19,9 @@ StyleFlow.define(LinksBlockStyles,
             $nest: {
                 '&:hover': {
                     backgroundColor: 'rgba(0,0,0,.04)'
+                },
+                'i': {
+                    fontSize: '14px'
                 }
             }
         },

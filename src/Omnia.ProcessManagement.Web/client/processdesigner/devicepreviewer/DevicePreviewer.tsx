@@ -39,16 +39,18 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     }
 
     private createIframeUrl() {
-        var currentProcess = this.currentProcessStore.getters.referenceData();
-        var previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
+        let currentProcess = this.currentProcessStore.getters.referenceData();
+        let previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
+        let iframeUrl = '';
         if (Utils.isNullOrEmpty(previewPageUrl)) {
-            previewPageUrl = location.protocol + '//' + location.host + location.pathname + `#/@pm/preview/g/${currentProcess.current.processStep.id}`;
+            iframeUrl = location.protocol + '//' + location.host + location.pathname + `#/@pm/${currentProcess.current.processStep.id}/preview/g`;
+        }
+        else {
+            //TODO : should we handle if the previewPageUrl is in SharePoint then it need to have a #
+            iframeUrl  = previewPageUrl + `/@pm/${currentProcess.current.processStep.id}/preview`;
         }
 
-        if (currentProcess) {
-            previewPageUrl += `/@pm/preview/${currentProcess.current.processStep.id}`;
-        }
-        return previewPageUrl;
+        return iframeUrl;
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {

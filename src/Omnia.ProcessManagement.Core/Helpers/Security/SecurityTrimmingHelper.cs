@@ -18,6 +18,9 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         public readonly static string ImageReferenceTableAlias = "IR";
         public readonly static string ImageReferenceTableName = nameof(OmniaPMDbContext.ImageReferences);
 
+        public readonly static string ProcessDataTableAlias = "PD";
+        public readonly static string ProcessDataTableName = nameof(OmniaPMDbContext.ProcessData);
+
         public static List<Guid> Roles()
         {
             return new List<Guid>()
@@ -29,7 +32,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             };
         }
 
-        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, Guid opmProcessId, IOmniaContext omniaContext)
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, IOmniaContext omniaContext, Guid? opmProcessId)
         {
             var securityTrimming = "";
 
@@ -47,8 +50,13 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 var authorTeamAppIds = resources.AuthorTeamAppIds.Distinct().ToList();
 
                 var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
-                var approverOPMProcessIds = TrimByLimitedIds(resources.ApproverOPMProcessIds, new List<Guid> { opmProcessId });
-                var reviewerOPMProcessIds = TrimByLimitedIds(resources.ReviewerOPMProcessIds, new List<Guid> { opmProcessId });
+                var approverOPMProcessIds = opmProcessId.HasValue ?
+                    TrimByLimitedIds(resources.ApproverOPMProcessIds, new List<Guid> { opmProcessId.Value }) :
+                    resources.ApproverOPMProcessIds.Distinct().ToList();
+
+                var reviewerOPMProcessIds = opmProcessId.HasValue ?
+                    TrimByLimitedIds(resources.ReviewerOPMProcessIds, new List<Guid> { opmProcessId.Value }) :
+                    resources.ReviewerOPMProcessIds.Distinct().ToList();
 
                 var approverAndReviewerOPMProcessIds = new List<Guid>();
                 approverAndReviewerOPMProcessIds.AddRange(approverOPMProcessIds);
@@ -56,7 +64,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 approverAndReviewerOPMProcessIds = approverAndReviewerOPMProcessIds.Distinct().ToList();
 
 
-                var opmProcessIdTrimming = $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId })}";
+                var opmProcessIdTrimming = opmProcessId.HasValue ?
+                    $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId.Value })}" : "";
 
                 if (authorTeamAppIds.Any())
                 {
