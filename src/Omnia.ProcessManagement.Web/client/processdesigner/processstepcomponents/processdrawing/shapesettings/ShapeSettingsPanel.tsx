@@ -63,6 +63,8 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
 
     initSelectedShape() {
         this.selectedShape = this.processDesignerStore.getters.shapeToEditSettings();
+        if (this.selectedShape == null || this.selectedShape == undefined)
+            return;
         this.isShowChangeShape = false;
         this.lockedSubmitShapeSettings = true;
 

@@ -71,18 +71,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
             this.drawingCanvas.setSelectingShapeCallback(this.onSelectingShape);
-            setTimeout(() => {
-                if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-                    this.setSelectedShapeByRouter();
-                }
-            }, 0);
+            if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
+                this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId, DrawingShapeTypes.ProcessStep);
+            }
         }, 300);
-    }
-
-    private setSelectedShapeByRouter() {
-        this.drawingCanvas.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
-        let drawingShape = this.drawingCanvas.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == OPMRouter.routeContext.route.processStepId);
-        this.drawingCanvas.setSelectedShape(drawingShape);
     }
 
     private initCanvas(currentReferenceData: ProcessReferenceData) {
@@ -90,7 +82,8 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             this.drawingCanvas.destroy();
         if (!currentReferenceData) return;
         this.currentProcessStepId = currentReferenceData.current.processStep.id;
-        if (currentReferenceData.current.processData.canvasDefinition) {
+        if (currentReferenceData.current.processData.canvasDefinition
+            && !Utils.isArrayNullOrEmpty(currentReferenceData.current.processData.canvasDefinition.drawingShapes)) {
             this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
             this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
             this.drawShapes();
@@ -116,17 +109,12 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
                     });
                 }
-                if (this.currentProcessStepId == OPMRouter.routeContext.route.processStepId) {
-                    this.setSelectedShapeByRouter();
-                }
-
+                this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId, DrawingShapeTypes.ProcessStep);
             } else if (shape.type == DrawingShapeTypes.CustomLink && this.currentDrawingProcessData.links) {
                 let link = this.currentDrawingProcessData.links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
                 if (link) {
                     window.open(link.url, link.openNewWindow ? '_blank' : '');
-                    this.drawingCanvas.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
-                    let drawingShape = this.drawingCanvas.drawingShapes.find(s => s.id == shape.id);
-                    this.drawingCanvas.setSelectedShape(drawingShape);
+                    this.drawingCanvas.setSelectedShapeItemId(shape.id, DrawingShapeTypes.CustomLink);
                 }
             }
         }
