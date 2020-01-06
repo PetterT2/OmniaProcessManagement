@@ -40,6 +40,11 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
         if (this.spContext.pageContext) {
             this.teamSiteName = this.spContext.pageContext.web.title;
         }
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (referenceData) {
+            this.refreshExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep);
+        }
+
         this.subscribeEvents();
     }
 

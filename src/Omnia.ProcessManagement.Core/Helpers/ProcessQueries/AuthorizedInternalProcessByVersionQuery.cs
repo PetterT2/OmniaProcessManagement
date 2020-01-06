@@ -10,9 +10,11 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
     internal class AuthorizedInternalProcessByVersionQuery : BaseAuthorizedProcessByVersionQuery, IAuthorizedInternalProcessQuery
     {
-        public AuthorizedInternalProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
-            : base(versionType, authorizedResource)
+        public AuthorizedInternalProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource,
+            List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null)
+            : base(versionType, authorizedResource, limitedTeamAppIds, limitedOPMProcessIds)
         {
+
         }
 
         protected override List<string> SelectColumns

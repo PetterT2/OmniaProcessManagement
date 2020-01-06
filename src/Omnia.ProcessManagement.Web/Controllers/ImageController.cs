@@ -26,14 +26,11 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ImageController> Logger { get; }
         IImageService ImageService { get; }
-        IProcessSecurityService ProcessSecurityService { get; }
         FileExtensionContentTypeProvider ContentTypeProvider { get; }
 
-        public ImageController(ILogger<ImageController> logger, IProcessSecurityService processSecurityService,
-            IImageService imageService)
+        public ImageController(ILogger<ImageController> logger, IImageService imageService)
         {
             ImageService = imageService;
-            ProcessSecurityService = processSecurityService;
             ContentTypeProvider = new FileExtensionContentTypeProvider();
             Logger = logger;
         }
@@ -58,7 +55,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("{opmProcessId:guid}/{id:int}/{fileName}")]
         [Authorize]
-        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, string fileName, int id)
+        public async ValueTask<IActionResult> GetImageAsync(Guid opmProcessId, int id, string fileName)
         {
             try
             {

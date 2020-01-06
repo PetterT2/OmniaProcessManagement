@@ -11,9 +11,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
     internal interface IImageRepository
     {
         ValueTask<ImageReference> AddImageAsync(InternalProcess internalProcess, string fileName, byte[] bytes);
-        ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(AuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent);
+        ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(IAuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent);
 
         ValueTask<byte[]> GetImageContentAsync(int imageId);
         ValueTask<List<ImageReference>> GetImageReferencesAsync(Guid processId);
+
+        ValueTask EnsureDeleteUnusedImageAsync();
     }
 }

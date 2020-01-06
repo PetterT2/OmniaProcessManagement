@@ -8,6 +8,7 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
@@ -213,6 +214,15 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         {
 
             var isAuthorized = true;
+
+            if (!AuthorOnly)
+            {
+                if (Process.VersionType == ProcessVersionType.CheckedOut && Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+                {
+                    throw new ProcessCheckedOutByAnotherUserException(Process.CheckedOutBy);
+                }
+            }
+
             if (RequiredRoles.Count > 0)
             {
                 EnsureContextParamsAsync();

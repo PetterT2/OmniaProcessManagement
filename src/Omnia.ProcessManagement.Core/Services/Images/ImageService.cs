@@ -103,6 +103,11 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             await ProcessRepository.DeleteUnusedImageReferencesAsync(imageReferences, opmProcessId);
         }
 
+        public async ValueTask EnsureDeleteUnusedImageAsync()
+        {
+            await ImageRepository.EnsureDeleteUnusedImageAsync();
+        }
+
         private string EnsureTempFolderPath(ImageReference imageRef, Guid opmProcessId)
         {
             var path = Path.Combine(System.IO.Path.GetTempPath(), OPMConstants.ImageTempFolder, opmProcessId.ToString("N"), imageRef.ImageId.ToString());

@@ -222,9 +222,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Draft);
-                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
+                     limitedTeamAppIds: new List<Guid> { teamAppId },
+                     limitedOPMProcessIds: opmProcessIds);
 
                 var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
                 return processWorkingStatus.AsApiResponse();
@@ -242,9 +242,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Published);
-                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
-                authorizedProcessQuery.SetLimitedOPMProcessIds(opmProcessIds.ToArray());
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Published,
+                    limitedTeamAppIds: new List<Guid> { teamAppId },
+                    limitedOPMProcessIds: opmProcessIds);
 
                 var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
                 return processWorkingStatus.AsApiResponse();
@@ -286,7 +286,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithOPMProcessIdQueryAsync(processStepId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByOPMProcessIdQueryAsync(processStepId);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
                 var process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
@@ -343,8 +343,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Draft);
-                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
+                    limitedTeamAppIds: new List<Guid> { teamAppId });
+
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }
@@ -361,8 +362,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType.Published);
-                authorizedProcessQuery.SetLimitedTeamAppIds(teamAppId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Published,
+                    limitedTeamAppIds: new List<Guid> { teamAppId });
+
                 var processesData = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
                 return processesData.AsApiResponse();
             }

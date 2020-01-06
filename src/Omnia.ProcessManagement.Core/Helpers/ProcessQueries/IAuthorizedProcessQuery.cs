@@ -1,4 +1,6 @@
-﻿namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
+﻿using System;
+
+namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
     public interface IAuthorizedProcessQuery
     {

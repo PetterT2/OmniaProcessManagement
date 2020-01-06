@@ -109,7 +109,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
             modelBuilder.Entity<ImageReference>()
                 .HasOne(p => p.Image)
                 .WithMany(p => p.ImageReferences)
-                .IsRequired(true).OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
