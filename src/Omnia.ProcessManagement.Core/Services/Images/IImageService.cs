@@ -14,5 +14,6 @@ namespace Omnia.ProcessManagement.Core.Services.Images
         ValueTask<FileStream> GetImageAsync(ImageReference imageRef, Guid opmProcessId, bool ensureAuthorized = true);
         ValueTask<List<ImageReference>> GetImageReferencesAsync(Guid processId);
         ValueTask DeleteImageReferencesAsync(List<ImageReference> imageReferences, Guid opmProcessId);
+        ValueTask EnsureDeleteUnusedImageAsync();
     }
 }

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    public class AuthorizedProcessByProcessStepIdQuery : IAuthorizedProcessQuery
+    internal class AuthorizedProcessByProcessStepIdQuery : IAuthorizedProcessQuery
     {
         private Guid ProcessStepId { get; }
         private UserAuthorizedResource AuthorizedResource { get; }

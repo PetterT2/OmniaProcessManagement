@@ -62,21 +62,21 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
-        public async ValueTask<AuthorizedProcessByVersionQuery> InitAuthorizedProcessWithVersionQueryAsync(DraftOrPublishedVersionType versionType)
+        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
-            var authorizedProcessQuery = new AuthorizedProcessByVersionQuery(versionType, authorizedResource);
+            var authorizedProcessQuery = new AuthorizedProcessByVersionQuery(versionType, authorizedResource, limitedTeamAppIds, limitedOPMProcessIds);
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<AuthorizedProcessByProcessStepIdQuery> InitAuthorizedProcessWithOPMProcessIdQueryAsync(Guid processStepId)
+        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByOPMProcessIdQueryAsync(Guid processStepId)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
             var authorizedProcessQuery = new AuthorizedProcessByProcessStepIdQuery(processStepId, authorizedResource, OmniaContext);
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<AuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef, Guid opmProcessId)
+        public async ValueTask<IAuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef, Guid opmProcessId)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
             var authorizedProcessQuery = new AuthorizedImageReferenceQuery(authorizedResource, imageRef, opmProcessId, OmniaContext);

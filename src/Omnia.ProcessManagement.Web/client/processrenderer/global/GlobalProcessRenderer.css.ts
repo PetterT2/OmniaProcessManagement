@@ -22,5 +22,14 @@ StyleFlow.define(GlobalProcessRendererStyles,
             right: 0,
             background: 'white',
             zIndex: 5 //hide the wcm floading action button
+        },
+        containerInSpfxIFrame: {
+            position: 'absolute',
+            top: '60px', //todo - update to calculated value
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'white',
+            zIndex: 5 //hide the wcm floading action button
         }
     })

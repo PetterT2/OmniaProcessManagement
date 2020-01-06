@@ -16,11 +16,6 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
 {
     internal abstract class BaseWorkflowTimerJob : LifetimeEventsHostedService
     {
-        internal class ServiceCollectionHandler
-        {
-
-        }
-
         private static object _lock = new object();
         private static bool EnsuredSubscribeTriggerProcessWorkflowHandlerJob = false;
         private static Dictionary<ProcessWorkingStatus, DateTimeOffset> _latestTimeUpdateProcessWorkingStatusDict = new Dictionary<ProcessWorkingStatus, DateTimeOffset>
@@ -119,7 +114,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
             }
             catch (Exception ex)
             {
-                Logger.LogWarning($"sync process type exception: {ex.Message}. {ex.StackTrace}");
+                Logger.LogError($"Process workflow TimerJob: {ex.Message}. {ex.StackTrace}");
             }
             finally
             {

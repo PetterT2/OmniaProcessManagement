@@ -46,8 +46,11 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
             return null;
         }
 
+        let styleClass = this.omniaContext.environment.omniaApp ? this.styles.containerInOmnia :
+            window.self == window.top ? this.styles.containerInSpfx : this.styles.containerInSpfxIFrame
+
         return (
-            <div class={this.omniaContext.environment.omniaApp ? this.styles.containerInOmnia : this.styles.containerInSpfx}>
+            <div class={styleClass}>
                 {this.renderProcess(h)}
             </div>
         )

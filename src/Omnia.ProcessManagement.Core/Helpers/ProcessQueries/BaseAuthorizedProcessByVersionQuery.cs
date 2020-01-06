@@ -8,29 +8,24 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    public abstract class BaseAuthorizedProcessByVersionQuery
+    internal abstract class BaseAuthorizedProcessByVersionQuery
     {
         protected List<Guid> LimitedTeamAppIds = new List<Guid>();
         protected List<Guid> LimitedOPMProcessIds = new List<Guid>();
         protected DraftOrPublishedVersionType VersionType { get; }
         protected UserAuthorizedResource AuthorizedResource { get; }
-        public BaseAuthorizedProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
+        public BaseAuthorizedProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource,
+            List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null)
         {
             VersionType = versionType;
             AuthorizedResource = authorizedResource;
+            if (limitedTeamAppIds != null)
+                LimitedTeamAppIds = limitedTeamAppIds.Distinct().ToList();
+
+            if(limitedOPMProcessIds != null)
+                LimitedOPMProcessIds = limitedOPMProcessIds.Distinct().ToList();
         }
 
-        public void SetLimitedTeamAppIds(params Guid[] teamAppIds)
-        {
-            LimitedTeamAppIds.AddRange(teamAppIds);
-            LimitedTeamAppIds = LimitedTeamAppIds.Distinct().ToList();
-        }
-
-        public void SetLimitedOPMProcessIds(params Guid[] opmProcessIds)
-        {
-            LimitedOPMProcessIds.AddRange(opmProcessIds);
-            LimitedOPMProcessIds = LimitedTeamAppIds.Distinct().ToList();
-        }
 
         public virtual string GetQuery()
         {

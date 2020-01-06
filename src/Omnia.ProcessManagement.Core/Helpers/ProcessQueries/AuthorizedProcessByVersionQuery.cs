@@ -1,14 +1,16 @@
 ﻿using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Security;
+using System;
 using System.Collections.Generic;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    public class AuthorizedProcessByVersionQuery : BaseAuthorizedProcessByVersionQuery, IAuthorizedProcessQuery
+    internal class AuthorizedProcessByVersionQuery : BaseAuthorizedProcessByVersionQuery, IAuthorizedProcessQuery
     {
-        public AuthorizedProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource)
-            : base(versionType, authorizedResource)
+        public AuthorizedProcessByVersionQuery(DraftOrPublishedVersionType versionType, UserAuthorizedResource authorizedResource,
+            List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null)
+            : base(versionType, authorizedResource, limitedTeamAppIds, limitedOPMProcessIds)
         {
 
         }
@@ -33,13 +35,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
                 };
             }
         }
-        
+
         IAuthorizedInternalProcessQuery IAuthorizedProcessQuery.ConvertToAuthorizedInternalProcessQuery()
         {
-            var internalProcessQuery = new AuthorizedInternalProcessByVersionQuery(VersionType, AuthorizedResource);
-            internalProcessQuery.SetLimitedOPMProcessIds(LimitedOPMProcessIds.ToArray());
-            internalProcessQuery.SetLimitedTeamAppIds(LimitedTeamAppIds.ToArray());
-
+            var internalProcessQuery = new AuthorizedInternalProcessByVersionQuery(VersionType, AuthorizedResource, LimitedTeamAppIds, LimitedOPMProcessIds);
             return internalProcessQuery;
         }
     }

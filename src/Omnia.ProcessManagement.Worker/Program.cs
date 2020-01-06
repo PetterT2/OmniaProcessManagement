@@ -8,6 +8,7 @@ using Omnia.Fx.Models.AppSettings;
 using Omnia.Fx.NetCore.Worker.Hosting;
 using Omnia.ProcessManagement.Core.Extensions;
 using Omnia.ProcessManagement.Worker.TimerJobs;
+using Omnia.ProcessManagement.Worker.TimerJobs.Images;
 using Omnia.ProcessManagement.Worker.TimerJobs.ProcessWorkflows;
 using System.IO;
 using System.Threading.Tasks;
@@ -56,6 +57,8 @@ namespace Omnia.ProcessManagement.Worker
                         services.AddHostedService<CancellingApprovalWorkflowTimerJob>();
                         services.AddHostedService<SyncingToSharePointWorkflowTimerJob>();
                         services.AddHostedService<ArchivingProcessWorkflowTimerJob>();
+
+                        services.AddHostedService<ImageCleanerTimerJob>();
                         services.AddOmniaPMSqlDB();
                     });
                 });

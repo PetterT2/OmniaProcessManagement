@@ -68,7 +68,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
             return imageRef;
         }
 
-        public async ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(AuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent)
+        public async ValueTask<(ImageReference, byte[])> GetAuthorizedImageAsync(IAuthorizedImageReferenceQuery authorizedImageQuery, bool loadImageContent)
         {
             var sql = authorizedImageQuery.GetQuery();
             var imageReferenceEf = await DBContext.ImageReferences.FromSqlRaw(sql).FirstOrDefaultAsync();
@@ -109,6 +109,21 @@ namespace Omnia.ProcessManagement.Core.Repositories.Images
                 .ToListAsync();
 
             return result;
+        }
+
+        public async ValueTask EnsureDeleteUnusedImageAsync()
+        {
+            //We ensure to delete unused images
+            //Because we only concern the image that added at least one day ago
+            //plus, we have been applied the DeleteBehavior.Restrict so this will be quite safe
+            await DBContext.ExecuteSqlCommandAsync(@$"
+                DELETE Images
+                WHERE Id in (
+	                SELECT i.Id
+	                FROM Images i LEFT JOIN ImageReferences ir on i.Id = ir.ImageId
+	                WHERE ir.ImageId is NULL AND i.CreatedAt < '{DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss")}'
+                )
+            ");
         }
     }
 }

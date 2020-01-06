@@ -917,25 +917,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     }
                     await DbContext.SaveChangesAsync();
 
-                    var imageIds = imageReferences.Select(i => i.ImageId).ToList();
-                    var noreferenceImageIds = await DbContext.Images.Where(i => imageIds.Contains(i.Id) && !i.ImageReferences.Any())
-                        .Select(i => i.Id)
-                        .ToListAsync();
-
-                    if (noreferenceImageIds.Any())
-                    {
-                        foreach (var id in noreferenceImageIds)
-                        {
-                            var imageEf = new Entities.Images.Image()
-                            {
-                                Id = id
-                            };
-                            DbContext.Images.Attach(imageEf);
-                            DbContext.Images.Remove(imageEf);
-                        }
-                        await DbContext.SaveChangesAsync();
-                    }
-
                     return true;
                 });
             }

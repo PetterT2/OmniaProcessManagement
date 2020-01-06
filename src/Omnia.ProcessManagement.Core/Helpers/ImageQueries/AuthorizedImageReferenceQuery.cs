@@ -1,10 +1,6 @@
 ﻿using Omnia.Fx.Contexts;
-using Omnia.ProcessManagement.Core.Entities.Images;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Helpers.Security;
-using Omnia.ProcessManagement.Core.Repositories;
-using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.Security;
 using System;
 using System.Collections.Generic;
@@ -13,7 +9,7 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    public class AuthorizedImageReferenceQuery
+    internal class AuthorizedImageReferenceQuery : IAuthorizedImageReferenceQuery
     {
         private UserAuthorizedResource AuthorizedResource { get; }
         public Models.Images.ImageReference ImageRef { get; private set; }
