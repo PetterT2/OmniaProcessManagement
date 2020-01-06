@@ -157,7 +157,7 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
                                     {
                                         link.linkType == Enums.LinkType.CustomLink ?
                                             <v-list-item-action class="mr-2">
-                                                <v-icon size='14'>fal fa-link</v-icon>
+                                                <i style={{ 'font-size': '14px' }} class={"ms-Icon ms-Icon--Link pl-1"}></i>
                                             </v-list-item-action>
                                             : null
                                     }

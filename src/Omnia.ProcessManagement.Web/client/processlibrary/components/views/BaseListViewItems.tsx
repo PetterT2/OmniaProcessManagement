@@ -70,7 +70,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     created() {
         this.loadPermisison();
         let languageSettings = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
-        if (languageSettings.availableLanguages.length > 0) {
+        if (languageSettings && languageSettings.availableLanguages.length > 0) {
             let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
             if (userLanguageSettings) this.lcid = userLanguageSettings.lcid;
         }
@@ -79,7 +79,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             this.dateFormat = regionalSettings.dateFormat;
         }
         this.isLoading = true;
-       
+
         this.refreshStatusInterval = setInterval(() => {
             this.refreshStatus();
         }, 5000);
@@ -88,7 +88,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             this.initProcesses();
             this.initSubscription();
 
-          
+
         });
     }
 
