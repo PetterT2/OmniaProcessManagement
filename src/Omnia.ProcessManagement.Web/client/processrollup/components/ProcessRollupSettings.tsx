@@ -5,7 +5,6 @@ import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueC
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 
 import { ProcessRollupLocalization } from '../loc/localize';
-import { GeneralTab } from './settingstabs/GeneralTab';
 import { QueryTab } from './settingstabs/QueryTab';
 import { DisplayTab } from './settingstabs/DisplayTab';
 import { FilterTab } from './settingstabs/FilterTab';
@@ -17,14 +16,21 @@ import { ProcessRollupConfigurationFactory } from '../factory/ProcessRollupConfi
 @Component
 export class ProcessRollupSettingsComponent extends Vue implements IWebComponentInstance {
     @Prop() settingsKey: string;
-    @Prop() styles: any;
-    // Localize
+
+    // -------------------------------------------------------------------------
+    // Localizes
+    // -------------------------------------------------------------------------
     @Localize(ProcessRollupLocalization.namespace) private loc: ProcessRollupLocalization.locInterface;
 
-    //services
+    // -------------------------------------------------------------------------
+    // Services
+    // -------------------------------------------------------------------------
     @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<ProcessRollupBlockData>;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
+    // -------------------------------------------------------------------------
+    // Component properties
+    // -------------------------------------------------------------------------
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     blockData: ProcessRollupBlockData = null;
 
@@ -70,6 +76,10 @@ export class ProcessRollupSettingsComponent extends Vue implements IWebComponent
         this.blockData = Utils.clone(blockData);
     }
 
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
+
     renderSettings() {
         let h = this.$createElement;
 
@@ -77,18 +87,18 @@ export class ProcessRollupSettingsComponent extends Vue implements IWebComponent
             <v-expansion-panels dark={this.omniaTheming.promoted.body.dark}>
                 <v-expansion-panel>
                     <v-expansion-panel-header>
-                        <h4 class="subtitle-1"> {this.loc.Settings.Query}</h4>
+                        <h4 class="subtitle-1">{this.loc.Settings.Display}</h4>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
-                        <GeneralTab styles={this.styles} settingsKey={this.settingsKey}></GeneralTab>
+                        <DisplayTab settingsKey={this.settingsKey}></DisplayTab>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
                 <v-expansion-panel>
                     <v-expansion-panel-header>
-                        <h4 class="subtitle-1">{this.loc.Settings.Display}</h4>
+                        <h4 class="subtitle-1">{this.loc.Settings.Query}</h4>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
-                        <DisplayTab styles={this.styles} settingsKey={this.settingsKey}></DisplayTab>
+                        <QueryTab settingsKey={this.settingsKey}></QueryTab>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
                 <v-expansion-panel>

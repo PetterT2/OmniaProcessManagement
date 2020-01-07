@@ -3,6 +3,6 @@
 export interface ListViewColumn {
     internalName: string,
     type: PropertyIndexedType;
-    width?: string,
-    isShowHeading: boolean
+    width?: string
+    showHeading?: boolean;
 }

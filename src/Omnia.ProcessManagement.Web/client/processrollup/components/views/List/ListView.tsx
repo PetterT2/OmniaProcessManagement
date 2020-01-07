@@ -13,6 +13,7 @@ import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
 import { DefaultDateFormat } from '../../../../fx';
 import { RollupProcess } from '../../../../fx/models';
+import './List.css';
 
 @Component
 export class ListView extends Vue implements IWebComponentInstance, IProcessRollupViewInterface<ProcessRollupListViewSettings> {

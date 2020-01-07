@@ -422,8 +422,6 @@
     <TypeScriptCompile Remove="client\processrollup\components\ProcessRollupSettings.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\DisplayTab.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\settingstabs\FilterTab.tsx" />
-    <TypeScriptCompile Remove="client\processrollup\components\settingstabs\GeneralTab.tsx" />
-    <TypeScriptCompile Remove="client\processrollup\components\settingstabs\QueryTab.tsx" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\List.css.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\List.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\components\views\List\ListSettings.css.ts" />

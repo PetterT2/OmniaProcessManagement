@@ -8,14 +8,12 @@ import { ProcessRollupBlockSettingsStyles } from '../../../models';
 
 interface QueryTabProps {
     settingsKey: string;
-    styles: typeof ProcessRollupBlockSettingsStyles;
 }
 
 @Component
 export class QueryTab extends tsx.Component<QueryTabProps>
 {
     @Prop() settingsKey: string;
-    @Prop() styles: typeof ProcessRollupBlockSettingsStyles;
 
     @Localize(ProcessRollupLocalization.namespace) loc: ProcessRollupLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;

@@ -45,6 +45,7 @@ export const SharePointFieldsConstants = {
 export const ProcessRollupConstants = {
     get searchBoxInternalName() { return "40faa61d-27f9-4385-be4a-3dfa76d4d68e" },
     get fulltextInternalName() { return "d4a220c4-a804-46a8-bd91-ec5d790ffa57" },
+    get processTitleAndLink() { return "24291d72-f945-4f0f-b6c4-f0ef240f70f2" }
 }
 
 export const DefaultDateFormat = "YYYY-MM-DD";

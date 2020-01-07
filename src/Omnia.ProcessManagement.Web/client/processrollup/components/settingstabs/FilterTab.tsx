@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Localize, Inject, Utils, OmniaContext } from '@omnia/fx';
 import { Prop } from 'vue-property-decorator';
-import { OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
+import { OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
 import { ProcessRollupLocalization } from '../../loc/localize';
 import { ProcessRollupBlockSettingsStyles } from '../../../models';
 
@@ -18,7 +18,11 @@ export class FilterTab extends tsx.Component<FilterTabProps>
     @Localize(ProcessRollupLocalization.namespace) loc: ProcessRollupLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
-    created() { }
+    rollupSettingsClasses = StyleFlow.use(ProcessRollupBlockSettingsStyles);
+
+    created() {
+
+    }
 
     render(h) {
         return (

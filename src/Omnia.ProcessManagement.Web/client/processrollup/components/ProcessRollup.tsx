@@ -2,20 +2,22 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Topics, ScrollPagingUtils, Utils, WebUtils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { ProcessRollupStyles } from '../../models';
+import { ProcessRollupBlockStyles } from '../../models';
 import { ProcessRollupLocalization } from '../loc/localize';
 import { MultilingualStore, EnterprisePropertyStore } from '@omnia/fx/store';
-import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess } from '../../fx/models';
-import { PropertyIndexedType, SpacingSetting } from '@omnia/fx-models';
+import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration } from '../../fx/models';
+import { PropertyIndexedType, SpacingSetting, IMessageBusSubscriptionHandler, OmniaUserContext, Guid } from '@omnia/fx-models';
 import { FilterExtension, SearchBoxFilterExtension, FilterComponent } from './FilterComponent';
 import { SharePointFieldsConstants, ProcessRollupConstants } from '../../fx';
 import { classes } from 'typestyle';
 import { StyleFlow } from '@omnia/fx/ux';
+import { ProcessRollupConfigurationFactory } from '../factory/ProcessRollupConfigurationFactory';
+import { OPMPublicTopics } from '../../fx/messaging';
 
 @Component
 export class ProcessRollupComponent extends Vue implements IWebComponentInstance {
     @Prop({ default: "" }) settingsKey: string;
-    @Prop() styles: typeof ProcessRollupStyles | any;
+    @Prop() styles: typeof ProcessRollupBlockStyles | any;
 
     @Localize(ProcessRollupLocalization.namespace) loc: ProcessRollupLocalization.locInterface;
 
@@ -25,6 +27,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ProcessRollupBlockData>;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
+    @Inject(OmniaContext) omniaContext: OmniaContext;
 
     // -------------------------------------------------------------------------
     // Component properties
@@ -33,6 +36,8 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     componentUniqueKey: string = Utils.generateGuid();
 
     blockData: ProcessRollupBlockData = null;
+    subscriptionHandler: IMessageBusSubscriptionHandler = null;
+    userContext: OmniaUserContext = null;
 
     processes: Array<RollupProcess> = [];
     currentPage: number = 1;
@@ -43,19 +48,55 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     errorMsg: string = '';
     total = 0;
 
-    processRollupClasses = StyleFlow.use(ProcessRollupStyles, this.styles);
+    processRollupClasses = StyleFlow.use(ProcessRollupBlockStyles, this.styles);
+
+    created() {
+        this.init();
+    }
+
+    init() {
+        let promises: Array<Promise<any>> = [
+            this.propertyStore.actions.ensureLoadData.dispatch(),
+            this.omniaContext.user.then(user => { this.userContext = user })
+        ]
+
+        Promise.all(promises).then(() => {
+            this.subscriptionHandler = OPMPublicTopics.registerProcessRollupView.subscribe(this.registerProcessRollupView);
+
+            this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-process-rollup-settings");
+            this.settingsService.getValue(this.settingsKey).then((blockData) => {
+                this.subscriptionHandler.add(this.settingsService
+                    .onKeyValueUpdated(this.settingsKey)
+                    .subscribe(this.setBlockData));
+
+                if (blockData) {
+                    this.setBlockData(blockData)
+                }
+                else {
+                    this.settingsService.setValue(this.settingsKey, ProcessRollupConfigurationFactory.create());
+                }
+            });
+        })
+    }
+
+    setBlockData(blockData: ProcessRollupBlockData) {
+        this.blockData = blockData;
+    }
+
+    registerProcessRollupView(msg: ProcessRollupViewRegistration) {
+        if (msg) {
+            msg.id = new Guid(msg.id.toString().toLowerCase());
+            this.registeredViewElemMsg[msg.id.toString()] = msg.viewElement;
+
+            //force update if the processes already loaded
+            if (this.processes) this.$forceUpdate();
+        }
+    }
 
     isComponentEmtpy() {
-        let query = '';
-        let title = '';
-        if (this.blockData && this.blockData.settings) {
-            if (this.blockData.settings.title) {
-                title = this.multilingualStore.getters.stringValue(this.blockData.settings.title);
-                title = title.trim();
-            }
-            query = this.blockData.settings.query;
-        }
-        return !query && !title;
+        return !this.blockData ||
+            !this.blockData.settings.resources ||
+            this.blockData.settings.resources.length == 0;
     }
 
     pagingNumberChanged(pageNumber: number) {

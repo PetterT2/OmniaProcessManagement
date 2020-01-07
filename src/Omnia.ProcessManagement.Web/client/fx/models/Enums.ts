@@ -7,7 +7,8 @@
 
         export enum PagingType {
             NoPaging = 1,
-            Classic = 2
+            Classic = 2,
+            Scroll = 3
         }
 
         export enum StartPageTab {
@@ -47,6 +48,11 @@
         export enum BooleamFilterOption {
             Yes = 1,
             No = 2
+        }
+
+        export enum DateTimeMode {
+            Normal = 1,
+            Social = 2
         }
     }
     export enum ShapeTypes {
