@@ -3,20 +3,7 @@ import { DrawingCanvasSettingsStyles } from '../../../fx/models';
 import { important } from 'csx';
 
 StyleFlow.define(DrawingCanvasSettingsStyles, {
-    mediaPickerDialog: {
-        height: '100%',
-        maxHeight: important('90%'),
-        width: important('90%'),
-        margin: important('20px'),
-        $nest: {
-            '.omfx-dialog-content': {
-                height: '100%',
-                $nest: {
-                    '.omfx-image-picker-form': {
-                        height: '100%'
-                    }
-                }
-            }
-        }
+    image: {
+        maxWidth: '200px'
     }
 });

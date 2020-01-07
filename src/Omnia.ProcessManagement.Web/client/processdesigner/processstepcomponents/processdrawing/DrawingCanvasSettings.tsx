@@ -25,15 +25,15 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private openedImageDialog: boolean = false;
+    private isOpenImageDialog: boolean = false;
     canvasSettingsStyles = StyleFlow.use(DrawingCanvasSettingsStyles);
-   
+
     created() {
         this.init();
     }
 
     init() {
-       
+
     }
 
     get editingCanvasDefinition() {
@@ -54,78 +54,24 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(false);
     }
 
-    onSaveImage(image: MediaPickerImageTransformerProviderResult) {
-        let imageResult: any = image;
-        let fileExtension = this.getFileExtension(imageResult.name);
-        let fileName = ""
-        if (Utils.isNullOrEmpty(fileExtension)) fileName = imageResult.name + '.' + image.format;
-        else fileName = imageResult.name;
-
-        //ToDo
-
-        //this.isSaving = true;
-        //this.imageService.uploadImage(imageResult.base64, fileName)
-        //    .then((imageUrl) => {
-        //        this.currentStep.advancedImage = {
-        //            base64: imageUrl,
-        //            configuration: this.handleImageMediaDataConfiguration(image),
-        //            extraRatios: image.extraRatios,
-        //            description: image.description
-        //        }
-        //        this.isSaving = false;
-        //    }).catch(() => { });
-
-    }
-    getFileExtension(url: string) {
-        var fileExtension = "";
-        if (!Utils.isNullOrEmpty(url)) {
-            var i = url.lastIndexOf('.');
-            if (i >= 0) {
-                fileExtension = url.split('.').pop();
-            }
-            fileExtension = fileExtension.split('?')[0];
-        }
-        return fileExtension.toLowerCase();
-    }
-
-    private imageTransformElement = {
-        elementNameToRender: "omfx-image-transformer"
-        //elementProps: this.transformcomp
-    };
-    private onConfigureProviders(providers: Array<MediaPickerProvider>) {
-        providers = providers.filter((item) => {
-            return item.mediaType !== MediaPickerProviderMediaTypes.video
-        });
-
-        providers.map((provider) => {
-            let tmpProvider = provider as any
-            if (!tmpProvider.onSaved && provider.mediaType === MediaPickerProviderMediaTypes.image) {
-                tmpProvider.onSaved = this.onSaveImage;
-            }
-            //if (provider.mediaType === MediaPickerProviderMediaTypes.image && !tmpProvider.transformComponent) {
-            //    tmpProvider.transformComponent = this.imageTransformElement;
-            //}
-        })
-        return providers;
-    }
-
-    private renderImageDialogPlaceHolder(h) {
-        return (
-            <omfx-dialog contentClass={classes("image-dialog", this.canvasSettingsStyles.mediaPickerDialog)} domProps-lazy={false} onClose={this.closeImageDialog} model={{ visible: this.openedImageDialog }} position={DialogPositions.Center}>
-                <div class={classes("omfx-image-picker-form")}>
-                    {
-                        this.openedImageDialog && <omfx-media-picker providers={[]} domProps-onConfigureProviders={this.onConfigureProviders} onClose={this.closeImageDialog} ></omfx-media-picker>
-                    }
-                </div>
-            </omfx-dialog>
-        )
+    private onImageSaved(imageUrl: string) {
+        this.editingCanvasDefinition.backgroundImageUrl = imageUrl;
+        this.onSettingsChanged();
+        this.$forceUpdate();
     }
 
     private closeImageDialog() {
-        this.openedImageDialog = false;
+        this.isOpenImageDialog = false;
     }
+
     private openImageDialog() {
-        this.openedImageDialog = true;
+        this.isOpenImageDialog = true;
+    }
+
+    private removeBackgroundImage() {
+        this.editingCanvasDefinition.backgroundImageUrl = null;
+        this.onSettingsChanged();
+        this.$forceUpdate();
     }
 
     renderSettings(h) {
@@ -133,8 +79,24 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
             <v-row>
                 <v-col>
                     <div>{this.pdLoc.BackgroundImage}</div>
-                    <a onClick={this.openImageDialog} href="javascript:void(0)">{this.pdLoc.AddImage}</a>
-                    {this.renderImageDialogPlaceHolder(h)}
+                    {
+                        !Utils.isNullOrEmpty(this.editingCanvasDefinition.backgroundImageUrl) ?
+                            <div>
+                                <div class="mb-2">
+                                    <v-btn icon small class="mr-1" onClick={this.openImageDialog}>
+                                        <v-icon size='18'>edit</v-icon>
+                                    </v-btn>
+                                    <v-btn icon small onClick={this.removeBackgroundImage}>
+                                        <v-icon size='18'>delete</v-icon>
+                                    </v-btn>
+                                </div>
+                                <img class={this.canvasSettingsStyles.image} src={this.editingCanvasDefinition.backgroundImageUrl}></img>
+
+                            </div>
+                            :
+                            <a onClick={this.openImageDialog} href="javascript:void(0)">{this.pdLoc.AddImage}</a>
+                    }
+                    {this.isOpenImageDialog && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={this.closeImageDialog}></opm-media-picker>}
                 </v-col>
             </v-row>
             <v-row>
@@ -153,13 +115,12 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                 <v-col cols="6">
                     <v-text-field v-model={this.editingCanvasDefinition.gridY} label={this.pdLoc.GridY} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
                 </v-col>
-            </v-row>            
+            </v-row>
         </v-container>;
     }
 
     onSettingsChanged() {
-        //The canvas drawing can only re-draw based on publish Topic technique
-        InternalOPMTopics.onEditingCanvasDefinitionChanged.publish(this.editingCanvasDefinition);
+        this.processDesignerStore.mutations.updateCanvasSettings.commit(this.editingCanvasDefinition);
     }
 
     /**
