@@ -167,6 +167,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\Task.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processrollup\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processrollup\RollupProcess.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processrollup\RollupProcessResult.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplate.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtemplates\ProcessTemplateSettings.ts" />
@@ -239,6 +240,7 @@
     <TypeScriptCompile Remove="client\fx\routing\OPMRouter.ts" />
     <TypeScriptCompile Remove="client\fx\services\ImageService.ts" />
     <TypeScriptCompile Remove="client\fx\services\PermissionService.ts" />
+    <TypeScriptCompile Remove="client\fx\services\ProcessRollupService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SharePointTaskService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />

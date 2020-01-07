@@ -13,7 +13,6 @@ Composer
         description: "$Localize:OPM.Core.Blocks.ProcessRollup.Description;",
         icon: new FontAwesomeIcon("fal fa-file-alt")
     })
-    .registerSpfxWebpart()
     .registerOmniaBlock({
         category: "$Localize:WCM.Fx.Categories.ContentRollup;"
     });

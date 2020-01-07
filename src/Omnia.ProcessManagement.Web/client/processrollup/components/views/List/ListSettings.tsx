@@ -216,7 +216,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
                 }
                 {
                     !this.modifyColumnMode ?
-                        <a onClick={() => { this.addColumns() }}>{this.loc.ListView.AddColumn} </a> : null
+                        <a onClick={() => { this.addColumns() }}>{this.loc.ListView.AddColumn}</a> : null
                 }
                 {
                     this.viewSettings.columns.length > 1 ?
