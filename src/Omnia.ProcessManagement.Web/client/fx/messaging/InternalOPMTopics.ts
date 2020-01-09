@@ -24,19 +24,4 @@ export class InternalOPMTopics {
         return new MessageBusTopicMediator(messageTopic);
     }
 
-
-
-    //This topic used for re-draw the canvas
-    public static get onEditingCanvasDefinitionChanged(): IMessageBusTopicPublishSubscriber<CanvasDefinition> {
-        const EditingCanvasDefinitionTopic: Topic<CanvasDefinition> = {
-            namespace: namespace,
-            name: 'canvasdefinition'
-        };
-
-        return new MessageBusTopicMediator(EditingCanvasDefinitionTopic, {
-            caching: {
-                size: Number.MAX_SAFE_INTEGER
-            }
-        })
-    }
 }

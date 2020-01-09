@@ -23,12 +23,15 @@ export class DrawingCanvas implements CanvasDefinition {
     private lineColor = '#ccc';
     private defaultPosition = 10;
     private isSetHover: boolean = false;
+    private selectedShape: { id: GuidValue, type: DrawingShapeTypes } = null;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean) {
         this.drawingShapes = [];
         this.isSetHover = isSetHover || false;
-        this.initShapes(elementId, options, definition);
-        this.renderBackgroundImage(definition);
+        if (definition) {
+            this.correctCanvasDefinition(definition);
+            this.initShapes(elementId, options, definition.drawingShapes);
+        }
     }
 
     destroy() {
@@ -56,7 +59,22 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    setSelectedShape(drawingShape: DrawingShape) {
+    setSelectedShapeItemId(shapeIdentityId: GuidValue, type: DrawingShapeTypes) {
+        this.selectedShape = { id: shapeIdentityId, type: type };
+        this.updateSelectedShapeStyle();
+    }
+
+    private updateSelectedShapeStyle() {
+        if (this.selectedShape == null)
+            return;
+        this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
+        let drawingShape: DrawingShape = null;
+        if (this.selectedShape.type == DrawingShapeTypes.ProcessStep) {
+            drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
+        }
+        else {
+            drawingShape = this.drawingShapes.find(s => s.id == this.selectedShape.id);
+        }
         if (drawingShape) {
             (drawingShape.shape as Shape).setSelectedShape(true);
             this.canvasObject.renderAll();
@@ -71,14 +89,16 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    private renderBackgroundImage(definition?: CanvasDefinition) {
-        if (definition && definition.backgroundImageUrl) {
-            fabric.Image.fromURL(definition.backgroundImageUrl, (img) => {
-                img.scaleToWidth(this.canvasObject.getWidth());
-                img.scaleToHeight(this.canvasObject.getHeight());
-                this.canvasObject.setBackgroundImage(img, this.canvasObject.renderAll.bind(this.canvasObject), {
+    private renderBackgroundImage(drawingShapes: DrawingShape[]) {
+        if (this.backgroundImageUrl) {
+            fabric.Image.fromURL(this.backgroundImageUrl, (img) => {
+                img.scaleToWidth(this.width);
+                let scaleX = img.scaleX;
+                img.scaleToHeight(this.height);
+                img.scaleX = scaleX;
+                this.canvasObject.setBackgroundImage(img, () => {
+                    this.renderGridView(drawingShapes);
                 });
-                this.canvasObject.requestRenderAll();
             });
         }
     }
@@ -92,11 +112,12 @@ export class DrawingCanvas implements CanvasDefinition {
         this.height = definition.height;
         this.gridX = definition.gridX;
         this.gridY = definition.gridY;
+        this.backgroundImageUrl = definition.backgroundImageUrl;
     }
 
-    protected initShapes(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
+    protected initShapes(elementId: string, options: fabric.ICanvasOptions, drawingShapes: DrawingShape[]) {
         this.selectable = false;
-        this.renderGridView(elementId, options, definition);
+        this.renderCanvas(elementId, options, drawingShapes);
         this.addEventListener();
     }
 
@@ -109,33 +130,39 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    protected renderGridView(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition) {
+    protected renderCanvas(elementId: string, options: fabric.ICanvasOptions, drawingShapes: DrawingShape[]) {
         options = Object.assign({ selection: false }, options || {});
         this.canvasObject = new fabric.Canvas(elementId, options);
-        if (definition) {
-            this.correctCanvasDefinition(definition);
-            this.canvasObject.setWidth(definition.width);
-            this.canvasObject.setHeight(definition.height);
-            if (definition.gridX) {
-                for (var i = 0; i < (definition.width / definition.gridX); i++) {
-                    this.canvasObject.add(new fabric.Line([i * definition.gridX, 0, i * definition.gridX, definition.height], { stroke: this.lineColor, selectable: false }));
-                }
-                this.canvasObject.add(new fabric.Line([definition.width - 1, 0, definition.width - 1, definition.height], { stroke: this.lineColor, selectable: false }));
-            }
-            if (definition.gridY) {
-                for (var i = 0; i < (definition.height / definition.gridY); i++) {
-                    this.canvasObject.add(new fabric.Line([0, i * definition.gridY, definition.width, i * definition.gridY], { stroke: this.lineColor, selectable: false }))
-                }
-                this.canvasObject.add(new fabric.Line([0, definition.height - 1, definition.width, definition.height - 1], { stroke: this.lineColor, selectable: false }));
-            }
+        if (!Utils.isNullOrEmpty(this.backgroundImageUrl))
+            this.renderBackgroundImage(drawingShapes);
+        else
+            this.renderGridView(drawingShapes);
+    }
 
-            if (definition.drawingShapes) {
-                definition.drawingShapes.forEach(s => {
-                    if (ShapeTemplatesDictionary[s.shape.name]) {
-                        this.addShapeFromTemplateClassName(s);
-                    }
-                })
+    private renderGridView(drawingShapes: DrawingShape[]) {
+        this.canvasObject.setWidth(this.width);
+        this.canvasObject.setHeight(this.height);
+        if (this.gridX) {
+            for (var i = 0; i < (this.width / this.gridX); i++) {
+                this.canvasObject.add(new fabric.Line([i * this.gridX, 0, i * this.gridX, this.height], { stroke: this.lineColor, selectable: false }));
             }
+            this.canvasObject.add(new fabric.Line([this.width - 1, 0, this.width - 1, this.height], { stroke: this.lineColor, selectable: false }));
+        }
+        if (this.gridY) {
+            for (var i = 0; i < (this.height / this.gridY); i++) {
+                this.canvasObject.add(new fabric.Line([0, i * this.gridY, this.width, i * this.gridY], { stroke: this.lineColor, selectable: false }))
+            }
+            this.canvasObject.add(new fabric.Line([0, this.height - 1, this.width, this.height - 1], { stroke: this.lineColor, selectable: false }));
+        }
+
+        if (drawingShapes) {
+            let promises: Array<Promise<DrawingShape>> = [];
+            drawingShapes.forEach(s => {
+                if (ShapeTemplatesDictionary[s.shape.name]) {
+                    promises.push(this.addShapeFromTemplateClassName(s));
+                }
+            })
+            Promise.all(promises).then(() => { this.updateSelectedShapeStyle(); })
         }
     }
 

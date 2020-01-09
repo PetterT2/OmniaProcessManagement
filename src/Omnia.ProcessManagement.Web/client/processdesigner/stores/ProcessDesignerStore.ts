@@ -8,7 +8,7 @@ import { CurrentProcessStore, OPMUtils } from '../../fx';
 import { IProcessDesignerItem, ActionItem, DisplayModes, DrawingShapeOptions } from '../../models/processdesigner';
 import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
-import { DrawingShape, ShapeDefinition, Process, ProcessStep } from '../../fx/models';
+import { DrawingShape, ShapeDefinition, Process, ProcessStep, CanvasDefinition } from '../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
@@ -139,6 +139,10 @@ export class ProcessDesignerStore extends Store {
         }),
         setPreviewPageUrl: this.mutation((url: string) => {
             this.previewPageUrl.mutate(url);
+        }),
+        updateCanvasSettings: this.mutation((canvasDefinition: CanvasDefinition) => {
+            let referenceData = this.currentProcessStore.getters.referenceData();
+            referenceData.current.processData.canvasDefinition = canvasDefinition;
         })
     }
 
@@ -262,7 +266,7 @@ export class ProcessDesignerStore extends Store {
             height: 500,
             gridX: 20,
             gridY: 20,
-            imageBackgroundUrl: ''
+            backgroundImageUrl: ''
         };
 
     }

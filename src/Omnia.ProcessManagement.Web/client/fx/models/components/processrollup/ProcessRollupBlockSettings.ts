@@ -5,9 +5,9 @@ import { SpacingSetting, MultilingualString, RollupSetting } from '@omnia/fx-mod
 export interface ProcessRollupBlockSettings extends RollupSetting {
     title: MultilingualString;
     pagingType: Enums.ProcessViewEnums.PagingType;
-    query: string;
     selectedViewId: string;
     viewSettings: ProcessRollupViewSettings;
     filters?: Array<ProcessRollupFilter>;
     spacing?: SpacingSetting;
+    searchScope: Enums.ProcessViewEnums.QueryScope;
 }

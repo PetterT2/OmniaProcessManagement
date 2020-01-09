@@ -8,7 +8,7 @@ import { MultilingualStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration } from '../../fx/models';
 import { PropertyIndexedType, SpacingSetting, IMessageBusSubscriptionHandler, OmniaUserContext, Guid } from '@omnia/fx-models';
 import { FilterExtension, SearchBoxFilterExtension, FilterComponent } from './FilterComponent';
-import { SharePointFieldsConstants, ProcessRollupConstants } from '../../fx';
+import { SharePointFieldsConstants, ProcessRollupConstants, ProcessRollupService } from '../../fx';
 import { classes } from 'typestyle';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessRollupConfigurationFactory } from '../factory/ProcessRollupConfigurationFactory';
@@ -28,6 +28,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ProcessRollupBlockData>;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
     @Inject(OmniaContext) omniaContext: OmniaContext;
+    @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
 
     // -------------------------------------------------------------------------
     // Component properties
@@ -81,6 +82,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
 
     setBlockData(blockData: ProcessRollupBlockData) {
         this.blockData = blockData;
+        this.$forceUpdate();
     }
 
     registerProcessRollupView(msg: ProcessRollupViewRegistration) {
@@ -142,12 +144,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     renderProcessRollup(h) {
 
         if (this.isLoading || this.blockData.settings.selectedViewId && !this.registeredViewElemMsg[this.blockData.settings.selectedViewId])
-            return (<v-skeleton-loader
-                loading={true}
-                height="100%"
-                type="list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar"
-            >
-            </v-skeleton-loader>)
+            return (<v-skeleton-loader loading={true} height="100%" type="list-item-avatar,list-item-avatar,list-item-avatar,list-item-avatar"></v-skeleton-loader>)
 
 
         if (!Utils.isArrayNullOrEmpty(this.errorMsg)) {
@@ -192,18 +189,21 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
         return (
             <div>
                 {
-                    !this.blockData ? <v-skeleton-loader
-                        loading={true}
-                        height="100%"
-                        type="list-item-avatar-two-line,list-item-avatar-two-line"
-                    >
-                    </v-skeleton-loader> :
+                    !this.blockData ? <v-skeleton-loader loading={true} height="100%" type="list-item-avatar-two-line,list-item-avatar-two-line"></v-skeleton-loader>
+                        :
                         isEmpty ?
                             <wcm-empty-block-view dark={false} icon={"fal fa-file-alt"} title={this.loc.BlockTitle} description={this.loc.BlockDescription}></wcm-empty-block-view>
                             :
-                            <div>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                {this.blockData.settings.query && <div key={this.componentUniqueKey}>{this.renderProcessRollup(h)}</div>}
+                            <div key={this.componentUniqueKey}>
+                                {
+                                    this.multilingualStore.getters.stringValue(this.blockData.settings.title) ?
+                                        <wcm-block-title title="" settingsKey={this.settingsKey} alternativeContent={
+                                            <v-layout row align-center>
+                                                <v-flex>{this.multilingualStore.getters.stringValue(this.blockData.settings.title)}</v-flex>
+                                            </v-layout>
+                                        }></wcm-block-title> : null
+                                }
+                                {this.renderProcessRollup(h)}
                             </div>
                 }
             </div>

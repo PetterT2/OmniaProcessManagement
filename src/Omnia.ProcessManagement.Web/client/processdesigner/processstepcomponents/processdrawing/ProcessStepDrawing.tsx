@@ -41,8 +41,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private canvasDefinition: CanvasDefinition = null;
 
     created() {
-        this.subscriptionHandler = InternalOPMTopics.onEditingCanvasDefinitionChanged.subscribe(this.onCanvasDefinitionChanged);
         this.initCanvasDefinition();
+        this.subscriptionHandler = this.processDesignerStore.mutations.updateCanvasSettings.onCommited((canvasDefinition) => {
+            this.onCanvasDefinitionChanged();
+        })
     }
 
     mounted() {
@@ -52,7 +54,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
-
+     
         if (this.tempInterval) {
             clearInterval(this.tempInterval);
         }

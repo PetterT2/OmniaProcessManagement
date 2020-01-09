@@ -1,5 +1,16 @@
 ﻿export module Enums {
     export module ProcessViewEnums {
+        export enum QueryScope {
+            PublishedProcesses = 1,
+            ArchivedProcesses = 2
+        }
+
+        export enum TaxonomyFilterType {
+            FixedValue = 1,
+            CurrentPage = 2,
+            User = 3
+        }
+
         export enum OrderDirection {
             Ascending = 1,
             Descending = 2
@@ -37,7 +48,9 @@
         export enum DatePeriods {
             OneWeekFromToday = 1,
             TwoWeeksFromToday = 2,
-            OneMonthFromToday = 3
+            OneMonthFromToday = 3,
+            LaterThanNow = 4,
+            EarlierThanNow = 5
         }
 
         export enum RefinerOrderBy {

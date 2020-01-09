@@ -6,11 +6,16 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
     .namespace(ProcessRollupLocalization.namespace)
     .add<ProcessRollupLocalization.locInterface>({
         BlockTitle: "Process Rollup",
-        BlockDescription: "Possibility to roll up processes with different views, filters and refiners.",
+        BlockDescription: "Possibility to roll up processes with different views and filters.",
         ViewTitle: {
             List: "List View"
         },
         Settings: {
+            IncludeEmpty: "Include Empty",
+            IncludeChildTerms: "Include Child Terms",
+            AdjustFilters: "Adjust filters",
+            AddFilter: "Add filter",
+            HideFilter: "Hide this section",
             Paging: "Paging",
             ItemLimit: "Item Limit",
             PageSize: "Page Size",
@@ -28,9 +33,37 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
                 NoPaging: "No Paging",
                 Classic: "Classic",
                 Scroll: "Scroll"
+            },
+            FilterOption: {
+                Searchbox: "Search Box",
+            },
+            BooleanFilterOption: {
+                Yes: "Yes",
+                No: "No"
+            },
+            DatePeriods: {
+                OneWeekFromToday: "One week from today",
+                TwoWeeksFromToday: "Two weeks from today",
+                OneMonthFromToday: "One month from today",
+                EarlierThanNow: "Earlier than now",
+                LaterThanNow: "Later than now"
+            },
+            SearchBoxMessage: {
+                SearchOnTeamTitleAnd: "Search on Title and",
+                ProcessProperties: "Process Properties"
+            },
+            TaxonomyFilterTypes: {
+                FixedValue: "Fixed value",
+                CurrentPage: "Current page",
+                User: "User"
+            },
+            QueryScope: {
+                PublishedProcesses: "Published Processes",
+                ArchivedProcesses: "Archived Processes"
             }
         },
         Common: {
+            TermSetNotFound: "Term set not found",
             Done: "Done",
             QueryFailedMsg: "The configured query failed.",
             NoViewToRender: "Please select a view template",

@@ -7,6 +7,11 @@
             List: string,
         },
         Settings: {
+            IncludeEmpty: string,
+            IncludeChildTerms: string,
+            AdjustFilters: string,
+            AddFilter: string,
+            HideFilter: string,
             Paging: string,
             ItemLimit: string,
             PageSize: string,
@@ -24,9 +29,37 @@
                 NoPaging: string,
                 Classic: string,
                 Scroll: string
+            },
+            FilterOption: {
+                Searchbox: string,
+            },
+            BooleanFilterOption: {
+                Yes: string,
+                No: string
+            },
+            DatePeriods: {
+                OneWeekFromToday: string,
+                TwoWeeksFromToday: string,
+                OneMonthFromToday: string
+                EarlierThanNow: string,
+                LaterThanNow: string
+            },
+            SearchBoxMessage: {
+                SearchOnTeamTitleAnd: string,
+                ProcessProperties: string
+            },
+            TaxonomyFilterTypes: {
+                FixedValue: string,
+                CurrentPage: string,
+                User: string
+            },
+            QueryScope: {
+                PublishedProcesses: string,
+                ArchivedProcesses: string
             }
         },
         Common: {
+            TermSetNotFound: string,
             Done: string,
             NoViewToRender: string,
             QueryFailedMsg: string
