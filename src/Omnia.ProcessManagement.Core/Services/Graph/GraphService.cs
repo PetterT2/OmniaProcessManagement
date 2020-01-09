@@ -15,9 +15,9 @@ namespace Omnia.ProcessManagement.Core.Services.Graph
     internal class GraphService : IGraphService
     {
         private static readonly string GraphApiSPListCacheKey = "GraphApiSPListCache";
-        IOmniaCacheWithKeyHelper<IOmniaSynchronizedMemoryCache> CacheHelper { get; }
+        IOmniaCacheWithKeyHelper<IOmniaMemoryCache> CacheHelper { get; }
         IHttpClientService<Office365GraphApi> OmniaGraphService { get; }
-        public GraphService(IHttpClientService<Office365GraphApi> omniaGraphService, IOmniaSynchronizedMemoryCache cache)
+        public GraphService(IHttpClientService<Office365GraphApi> omniaGraphService, IOmniaMemoryCache cache)
         {
             OmniaGraphService = omniaGraphService;
             CacheHelper = cache.AddKeyHelper(this);
@@ -27,7 +27,7 @@ namespace Omnia.ProcessManagement.Core.Services.Graph
         {
             // Try to get from cache
             var cacheKey = CacheHelper.CreateKey(CacheHelper.CreateKey("CDLSite", hostName.ToLower() + siteRelativeUrl.ToLower()));
-            var cacheResult = await CacheHelper.Instance.GetOrSetDependencyCacheAsync(cacheKey, async (cacheEntry) =>
+            var cacheResult = await CacheHelper.Instance.GetOrSetAsync(cacheKey, async (cacheEntry) =>
             {
                 var httpResponse = await this.OmniaGraphService.GetAsync($"v1.0/sites/{hostName}:/{siteRelativeUrl}");
                 if (httpResponse.IsSuccessStatusCode)
@@ -55,14 +55,14 @@ namespace Omnia.ProcessManagement.Core.Services.Graph
                 }
             });
 
-            return cacheResult.Value;
+            return cacheResult;
         }
 
         public async ValueTask<GraphApiSPList> GetListByWebUrlAsync(string siteId, string webUrl)
         {
             // Try to get from cache
             var cacheKey = CacheHelper.CreateKey(CacheHelper.CreateKey(GraphApiSPListCacheKey, siteId.ToLower() + webUrl.ToLower()));
-            var cacheResult = await CacheHelper.Instance.GetOrSetDependencyCacheAsync(cacheKey, async (cacheEntry) =>
+            var cacheResult = await CacheHelper.Instance.GetOrSetAsync(cacheKey, async (cacheEntry) =>
             {
                 var httpResponse = await this.OmniaGraphService.GetAsync($"v1.0/sites/{siteId}/lists?expand=contentTypes");
                 if (httpResponse.IsSuccessStatusCode)
@@ -96,7 +96,7 @@ namespace Omnia.ProcessManagement.Core.Services.Graph
                 }
             });
 
-            return cacheResult.Value;
+            return cacheResult;
         }
 
         public async ValueTask<GraphApiGetListItemsResponse> GetListItemsAsync(string siteId, Guid listId, List<string> selectedFieldsInternalName, string filterQuery,

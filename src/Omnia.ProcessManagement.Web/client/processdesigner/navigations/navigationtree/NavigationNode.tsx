@@ -82,20 +82,6 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
         if (navigateToNode) {
             if (this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser) {
-                ////ToDo: Refactor the code to build CanvasDefinition JSON
-                //let currentProcessData = this.currentProcessStore.getters.referenceData().current.processData;
-                //let shapes: DrawingShape[] = [];
-                //currentProcessData.canvasDefinition.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
-                //shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
-                //currentProcessData.canvasDefinition = {
-                //    imageBackgroundUrl: currentProcessData.canvasDefinition.imageBackgroundUrl,
-                //    width: currentProcessData.canvasDefinition.width,
-                //    height: currentProcessData.canvasDefinition.height,
-                //    gridX: currentProcessData.canvasDefinition.gridX,
-                //    gridY: currentProcessData.canvasDefinition.gridY,
-                //    drawingShapes: shapes
-                //}
-                //console.log('new nav');
 
                 //Ensure savestate before navigating to another process step
                 this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
