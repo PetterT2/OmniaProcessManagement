@@ -42,6 +42,20 @@ export class ProcessService {
         })
     }
 
+    public createDraftProcessFromPublished = (opmProcessId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/createdraft/' + opmProcessId).then((response) => {
+                if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     public checkinProcess = (opmProcessId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkin/' + opmProcessId).then((response) => {
@@ -54,7 +68,7 @@ export class ProcessService {
                 }
             }).catch(reject);
         })
-    }    
+    }
 
     public saveCheckedOutProcess = (processActionModel: ProcessActionModel) => {
         return new Promise<Process>((resolve, reject) => {
@@ -207,7 +221,7 @@ export class ProcessService {
             teamAppId: teamAppId
         };
         return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, {params: params}).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -252,7 +266,7 @@ export class ProcessService {
                 }
             }).catch(reject);
         })
-    }    
+    }
 
     public triggerArchive = (opmProcessId: GuidValue) => {
         return new Promise<void>((resolve, reject) => {

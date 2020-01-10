@@ -108,6 +108,14 @@ export class ProcessStore extends Store {
     public actions = {
         createDraft: this.action((actionModel: ProcessActionModel) => {
             return this.processService.createDraftProcess(actionModel).then((process) => {
+                this.internalMutations.addOrUpdateProcess(process);
+
+                return process;
+            })
+        }),
+        createDraftFromPublished: this.action((opmProcessId: GuidValue) => {
+            return this.processService.createDraftProcessFromPublished(opmProcessId).then((process) => {
+                this.internalMutations.addOrUpdateProcess(process);
 
                 return process;
             })

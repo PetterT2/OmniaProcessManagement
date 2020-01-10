@@ -80,6 +80,35 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
+        public async ValueTask<Process> CreateDraftProcessAsync(Guid opmProcessId)
+        {
+            return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
+            {
+                var draftProcess = await DbContext.Processes
+                .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Draft)
+                .FirstOrDefaultAsync();
+
+                if (draftProcess == null)
+                {
+                    var publishedProcess = await DbContext.Processes
+                   .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published)
+                   .FirstOrDefaultAsync();
+
+                    if (publishedProcess == null)
+                    {
+                        throw new ProcessPublishedVersionNotFoundException(opmProcessId);
+                    }
+
+                    EnsureNoActiveWorkflow(publishedProcess);
+
+                    draftProcess = await CloneProcessAsync(publishedProcess, ProcessVersionType.Draft);
+                }
+
+                var model = MapEfToModel(draftProcess);
+                return model;
+            });
+        }
+
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
         {
             await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
@@ -98,7 +127,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
 
-                EnsureNoActiveWorkflowForDraft(draftProcess);
+                EnsureNoActiveWorkflow(draftProcess);
 
                 if (checkedOutProcess != null)
                 {
@@ -223,7 +252,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 if (draftProcessWithProcessDataIdHash != null)
                 {
-                    throw new ProcessCannotBeArchivedWhenDraftVersionExists(opmProcessId);
+                    throw new ProcessDraftVersionExists(opmProcessId);
                 }
 
                 publishedProcess.ProcessWorkingStatus = ProcessWorkingStatus.Archiving;
@@ -373,6 +402,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
 
                 EnsureValidProcessWorkingStatusForPublishedProcess(opmProcessId, process.ProcessWorkingStatus, newProcessWorkingStatus);
+
                 process.ProcessWorkingStatus = newProcessWorkingStatus;
                 process.VersionType = newVersionType;
 
@@ -702,7 +732,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 if (process == null)
                 {
-                    process = await TryCheckOutProcessAsync(opmProcessId);
+                    var existingDraftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, false);
+
+                    if (existingDraftProcess == null)
+                    {
+                        throw new ProcessDraftVersionNotFoundException(opmProcessId);
+                    }
+
+                    process = await CloneProcessAsync(existingDraftProcess, ProcessVersionType.CheckedOut);
                 }
                 else if (process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
                 {
@@ -887,7 +924,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 //In normal case, the input data should be correctly by default
                 //The following checking is just to ensure if somewhere use this method incorrectly
 
-                //1. make sure all the process references is belong to current opmProcessId
+                //1. make sure all the process references is belong to a same process
                 var processIds = imageReferences.Select(i => i.ProcessId).Distinct().ToList();
                 if (processIds.Count > 1)
                 {
@@ -921,20 +958,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 });
             }
 
-        }
-
-        private async ValueTask<Entities.Processes.Process> TryCheckOutProcessAsync(Guid opmProcessId)
-        {
-            var existingDraftProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Draft, false);
-
-            if (existingDraftProcess == null)
-            {
-                throw new ProcessDraftVersionNotFoundException(opmProcessId);
-            }
-
-            var clonedProcess = await CloneProcessAsync(existingDraftProcess, ProcessVersionType.CheckedOut);
-
-            return clonedProcess;
         }
 
         private async ValueTask<Entities.Processes.Process> CloneProcessAsync(Entities.Processes.Process process, ProcessVersionType versionType)
@@ -1168,18 +1191,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        private void EnsureNoActiveWorkflowForDraft(Entities.Processes.Process draftProcess)
+        private void EnsureNoActiveWorkflow(Entities.Processes.Process process)
         {
-            if (draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.SendingForReview ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.SendingForApproval ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.SentForApproval ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.SentForReview ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApproval ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReview ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApprovalFailed ||
-                draftProcess.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReviewFailed)
+            if (process.ProcessWorkingStatus == ProcessWorkingStatus.SendingForReview ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.SendingForApproval ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.SentForApproval ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.SentForReview ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApproval ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReview ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApprovalFailed ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReviewFailed ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.SyncingToSharePoint ||
+                process.ProcessWorkingStatus == ProcessWorkingStatus.Archiving)
             {
-                throw new Exception("There is a active worflow for this process");
+                throw new Exception($"There is a active worflow for this process: {process.ProcessWorkingStatus.ToString()}, try later!");
             }
 
             //This is another way to check active worflow but it will be slower

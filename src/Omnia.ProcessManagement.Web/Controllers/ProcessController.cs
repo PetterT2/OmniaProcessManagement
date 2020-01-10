@@ -6,18 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Omnia.Fx.Apps;
-using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Shared;
-using Omnia.Fx.Models.Users;
 using Omnia.Fx.Utilities;
-using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
-using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Core.Services.Processes;
-using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
-using Omnia.ProcessManagement.Core.Services.SharePoint;
-using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -37,6 +29,28 @@ namespace Omnia.ProcessManagement.Web.Controllers
             ProcessService = processService;
             ProcessSecurityService = processSecurityService;
             Logger = logger;
+        }
+
+        [HttpPost, Route("createdraft/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> CreateDraftProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse.RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.CreateDraftProcessAsync(opmProcessId);
+                        return process.AsApiResponse();
+                    });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
         }
 
         [HttpPost, Route("createdraft")]

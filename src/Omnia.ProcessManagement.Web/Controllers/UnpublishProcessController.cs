@@ -30,7 +30,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             UnpublishProcessService = unpublishProcessService;
         }
 
-        [HttpGet]
+        [HttpPost, Route("{opmProcessId:guid}")]
         [Authorize]
         public async ValueTask<ApiResponse> UnpublishProcess(Guid opmProcessId)
         {
