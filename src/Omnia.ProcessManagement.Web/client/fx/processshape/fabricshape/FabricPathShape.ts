@@ -39,6 +39,12 @@ export class FabricPathShape extends FabricShapeExtension implements FabricShape
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             prop["path"] = options["path"];
+            if (options.scaleX != 1 || options.scaleY != 1) {
+                this.calculateScalePointsToDefinition(options.scaleX, options.scaleY, options);
+                prop["path"] = options["path"];
+                prop["left"] = options["left"];
+                prop["top"] = options["top"];
+            }
         }
         return prop;
     }
@@ -47,26 +53,25 @@ export class FabricPathShape extends FabricShapeExtension implements FabricShape
         return FabricShapeTypes.path;
     }
 
-    scalePointsToDefinition(scaleX: number, scaleY: number) {
+    calculateScalePointsToDefinition(scaleX: number, scaleY: number, options) {
         let matrix = [scaleX, 0, 0, scaleY, 0, 0];
         let newPath: Array<any> = [];
         let points: Array<fabric.Point> = [];
-        let path = (this.fabricObject as fabric.Path).path;
+        let path = options.path;
         path.forEach(p => {
             points.push(new fabric.Point(p[1], p[2]));
             if ((p as any).length > 4)
                 points.push(new fabric.Point(p[3], p[4]));
         })
         points = points.map(p => { return fabric.util.transformPoint(p, matrix); })
-        newPath.push([path[0][0], points[0].x, points[0].y]);
+        newPath.push([path[0][0], Math.floor(points[0].x), Math.floor(points[0].y)]);
         for (var i = 1; i < points.length - 2; i++) {
-            newPath.push(['Q', points[i].x, points[i].y, points[i + 1].x, points[i + 1].y]);
+            newPath.push(['Q', Math.floor(points[i].x), Math.floor(points[i].y), Math.floor(points[i + 1].x), Math.floor(points[i + 1].y)]);
         }
-        newPath.push([path[path.length - 1][0], points[points.length - 1].x, points[points.length - 1].y]);
-        (this.fabricObject as fabric.Path).path = newPath;
-
-        let position = fabric.util.transformPoint(new fabric.Point(this.fabricObject.left, this.fabricObject.top), matrix);
-        this.fabricObject.left = position.x;
-        this.fabricObject.top = position.y;
+        newPath.push([path[path.length - 1][0], Math.floor(points[points.length - 1].x), Math.floor(points[points.length - 1].y)]);
+        let position = fabric.util.transformPoint(new fabric.Point(options.left, options.top), matrix);
+        options.path = newPath;
+        options.left = position.x;
+        options.top = position.y;
     }
 }

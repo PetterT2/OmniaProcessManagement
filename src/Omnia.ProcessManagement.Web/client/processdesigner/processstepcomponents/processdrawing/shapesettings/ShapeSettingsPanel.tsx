@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace
 import { CurrentProcessStore, ShapeTemplatesConstants } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../../../fx/models';
+import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingImageShapeDefinition } from '../../../../fx/models';
 import { DrawingShapeOptions } from '../../../../models/processdesigner';
 import { ShapeTypeComponent } from '../../../shapepickercomponents/ShapeType';
 import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSelection';
@@ -48,12 +48,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
     created() {
         this.init();
-    }
+    }   
 
     init() {
         this.initSelectedShape();
 
-        this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(this.onSelectedShapeChanged);
+        this.subscriptionHandler = this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(this.onSelectedShapeChanged);
     }
 
     onSelectedShapeChanged(selectedShape: DrawingShape) {
@@ -133,6 +133,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         this.drawingShapeOptions = drawingOptions;
         if (Utils.isArrayNullOrEmpty(drawingOptions.nodes) && this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
             this.drawingShapeOptions.nodes = nodes;
+
         if (this.lockedSubmitShapeSettings) {
             this.lockedSubmitShapeSettings = false;
             return;

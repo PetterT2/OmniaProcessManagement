@@ -54,7 +54,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     beforeDestroy() {
         if (this.subscriptionHandler)
             this.subscriptionHandler.unsubscribe();
-     
+
         if (this.tempInterval) {
             clearInterval(this.tempInterval);
         }
@@ -70,9 +70,9 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     init() {
         this.initDrawingCanvas();
 
-        this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape);
-        this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape);
-        this.processDesignerStore.mutations.deleteSelectingDrawingShape.onCommited(this.onDeletedShape);
+        this.subscriptionHandler.add(this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape));
+        this.subscriptionHandler.add(this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape));
+        this.subscriptionHandler.add(this.processDesignerStore.mutations.deleteSelectingDrawingShape.onCommited(this.onDeletedShape));
     }
 
     private onCanvasDefinitionChanged() {
@@ -106,7 +106,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
         let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.shapeType, drawingOptions.processStepId, drawingOptions.customLinkId, drawingOptions.nodes);
+        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions, drawingShapeToUpdate.shape.left, drawingShapeToUpdate.shape.top);
 
         setTimeout(() => {
             this.saveState(true);

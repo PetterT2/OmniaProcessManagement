@@ -14,6 +14,7 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
             IncludeEmpty: "Include Empty",
             IncludeChildTerms: "Include Child Terms",
             AdjustFilters: "Adjust filters",
+            AddQuery: "Add query",
             AddFilter: "Add filter",
             HideFilter: "Hide this section",
             Paging: "Paging",
@@ -63,12 +64,15 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
             }
         },
         Common: {
+            NoProcessToShow: "No process to show.",
             TermSetNotFound: "Term set not found",
             Done: "Done",
             QueryFailedMsg: "The configured query failed.",
             NoViewToRender: "Please select a view template",
         },
         ListView: {
+            NoColumnsMsg: "No columns",
+            ProcessTitle: "Title",
             TitleAndLink: "Title And Link",
             AdjustColumns: "Adjust Columns",
             AddColumn: "Add Column",

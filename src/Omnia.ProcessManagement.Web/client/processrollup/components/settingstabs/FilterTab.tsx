@@ -7,7 +7,7 @@ import { ProcessRollupLocalization } from '../../loc/localize';
 import { ProcessRollupBlockSettingsStyles } from '../../../models';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { ProcessRollupBlockData, ProcessRollupFilter, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupBooleanPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePropFilterValue } from '../../../fx/models';
+import { ProcessRollupBlockData, ProcessRollupFilter, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupBooleanPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePeriodsPropFilterValue } from '../../../fx/models';
 import { TaxonomyPropertySettings, PropertyIndexedType, BuiltInAppInstanceInternalNames, BuiltInEnterprisePropertyInternalNames, RollupOtherTypes, EnterprisePropertyDefinition, UserPrincipalType } from '@omnia/fx-models';
 import { ProcessRollupConstants } from '../../../fx';
 
@@ -97,15 +97,15 @@ export class FilterTab extends tsx.Component<FilterTabProps>
     }
 
     updateBlockData() {
-        this.blockData.settings.filters = this.blockData.settings.filters.filter(u => !(u as UIFilterExtension).removed);
+        this.blockData.settings.uiFilters = this.blockData.settings.uiFilters.filter(u => !(u as UIFilterExtension).removed);
         this.settingsService.setValue(this.settingsKey, this.blockData);
         this.$forceUpdate();
     }
 
     switchIndex(index1: number, index2: number) {
-        let property1 = this.blockData.settings.filters[index1];
-        this.blockData.settings.filters[index1] = this.blockData.settings.filters[index2];
-        this.blockData.settings.filters[index2] = property1;
+        let property1 = this.blockData.settings.uiFilters[index1];
+        this.blockData.settings.uiFilters[index1] = this.blockData.settings.uiFilters[index2];
+        this.blockData.settings.uiFilters[index2] = property1;
 
         this.updateBlockData();
     }
@@ -124,12 +124,12 @@ export class FilterTab extends tsx.Component<FilterTabProps>
     }
 
     addUIFilter() {
-        if (!this.blockData.settings.filters)
-            this.blockData.settings.filters = [];
+        if (!this.blockData.settings.uiFilters)
+            this.blockData.settings.uiFilters = [];
 
-        let emptyUIFilter = this.blockData.settings.filters.filter(p => !p.property)[0];
+        let emptyUIFilter = this.blockData.settings.uiFilters.filter(p => !p.property)[0];
         if (!emptyUIFilter) {
-            this.blockData.settings.filters.push({ property: "", type: null, valueObj: null });
+            this.blockData.settings.uiFilters.push({ property: "", type: null, valueObj: null });
         }
         this.$forceUpdate();
     }
@@ -140,7 +140,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     renderOrderFilterUI(filter: ProcessRollupFilter, index: number, title: string) {
         let h = this.$createElement;
-        let showDownDisabled = index === this.blockData.settings.filters.length - 1;
+        let showDownDisabled = index === this.blockData.settings.uiFilters.length - 1;
         let showUpDisabled = index === 0;
 
         return (
@@ -291,7 +291,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     renderDateDefaultValueInput(filter: ProcessRollupFilter, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupDatePropFilterValue = filter.valueObj as ProcessRollupDatePropFilterValue;
+        let valueObj: ProcessRollupDatePeriodsPropFilterValue = filter.valueObj as ProcessRollupDatePeriodsPropFilterValue;
         return [
             <v-layout align-center>
                 {this.renderPropertySelection(filter, availablePropertiesForUIFilter)}
@@ -331,7 +331,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
         return (
             <div>
                 {
-                    this.blockData.settings.filters && this.blockData.settings.filters.filter(filter => !(filter as UIFilterExtension).removed).map((filter, index) =>
+                    this.blockData.settings.uiFilters && this.blockData.settings.uiFilters.filter(filter => !(filter as UIFilterExtension).removed).map((filter, index) =>
                         this.modifyFilterMode ? this.renderOrderFilterUI(filter, index, propertyTitleAsHash[filter.property]) :
                             !filter.property ? <v-layout align-center>{this.renderPropertySelection(filter, availablePropertiesForUIFilter)}</v-layout> :
                                 filter.type === PropertyIndexedType.Text ? this.renderTextDefaultValueInput(filter, availablePropertiesForUIFilter) :
@@ -349,7 +349,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
                         this.modifyFilterMode ? null : <a onClick={() => { this.addUIFilter() }}>{this.loc.Settings.AddFilter} </a>
                     }
                     {
-                        this.blockData.settings.filters && this.blockData.settings.filters.length > 0 ?
+                        this.blockData.settings.uiFilters && this.blockData.settings.uiFilters.length > 0 ?
                             <a class={this.rollupSettingsClasses.floatRight} onClick={() => { this.modifyFilterMode = !this.modifyFilterMode; }}>{this.modifyFilterMode ? this.loc.Common.Done : this.loc.Settings.AdjustFilters}</a> : null
                     }
                 </div>

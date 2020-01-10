@@ -8,11 +8,11 @@ import './ListSettings.css';
 import { OmniaTheming, StyleFlow } from '@omnia/fx/ux';
 import { ListViewDateTimeColumn } from '@omnia/wcm/models';
 import { ProcessRollupLocalization } from '../../../loc/localize';
-import { ProcessRollupListViewSettings, IProcessRollupViewSettingsInterface, ProcessRollupBlockListViewSettingsStyles, ListViewColumn } from '../../../../models';
+import { ProcessRollupListViewSettings, IProcessRollupViewSettingsInterface, ProcessRollupBlockListViewSettingsStyles, ProcessRollupListViewColumn } from '../../../../models';
 import { Enums } from '../../../../fx/models';
 import { ProcessRollupConstants } from '../../../../fx';
 
-interface ListViewPropertyExtension extends ListViewColumn {
+interface ListViewPropertyExtension extends ProcessRollupListViewColumn {
     removed?: boolean;
 }
 
@@ -73,7 +73,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
 
     get availablePropertiesWithTitleAndSocial(): Array<EnterprisePropertyDefinition> {
         return [
-            { internalName: ProcessRollupConstants.processTitleAndLink, multilingualTitle: `[${this.loc.ListView.TitleAndLink}]` } as any,
+            { internalName: ProcessRollupConstants.processTitleAndLinkInternalName, multilingualTitle: `[${this.loc.ListView.TitleAndLink}]` } as any,
             ...this.availableProperties
         ];
 
@@ -86,13 +86,13 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
 
         //each type has different settings so after editing for a while, there could be lots of no meanning data for selected type
         //We keep only the neccessary data
-        let columns: Array<ListViewColumn> = [];
+        let columns: Array<ProcessRollupListViewColumn> = [];
         this.viewSettings.columns.filter(prop => prop.internalName && !(prop as ListViewPropertyExtension).removed).forEach(prop => {
-            if (prop.internalName === ProcessRollupConstants.processTitleAndLink) {
+            if (prop.internalName === ProcessRollupConstants.processTitleAndLinkInternalName) {
                 columns.push({
                     internalName: prop.internalName, width: prop.width,
                     showHeading: prop.showHeading === undefined ? true : prop.showHeading
-                } as ListViewColumn)
+                } as ProcessRollupListViewColumn)
             }
             else if (prop.type === PropertyIndexedType.DateTime) {
                 let dateTimeProperty: ListViewDateTimeColumn = {
@@ -112,7 +112,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
             else
                 columns.push({ internalName: prop.internalName, type: prop.type, width: prop.width, showHeading: prop.showHeading === undefined ? true : prop.showHeading })
 
-            if (!selectedProperties[prop.internalName] && prop.internalName !== ProcessRollupConstants.processTitleAndLink) {
+            if (!selectedProperties[prop.internalName] && prop.internalName !== ProcessRollupConstants.processTitleAndLinkInternalName) {
                 this.viewSettings.selectProperties.push(prop.internalName);
                 selectedProperties[prop.internalName] = true;
             }
@@ -123,7 +123,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
         this.updateSettings();
     }
 
-    selectProperty(property: ListViewColumn) {
+    selectProperty(property: ProcessRollupListViewColumn) {
         let contentProperty = this.availableProperties.filter(a => a.internalName === property.internalName)[0];
         if (contentProperty) {
             property.type = contentProperty.enterprisePropertyDataType.indexedType;
@@ -139,7 +139,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
 
     addColumns() {
         if (!this.viewSettings.columns.filter(c => !c.internalName)[0]) {
-            this.viewSettings.columns.push({ showHeading: true } as ListViewColumn);
+            this.viewSettings.columns.push({ showHeading: true } as ProcessRollupListViewColumn);
             this.$forceUpdate();
         }
     }
@@ -148,7 +148,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
     // Render
     // -------------------------------------------------------------------------
 
-    renderOrderUI(property: ListViewColumn, index: number) {
+    renderOrderUI(property: ProcessRollupListViewColumn, index: number) {
         let h = this.$createElement;
         let showDownDisabled = index === this.viewSettings.columns.length - 1;
         let showUpDisabled = index === 0;
@@ -190,7 +190,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
 
     }
 
-    renderPropertySelection(property: ListViewColumn) {
+    renderPropertySelection(property: ProcessRollupListViewColumn) {
         let h = this.$createElement;
         return [
             <v-btn class="ma-0" icon onClick={() => { (property as ListViewPropertyExtension).removed = true; this.$forceUpdate(); this.updateSelectProperties() }}>

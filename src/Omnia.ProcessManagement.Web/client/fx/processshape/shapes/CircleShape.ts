@@ -21,25 +21,20 @@ export class CircleShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
             let circleNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.circle);
-            let ellipseNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.ellipse);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (circleNode) {
                 this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ selectable: selectable }, circleNode.properties || {})));
-            }
-            if (ellipseNode) {
-                this.fabricShapes.push(new FabricEllipseShape(this.definition, Object.assign({ selectable: selectable }, ellipseNode.properties || {})));
             }
             if (textNode) {
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: false }, textNode.properties || {}), title));
             }
         }
         else if (this.definition) {
-            let circlePosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
-            let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, true);
-            this.fabricShapes.push(new FabricCircleShape(this.definition, { left: circlePosition.left, top: circlePosition.top, selectable: selectable }));
+            let position = this.correctPosition(left, top);
+            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
+            this.fabricShapes.push(new FabricCircleShape(this.definition, { left: position.left, top: position.top, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: false }, title));
         }
-        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 }

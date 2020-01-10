@@ -10,6 +10,7 @@
             IncludeEmpty: string,
             IncludeChildTerms: string,
             AdjustFilters: string,
+            AddQuery: string,
             AddFilter: string,
             HideFilter: string,
             Paging: string,
@@ -59,12 +60,15 @@
             }
         },
         Common: {
+            NoProcessToShow: string,
             TermSetNotFound: string,
             Done: string,
             NoViewToRender: string,
             QueryFailedMsg: string
         },
         ListView: {
+            NoColumnsMsg: string,
+            ProcessTitle: string,
             TitleAndLink: string,
             AdjustColumns: string,
             AddColumn: string,

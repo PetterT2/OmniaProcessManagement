@@ -41,12 +41,11 @@ export class DiamondShape extends ShapeExtension implements Shape {
         }
         else if (this.definition) {
             let points = this.calculatePoints();
-            let polygonPosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
-            let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, true);
-            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: polygonPosition.left, top: polygonPosition.top, selectable: selectable }));
+            let position = this.correctPosition(left, top);
+            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
+            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: false }, title));
         }
-        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 

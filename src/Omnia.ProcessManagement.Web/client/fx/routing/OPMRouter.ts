@@ -48,6 +48,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         let context: OPMRoute = null;
         let routeOption: RouteOptions = RouteOptions.publishedInBlockRenderer;
         path = path.toLowerCase();
+        path = path.split('&')[0];
 
         if (path.endsWith(RouteOptions.previewInGlobalRenderer)) {
             path = path.replace(RouteOptions.previewInGlobalRenderer, '');
@@ -64,7 +65,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
 
         if (path) {
-            path = path.split('&')[0];
             context = {
                 processStepId: new Guid(path),
                 routeOption: routeOption
@@ -88,11 +88,11 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
 
             let title = this.multilingualStore.getters.stringValue(processStep.title);
-            let routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
+            routeOption = routeOption != null ? routeOption : this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
 
             if (this.currentProcessId == process.id.toString().toLowerCase() &&
                 this.currentProcessStepId == processStep.id.toString().toLowerCase() &&

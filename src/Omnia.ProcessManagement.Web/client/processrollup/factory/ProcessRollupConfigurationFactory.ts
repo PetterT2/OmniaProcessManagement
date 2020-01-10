@@ -14,7 +14,7 @@ export const ProcessRollupConfigurationFactory = {
                 title: null,
                 viewSettings: { selectProperties: [] },
                 orderBy: [{ propertyName: '', descending: true }],
-                filters: [],
+                uiFilters: [],
                 pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
                 displayFields: []
             } as ProcessRollupBlockSettings

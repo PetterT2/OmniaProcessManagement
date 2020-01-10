@@ -10,7 +10,9 @@ using Newtonsoft.Json.Linq;
 using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
+using Omnia.Fx.Models.Queries;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
@@ -410,6 +412,32 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 return true;
             });
+        }
+
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery)
+        {
+            var result = new ItemQueryResult<Process>();
+
+            result.Total = 0;
+            if (itemQuery.IncludeTotal)
+            {
+                var (queryWithoutSortingAndPaging, queryTotalParameters) = itemQuery.GetQueryWithoutSortingAndPaging(OPMConstants.Database.Tables.Processes, excludeDeleted:false);
+                if (!string.IsNullOrWhiteSpace(queryWithoutSortingAndPaging))
+                {
+                    result.Total = await DbContext.AlternativeProcessEFView
+                        .FromSqlRaw(queryWithoutSortingAndPaging, queryTotalParameters.ToArray())
+                        .CountAsync();
+                }
+            }
+            var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted:false);
+            if (!string.IsNullOrWhiteSpace((string)query))
+            {
+                var temp = await DbContext.AlternativeProcessEFView.FromSqlRaw(query, parameters.ToArray()).ToListAsync();
+
+                result.Items = new List<Process>();
+                temp.ForEach(p => result.Items.Add(MapEfToModel(p)));
+            }
+            return result;
         }
 
         private async ValueTask<T> InitConcurrencyLockForActionAsync<T>(Guid opmProcessId, Func<ValueTask<T>> action)

@@ -17,7 +17,7 @@ export class ProcessRollupService {
 
     public queryProcesses = (query: RollupSetting) => {
         return new Promise<RollupProcessResult>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<RollupProcessResult>>('/api/processes/query', query).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<RollupProcessResult>>('/api/processrollup/queryrollup', query).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Omnia.Fx.Apps;
+using Omnia.Fx.Models.Language;
+using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.Processes;
@@ -460,7 +463,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         }
 
         [HttpGet, Route("checkifdraftexist/{opmProcessId:guid}")]
-        [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
+        [Authorize]
         public async ValueTask<ApiResponse<bool>> CheckIfDraftExist(Guid opmProcessId)
         {
             try

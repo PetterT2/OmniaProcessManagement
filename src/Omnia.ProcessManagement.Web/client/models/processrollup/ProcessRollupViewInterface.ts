@@ -6,7 +6,6 @@ export interface IProcessRollupViewInterface<T extends ProcessRollupViewSettings
     processes: Array<RollupProcess>;
     viewSettings: T;
     spacingSetting?: SpacingSetting;
-    taxonomyProperties?: { [internalName: string]: EnterprisePropertyDefinition };
     sortByCallback?: (sortKey: string, descending: boolean) => void;
 }
 

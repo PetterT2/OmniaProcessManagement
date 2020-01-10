@@ -209,7 +209,7 @@ namespace Omnia.ProcessManagement.Core
             public const string SingleWebPartAppPageLayoutType = "SingleWebPartAppPage";
 
             public const string ApprovalTaskUrl = "{0}/SitePages/Processes.aspx?displaytab=tasks&taskid={1}&viewtasktype=1";
-            public const string ProcessPreviewUrl = "{0}/SitePages/Processes.aspx/?displaytab=drafts/#/@pm/preview/g/{1}";
+            public const string ProcessPreviewUrl = "{0}/SitePages/Processes.aspx/?displaytab=drafts/#/@pm/{1}/preview/g";
         }
 
         public static class ModerPageTemplate
@@ -245,12 +245,12 @@ namespace Omnia.ProcessManagement.Core
         {
             public static class CompleteApproval
             {
-                public static readonly string ApproveSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveSubjectLocalizedKey");
-                public static readonly string ApproveBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyLocalizedKey");
-                public static readonly string ApproveBodyNoCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyNoCommentLocalizedKey");
+                public static readonly string ApproveSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveSubjectTemplate");
+                public static readonly string ApproveBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyTemplate");
+                public static readonly string ApproveBodyNoCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.ApproveBodyNoCommentTemplate");
 
-                public static readonly string RejectSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectSubjectLocalizedKey");
-                public static readonly string RejectBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectBodyLocalizedKey");
+                public static readonly string RejectSubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectSubjectTemplate");
+                public static readonly string RejectBodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.CompleteApproval.RejectBodyTemplate");
 
                 public static class Tokens
                 {
@@ -316,6 +316,51 @@ namespace Omnia.ProcessManagement.Core
                 public const string Reader = "38c86dbf-44a2-45c4-b370-2c1cabea954c";
                 public const string Approver = "22672fb9-e62f-470c-a68d-77ae03a5115d";
                 public const string Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa";
+            }
+        }
+
+        public static class Database
+        {
+            public static class Tables
+            {
+                public const string Processes = "Processes";
+            }
+
+            public static class TableProps
+            {
+                public static class Processes
+                {
+                    public const string OPMProcessId = "OPMProcessId";
+                    public const string TeamAppId = "TeamAppId";
+                    public const string SecurityResourceId = "SecurityResourceId";
+                    public const string ProcessWorkingStatus = "ProcessWorkingStatus";
+                    public const string CheckedOutBy = "CheckedOutBy";
+                    public const string Id = "Id";
+                    public const string JsonValue = "JsonValue";
+                    public const string VersionType = "VersionType";
+                    public const string CreatedAt = "CreatedAt";
+                    public const string CreatedBy = "CreatedBy";
+
+                    public static List<string> Properties
+                    {
+                        get
+                        {
+                            return new List<string>
+                            {
+                                OPMProcessId,
+                                TeamAppId,
+                                SecurityResourceId,
+                                ProcessWorkingStatus,
+                                CheckedOutBy,
+                                Id,
+                                JsonValue,
+                                VersionType,
+                                CreatedAt,
+                                CreatedBy
+                            };
+                        }
+                    }
+                }
             }
         }
     }

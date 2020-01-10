@@ -45,8 +45,8 @@ export class FabricShapeExtension implements FabricShape {
             opt['fill'] = options['fill'];
             opt['stroke'] = options['stroke'];
             opt['strokeWidth'] = 1;
-            opt['width'] = options['width'] * options['scaleX'];
-            opt['height'] = options['height'] * options['scaleY'];
+            opt['width'] = Math.floor(options['width'] * options['scaleX']);
+            opt['height'] = Math.floor(options['height'] * options['scaleY']);
             opt['angle'] = options['angle'];
         }
         return opt;
@@ -55,11 +55,7 @@ export class FabricShapeExtension implements FabricShape {
     protected getSpecificProperties(): { [k: string]: any } {
         let prop = {};
         return prop;
-    }
-
-    scalePointsToDefinition(scaleX: number, scaleY: number) {
-      
-    }
+    }    
 
     getShapeNodeJson(): IFabricShape {
         return {

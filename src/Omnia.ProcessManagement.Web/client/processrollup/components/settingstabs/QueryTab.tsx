@@ -5,10 +5,11 @@ import { Prop } from 'vue-property-decorator';
 import { OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
 import { ProcessRollupLocalization } from '../../loc/localize';
 import { ProcessRollupBlockSettingsStyles } from '../../../models';
-import { ProcessRollupBlockData, Enums, ProcessRollupBooleanPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePropFilterValue } from '../../../fx/models';
+import { ProcessRollupBlockData, Enums, ProcessRollupBooleanPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePeriodsPropFilterValue, ProcessVersionType } from '../../../fx/models';
 import { RollupFilter, PropertyIndexedType, UserPrincipalType, TaxonomyPropertySettings } from '@omnia/fx-models';
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
 import { EnterprisePropertyStore, TargetingPropertyStore } from '@omnia/fx/store';
+import { ProcessTableColumnsConstants } from '../../../fx';
 
 interface PropertyFilterExtension extends RollupFilter {
     removed?: boolean;
@@ -95,6 +96,9 @@ export class QueryTab extends tsx.Component<QueryTabProps>
                 filters: []
             })
         }
+        this.blockData.settings.resources[0].idProperty = ProcessTableColumnsConstants.versionType;
+        this.blockData.settings.resources[0].id = this.blockData.settings.searchScope == Enums.ProcessViewEnums.QueryScope.ArchivedProcesses ?
+            ProcessVersionType.Archived.toString() : ProcessVersionType.Published.toString();
         this.blockData.settings.resources.forEach(p => p.filters = p.filters.filter(p => !(p as PropertyFilterExtension).removed));
         this.settingsService.setValue(this.settingsKey, this.blockData);
 
@@ -149,7 +153,7 @@ export class QueryTab extends tsx.Component<QueryTabProps>
             ]
         }
         else if (filter.type == PropertyIndexedType.DateTime) {
-            let valueObj = filter.valueObj as ProcessRollupDatePropFilterValue;
+            let valueObj = filter.valueObj as ProcessRollupDatePeriodsPropFilterValue;
             return [<v-layout align-center>
                 {this.renderPropertySelection(filter)}
             </v-layout>,
@@ -226,7 +230,7 @@ export class QueryTab extends tsx.Component<QueryTabProps>
                 {
                     filters.map(filter => !filter.removed ? this.renderFilter(h, filter) : null)
                 }
-                <a onClick={() => { filters.push({} as RollupFilter); this.updateBlockData(); }} class={this.rollupSettingsClasses.pointer}>{this.loc.Settings.AddFilter}</a>
+                <a onClick={() => { filters.push({} as RollupFilter); this.updateBlockData(); }} class={this.rollupSettingsClasses.pointer}>{this.loc.Settings.AddQuery}</a>
             </div>
         );
     }

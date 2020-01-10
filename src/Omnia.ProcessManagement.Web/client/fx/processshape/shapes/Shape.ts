@@ -19,8 +19,7 @@ export declare abstract class Shape implements IShape {
     abstract ready(): Promise<boolean>;
     abstract getShapeJson(): IShape;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
-    abstract finishScaled(obj: fabric.Object);
-    abstract getObjectPosition(isText: boolean, left: number, top: number, width: number, height: number, isCenter?: boolean): { left: number, top: number };
+    abstract getTextPosition(position: { left: number, top: number }, width: number, height: number, isCenter?: boolean): { left: number, top: number };
 }
 
 export interface Shape {
@@ -33,7 +32,7 @@ interface ShapeClasses<T> {
 }
 
 class ShapeClassesFactory<T> {
-    public createService(ctor: ShapeClasses<T>, definition: DrawingShapeDefinition, nodes?: IFabricShape[],title?: MultilingualString, selectable?: boolean,
+    public createService(ctor: ShapeClasses<T>, definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number, grouping?: boolean) {
         return new ctor(definition, nodes, title, selectable, left, top, grouping);
     }

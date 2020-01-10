@@ -1,4 +1,6 @@
-﻿using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+﻿using Omnia.Fx.Models.Queries;
+using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -29,7 +31,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
 
 
-
+        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery);
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);

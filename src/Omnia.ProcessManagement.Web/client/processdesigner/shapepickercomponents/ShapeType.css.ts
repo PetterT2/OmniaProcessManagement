@@ -8,6 +8,6 @@ StyleFlow.define(ShapeTypeStyles, {
         overflow: 'auto'
     },
     drawingSettingsWrapper: {
-       
+
     }
 });
