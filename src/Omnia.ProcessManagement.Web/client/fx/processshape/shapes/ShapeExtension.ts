@@ -86,9 +86,9 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    finishScaling(object: fabric.Object) {
+    protected finishScaling(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
-        let textPosition = this.getTextPosition(position, object.width * object.scaleX, object.height * object.scaleY, true);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), true);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top

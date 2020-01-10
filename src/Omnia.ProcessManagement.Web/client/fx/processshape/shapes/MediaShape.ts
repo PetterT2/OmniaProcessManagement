@@ -27,8 +27,8 @@ export class MediaShape extends ShapeExtension implements Shape {
             if (fabricImageObj) {
                 (fabricImageObj as FabricImageShape).ready()
                     .then((result) => {
-                        let newWidth = fabricImageObj.properties.width * (fabricImageObj.properties.scaleX || 1);
-                        let newHeight = fabricImageObj.properties.height * (fabricImageObj.properties.scaleY || 1);
+                        let newWidth = Math.floor(fabricImageObj.properties.width * (fabricImageObj.properties.scaleX || 1));
+                        let newHeight = Math.floor(fabricImageObj.properties.height * (fabricImageObj.properties.scaleY || 1));
                         if (this.definition.height != newHeight ||
                             this.definition.width != newWidth) {
                             this.definition.width = newWidth;

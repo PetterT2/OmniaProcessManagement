@@ -165,10 +165,14 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             if (!string.IsNullOrWhiteSpace(approver))
             {
                 var approverSPUser = appContext.Web.EnsureUser(approver);
-                appContext.Load(approverSPUser, u => u.Title, u => u.Email, u => u.UserPrincipalName);
+                appContext.Load(approverSPUser, u => u.Title, u => u.Email, u => u.UserPrincipalName, u => u.LoginName);
                 await appContext.ExecuteQueryAsync();
+                var language = await SPUSerService.GetLanguageAsync(appContext, approverSPUser.LoginName, false);
+                var preferredLanguage = language.Name;
+                var lcid = (uint)language.LCID;
+                string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, preferredLanguage, null);
 
-                await SendCancellWorkflowEmail(workflow, process, approverSPUser, webUrl);
+                await SendCancellWorkflowEmail(workflow, processTitle, approverSPUser, webUrl);
             }
         }
 
@@ -233,7 +237,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 });
 
                 emailInfo.TokenInfo.AddTokenDatetimeValues(new Dictionary<string, DateTimeOffset>{
-                    {OPMConstants.EmailTemplates.SendForApproval.Tokens.DueDate,  workflow.DueDate.GetValueOrDefault()},
+                    {OPMConstants.EmailTemplates.SendForApproval.Tokens.DueDate,  workflow.DueDate.GetValueOrDefault().Date},
                     {OPMConstants.EmailTemplates.SendForApproval.Tokens.StartDate,  DateTime.Now}
                 });
 
@@ -244,9 +248,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             }
         }
 
-        private async ValueTask SendCancellWorkflowEmail(Workflow workflow, Process process, User approverSPUser, string webUrl)
+        private async ValueTask SendCancellWorkflowEmail(Workflow workflow, string processTitle, User approverSPUser, string webUrl)
         {
-
+            
             foreach (WorkflowTask workflowTask in workflow.WorkflowTasks)
             {
                 if (!string.IsNullOrEmpty(approverSPUser.Email))
@@ -254,17 +258,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     var emailInfo = new EmailInfo();
                     emailInfo.Subject = OPMConstants.EmailTemplates.CancelApproval.SubjectLocalizedKey;
                     emailInfo.Body.Add(OPMConstants.EmailTemplates.CancelApproval.BodyLocalizedKey);
-
                     emailInfo.LocalizationSetting.ApplyUserSetting(approverSPUser.UserPrincipalName);
-
-                    emailInfo.UseMultilingualTokenInfo(OmniaScopedContext.BusinessProfileId)
-                    .AddTokenMultilingualValues(new Dictionary<string, MultilingualString>
-                    {
-                        {OPMConstants.EmailTemplates.CancelApproval.Tokens.ProcessTitle, process.RootProcessStep.Title }
-                    });
-
+                   
                     emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
-                            { OPMConstants.EmailTemplates.CancelApproval.Tokens.ApproverName,  approverSPUser.Title }
+                            { OPMConstants.EmailTemplates.CancelApproval.Tokens.ApproverName,  approverSPUser.Title },
+                            {OPMConstants.EmailTemplates.CancelApproval.Tokens.ProcessTitle, processTitle }
                         });
 
                     emailInfo.To = new List<string> { approverSPUser.Email };
@@ -284,8 +282,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             var approver = appCtx.Web.EnsureUser(task.CreatedBy);
 
             appCtx.Load(author, us => us.Title, us => us.LoginName, us => us.Email, us => us.Id, us => us.UserPrincipalName);
-            appCtx.Load(approver, us => us.Id, us => us.Title);
+            appCtx.Load(approver, us => us.Id, us => us.Title, us => us.LoginName);
             await appCtx.ExecuteQueryAsync();
+            var language = await SPUSerService.GetLanguageAsync(appCtx, approver.LoginName, false);
+            var preferredLanguage = language.Name;
+            var lcid = (uint)language.LCID;
+            string processTitle = await MultilingualHelper.GetValue(process.RootProcessStep.Title, preferredLanguage, null);
 
             if (author == null)
             {
@@ -321,17 +323,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 emailInfo.Subject = emailTitle;
                 emailInfo.Body.Add(emailTemplate);
                 emailInfo.LocalizationSetting.ApplyUserSetting(author.UserPrincipalName);
-
-                emailInfo.UseMultilingualTokenInfo(OmniaScopedContext.BusinessProfileId)
-                   .AddTokenMultilingualValues(new Dictionary<string, MultilingualString>
-                   {
-                        {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ProcessTitle, process.RootProcessStep.Title }
-                   });
-
+             
                 emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
                     {OPMConstants.EmailTemplates.CompleteApproval.Tokens.AuthorName,  author.Title},
                     {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ApproverName,  approver.Title},
-                    {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ApproverComment,  task.Comment }
+                    {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ApproverComment,  task.Comment },
+                    {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ProcessTitle, processTitle }
                 });
 
 

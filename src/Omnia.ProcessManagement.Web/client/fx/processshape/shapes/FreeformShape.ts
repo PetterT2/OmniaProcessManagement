@@ -47,9 +47,4 @@ export class FreeformShape extends ShapeExtension implements Shape {
         return this.fabricShapes ? this.fabricShapes.filter(s => s.shapeNodeType != FabricShapeTypes.line).map(n => n.getShapeNodeJson()) : [];
     }
 
-    scalePointsToDefinition(scaleX: number, scaleY: number) {
-        this.fabricShapes.forEach(s => {
-            s.scalePointsToDefinition(scaleX, scaleY);
-        })
-    }
 }
