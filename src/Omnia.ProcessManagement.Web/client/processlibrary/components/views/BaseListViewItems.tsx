@@ -10,7 +10,7 @@ import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedTy
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessService } from '../../../fx';
-import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields } from '../../Constants';
+import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields, ProcessLibraryListViewTabs } from '../../Constants';
 import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { FilterDialog } from './dialogs/FilterDialog';
@@ -23,6 +23,7 @@ interface BaseListViewItemsProps {
     displaySettings: ProcessLibraryDisplaySettings;
     versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     processListViewComponentKey: ProcessListViewComponentKey;
+    changeTab: (tab: ProcessLibraryListViewTabs) => void;
 }
 
 @Component
@@ -32,6 +33,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Prop() displaySettings: ProcessLibraryDisplaySettings;
     @Prop() versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     @Prop() processListViewComponentKey: ProcessListViewComponentKey;
+    @Prop() changeTab: (tab: ProcessLibraryListViewTabs) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
@@ -340,6 +342,15 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
     }
 
+    private closeSubComponentCallback(refreshList: boolean, tab?: ProcessLibraryListViewTabs){
+        if (tab) {
+            this.changeTab(tab);
+        }
+        else if (refreshList) {
+            this.initProcesses();
+        }
+    }
+
     renderItems(h, item: DisplayProcess) {
         return (
             <tr onMouseover={() => { item.isMouseOver = true; this.$forceUpdate(); }} onMouseout={() => { item.isMouseOver = false; this.$forceUpdate(); }}>
@@ -351,7 +362,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     <td class={this.listViewClasses.menuColumn}>
                                         {h(this.processListViewComponentKey.processMenuComponent, {
                                             domProps: {
-                                                closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
+                                                closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
                                                 process: item,
                                                 isAuthor: this.isAuthor
                                             }
@@ -364,7 +375,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                     {h(this.processListViewComponentKey.processingStatusComponent, {
                                         domProps: {
                                             redLabel: errorStatus,
-                                            closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); },
+                                            closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
                                             process: item,
                                             isAuthor: this.isAuthor
                                         }
@@ -535,7 +546,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                             <v-card-actions>
                                 {h(this.processListViewComponentKey.actionButtonComponent, {
                                     domProps: {
-                                        closeCallback: (isUpdate: boolean) => { if (isUpdate) this.initProcesses(); }
+                                        closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) }
                                     }
                                 })}
                             </v-card-actions>

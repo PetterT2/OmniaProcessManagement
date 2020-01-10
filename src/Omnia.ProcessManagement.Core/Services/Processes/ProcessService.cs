@@ -49,6 +49,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
+        public async ValueTask<Process> CreateDraftProcessAsync(Guid opmProcessId)
+        {
+            var process = await ProcessRepository.CreateDraftProcessAsync(opmProcessId);
+            return process;
+        }
+
         public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
         {
             var process = await ProcessRepository.CreateDraftProcessAsync(actionModel);

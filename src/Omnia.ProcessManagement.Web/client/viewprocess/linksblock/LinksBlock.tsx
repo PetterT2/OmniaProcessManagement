@@ -29,9 +29,8 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
     componentUniqueKey: string = Utils.generateGuid();
     blockData: LinksBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    links: Array<Link>;
+    links: Array<Link> = [];
     linksClasses = StyleFlow.use(LinksBlockStyles, this.styles);
-    currentProcessStepId: GuidValue;
 
     created() {
         this.init();
@@ -42,7 +41,8 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     beforeDestroy() {
-
+        if (this.subscriptionHandler)
+            this.subscriptionHandler.unsubscribe();
     }
 
     init() {
@@ -57,13 +57,16 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
                 settings: { title: { isMultilingualString: true } }
             });
         });
-
-        this.initLinks(this.currentProcessStore.getters.referenceData());
+        this.initLinks();
+        this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
+            this.initLinks();
+        }));
     }
 
-    initLinks(currentReferenceData: ProcessReferenceData) {
+    initLinks() {
+        this.links = [];
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
         if (currentReferenceData && currentReferenceData.current.processData.links) {
-            this.currentProcessStepId = currentReferenceData.current.processStep.id;
             this.links = currentReferenceData.current.processData.links;
             this.links.forEach(t => t.multilingualTitle = this.multilingualStore.getters.stringValue(t.title));
         }
@@ -105,9 +108,6 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     renderLinks(h) {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (currentReferenceData && this.currentProcessStepId != currentReferenceData.current.processStep.id)
-            this.initLinks(currentReferenceData);
         return (
             <div>
                 {this.links.map(ele => this.renderLink(ele))}

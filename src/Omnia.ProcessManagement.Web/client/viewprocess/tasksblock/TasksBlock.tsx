@@ -28,9 +28,8 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
     componentUniqueKey: string = Utils.generateGuid();
     blockData: TasksBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    tasks: Array<Task>;
+    tasks: Array<Task> = [];
     tasksClasses = StyleFlow.use(TasksBlockStyles, this.styles);
-    currentProcessStepId: GuidValue;
 
     created() {
         this.init();
@@ -57,12 +56,16 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
             });
         });
 
-        this.initTasks(this.currentProcessStore.getters.referenceData());
+        this.initTasks();
+        this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
+            this.initTasks();
+        }));
     }
 
-    initTasks(currentReferenceData: ProcessReferenceData) {
+    initTasks() {
+        this.tasks = [];
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
         if (currentReferenceData && currentReferenceData.current.processData.tasks) {
-            this.currentProcessStepId = currentReferenceData.current.processStep.id;
             this.tasks = currentReferenceData.current.processData.tasks;
             this.tasks.forEach(t => t.multilingualTitle = this.multilingualStore.getters.stringValue(t.title));
         }
@@ -89,9 +92,6 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     renderTasks(h) {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (currentReferenceData && this.currentProcessStepId != currentReferenceData.current.processStep.id)
-            this.initTasks(currentReferenceData);
         return (
             <div>
                 {this.tasks.map(ele => this.renderTask(ele))}

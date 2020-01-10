@@ -5,14 +5,15 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
+import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface DraftsActionButtonsProps {
-    closeCallback: (isUpdate: boolean) => void;
+    closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
 }
 
 @Component
 export class DraftsActionButtons extends VueComponentBase<DraftsActionButtonsProps> implements IWebComponentInstance {
-    @Prop() closeCallback: (isUpdate: boolean) => void;
+    @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;

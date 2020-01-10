@@ -7,9 +7,10 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
 import { Enums, Process, ProcessWorkingStatus } from '../../../../fx/models';
 import { ApprovalPublishDialog } from './ApprovalPublishDialog';
+import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface DraftsProcessingStatusProps {
-    closeCallback: (isUpdate: boolean) => void;
+    closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     process: Process;
     redLabel: boolean;
     isAuthor: boolean;
@@ -17,7 +18,7 @@ interface DraftsProcessingStatusProps {
 
 @Component
 export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingStatusProps> implements IWebComponentInstance {
-    @Prop() closeCallback: (isUpdate: boolean) => void;
+    @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() process: Process;
     @Prop() redLabel: boolean;
     @Prop() isAuthor: boolean;

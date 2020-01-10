@@ -9,7 +9,7 @@ import { ProcessLibraryLocalization } from '../../loc/localize';
 import './ListView.css';
 import { IListViewComponent } from './IListView';
 import { OPMUtils, CurrentProcessStore } from '../../../fx';
-import { UrlParameters } from '../../Constants';
+import { UrlParameters, ProcessLibraryListViewTabs } from '../../Constants';
 import { TasksView } from './tasks/TasksView';
 import { BaseListViewItems } from './BaseListViewItems';
 import { SecurityService } from '@omnia/fx/services';
@@ -30,8 +30,8 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDeisgnerStore: ProcessDesignerStore;
 
-    private selectingTab = 'tab-drafts';
-    private tabPrefix = 'tab-';
+    private selectingTab = ProcessLibraryListViewTabs.Draft;
+    
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openPermissionDialog: boolean = false;
     hasPermission: boolean = false;
@@ -74,36 +74,36 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
             }
 
             if (displayTabParamValue == UrlParameters.Drafts) {
-                this.selectingTab = this.tabPrefix + UrlParameters.Drafts;
+                this.selectingTab = ProcessLibraryListViewTabs.Draft
             }
             else if (displayTabParamValue == UrlParameters.Tasks && !this.viewSettings.hideTasksTab) {
-                this.selectingTab = this.tabPrefix + UrlParameters.Tasks;
+                this.selectingTab = ProcessLibraryListViewTabs.Task
             }
             else {
-                this.selectingTab = this.tabPrefix + UrlParameters.Published;
+                this.selectingTab = ProcessLibraryListViewTabs.Published
             }
         }
         else {
             switch (this.viewSettings.defaultTab) {
                 case Enums.ProcessViewEnums.StartPageTab.Drafts:
                     OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Drafts));
-                    this.selectingTab = this.tabPrefix + UrlParameters.Drafts;
+                    this.selectingTab = ProcessLibraryListViewTabs.Draft
                     break;
                 case Enums.ProcessViewEnums.StartPageTab.Tasks:
                     if (!this.viewSettings.hideTasksTab) {
                         OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Tasks));
-                        this.selectingTab = this.tabPrefix + UrlParameters.Tasks;
+                        this.selectingTab = ProcessLibraryListViewTabs.Task
                     }
 
                     else {
                         OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Published));
-                        this.selectingTab = this.tabPrefix + UrlParameters.Published;
+                        this.selectingTab = ProcessLibraryListViewTabs.Published
                     }
 
                     break;
                 default:
                     OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Published));
-                    this.selectingTab = this.tabPrefix + UrlParameters.Published;
+                    this.selectingTab = ProcessLibraryListViewTabs.Published
             }
         }
     }
@@ -112,14 +112,13 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
         return '?' + UrlParameters.DisplayTab + "=" + tab;
     }
 
-    private changeTabOnClick(tab) {
+    private changeTab(tab: ProcessLibraryListViewTabs) {
         this.selectingTab = tab;
-        let viewMode = this.selectingTab.replace(this.tabPrefix, '');
-        switch (viewMode) {
-            case UrlParameters.Drafts:
+        switch (this.selectingTab) {
+            case ProcessLibraryListViewTabs.Draft:
                 OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Drafts));
                 break;
-            case UrlParameters.Tasks:
+            case ProcessLibraryListViewTabs.Task:
                 OPMUtils.navigateToNewState(this.getUrlWithTabRouter(UrlParameters.Tasks));
                 break;
             default:
@@ -139,27 +138,27 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     background-color={this.omniaTheming.promoted.header.primary.base}
                     color={this.omniaTheming.promoted.header.text.base}
                     slider-color={this.omniaTheming.promoted.header.text.base}
-                    onChange={this.changeTabOnClick}>
-                    <v-tab href="#tab-drafts">
+                    onChange={this.changeTab}>
+                    <v-tab href={`#${ProcessLibraryListViewTabs.Draft}`}>
                         {this.loc.ViewTabs.Drafts}
                     </v-tab>
-                    <v-tab href="#tab-tasks" v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
+                    <v-tab href={`#${ProcessLibraryListViewTabs.Task}`} v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
                         {this.loc.ViewTabs.Tasks}
                     </v-tab>
-                    <v-tab href="#tab-published">
+                    <v-tab href={`#${ProcessLibraryListViewTabs.Published}`}>
                         {this.loc.ViewTabs.Published}
                     </v-tab>
-                    <v-tab-item id="tab-drafts">
-                        {this.selectingTab == "tab-drafts" ?
-                            <BaseListViewItems displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
+                    <v-tab-item id={`${ProcessLibraryListViewTabs.Draft}`}>
+                        {this.selectingTab == ProcessLibraryListViewTabs.Draft ?
+                            <BaseListViewItems changeTab={this.changeTab} displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
-                    <v-tab-item id="tab-tasks" v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
-                        {this.selectingTab == "tab-tasks" ? <TasksView></TasksView> : null}
+                    <v-tab-item id={`${ProcessLibraryListViewTabs.Task}`} v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
+                        {this.selectingTab == ProcessLibraryListViewTabs.Task ? <TasksView></TasksView> : null}
                     </v-tab-item>
-                    <v-tab-item id="tab-published">
-                        {this.selectingTab == "tab-published" ?
-                            <BaseListViewItems displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
+                    <v-tab-item id={`${ProcessLibraryListViewTabs.Published}`}>
+                        {this.selectingTab == ProcessLibraryListViewTabs.Published ?
+                            <BaseListViewItems changeTab={this.changeTab} displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                 </v-tabs>

@@ -26,6 +26,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             using (var transaction = DbContext.Database.BeginTransaction())
             {
+                ProcessWorkingStatus = null;
+
                 var result = await action();
                 await transaction.CommitAsync();
 
@@ -42,6 +44,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             using (var transaction = DbContext.Database.BeginTransaction())
             {
+                ProcessWorkingStatus = null;
 
                 await action();
                 await transaction.CommitAsync();
@@ -57,6 +60,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             if (DbContext.Database.CurrentTransaction != null)
             {
+                if (ProcessWorkingStatus.HasValue)
+                {
+                    throw new Exception("Only support to change one state of working status in a transaction");
+                }
+
                 ProcessWorkingStatus = processWorkingStatus;
             }
             else {

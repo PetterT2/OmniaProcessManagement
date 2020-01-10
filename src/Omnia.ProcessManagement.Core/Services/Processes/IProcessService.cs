@@ -13,17 +13,21 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 {
     public interface IProcessService
     {
+        //Main process actions
+
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> CreateDraftProcessAsync(Guid opmProcessId);
         ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
-
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
+
+
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);

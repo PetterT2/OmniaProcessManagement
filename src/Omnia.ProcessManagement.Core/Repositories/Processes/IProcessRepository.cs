@@ -16,14 +16,22 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
     internal interface IProcessRepository : IEnterprisePropertiesEntityRepository
     {
-        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery);
+        //Main process actions
+
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
+        ValueTask<Process> CreateDraftProcessAsync(Guid opmProcessId);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
         ValueTask<Process> UnpublishProcessAsync(Guid opmProcessId);
+        ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
+        ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
+        ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
+
+
+        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery);
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
@@ -32,13 +40,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds);
-       
-        ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
-        ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
-        ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
+
 
         ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery);
         ValueTask<List<InternalProcess>> GetAuthorizedInternalProcessesAsync(IAuthorizedInternalProcessQuery processQuery);
+
 
         ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);

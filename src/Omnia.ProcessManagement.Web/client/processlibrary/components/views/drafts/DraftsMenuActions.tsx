@@ -14,9 +14,10 @@ import { DisplayModes } from '../../../../models/processdesigner';
 import { OPMRouter } from '../../../../fx/routing';
 import { PublishDialog } from './PublishDialog';
 import { DeletedDialog } from './DeleteDialog';
+import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface DraftsMenuActionsProps {
-    closeCallback: (isUpdate: boolean) => void;
+    closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     process: DisplayProcess;
     isAuthor: boolean;
 }
@@ -24,7 +25,7 @@ interface DraftsMenuActionsProps {
 @Component
 export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> implements IWebComponentInstance {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
-    @Prop() closeCallback: (isUpdate: boolean) => void;
+    @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() process: DisplayProcess;
     @Prop() isAuthor: boolean;
 

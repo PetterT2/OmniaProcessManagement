@@ -7,9 +7,11 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { UnpublishDialog } from './UnpublishDialog';
+import { ProcessStore } from '../../../../fx';
+import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface PublishedMenuActionsProps {
-    closeCallback: (isUpdate: boolean) => void;
+    closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     process: DisplayProcess;
     isAuthor: boolean;
 }
@@ -17,20 +19,21 @@ interface PublishedMenuActionsProps {
 @Component
 export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsProps> implements IWebComponentInstance {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
-    @Prop() closeCallback: (isUpdate: boolean) => void;
+    @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() process: DisplayProcess;
     @Prop() isAuthor: boolean;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
 
+    @Inject(ProcessStore) processStore: ProcessStore;
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
- 
+
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
     openUnpublishDialog: boolean = false;
-   
+
     created() {
     }
 
@@ -42,8 +45,16 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     }
 
+    private createDraft() {
+        this.processStore.actions.createDraftFromPublished.dispatch(this.process.opmProcessId).then(() => {
+            this.closeCallback(false, ProcessLibraryListViewTabs.Draft);
+        })
+    }
+
     private refreshContextMenu() {
-        this.disableButtonUpdateAction = !this.isAuthor;
+        this.disableButtonUpdateAction = !this.isAuthor ||
+            this.process.processWorkingStatus == ProcessWorkingStatus.SyncingToSharePoint ||
+            this.process.processWorkingStatus == ProcessWorkingStatus.Archiving;
     }
 
     private renderUnpublishDialog(h) {
@@ -70,7 +81,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                         }
                     })}>
                     <v-list>
-                        <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
+                        <v-list-item onClick={() => { this.createDraft() }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.CreateDraft}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
@@ -81,7 +92,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                             <v-list-item-title>{this.loc.ProcessActions.ExportProcess}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => {
-                            
+
                         }}>
                             <v-list-item-title>{this.loc.ProcessActions.ProcessHistory}</v-list-item-title>
                         </v-list-item>
