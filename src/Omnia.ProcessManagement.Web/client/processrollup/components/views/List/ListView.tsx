@@ -12,8 +12,8 @@ import {
 } from '../../../../models';
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
-import { DefaultDateFormat, ProcessRollupConstants } from '../../../../fx';
-import { RollupProcess, Enums } from '../../../../fx/models';
+import { DefaultDateFormat, ProcessRollupConstants, OPMRouter } from '../../../../fx';
+import { RollupProcess, Enums, RouteOptions } from '../../../../fx/models';
 import './List.css';
 import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
 
@@ -94,12 +94,22 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
         return result;
     }
 
+    openProcess(rollupProcess: RollupProcess) {
+        OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer).then(() => {
+
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
+
     renderTitleAndLink(process: RollupProcess) {
         let h = this.$createElement;
         let title = process.properties[BuiltInEnterprisePropertyInternalNames.Title];
         return <div class={this.listViewClasses.titleLayout}>
             <omfx-letter-avatar class={this.listViewClasses.logoIcon} name={title} size={30}></omfx-letter-avatar>
-            <span class={classes(this.listViewClasses.titleLink)}>{title}</span>
+            <a class={classes(this.listViewClasses.titleLink)} onClick={() => { this.openProcess(process); }}>{title}</a>
         </div>
     }
 

@@ -88,11 +88,11 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
         return new Promise<void>((resolve, reject) => {
 
             let title = this.multilingualStore.getters.stringValue(processStep.title);
-            let routeOption = this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
+            routeOption = routeOption != null ? routeOption : this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
 
             if (this.currentProcessId == process.id.toString().toLowerCase() &&
                 this.currentProcessStepId == processStep.id.toString().toLowerCase() &&

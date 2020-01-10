@@ -96,7 +96,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 
                     result.Items.Add(new RollupProcess
                     {
-                        Id = process.Id,
+                        Process = process,
                         Properties = returnProperties
                     });
                 }
