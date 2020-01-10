@@ -6,7 +6,6 @@ export declare abstract class FabricShape implements IFabricShape {
     constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
-    abstract scalePointsToDefinition(scaleX: number, scaleY: number);
     abstract getShapeNodeJson(): IFabricShape;
     abstract readonly shapeNodeType: FabricShapeTypes;
 }

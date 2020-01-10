@@ -23,15 +23,12 @@ export class FabricPolylineShape extends FabricShapeExtension implements FabricS
         return FabricShapeTypes.polyline;
     }
 
-    scalePointsToDefinition(scaleX: number, scaleY: number) {
+    calculateScalePointsToDefinition(scaleX: number, scaleY: number) {
         let matrix = [scaleX, 0, 0, scaleY, 0, 0];
         let points = [];
         (this.fabricObject as fabric.Polyline).points.forEach(p => {
             points.push( fabric.util.transformPoint(p, matrix));
         });
-        (this.fabricObject as fabric.Polyline).points = points;
         let position = fabric.util.transformPoint(new fabric.Point(this.fabricObject.left, this.fabricObject.top), matrix);
-        this.fabricObject.left = position.x;
-        this.fabricObject.top = position.y;
     }
 }

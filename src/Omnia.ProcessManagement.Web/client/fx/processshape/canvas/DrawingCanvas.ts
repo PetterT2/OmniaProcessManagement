@@ -226,14 +226,14 @@ export class DrawingCanvas implements CanvasDefinition {
 
     updateCanvasSize(readyDrawingShape: DrawingShape) {
         let fontSizeSpace = readyDrawingShape.shape.definition.textPosition == TextPosition.Center ? 0 : readyDrawingShape.shape.definition.fontSize;
-        let canvasWidth = parseFloat(readyDrawingShape.shape.definition.height.toString()) + TextSpacingWithShape + fontSizeSpace;
-        let canvasHeight = readyDrawingShape.shape.definition.width;
+        let canvasHeight = parseFloat(readyDrawingShape.shape.definition.height.toString()) + TextSpacingWithShape + fontSizeSpace;
+        let canvasWidth = readyDrawingShape.shape.definition.width;
         if (!Utils.isNullOrEmpty(readyDrawingShape.shape.definition.borderColor)) {
             canvasWidth += 2;
             canvasHeight += 2;
         }
-        this.canvasObject.setHeight(canvasWidth);
-        this.canvasObject.setWidth(canvasHeight);
+        this.canvasObject.setHeight(canvasHeight);
+        this.canvasObject.setWidth(canvasWidth);
     }
 
     addDrawingShape(drawingShape: DrawingShape) {
