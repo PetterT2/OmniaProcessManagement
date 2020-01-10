@@ -1,4 +1,4 @@
 ﻿export interface RollupProcess {
-    id: number;
+    id: string;
     properties: { [key: string]: any }
 }

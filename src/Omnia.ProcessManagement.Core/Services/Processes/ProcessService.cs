@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Omnia.Fx.Messaging;
+using Omnia.Fx.Models.Queries;
+using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
@@ -143,6 +145,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             var beingUsed = await ProcessRepository.CheckIfDeletingProcessStepsAreBeingUsedAsync(processId, deletingProcessStepIds);
             return beingUsed;
+        }
+
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery)
+        {
+            var queryHelper = new ItemQueryHelper(itemQuery);
+            return await ProcessRepository.QueryProcesses(queryHelper);
         }
 
         async ValueTask<InternalProcess> IProcessService.GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)

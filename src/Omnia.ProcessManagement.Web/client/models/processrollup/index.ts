@@ -1,3 +1,3 @@
-﻿export * from './ListViewColumn';
+﻿export * from './ProcessRollupListViewColumn';
 export * from './ProcessRollupListViewSettings';
 export * from './ProcessRollupViewInterface';

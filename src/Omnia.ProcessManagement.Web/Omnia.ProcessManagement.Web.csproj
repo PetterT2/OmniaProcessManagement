@@ -122,7 +122,7 @@
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBooleanPropFilterValue.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupDatePropFilterValue.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupDatePeriodsPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupFilter.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupPersonPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTaxonomyPropFilterValue.ts" />
@@ -283,7 +283,8 @@
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\index.ts" />
-    <TypeScriptCompile Remove="client\models\processrollup\ListViewColumn.ts" />
+    <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewColumn.ts" />
+    <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewDateTimeColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewSettings.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />

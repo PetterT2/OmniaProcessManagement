@@ -14,7 +14,9 @@ using Omnia.ProcessManagement.Core.Services.Features;
 using Omnia.ProcessManagement.Core.Services.Graph;
 using Omnia.ProcessManagement.Core.Services.Images;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.ProcessHandler;
 using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
+using Omnia.ProcessManagement.Core.Services.ProcessRollup;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
@@ -65,6 +67,8 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<ISharePointTaskService, SharePointTaskService>();
             services.AddScopedWithSingeltonRef<IGraphService, GraphService>();
             services.AddScopedWithSingeltonRef<IImageService, ImageService>();
+            services.AddScopedWithSingeltonRef<IProcessRollupService, ProcessRollupService>();
+            services.AddScopedWithSingeltonRef<IProcessHandleService, ProcessHandleService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<ITransactionRepository, TransactionRepositiory>();

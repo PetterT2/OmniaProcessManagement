@@ -1,4 +1,5 @@
-﻿using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
+﻿using Omnia.Fx.Models.Queries;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -38,5 +39,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         internal ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType);
         internal ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType);
         internal ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
+        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery);
     }
 }

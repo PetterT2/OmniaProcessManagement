@@ -318,5 +318,50 @@ namespace Omnia.ProcessManagement.Core
                 public const string Reviewer = "89e89b72-a75c-41d2-8303-b83800980faa";
             }
         }
+
+        public static class Database
+        {
+            public static class Tables
+            {
+                public const string Processes = "Processes";
+            }
+
+            public static class TableProps
+            {
+                public static class Processes
+                {
+                    public const string OPMProcessId = "OPMProcessId";
+                    public const string TeamAppId = "TeamAppId";
+                    public const string SecurityResourceId = "SecurityResourceId";
+                    public const string ProcessWorkingStatus = "ProcessWorkingStatus";
+                    public const string CheckedOutBy = "CheckedOutBy";
+                    public const string Id = "Id";
+                    public const string JsonValue = "JsonValue";
+                    public const string VersionType = "VersionType";
+                    public const string CreatedAt = "CreatedAt";
+                    public const string CreatedBy = "CreatedBy";
+
+                    public static List<string> Properties
+                    {
+                        get
+                        {
+                            return new List<string>
+                            {
+                                OPMProcessId,
+                                TeamAppId,
+                                SecurityResourceId,
+                                ProcessWorkingStatus,
+                                CheckedOutBy,
+                                Id,
+                                JsonValue,
+                                VersionType,
+                                CreatedAt,
+                                CreatedBy
+                            };
+                        }
+                    }
+                }
+            }
+        }
     }
 }

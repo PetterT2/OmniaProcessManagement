@@ -1,4 +1,6 @@
-﻿using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+﻿using Omnia.Fx.Models.Queries;
+using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
+using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -14,6 +16,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 {
     internal interface IProcessRepository : IEnterprisePropertiesEntityRepository
     {
+        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery);
         ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
