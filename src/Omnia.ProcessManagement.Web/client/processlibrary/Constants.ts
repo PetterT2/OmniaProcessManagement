@@ -8,7 +8,7 @@ export const UrlParameters = {
     get Tasks() { return "tasks" },
     get Published() { return "published" },
     get TaskId() { return "taskid" },
-    get TaskType() { return "tasktype"}
+    get TaskType() { return "viewtasktype"}
 }
 
 export const LibrarySystemFieldsConstants = {

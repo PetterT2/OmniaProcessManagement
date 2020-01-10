@@ -48,6 +48,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         let context: OPMRoute = null;
         let routeOption: RouteOptions = RouteOptions.publishedInBlockRenderer;
         path = path.toLowerCase();
+        path = path.split('&')[0];
 
         if (path.endsWith(RouteOptions.previewInGlobalRenderer)) {
             path = path.replace(RouteOptions.previewInGlobalRenderer, '');
@@ -64,7 +65,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
 
         if (path) {
-            path = path.split('&')[0];
             context = {
                 processStepId: new Guid(path),
                 routeOption: routeOption
