@@ -34,7 +34,6 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     drawingClasses = StyleFlow.use(DrawingBlockStyles, this.styles);
     canvasId = 'viewcanvas_' + Utils.generateGuid().toString();
     drawingCanvas: DrawingCanvas = null;
-    currentProcessStepId: GuidValue;
     currentDrawingProcessData: ProcessData;
 
     created() {
@@ -62,7 +61,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             });
         });
 
-        this.initCanvas(this.currentProcessStore.getters.referenceData());
+        this.initCanvas();
+        this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
+            this.initCanvas();
+        }));
     }
 
     private drawShapes() {
@@ -77,11 +79,11 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         }, 300);
     }
 
-    private initCanvas(currentReferenceData: ProcessReferenceData) {
+    private initCanvas() {
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
         if (this.drawingCanvas)
             this.drawingCanvas.destroy();
         if (!currentReferenceData) return;
-        this.currentProcessStepId = currentReferenceData.current.processStep.id;
         if (currentReferenceData.current.processData.canvasDefinition
             && !Utils.isArrayNullOrEmpty(currentReferenceData.current.processData.canvasDefinition.drawingShapes)) {
             this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
@@ -126,9 +128,6 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     renderDrawing(h) {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (currentReferenceData && this.currentProcessStepId != currentReferenceData.current.processStep.id)
-            this.initCanvas(currentReferenceData);
         return (
             <div class={this.drawingClasses.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
                 <div class={this.drawingClasses.canvasOverflowWrapper}>

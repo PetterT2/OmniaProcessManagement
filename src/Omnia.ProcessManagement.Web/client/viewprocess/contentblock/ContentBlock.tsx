@@ -28,9 +28,8 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     componentUniqueKey: string = Utils.generateGuid();
     blockData: ContentBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    content: string;
+    content: string="";
     contentClasses = StyleFlow.use(ContentBlockStyles, this.styles);
-    currentProcessStepId: GuidValue;
 
     created() {
         this.init();
@@ -57,12 +56,15 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
             });
         });
 
-        this.initContent(this.currentProcessStore.getters.referenceData());
+        this.initContent();
+        this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
+            this.initContent();
+        }));
     }
 
-    initContent(currentReferenceData: ProcessReferenceData) {
+    initContent() {
+        let currentReferenceData = this.currentProcessStore.getters.referenceData();
         if (currentReferenceData && currentReferenceData.current.processData.content) {
-            this.currentProcessStepId = currentReferenceData.current.processStep.id;
             this.content = this.multilingualStore.getters.stringValue(currentReferenceData.current.processData.content);
         }
     }
@@ -81,9 +83,6 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     renderContent(h) {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (currentReferenceData && this.currentProcessStepId != currentReferenceData.current.processStep.id)
-            this.initContent(currentReferenceData);
         return (
             <div domProps-innerHTML={this.content}></div>
         )

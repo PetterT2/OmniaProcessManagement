@@ -136,7 +136,10 @@ export class CurrentProcessStore extends Store {
     }
 
     public getters = {
-        referenceData: () => this.currentProcessReferenceData.state
+        referenceData: () => this.currentProcessReferenceData.state,
+        onCurrentProcessReferenceDataMutated: () => {
+            return this.currentProcessReferenceData.onMutated
+        }
     }
 
     mutations = {
