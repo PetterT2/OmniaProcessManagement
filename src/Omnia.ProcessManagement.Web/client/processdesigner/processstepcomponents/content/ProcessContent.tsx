@@ -2,7 +2,7 @@
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
-import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
+import { Guid, IMessageBusSubscriptionHandler, MultilingualString } from '@omnia/fx-models';
 import { CurrentProcessStore } from '../../../fx';
 import { ProcessReferenceData } from '../../../fx/models';
 import {
@@ -12,6 +12,7 @@ import { TabRenderer } from '../../core';
 import { ProcessDesignerStore } from '../../stores';
 import { Prop } from 'vue-property-decorator';
 import { MediaPickerEditorExtension, MediaPickerConfiguration } from '../../../components/richtexteditorextensions/MediaPicker';
+import { MultilingualStore } from '@omnia/fx/store';
 
 export class ProcessContentTabRenderer extends TabRenderer {
     private isProcessStepShortcut: boolean = false;
@@ -36,6 +37,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private isLoading = false;
@@ -68,11 +70,19 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
         this.processDesignerStore.actions.saveState.dispatch();
     }
 
+    generateDefaultValue(content: MultilingualString) {
+        if (Utils.isNullOrEmpty(this.multilingualStore.getters.stringValue(content)))
+            content = this.multilingualStore.getters.ensureMultilingualString("<p></p>");
+        return content;
+    }
+
     get currentProcessStepReferenceData() {
         let referenceData = this.currentProcessStore.getters.referenceData();
-        if (!this.isProcessStepShortcut) {
+        if (!this.isProcessStepShortcut) {           
+            referenceData.current.processData.content = this.generateDefaultValue(referenceData.current.processData.content);
             return referenceData.current;
         }
+        referenceData.shortcut.processData.content = this.generateDefaultValue(referenceData.shortcut.processData.content);
         return referenceData.shortcut;
     }
 
@@ -82,7 +92,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
         */
     render(h) {
         let processStepData = this.currentProcessStepReferenceData.processData;
-        return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
+       return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 {
                     this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="paragraph"></v-skeleton-loader> :
