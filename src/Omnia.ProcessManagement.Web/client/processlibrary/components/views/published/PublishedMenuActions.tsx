@@ -52,7 +52,9 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     }
 
     private refreshContextMenu() {
-        this.disableButtonUpdateAction = !this.isAuthor;
+        this.disableButtonUpdateAction = !this.isAuthor ||
+            this.process.processWorkingStatus == ProcessWorkingStatus.SyncingToSharePoint ||
+            this.process.processWorkingStatus == ProcessWorkingStatus.Archiving;
     }
 
     private renderUnpublishDialog(h) {

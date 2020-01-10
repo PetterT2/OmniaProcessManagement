@@ -468,8 +468,15 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var result = await ProcessService.CheckIfDraftExist(opmProcessId);
-                return ApiUtils.CreateSuccessResponse(result);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .DoAsync(async () =>
+                    {
+                        var result = await ProcessService.CheckIfDraftExist(opmProcessId);
+                        return ApiUtils.CreateSuccessResponse(result);
+                    });
             }
             catch (Exception ex)
             {
