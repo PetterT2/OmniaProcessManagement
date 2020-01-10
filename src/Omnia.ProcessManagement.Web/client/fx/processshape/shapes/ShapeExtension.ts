@@ -5,6 +5,7 @@ import { IShape } from './IShape';
 import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape } from '../../constants';
+import { Utils } from '@omnia/fx';
 
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
@@ -12,7 +13,6 @@ export class ShapeExtension implements Shape {
     left: number;
     top: number;
     protected fabricShapes: Array<FabricShape> = [];
-    protected fabricObjects: fabric.Object[] = [];
     protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
     protected originPos: { x: number, y: number } = { x: 0, y: 0 };
     private allowSetHover: boolean = false;
@@ -56,7 +56,7 @@ export class ShapeExtension implements Shape {
     }
 
     get shapeObject(): fabric.Object[] {
-        return this.fabricObjects;
+        return this.fabricShapes.map(f => f.fabricObject);
     }
 
     protected getShapes(): IFabricShape[] {
@@ -86,19 +86,24 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    finishScaled(object: fabric.Object) {
-        let textPosition = this.getObjectPosition(true, object.left, object.top, object.width * object.scaleX, object.height * object.scaleY, true);
-        this.fabricObjects[1].set({
+    finishScaling(object: fabric.Object) {
+        let position = this.correctPosition(object.left, object.top);
+        let textPosition = this.getTextPosition(position, object.width * object.scaleX, object.height * object.scaleY, true);
+        this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top
         });
     }
 
-    getObjectPosition(isText: boolean, left: number, top: number, width: number, height: number, isCenter?: boolean) {
+    protected correctPosition(left: number, top: number): { left: number, top: number } {
         left = left || 0; top = top || 0;
         left = parseFloat(left.toString());
         top = parseFloat(top.toString());
-        let polygonleft = left, polygontop = top, tleft = isCenter ? left + Math.floor(width / 2) : left + TextSpacingWithShape, ttop = top;
+        return { left: left, top: top };
+    }
+
+    getTextPosition(position: { left: number, top: number }, width: number, height: number, isCenter?: boolean) {
+        let tleft = isCenter ? position.left + Math.floor(width / 2) : position.left + TextSpacingWithShape, ttop = position.top;
         switch (this.definition.textPosition) {
             case TextPosition.Center:
                 ttop += Math.floor(height / 2 - this.definition.fontSize / 2 - 2);
@@ -107,15 +112,15 @@ export class ShapeExtension implements Shape {
                 ttop += height + TextSpacingWithShape;
                 break;
             default:
-                polygontop += this.definition.fontSize + TextSpacingWithShape;
+                ttop -= this.definition.fontSize + TextSpacingWithShape;
                 break;
         }
-        return isText ? { left: tleft, top: ttop } : { left: polygonleft, top: polygontop };
+        return { left: tleft, top: ttop };
     }
 
     setSelectedShape(isSelected: boolean) {
         this.isSelected = isSelected;
-        this.setHover(this.fabricObjects, false);
+        this.setHover(this.shapeObject, false);
     }
 
     private setHover(objects: fabric.Object[], isActive: boolean) {
@@ -134,17 +139,17 @@ export class ShapeExtension implements Shape {
     }
 
     addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
-        if (this.fabricObjects.length < 2 || this.fabricObjects.findIndex(f => f == null) > -1)
+        if (this.shapeObject.length < 2 || this.shapeObject.findIndex(f => f == null) > -1)
             return;
-        let left = this.fabricObjects[1].left; let top = this.fabricObjects[1].top;
-        let left0 = this.fabricObjects[0].left; let top0 = this.fabricObjects[0].top;
+        let left = this.shapeObject[1].left; let top = this.shapeObject[1].top;
+        let left0 = this.shapeObject[0].left; let top0 = this.shapeObject[0].top;
 
-        this.fabricObjects[0].on({
+        this.shapeObject[0].on({
             "mousedown": (e) => {
-                left = this.fabricObjects[1].left; top = this.fabricObjects[1].top;
-                left0 = this.fabricObjects[0].left; top0 = this.fabricObjects[0].top;
+                left = this.shapeObject[1].left; top = this.shapeObject[1].top;
+                left0 = this.shapeObject[0].left; top0 = this.shapeObject[0].top;
                 this.startPoint = canvas.getPointer(e.e);
-                this.originPos = { x: this.fabricObjects[1].left, y: this.fabricObjects[1].top };
+                this.originPos = { x: this.shapeObject[1].left, y: this.shapeObject[1].top };
             },
             "moving": (e) => {
                 var currPos = canvas.getPointer(e.e),
@@ -152,55 +157,54 @@ export class ShapeExtension implements Shape {
                     moveY = currPos.y - this.startPoint.y;
 
                 if (gridX)
-                    this.fabricObjects[1].set({
-                        left: Math.round(this.fabricObjects[0].left / gridX) * gridX - left0 + left
+                    this.shapeObject[1].set({
+                        left: Math.round(this.shapeObject[0].left / gridX) * gridX - left0 + left
                     });
                 else
-                    this.fabricObjects[1].set({
+                    this.shapeObject[1].set({
                         left: this.originPos.x + moveX
                     });
 
                 if (gridY)
-                    this.fabricObjects[1].set({
-                        top: Math.round(this.fabricObjects[0].top / gridY) * gridY - top0 + top
+                    this.shapeObject[1].set({
+                        top: Math.round(this.shapeObject[0].top / gridY) * gridY - top0 + top
                     });
                 else
-                    this.fabricObjects[1].set({
+                    this.shapeObject[1].set({
                         top: this.originPos.y + moveY
                     });
 
-                this.fabricObjects[1].setCoords();
+                this.shapeObject[1].setCoords();
             },
-            "scaled": (e) => {
-                this.finishScaled(e.target);
+            "scaling": (e) => {
+                this.finishScaling(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {
-                    this.setHover(this.fabricObjects, true);
+                    this.setHover(this.shapeObject, true);
                     canvas.renderAll();
                 }
             },
             "mouseout": (e) => {
                 if (this.allowSetHover) {
-                    this.setHover(this.fabricObjects, false);
+                    this.setHover(this.shapeObject, false);
                     canvas.renderAll();
                 }
             }
         })
-        this.fabricObjects[1].on({
+        this.shapeObject[1].on({
             "mouseover": (e) => {
                 if (this.allowSetHover) {
-                    this.setHover(this.fabricObjects, true);
+                    this.setHover(this.shapeObject, true);
                     canvas.renderAll();
                 }
             },
             "mouseout": (e) => {
                 if (this.allowSetHover) {
-                    this.setHover(this.fabricObjects, false);
+                    this.setHover(this.shapeObject, false);
                     canvas.renderAll();
                 }
             }
         })
     }
-
 }

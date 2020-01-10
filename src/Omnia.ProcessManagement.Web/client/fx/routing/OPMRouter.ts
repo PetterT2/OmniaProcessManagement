@@ -187,13 +187,6 @@ if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) 
     OPMRouter.navigateWithCurrentRoute(preview);
 }
 
-currentProcessStore.actions.addProcessStep.onDispatched((result, title, navigateTo) => {
-    if (navigateTo) {
-        let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
-        currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence);
-    }
-})
-
 currentProcessStore.actions.deleteProcessStep.onDispatched(() => {
     let currentReferenceData = currentProcessStore.getters.referenceData();
     let processRefrerence = OPMUtils.generateProcessReference(currentReferenceData.process, currentReferenceData.current.parentProcessStep.id);

@@ -69,7 +69,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByOPMProcessIdQueryAsync(Guid processStepId)
+        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid processStepId)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
             var authorizedProcessQuery = new AuthorizedProcessByProcessStepIdQuery(processStepId, authorizedResource, OmniaContext);

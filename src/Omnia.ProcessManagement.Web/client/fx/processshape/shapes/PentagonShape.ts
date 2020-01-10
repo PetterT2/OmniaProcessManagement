@@ -39,7 +39,6 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
     private initExistingNodes(title: MultilingualString, recDefinition: DrawingShapeDefinition, selectable: boolean) {
         var fabricGroupObjects: fabric.Object[] = [];
-        var fabricTextObject: fabric.Object;
         let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
         let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
         if (polygonNode) {
@@ -50,9 +49,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         if (textNode) {
             let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: false }, textNode.properties || {}), title);
             this.fabricShapes.push(textShape);
-            fabricTextObject = textShape.fabricObject;
         }
-        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
@@ -61,24 +58,15 @@ export class PentagonShape extends ShapeExtension implements Shape {
             this.initExistingNodes(title, this.definition, selectable);
         }
         else if (this.definition) {
-            let pentagonPosition = this.getObjectPosition(false, left, top, this.definition.width, this.definition.height);
-            let textPosition = this.getObjectPosition(true, left, top, this.definition.width, this.definition.height, false);
+            let position = this.correctPosition(left, top);
+            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, false);
 
             let points = this.calculatePoints();
-            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: pentagonPosition.left, top: pentagonPosition.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
 
-            this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
         }
-    }
-
-    finishScaled(object: fabric.Object) {
-        let textPosition = this.getObjectPosition(true, object.left, object.top, object.width * object.scaleX, object.height * object.scaleY, false);
-        this.fabricObjects[1].set({
-            left: textPosition.left,
-            top: textPosition.top
-        });
     }
 
     private calculatePoints() {

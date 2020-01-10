@@ -2,11 +2,12 @@
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
-import { DrawingShapeDefinition } from '../../models';
+import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { IFabricShape } from '../fabricshape';
 import { setTimeout } from 'timers';
+import { DrawingShapeOptions } from '../../../models/processdesigner';
 
 export class DrawingCanvas implements CanvasDefinition {
 
@@ -35,7 +36,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     destroy() {
-        if (this.canvasObject && !Utils.isArrayNullOrEmpty(this.canvasObject._objects))
+        if (this.canvasObject)
             this.canvasObject.dispose();
     }
 
@@ -185,30 +186,54 @@ export class DrawingCanvas implements CanvasDefinition {
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
         title: MultilingualString, left?: number, top?: number,
         processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
-        if (!definition.shapeTemplate)
-            return;
-        let position = this.correctDefinition(definition, left, top);
-        if (this.canvasObject && ShapeTemplatesDictionary[definition.shapeTemplate.name]) {
-            let drawingShape: DrawingShape = {
-                id: id,
-                type: type,
-                shape: {
-                    name: definition.shapeTemplate.name,
-                    nodes: nodes,
-                    definition: definition,
-                    left: position.left,
-                    top: position.top
-                },
-                title: title
-            };
-            if (type == DrawingShapeTypes.ProcessStep) {
-                (drawingShape as DrawingProcessStepShape).processStepId = processStepId;
+        return new Promise<DrawingShape>((resolve, reject) => {
+            let resolved = true;
+            if (definition.shapeTemplate) {
+                if (top == 0 || top == null || top == undefined)
+                    top = definition.textPosition == TextPosition.Above ? definition.fontSize + TextSpacingWithShape : 0;
+
+                let position = this.correctDefinition(definition, left, top);
+                if (this.canvasObject && ShapeTemplatesDictionary[definition.shapeTemplate.name]) {
+                    let drawingShape: DrawingShape = {
+                        id: id,
+                        type: type,
+                        shape: {
+                            name: definition.shapeTemplate.name,
+                            nodes: nodes,
+                            definition: definition,
+                            left: position.left,
+                            top: position.top
+                        },
+                        title: title
+                    };
+                    if (type == DrawingShapeTypes.ProcessStep) {
+                        (drawingShape as DrawingProcessStepShape).processStepId = processStepId;
+                    }
+                    if (type == DrawingShapeTypes.CustomLink) {
+                        (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                    }
+                    resolved = false;
+                    this.addShapeFromTemplateClassName(drawingShape).then((readyDrawingShape: DrawingShape) => {
+                        resolve(readyDrawingShape);
+                    });
+                }
             }
-            if (type == DrawingShapeTypes.CustomLink) {
-                (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+            if (resolved) {
+                resolve(null);
             }
-            this.addShapeFromTemplateClassName(drawingShape);
+        });
+    }
+
+    updateCanvasSize(readyDrawingShape: DrawingShape) {
+        let fontSizeSpace = readyDrawingShape.shape.definition.textPosition == TextPosition.Center ? 0 : readyDrawingShape.shape.definition.fontSize;
+        let canvasWidth = parseFloat(readyDrawingShape.shape.definition.height.toString()) + TextSpacingWithShape + fontSizeSpace;
+        let canvasHeight = readyDrawingShape.shape.definition.width;
+        if (!Utils.isNullOrEmpty(readyDrawingShape.shape.definition.borderColor)) {
+            canvasWidth += 2;
+            canvasHeight += 2;
         }
+        this.canvasObject.setHeight(canvasWidth);
+        this.canvasObject.setWidth(canvasHeight);
     }
 
     addDrawingShape(drawingShape: DrawingShape) {
@@ -222,7 +247,8 @@ export class DrawingCanvas implements CanvasDefinition {
             let resolved = true;
 
             if (definition.shapeTemplate) {
-                this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + definition.fontSize)
+                let fontSizeSpace = definition.textPosition == TextPosition.Center ? 0 : definition.fontSize;
+                this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + fontSizeSpace)
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
                 if (oldShapeIndex > -1) {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
@@ -250,12 +276,10 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    updateShape(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString,
-        type: DrawingShapeTypes, processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
+    updateShape(id: GuidValue, drawingOptions: DrawingShapeOptions, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-
-            if (definition.shapeTemplate) {
+            if (drawingOptions.shapeDefinition.shapeTemplate) {
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
                 if (oldShapeIndex > -1) {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
@@ -267,21 +291,20 @@ export class DrawingCanvas implements CanvasDefinition {
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
 
-
-                    currentDrawingShape.title = title;
+                    currentDrawingShape.title = drawingOptions.title;
                     delete currentDrawingShape['processStepId'];
                     delete currentDrawingShape['linkId'];
-                    currentDrawingShape.type = type;
-                    if (type == DrawingShapeTypes.ProcessStep) {
-                        (currentDrawingShape as DrawingProcessStepShape).processStepId = processStepId;
+                    currentDrawingShape.type = drawingOptions.shapeType;
+                    if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
+                        (currentDrawingShape as DrawingProcessStepShape).processStepId = drawingOptions.processStepId;
                     }
-                    if (type == DrawingShapeTypes.CustomLink) {
-                        (currentDrawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                    if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
+                        (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
                     }
                     currentDrawingShape.shape = {
-                        name: definition.shapeTemplate.name,
-                        nodes: nodes,
-                        definition: definition,
+                        name: drawingOptions.shapeDefinition.shapeTemplate.name,
+                        nodes: drawingOptions.nodes,
+                        definition: drawingOptions.shapeDefinition,
                         left: currentLeft,
                         top: currentTop
                     };
@@ -290,6 +313,9 @@ export class DrawingCanvas implements CanvasDefinition {
                     this.addShapeFromTemplateClassName(currentDrawingShape).then((readyDrawingShape: DrawingShape) => {
                         resolve(readyDrawingShape);
                     });
+                }
+                else {
+                    this.addShape(id, drawingOptions.shapeType, drawingOptions.shapeDefinition, drawingOptions.title, left, top, drawingOptions.processStepId, drawingOptions.customLinkId, drawingOptions.nodes);
                 }
             }
             if (resolved) {
@@ -321,9 +347,13 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     private addShapeToCanvas(drawingShape: DrawingShape, newShape: Shape) {
+        if (!this.canvasObject.getContext())
+            return;
         newShape.setAllowHover(this.isSetHover);
         newShape.addEventListener(this.canvasObject, this.gridX, this.gridY);
-        newShape.shapeObject.forEach(s => this.canvasObject.add(s));
+        newShape.shapeObject.forEach(s => {
+            this.canvasObject.add(s);
+        });
         drawingShape.shape = newShape;
         this.drawingShapes.push(drawingShape);
     }

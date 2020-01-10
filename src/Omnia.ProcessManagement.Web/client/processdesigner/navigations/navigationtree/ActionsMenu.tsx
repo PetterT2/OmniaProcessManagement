@@ -10,6 +10,8 @@ import { RootProcessStep, ProcessStep, IdDict } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerStore } from '../../stores';
+import { ProcessDesignerItemFactory } from '../../designeritems';
+import { DisplayModes } from '../../../models/processdesigner';
 
 @Component
 export class ActionsMenuComponent extends VueComponentBase<{}>
@@ -114,7 +116,12 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     addProcessStep() {
         this.loading = true;
-        this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true)
+        this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true).then((result) => {
+            let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
+            this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+            });
+        })
     }
 
     deleteProcessStep() {

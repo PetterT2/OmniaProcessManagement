@@ -287,7 +287,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByOPMProcessIdQueryAsync(processStepId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(processStepId);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
                 var process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);

@@ -31,25 +31,18 @@ export class FreeformShape extends ShapeExtension implements Shape {
                     pathNode.properties['top'] = top;
                 }
                 this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({ selectable: selectable }, pathNode.properties || {}), true));
-                let textTop = this.fabricShapes[0].fabricObject.top;
-                if (this.definition.textPosition == TextPosition.Above) {
-                    if (this.fabricShapes[0].fabricObject.top == undefined || this.fabricShapes[0].fabricObject.top < TextSpacingWithShape + this.definition.fontSize)
-                        this.fabricShapes[0].fabricObject.set({ top: this.fabricShapes[0].fabricObject.top + TextSpacingWithShape + this.definition.fontSize });
-                    else
-                        textTop = this.fabricShapes[0].fabricObject.top - (TextSpacingWithShape + this.definition.fontSize);
-                }
-                let textPosition = this.getObjectPosition(true, this.fabricShapes[0].fabricObject.left, textTop, this.fabricShapes[0].fabricObject.width, this.fabricShapes[0].fabricObject.height, true);
+                let position = this.correctPosition(this.fabricShapes[0].fabricObject.left, this.fabricShapes[0].fabricObject.top);
+                let textPosition = this.getTextPosition(position, this.fabricShapes[0].fabricObject.width, this.fabricShapes[0].fabricObject.height, true);
                 this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', selectable: false, left: textPosition.left, top: textPosition.top }, title));
             }
         }
-        this.fabricShapes.forEach(s => this.fabricObjects.push(s.fabricObject));
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
     protected getShapes(): IFabricShape[] {
-        if (this.fabricObjects && this.fabricObjects.length > 0) {
-            this.left = this.fabricObjects[0].left;
-            this.top = this.fabricObjects[0].top;
+        if (this.fabricShapes && this.fabricShapes.length > 0) {
+            this.left = this.fabricShapes[0].fabricObject.left;
+            this.top = this.fabricShapes[0].fabricObject.top;
         }
         return this.fabricShapes ? this.fabricShapes.filter(s => s.shapeNodeType != FabricShapeTypes.line).map(n => n.getShapeNodeJson()) : [];
     }

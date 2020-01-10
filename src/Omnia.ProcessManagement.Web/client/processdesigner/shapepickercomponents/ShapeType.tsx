@@ -5,9 +5,9 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm } from '../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums, DrawingShape } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums, DrawingShape, DrawingImageShapeDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -80,7 +80,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     ];
     private isShowAddLinkDialog: boolean = false;
-    private isCreatingChildStep: boolean = false;
+    private isOpenMediaPicker: boolean = false;
 
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
@@ -176,7 +176,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     redrawFreeShape() {
         this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch().then(() => {
             this.freeNodes = null;
-            this.drawingCanvas.destroy();
             let processTemplate = this.processTemplateStore.getters.processTemplates().find(p => p.settings.shapeDefinitions.find(d => (d as DrawingShapeDefinition).shapeTemplate && (d as DrawingShapeDefinition).shapeTemplate.id == this.drawingOptions.shapeDefinition.shapeTemplate.id) != null);
             if (processTemplate != null) {
                 let shapeDefinition: DrawingShapeDefinition = processTemplate.settings.shapeDefinitions.find(d => d.id == this.drawingOptions.shapeDefinition.id) as DrawingShapeDefinition;
@@ -187,6 +186,27 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         });
     }
 
+    private updateAfterRenderImage(readyDrawingShape: DrawingShape) {
+        this.drawingCanvas.updateCanvasSize(readyDrawingShape);
+        this.onDrawingShapeOptionChanged();
+    }
+
+    private onImageSaved(imageUrl: string) {
+        (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
+        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, 0, this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
+                .then((readyDrawingShape: DrawingShape) => {
+                    this.updateAfterRenderImage(readyDrawingShape);
+                });
+        }
+        else {
+            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0)
+                .then((readyDrawingShape: DrawingShape) => {
+                    this.updateAfterRenderImage(readyDrawingShape);
+                });
+        }
+    }
+
     renderShapePreview(h) {
         return <div>
             {
@@ -195,43 +215,62 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     : null
             }
             <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+                {
+                    this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id ?
+                        <v-btn icon large onClick={() => { this.isOpenMediaPicker = true; }}>
+                            <v-icon large>image</v-icon>
+                        </v-btn>
+                        : null
+                }
                 <canvas id={this.previewCanvasId.toString()}></canvas>
+                {
+                    this.isOpenMediaPicker && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={() => { this.isOpenMediaPicker = false; }}></opm-media-picker>
+                }
             </div>
         </div>;
     }
 
-    private initShapeTitle() {
-        let result = this.shapeTitle;
-        let shapeTitleStringValue = this.multilingualStore.getters.stringValue(result);
-        if (!shapeTitleStringValue || shapeTitleStringValue.length == 0) {
-            result = this.internalShapeDefinition.title;
-        }
-        return result;
-    }
-
-    initDrawingCanvas() {
+    private getCanvasSize(): { width: number, height: number } {
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
         if (this.internalShapeDefinition.textPosition != TextPosition.Center)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+        if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
+            canvasWidth += 2;
+            canvasHeight += 2;
+        }
+
+        if (this.isNewMedia()) {
+            canvasWidth = 10;
+            canvasHeight = 10;
+        }
+        return { width: canvasWidth, height: canvasHeight };
+    }
+
+    initDrawingCanvas() {
+        if (this.drawingCanvas)
+            this.drawingCanvas.destroy();
+        let canvasSize = this.getCanvasSize();
 
         this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
             {
                 drawingShapes: [],
-                width: canvasWidth,
-                height: canvasHeight
+                width: canvasSize.width,
+                height: canvasSize.height
             }, true);
     }
 
     initFreeFormCanvas() {
+        if (this.drawingCanvas)
+            this.drawingCanvas.destroy();
+
         this.freeNodes = this.drawingOptions.nodes;
-        let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
-        let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-        canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+        let canvasSize = this.getCanvasSize();
+
         this.drawingCanvas = new DrawingCanvasFreeForm(this.previewCanvasId.toString(), {},
             {
-                width: canvasWidth,
-                height: canvasHeight,
+                width: canvasSize.width,
+                height: canvasSize.height,
                 gridX: 20,
                 gridY: 20,
                 drawingShapes: []
@@ -247,20 +286,26 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            if (this.drawingCanvas)
-                this.drawingCanvas.destroy();
             this.$nextTick(() => {
                 if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
                     this.initDrawingCanvas();
-                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.internalShapeDefinition, this.shapeTitle, 0, 0);
+                    if (!this.isNewMedia())
+                        this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0);
                 }
                 else {
                     this.initFreeFormCanvas();
-                    if (!Utils.isNullOrEmpty(this.drawingOptions.nodes))
+                    if (!Utils.isNullOrEmpty(this.drawingOptions.nodes)) {
                         this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.nodes);
+                        (this.drawingCanvas as DrawingCanvasFreeForm).stop();
+                    }
                 }
             });
         }
+    }
+
+    private isNewMedia() {
+        return this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id &&
+            Utils.isNullOrEmpty((this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl);
     }
 
     private getNumber(value: any) {
@@ -271,18 +316,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.freeNodes = this.drawingCanvas.drawingShapes[0].shape.nodes;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
+            if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
+                this.freeNodes = this.drawingCanvas.drawingShapes[0].shape.nodes;
+            let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, top);
         }
         if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
             this.freeNodes = null;
         this.onDrawingShapeOptionChanged();
-    }
-
-    previewActivedShape() {
-        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, this.drawingCanvas.drawingShapes[0].shape.top || 0);
-        }
     }
 
     private renderShapeTypeOptions(h) {
@@ -301,7 +342,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     }
                     <omfx-multilingual-input
                         model={this.shapeTitle}
-                        onModelChange={(title) => { this.shapeTitle = title; this.updateDrawedShape(); }}
+                        onModelChange={(title) => {
+                            this.shapeTitle = title;
+                            this.updateDrawedShape();
+                        }}
                         label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
                 </v-col>
                 <v-col cols="6">
@@ -384,7 +428,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         </omfx-dialog>;
 
     }
+
     private renderShapeSettings(h) {
+        let isMediaShape = this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id;
         return <v-container class={this.shapeTypeStepStyles.drawingSettingsWrapper}>
             <v-row dense>
                 <v-col cols="6">
@@ -400,16 +446,20 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             <v-row dense>
                 <v-col cols="6">
                     <v-row>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                required={true}
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.omniaLoc.Common.BackgroundColor}
-                                model={{ color: this.internalShapeDefinition.backgroundColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
+                        {
+                            isMediaShape ? null
+                                :
+                                <v-col cols="12">
+                                    <omfx-color-picker
+                                        required={true}
+                                        dark={this.omniaTheming.promoted.body.dark}
+                                        label={this.omniaLoc.Common.BackgroundColor}
+                                        model={{ color: this.internalShapeDefinition.backgroundColor }}
+                                        disableRgba={true}
+                                        onChange={(p) => { this.internalShapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
+                                    </omfx-color-picker>
+                                </v-col>
+                        }
                         <v-col cols="12">
                             <omfx-color-picker
                                 required={true}
@@ -434,15 +484,19 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 </v-col>
                 <v-col cols="6">
                     <v-row>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
-                                model={{ color: this.internalShapeDefinition.activeBackgroundColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.activeBackgroundColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
+                        {
+                            isMediaShape ? null
+                                :
+                                <v-col cols="12">
+                                    <omfx-color-picker
+                                        dark={this.omniaTheming.promoted.body.dark}
+                                        label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
+                                        model={{ color: this.internalShapeDefinition.activeBackgroundColor }}
+                                        disableRgba={true}
+                                        onChange={(p) => { this.internalShapeDefinition.activeBackgroundColor = p.color; this.updateDrawedShape(); }}>
+                                    </omfx-color-picker>
+                                </v-col>
+                        }
                         <v-col cols="12">
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
@@ -466,17 +520,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             </v-row>
         </v-container>;
     }
+
     private renderDrawingShapeDefinition(h) {
         return <div>
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
         </div>;
     }
-    private renderMediaShapeDefinition(h) {
-        return <div>
-            ToDo
-        </div>;
-    }
+
     private renderChangeShapeSection(h) {
         return <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.changeShapeCallback}>{this.pdLoc.ChangeShape}</v-btn>
     }
@@ -486,9 +537,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         * @param h
         */
     render(h) {
-        if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id)
-            return this.renderMediaShapeDefinition(h);
-
         return this.renderDrawingShapeDefinition(h);
     }
 }
