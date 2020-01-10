@@ -122,6 +122,7 @@
             MessageTaskHasBeenCompletedOrCanceled: string,
             MessageTaskCancelledBySystem: string,
             MessageApprovalTaskEditingDescription: string,
+            MessageDraftExistCannotBeArchived: string,
             SyncToSharePointFailed: string,
             ArchiveProcessFailed: string
 

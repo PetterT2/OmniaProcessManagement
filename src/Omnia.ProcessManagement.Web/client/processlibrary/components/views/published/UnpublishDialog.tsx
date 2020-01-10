@@ -36,6 +36,8 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private isUnpublishing: boolean = false;
     private canBeArchive: boolean = false;
     private allowToUnpublish: boolean = true;
+    private hasError: boolean = false;
+    private errorMsg: string = "";
 
     created() {
         this.dialogModel.visible = true;
@@ -53,11 +55,17 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
             this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings),
             this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
         ]).then((result) => {
-            let processType = this.processTypeStore.getters.byId(processTypeId);
-            let processTypeSettings = processType ? processType.settings as ProcessTypeItemSettings : null;
-            let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
-            let defaultArchiveUrl = globalSettings ? globalSettings.archiveSiteUrl : "";
-            this.canBeArchive = !result[0] && processTypeSettings && processTypeSettings.archive && (!Utils.isNullOrEmpty(processTypeSettings.archive.url) || !Utils.isNullOrEmpty(defaultArchiveUrl));
+            if (result[0]) {
+                this.hasError = true;
+                this.errorMsg = this.loc.Messages.MessageDraftExistCannotBeArchived;
+            }
+            else {
+                let processType = this.processTypeStore.getters.byId(processTypeId);
+                let processTypeSettings = processType ? processType.settings as ProcessTypeItemSettings : null;
+                let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
+                let defaultArchiveUrl = globalSettings ? globalSettings.archiveSiteUrl : "";
+                this.canBeArchive = processTypeSettings && processTypeSettings.archive && (!Utils.isNullOrEmpty(processTypeSettings.archive.url) || !Utils.isNullOrEmpty(defaultArchiveUrl));
+            }
             this.isLoading = false;
         })
     }
@@ -89,7 +97,13 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     private renderBody(h) {
         return (
             <v-container class={this.processLibraryClasses.centerDialogBody}>
-                <span>{this.canBeArchive ? this.loc.Messages.ArchivePublishedProcessConfirmation : this.loc.Messages.DeletePublishedProcessConfirmation}</span>
+                {
+                    !this.hasError ?
+                        <span>{this.canBeArchive ? this.loc.Messages.ArchivePublishedProcessConfirmation : this.loc.Messages.DeletePublishedProcessConfirmation}</span>
+                        :
+                        <span>{this.errorMsg}</span>
+                }
+                
             </v-container>
         )
     }
