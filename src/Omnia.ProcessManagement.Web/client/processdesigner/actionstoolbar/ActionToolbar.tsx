@@ -7,7 +7,7 @@ import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@
 import { ProcessDesignerStore } from '../stores';
 import { CurrentProcessStore } from '../../fx';
 import { ProcessVersionType } from '../../fx/models';
-import { ActionItem, ActionItemType, ActionCustomButton, ActionButton } from '../../models/processdesigner';
+import { ActionItem, ActionItemType, ActionCustomButton, ActionButton, DisplayModes } from '../../models/processdesigner';
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
 import { ActionToolbarStyles } from './ActionToolbar.css';
 import { DisplaySettingsToolbarComponent } from './DisplaySettingsToolbar';
@@ -118,7 +118,8 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
                     this.processDesignerStore.tabs.selectedTab.state.actionToolbar.notCheckedOutActionButtons)
             }
         }
-        if (this.processDesignerStore.tabs.selectedTab.state && this.processDesignerStore.tabs.selectedTab.state.tabId == ProcessStepDesignerItem.drawingTabId) {
+        if (this.processDesignerStore.tabs.selectedTab.state && this.processDesignerStore.tabs.selectedTab.state.tabId == ProcessStepDesignerItem.drawingTabId
+            && this.processDesignerStore.settings.displayMode.state === DisplayModes.contentEditing) {
             result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
                 this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
             }}>{this.pdLoc.AddShape}</v-btn></div>);

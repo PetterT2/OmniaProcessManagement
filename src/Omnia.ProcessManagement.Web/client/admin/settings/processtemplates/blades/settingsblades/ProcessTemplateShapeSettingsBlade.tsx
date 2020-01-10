@@ -6,7 +6,7 @@ import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace,
 import { OPMAdminLocalization } from '../../../../loc/localize';
 import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
-import { ShapeTemplatesConstants } from '../../../../../fx/constants';
+import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx/constants';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
 import { DrawingShapeTypes, ShapeTemplate } from '../../../../../fx/models/data/drawingdefinitions';
@@ -78,7 +78,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     width: canvasWidth,
                     height: 230,
                     drawingShapes: []
-                },false);
+                }, false);
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
             }
         }, 500)
@@ -100,13 +100,26 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, 0, 0);
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null);
+            let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, null, top);
         }
     }
 
     getCanvasContainerWidth(): number {
         var containerElement = document.getElementById(this.canvasContainerId);
         return containerElement ? containerElement.clientWidth : 580;
+    }
+
+    correctNumberField(editingProcessTemplate: ProcessTemplate) {
+        editingProcessTemplate.settings.shapeDefinitions.forEach(s => {
+            if ((s as DrawingShapeDefinition).width)
+                (s as DrawingShapeDefinition).width = parseFloat((s as DrawingShapeDefinition).width.toString());
+            if ((s as DrawingShapeDefinition).height)
+                (s as DrawingShapeDefinition).height = parseFloat((s as DrawingShapeDefinition).height.toString());
+            if ((s as DrawingShapeDefinition).fontSize)
+                (s as DrawingShapeDefinition).fontSize = parseFloat((s as DrawingShapeDefinition).fontSize.toString());
+        });
+        return editingProcessTemplate;
     }
 
     saveShape() {
@@ -121,7 +134,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 var index = this.processTemplateJournayStore.getters.editingShapeDefinitionIndex();
                 editingProcessTemplate.settings.shapeDefinitions[index] = this.editingShape;
             }
-            this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(editingProcessTemplate);
+            this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(this.correctNumberField(editingProcessTemplate));
 
             this.journey().travelBack();
         }
@@ -151,17 +164,19 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     </v-flex>
                 </div>
                 {
-                    this.needToShowShapeSettings() &&
                     <div class={classes(this.classes.flexDisplay, this.classes.shapeSettingsContainer)}>
                         <v-flex lg6>
-                            <omfx-color-picker
-                                required={true}
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.omniaUxLoc.Common.BackgroundColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
-                                disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
-                            </omfx-color-picker>
+                            {
+                                this.needToShowShapeSettings() &&
+                                <omfx-color-picker
+                                    required={true}
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.omniaUxLoc.Common.BackgroundColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
+                                </omfx-color-picker>
+                            }
                             <omfx-color-picker
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
@@ -200,13 +215,16 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             </div>
                         </v-flex>
                         <v-flex lg6 class={this.classes.contentPadding}>
-                            <omfx-color-picker
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
-                                disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; this.updateTemplateShape(); }}>
-                            </omfx-color-picker>
+                            {
+                                this.needToShowShapeSettings() &&
+                                <omfx-color-picker
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
+                                    model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
+                                    disableRgba={true}
+                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; this.updateTemplateShape(); }}>
+                                </omfx-color-picker>
+                            }
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.ActiveBorderColor}

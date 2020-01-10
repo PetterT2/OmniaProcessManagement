@@ -25,7 +25,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    private isOpenImageDialog: boolean = false;
+    private isOpenMediaPicker: boolean = false;
     canvasSettingsStyles = StyleFlow.use(DrawingCanvasSettingsStyles);
 
     created() {
@@ -61,11 +61,11 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
     }
 
     private closeImageDialog() {
-        this.isOpenImageDialog = false;
+        this.isOpenMediaPicker = false;
     }
 
     private openImageDialog() {
-        this.isOpenImageDialog = true;
+        this.isOpenMediaPicker = true;
     }
 
     private removeBackgroundImage() {
@@ -82,12 +82,12 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                     {
                         !Utils.isNullOrEmpty(this.editingCanvasDefinition.backgroundImageUrl) ?
                             <div>
-                                <div class="mb-2">
-                                    <v-btn icon small class="mr-1" onClick={this.openImageDialog}>
-                                        <v-icon size='18'>edit</v-icon>
+                                <div class="my-3">
+                                    <v-btn fab x-small class="mr-2" onClick={this.openImageDialog}>
+                                        <v-icon>edit</v-icon>
                                     </v-btn>
-                                    <v-btn icon small onClick={this.removeBackgroundImage}>
-                                        <v-icon size='18'>delete</v-icon>
+                                    <v-btn fab x-small onClick={this.removeBackgroundImage}>
+                                        <v-icon>delete</v-icon>
                                     </v-btn>
                                 </div>
                                 <img class={this.canvasSettingsStyles.image} src={this.editingCanvasDefinition.backgroundImageUrl}></img>
@@ -96,7 +96,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                             :
                             <a onClick={this.openImageDialog} href="javascript:void(0)">{this.pdLoc.AddImage}</a>
                     }
-                    {this.isOpenImageDialog && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={this.closeImageDialog}></opm-media-picker>}
+                    {this.isOpenMediaPicker && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={this.closeImageDialog}></opm-media-picker>}
                 </v-col>
             </v-row>
             <v-row>

@@ -313,4 +313,10 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         this.canvasObject.freeDrawingBrush.width = this.strokeWidth;
         this.shapeTitle = title;
     }
+
+    stop() {
+        this.isDrawing = false;
+        this.canvasObject.isDrawingMode = false;
+        this.canvasObject.selection = false;
+    }
 }
