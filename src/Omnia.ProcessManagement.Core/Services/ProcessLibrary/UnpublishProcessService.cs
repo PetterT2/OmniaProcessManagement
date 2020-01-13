@@ -112,8 +112,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, 
             Microsoft.SharePoint.Client.File publishedFile, Folder imageFolder, Folder archivedProcessIdFolder)
         {
-            Folder archivedLatestPublishedProcessFolder = await SharePointListService.EnsureChildFolderAsync(archiveCtx, archivedProcessIdFolder, opmProcessIdFolder.Name);
-
             ClientResult<Stream> publishedFileStream = publishedFile.OpenBinaryStream();
             sourceCtx.Load(publishedFile);
             await sourceCtx.ExecuteQueryAsync();
@@ -121,7 +119,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 OPMUtilities.CopyStream(publishedFileStream, memoryStream);
                 string fileName = Path.GetFileName(publishedFile.ServerRelativeUrl);
-                await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedLatestPublishedProcessFolder, fileName, memoryStream, true);
+                await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedProcessIdFolder, fileName, memoryStream, true);
             }
 
             if (imageFolder != null && imageFolder.Files.Count > 0)

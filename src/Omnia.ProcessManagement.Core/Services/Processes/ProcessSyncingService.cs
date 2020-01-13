@@ -156,8 +156,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await SyncProcessImagesAsync(ctx, imageFolder, processActionModel, serializedprocessActionModel);
 
             //Sync the process
-            //var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
-            var fileName = "process";
+            var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
             FileCreationInformation newFile = new FileCreationInformation();
             newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); ;
             newFile.Overwrite = true;

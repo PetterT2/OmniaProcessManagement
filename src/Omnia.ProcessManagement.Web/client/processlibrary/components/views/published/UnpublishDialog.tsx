@@ -114,7 +114,7 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
                 <v-spacer></v-spacer>
                 <v-btn
                     dark={!(this.isLoading || !this.allowToUnpublish)}
-                    disabled={this.isLoading || !this.allowToUnpublish}
+                    disabled={this.isLoading || !this.allowToUnpublish || this.hasError}
                     color={this.omniaTheming.themes.primary.base}
                     loading={this.isUnpublishing}
                     onClick={() => { this.unpublishProcess(); }}>{this.loc.ProcessActions.UnpublishProcess}
