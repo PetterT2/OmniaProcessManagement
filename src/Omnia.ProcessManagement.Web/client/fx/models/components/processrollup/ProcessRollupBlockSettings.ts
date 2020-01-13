@@ -10,4 +10,5 @@ export interface ProcessRollupBlockSettings extends RollupSetting {
     uiFilters?: Array<ProcessRollupFilter>;
     spacing?: SpacingSetting;
     searchScope: Enums.ProcessViewEnums.QueryScope;
+    viewPageUrl: string;
 }

@@ -15,6 +15,7 @@
             HideFilter: string,
             Paging: string,
             ItemLimit: string,
+            ViewPageUrl: string,
             PageSize: string,
             SortBy: string,
             View: string,

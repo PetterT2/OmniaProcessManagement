@@ -19,6 +19,7 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
             HideFilter: "Hide this section",
             Paging: "Paging",
             ItemLimit: "Item Limit",
+            ViewPageUrl: "View Page Url",
             PageSize: "Page Size",
             SortBy: "Sort By",
             View: "View",

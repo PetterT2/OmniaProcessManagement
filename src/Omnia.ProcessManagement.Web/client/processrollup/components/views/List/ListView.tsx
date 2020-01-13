@@ -23,6 +23,7 @@ declare var moment: any;
 export class ListView extends Vue implements IWebComponentInstance, IProcessRollupViewInterface<ProcessRollupListViewSettings> {
 
     @Prop() styles: typeof ProcessRollupBlockListViewStyles | any;
+    @Prop() viewPageUrl: string;
     @Prop() processes: Array<RollupProcess>;
     @Prop() viewSettings: ProcessRollupListViewSettings;
     @Prop() spacingSetting: SpacingSetting;
@@ -95,9 +96,16 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
     }
 
     openProcess(rollupProcess: RollupProcess) {
-        OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer).then(() => {
+        if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
+            var viewUrl = this.viewPageUrl + '/@pm/' + rollupProcess.process.opmProcessId.toString();
+            var win = window.open(viewUrl, '_blank');
+            win.focus();
+        }
+        else {
+            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer).then(() => {
 
-        });
+            });
+        }
     }
 
     // -------------------------------------------------------------------------
