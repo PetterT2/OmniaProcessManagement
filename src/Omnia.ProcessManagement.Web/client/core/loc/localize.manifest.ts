@@ -91,22 +91,26 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 Description: ""
             },
             Content: {
-                Title: "Content",
+                Title: "Processes Content",
                 Description: ""
             },
             Drawing: {
-                Title: "Drawing",
+                Title: "Processes Drawing",
                 Description: ""
             },
             ViewProcess: {
                 Title: "View Process"
             },
             Tasks: {
-                Title: "Tasks",
+                Title: "Processes Tasks",
                 Description: ""
             },
             Links: {
-                Title: "Links",
+                Title: "Processes Links",
+                Description: ""
+            },
+            ProcessNavigation: {
+                Title: "Process Navigation",
                 Description: ""
             },
             ProcessRollup: {

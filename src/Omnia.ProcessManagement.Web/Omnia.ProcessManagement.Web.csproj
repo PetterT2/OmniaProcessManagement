@@ -129,10 +129,14 @@
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTextPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupUISearchboxFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupViewSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\LinksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\ProcessNavigationBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\ProcessNavigationBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\ProcessNavigationBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\drawingblock\DrawingBlockDataData.ts" />
@@ -298,6 +302,7 @@
     <TypeScriptCompile Remove="client\models\styles\PermissionDialogStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryListViewStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessLibraryStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\ProcessNavigationBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessRendererStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessRollupStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
@@ -457,6 +462,9 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\IProcessNavigationBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.manifest.ts" />
@@ -464,6 +472,11 @@
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\navigationtree\ProcessNavigationNode.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\ITasksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.ts" />
@@ -537,6 +550,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\mediapicker\MediaPicker.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\processnavigation\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\linksblock\index.ts">

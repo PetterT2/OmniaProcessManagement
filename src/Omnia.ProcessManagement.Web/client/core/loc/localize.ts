@@ -105,6 +105,10 @@
                 Title: string,
                 Description: string
             },
+            ProcessNavigation: {
+                Title: string,
+                Description: string
+            },
             ProcessRollup: {
                 Title: string,
                 Description: string
