@@ -45,7 +45,8 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     beforeDestroy() {
-        this.subscriptionHandler.unsubscribe();
+        if (this.subscriptionHandler)
+            this.subscriptionHandler.unsubscribe();
     }
 
     init() {

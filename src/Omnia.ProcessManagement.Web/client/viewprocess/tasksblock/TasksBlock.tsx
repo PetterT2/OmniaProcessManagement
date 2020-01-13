@@ -40,7 +40,8 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     beforeDestroy() {
-
+        if (this.subscriptionHandler)
+            this.subscriptionHandler.unsubscribe();
     }
 
     init() {
