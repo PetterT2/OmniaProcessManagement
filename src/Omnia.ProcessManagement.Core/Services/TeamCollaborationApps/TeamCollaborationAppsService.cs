@@ -112,7 +112,7 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
 
         public async ValueTask EnsureAppIdAndUrlDictAsync(bool force = false)
         {
-            if (_appIdAndUrlDict == null)
+            if (_appIdAndUrlDict == null || force)
             {
                 var semaphoreSlim = EnsureSemaphoreSlim(Guid.Empty.ToString());
 

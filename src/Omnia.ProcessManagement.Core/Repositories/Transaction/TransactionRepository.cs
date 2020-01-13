@@ -5,6 +5,7 @@ using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Settings;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
 {
     internal class TransactionRepositiory : ITransactionRepository
     {
-        ProcessWorkingStatus? ProcessWorkingStatus { get; set; }
+        List<ProcessWorkingStatus> ProcessWorkingStatuses { get; set; }
 
         OmniaPMDbContext DbContext;
         IMessageBus MessageBus { get; }
@@ -26,14 +27,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             using (var transaction = DbContext.Database.BeginTransaction())
             {
-                ProcessWorkingStatus = null;
+                ProcessWorkingStatuses = new List<ProcessWorkingStatus>();
 
                 var result = await action();
                 await transaction.CommitAsync();
 
-                if (ProcessWorkingStatus.HasValue)
+                if(ProcessWorkingStatuses.Count > 0)
                 {
-                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Value });
+                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, ProcessWorkingStatuses.ToList());
                 }
 
                 return result;
@@ -44,14 +45,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             using (var transaction = DbContext.Database.BeginTransaction())
             {
-                ProcessWorkingStatus = null;
+                ProcessWorkingStatuses = new List<ProcessWorkingStatus>();
 
                 await action();
                 await transaction.CommitAsync();
 
-                if (ProcessWorkingStatus.HasValue)
+                if (ProcessWorkingStatuses.Count > 0)
                 {
-                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { ProcessWorkingStatus.Value });
+                    await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, ProcessWorkingStatuses.ToList());
                 }
             }
         }
@@ -60,12 +61,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Transaction
         {
             if (DbContext.Database.CurrentTransaction != null)
             {
-                if (ProcessWorkingStatus.HasValue)
-                {
-                    throw new Exception("Only support to change one state of working status in a transaction");
-                }
-
-                ProcessWorkingStatus = processWorkingStatus;
+                ProcessWorkingStatuses.Add(processWorkingStatus);
             }
             else {
                 await MessageBus.PublishAsync(OPMConstants.Messaging.Topics.OnProcessWorkingStatusUpdated, new List<ProcessWorkingStatus> { processWorkingStatus });
