@@ -265,7 +265,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.SubjectTemplate");
                 public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyTemplate");
-                public static readonly string AuthorEditionCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.BodyTemplate");
+                public static readonly string AuthorEditionCommentLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.SendForApproval.AuthorEditionCommentTemplate");
 
                 public static class Tokens
                 {

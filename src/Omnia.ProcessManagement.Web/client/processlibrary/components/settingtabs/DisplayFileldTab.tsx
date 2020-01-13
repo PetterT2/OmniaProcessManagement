@@ -124,7 +124,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     }
 
     private updateBlockData() {
-        this.processDesignerStore.mutations.setPreviewPageUrl.commit(this.libraryDisplaySettings.previewPageUrl);
+        this.processDesignerStore.mutations.setPreviewPageUrl.commit(this.blockData.settings.viewSettings.previewPageUrl);
         this.settingsService.setValue(this.settingsKey, this.blockData);
     }
 
@@ -197,11 +197,6 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                         <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
                         :
                         <div>
-                            {
-                                this.isPublished ?
-                                    null
-                                    : <v-text-field onChange={() => { this.updateBlockData(); }} type="text" v-model={this.libraryDisplaySettings.previewPageUrl} label={this.loc.ProcessLibrarySettings.PreviewPageUrl} ></v-text-field>
-                            }
                             <v-select label={this.loc.ProcessLibrarySettings.Paging} item-value="id" item-text="title" items={this.pagingTypes} v-model={this.libraryDisplaySettings.pagingType} onChange={() => { this.updateBlockData(); }}></v-select>
 
                             {

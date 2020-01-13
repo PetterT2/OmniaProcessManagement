@@ -57,7 +57,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
-        this.processDeisgnerStore.mutations.setPreviewPageUrl.commit(this.viewSettings.draftTabDisplaySettings.previewPageUrl);
+        this.processDeisgnerStore.mutations.setPreviewPageUrl.commit(this.viewSettings.previewPageUrl);
         this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
             [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()
@@ -150,7 +150,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Draft}`}>
                         {this.selectingTab == ProcessLibraryListViewTabs.Draft ?
-                            <BaseListViewItems changeTab={this.changeTab} displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
+                            <BaseListViewItems previewPageUrl={this.viewSettings.previewPageUrl} changeTab={this.changeTab} displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Task}`} v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
@@ -158,7 +158,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab-item>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Published}`}>
                         {this.selectingTab == ProcessLibraryListViewTabs.Published ?
-                            <BaseListViewItems changeTab={this.changeTab} displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
+                            <BaseListViewItems previewPageUrl={this.viewSettings.previewPageUrl} changeTab={this.changeTab} displaySettings={this.viewSettings.publishedTabDisplaySettings} versionType={ProcessVersionType.Published} processListViewComponentKey={this.publishedViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                 </v-tabs>
