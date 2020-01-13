@@ -85,8 +85,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         if (this.drawingCanvas)
             this.drawingCanvas.destroy();
         if (!currentReferenceData) return;
-        if (currentReferenceData.current.processData.canvasDefinition
-            && !Utils.isArrayNullOrEmpty(currentReferenceData.current.processData.canvasDefinition.drawingShapes)) {
+        if (currentReferenceData.current.processData.canvasDefinition) {
             this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
             this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
             this.drawShapes();
