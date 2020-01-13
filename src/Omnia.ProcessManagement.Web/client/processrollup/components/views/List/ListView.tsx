@@ -97,7 +97,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     openProcess(rollupProcess: RollupProcess) {
         if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
-            var viewUrl = this.viewPageUrl + '/@pm/' + rollupProcess.process.opmProcessId.toString();
+            var viewUrl = this.viewPageUrl + '/@pm/' + rollupProcess.process.rootProcessStep.id.toString();
             var win = window.open(viewUrl, '_blank');
             win.focus();
         }

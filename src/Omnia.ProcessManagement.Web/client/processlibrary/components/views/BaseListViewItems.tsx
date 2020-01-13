@@ -24,6 +24,7 @@ interface BaseListViewItemsProps {
     versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     processListViewComponentKey: ProcessListViewComponentKey;
     changeTab: (tab: ProcessLibraryListViewTabs) => void;
+    previewPageUrl: string;
 }
 
 @Component
@@ -34,6 +35,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Prop() versionType: ProcessVersionType.Draft | ProcessVersionType.Published;
     @Prop() processListViewComponentKey: ProcessListViewComponentKey;
     @Prop() changeTab: (tab: ProcessLibraryListViewTabs) => void;
+    @Prop() previewPageUrl: string;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
@@ -274,7 +276,16 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private openProcess(item: Process) {
+        //temporarily
 
+        var viewUrl = this.previewPageUrl + '/@pm/' + item.rootProcessStep.id.toString();
+
+        if (this.versionType == ProcessVersionType.Draft) {
+            viewUrl += '/preview';
+        }
+
+        var win = window.open(viewUrl, '_blank');
+        win.focus();
     }
 
     private isFilter(internalName: string) {
@@ -342,7 +353,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
     }
 
-    private closeSubComponentCallback(refreshList: boolean, tab?: ProcessLibraryListViewTabs){
+    private closeSubComponentCallback(refreshList: boolean, tab?: ProcessLibraryListViewTabs) {
         if (tab) {
             this.changeTab(tab);
         }

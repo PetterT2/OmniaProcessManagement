@@ -93,6 +93,7 @@ export class DisplayTab extends tsx.Component<DisplayTabProps>
                 <div>
                     <v-checkbox input-value={this.blockData.settings.viewSettings.hideTasksTab} label={this.loc.ProcessLibrarySettings.HideTasksTab} onChange={(val) => { this.blockData.settings.viewSettings.hideTasksTab = val; this.updateBlockData() }}></v-checkbox>
                 </div>
+                <v-text-field onChange={() => { this.updateBlockData(); }} type="text" v-model={this.blockData.settings.viewSettings.previewPageUrl} label={this.loc.ProcessLibrarySettings.PreviewPageUrl} ></v-text-field>
             </div>
         )
     }
