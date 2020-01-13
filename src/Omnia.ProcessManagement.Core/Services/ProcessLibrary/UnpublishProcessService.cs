@@ -99,7 +99,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             int edition = GetIntValue(publishedFile.ListItemAllFields, OPMConstants.SharePoint.OPMFields.Fields_Edition);
             int revision = GetIntValue(publishedFile.ListItemAllFields, OPMConstants.SharePoint.OPMFields.Fields_Revision);
 
-            return opmProcessId.ToString("N") + "-" + edition.ToString() + (revision > 0 ? "-" + revision.ToString() : "");
+            return opmProcessId.ToString("N") + "-" + edition.ToString() + "-" + revision.ToString();
         }
 
         private int GetIntValue(ListItem listItem, string propertyName)
