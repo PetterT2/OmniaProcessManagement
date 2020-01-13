@@ -165,7 +165,7 @@ export class DisplayTab extends tsx.Component<DisplayTabProps>
                     onModelChange={(title) => { this.blockData.settings.title = title; this.updateBlockData() }}>
                 </omfx-multilingual-input>
 
-                <v-text-field filled onChange={() => { this.updateBlockData(); }} v-model={this.blockData.settings.viewPageUrl} label={this.loc.Settings.ViewPageUrl}></v-text-field> :
+                <v-text-field filled onChange={() => { this.updateBlockData(); }} v-model={this.blockData.settings.viewPageUrl} label={this.loc.Settings.ViewPageUrl}></v-text-field>
 
                 <v-select dark={this.omniaTheming.promoted.body.dark}
                     label={this.loc.Settings.Paging}
