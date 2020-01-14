@@ -143,7 +143,7 @@ export class CurrentProcessStore extends Store {
     }
 
     mutations = {
-       
+
     }
 
     public actions = {
@@ -275,7 +275,7 @@ export class CurrentProcessStore extends Store {
                     };
 
                     let processData: ProcessData = {
-                        content: {} as MultilingualString,
+                        content: { isMultilingualString: true },
                         canvasDefinition: null,
                         documents: null,
                         links: null,

@@ -31,7 +31,9 @@ export class MediaPickerConfiguration {
 
     private onVideoPickerSave(video: MediaPickerVideoProviderResult, dispatchHandler: (eleStr: string, type: "video") => void) {
         if (dispatchHandler) {
-            dispatchHandler(video.html, 'video');
+            setTimeout(() => {
+                dispatchHandler(video.html, 'video');
+            }, 1000);
         }
     }
 
