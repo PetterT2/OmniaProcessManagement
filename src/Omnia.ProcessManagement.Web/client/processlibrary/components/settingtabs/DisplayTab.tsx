@@ -8,6 +8,7 @@ import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { OmniaUxLocalizationNamespace, OmniaUxLocalization, OmniaTheming } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessLibraryBlockData, Enums, ProcessLibraryViewSettings } from '../../../fx/models';
+import { ProcessDesignerStore } from '../../../processdesigner/stores';
 
 interface DisplayTabProps {
     settingsKey: string
@@ -30,6 +31,7 @@ export class DisplayTab extends tsx.Component<DisplayTabProps>
     @Inject(LocalizationService) localizationService: LocalizationService;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
     @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<ProcessLibraryBlockData>;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     blockData: ProcessLibraryBlockData = null;
     defaultTabOptions: Array<DefaultSelectOption> = [
@@ -54,6 +56,7 @@ export class DisplayTab extends tsx.Component<DisplayTabProps>
     }
 
     updateBlockData() {
+        this.processDesignerStore.mutations.setPreviewPageUrl.commit(this.blockData.settings.viewSettings.previewPageUrl);
         this.settingsService.setValue(this.settingsKey, this.blockData);
     }
 
