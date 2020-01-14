@@ -2,3 +2,4 @@
 export * from './drawingblock';
 export * from './tasksblock';
 export * from './linksblock';
+export * from './processnavigation';

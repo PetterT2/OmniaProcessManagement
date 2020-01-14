@@ -1,10 +1,12 @@
 ﻿import { fabric } from 'fabric';
 import { DrawingCanvas } from './DrawingCanvas';
 import { Shape } from '../shapes';
-import { CanvasDefinition, DrawingShape } from '../../models/data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
 import { Utils } from '@omnia/fx';
 import { DrawingShapeDefinition } from '../../models';
 import { GuidValue, MultilingualString } from '@omnia/fx-models';
+import { DrawingShapeOptions } from '../../../models/processdesigner';
+import { IFabricShape } from '../fabricshape';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     private onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
@@ -40,6 +42,28 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         });
     }
 
+    updateShape(id: GuidValue, drawingOptions: DrawingShapeOptions, left?: number, top?: number) {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            super.updateShape(id, drawingOptions, left, top).then((drawingShapeResult: DrawingShape) => {
+                this.setActiveObject(drawingShapeResult);
+                resolve();
+            }).catch(reject);
+
+        });
+    }
+
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
+        title: MultilingualString, left?: number, top?: number,
+        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            super.addShape(id, type, definition, title, left, top, processStepId, customLinkId, nodes).then((drawingShapeResult: DrawingShape) => {
+                this.setActiveObject(drawingShapeResult);
+                resolve();
+            }).catch(reject);
+
+        });
+    }
+
     private addEditIcon(object: fabric.Object) {
         if (object && object.aCoords) {
             let ctx = this.canvasObject.getContext();
@@ -64,17 +88,37 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         ctx.fillText("", 0, 0);
 
         this.canvasObject.on('object:moving', (options) => {
-            if (options.target.type != 'text') {
-                if (this.gridX)
-                    options.target.set({
-                        left: Math.round(options.target.left / this.gridX) * this.gridX
-                    });
-                if (this.gridY)
-                    options.target.set({
-                        top: Math.round(options.target.top / this.gridY) * this.gridY
-                    });
+            let object = options.target;
+            let drawingShape = this.findDrawingShape(object);
+            if (drawingShape && (drawingShape.shape as Shape).shapeObject) {
+                if (options.target.type == 'text') {
+                    object = (drawingShape.shape as Shape).shapeObject[0];
+                    this.canvasObject.setActiveObject(object);
+                }
             }
+            if (this.gridX)
+                object.set({
+                    left: Math.round(object.left / this.gridX) * this.gridX
+                });
+            if (this.gridY)
+                object.set({
+                    top: Math.round(object.top / this.gridY) * this.gridY
+                });
             this.isMoving = true;
+        });
+
+        this.canvasObject.on('mouse:down', (options) => {
+            if (options.target) {
+                let object = options.target;
+                let drawingShape = this.findDrawingShape(object);
+                if (drawingShape && (drawingShape.shape as Shape).shapeObject) {
+                    if (options.target.type == 'text') {
+                        object = (drawingShape.shape as Shape).shapeObject[0];
+                        this.canvasObject.setActiveObject(object);
+                    }
+                    this.addEditIcon(object);
+                }
+            }
         });
 
         this.canvasObject.on('mouse:up', (options) => {

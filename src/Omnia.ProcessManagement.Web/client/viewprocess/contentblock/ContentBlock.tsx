@@ -40,7 +40,8 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     beforeDestroy() {
-
+        if (this.subscriptionHandler)
+            this.subscriptionHandler.unsubscribe();
     }
 
     init() {

@@ -47,7 +47,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             fabricGroupObjects.push(rectShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: false }, textNode.properties || {}), title);
+            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties || {}), title);
             this.fabricShapes.push(textShape);
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
@@ -63,7 +63,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
             let points = this.calculatePoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
 
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
         }

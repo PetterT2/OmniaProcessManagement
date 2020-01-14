@@ -12,7 +12,6 @@ import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../../Constants';
 import { CurrentProcessStore } from '../../../fx';
-import { ProcessDesignerStore } from '../../../processdesigner/stores';
 
 interface DisplayFieldsTabProps {
     isPublished: boolean;
@@ -31,8 +30,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(LocalizationService) private localizationService: LocalizationService;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
-    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
-
+   
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -124,7 +122,6 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
     }
 
     private updateBlockData() {
-        this.processDesignerStore.mutations.setPreviewPageUrl.commit(this.blockData.settings.viewSettings.previewPageUrl);
         this.settingsService.setValue(this.settingsKey, this.blockData);
     }
 
