@@ -15,7 +15,7 @@ export class FabricImageShape extends FabricShapeExtension implements FabricShap
         return new Promise<boolean>((resolve, reject) => {
             if (this.imageUrl && this.imageUrl != '') {
                 fabric.Image.fromURL(this.imageUrl, (image) => {
-                    if (image.width != this.properties['width']) {
+                    if (image.width != this.properties['width'] || image.height != this.properties['height']) {
                         image.scaleToWidth(this.properties['width']);
                         this.properties.scaleX = image.scaleX;
                         this.properties.scaleY = image.scaleY;

@@ -71,8 +71,8 @@ export class ShapeExtension implements Shape {
             name: this.name,
             nodes: nodes,
             definition: this.definition,
-            left: this.left,
-            top: this.top
+            left: this.fabricShapes[0].fabricObject.left,
+            top: this.fabricShapes[0].fabricObject.top
         }
     }
 
@@ -87,7 +87,7 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected finishScaling(object: fabric.Object) {
+    protected updateTextPosition(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
         let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), true);
         this.fabricShapes[1].fabricObject.set({
@@ -163,7 +163,7 @@ export class ShapeExtension implements Shape {
                 this.shapeObject[1].setCoords();
             },
             "scaling": (e) => {
-                this.finishScaling(e.target);
+                this.updateTextPosition(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {
@@ -210,7 +210,7 @@ export class ShapeExtension implements Shape {
                     this.shapeObject[1].setCoords();
                 this.shapeObject[0].setCoords();
             },
-            "mouseover": (e) => {
+           "mouseover": (e) => {
                 if (this.allowSetHover) {
                     this.setHover(this.shapeObject, true);
                     canvas.renderAll();

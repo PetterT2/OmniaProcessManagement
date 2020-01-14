@@ -53,6 +53,15 @@ export class PentagonShape extends ShapeExtension implements Shape {
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
+    protected updateTextPosition(object: fabric.Object) {
+        let position = this.correctPosition(object.left, object.top);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), false);
+        this.fabricShapes[1].fabricObject.set({
+            left: textPosition.left,
+            top: textPosition.top
+        });
+    }
+
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         if (this.nodes) {
             this.initExistingNodes(title, this.definition, selectable);

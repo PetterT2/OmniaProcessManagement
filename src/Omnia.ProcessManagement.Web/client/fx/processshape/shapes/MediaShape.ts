@@ -29,16 +29,16 @@ export class MediaShape extends ShapeExtension implements Shape {
                     .then((result) => {
                         let newWidth = Math.floor(fabricImageObj.properties.width * (fabricImageObj.properties.scaleX || 1));
                         let newHeight = Math.floor(fabricImageObj.properties.height * (fabricImageObj.properties.scaleY || 1));
-                        if (this.definition.height != newHeight ||
-                            this.definition.width != newWidth) {
+                        if ((this.definition.height > newHeight - 1 && this.definition.height < newHeight + 1) ||
+                            (this.definition.width > newWidth - 1 && this.definition.width < newWidth + 1)) {
                             this.definition.width = newWidth;
                             this.definition.height = newHeight;
                             let position = this.correctPosition(this.left, this.top);
                             let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
                             this.fabricShapes[1].fabricObject.top = textPosition.top;
                             this.fabricShapes[1].fabricObject.left = textPosition.left;
+                            this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
                         }
-                        this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
                         resolve(true);
                     }).catch(() => {
                         reject();
