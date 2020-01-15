@@ -162,6 +162,39 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return securityTrimming;
         }
 
+        public static string GenerateRollupSecurityTrimming(UserAuthorizedResource resources, ProcessVersionType versionType)
+        {
+            var securityTrimming = "";
+
+            if (resources != null)
+            {
+                var connectPart = "";
+
+                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
+                var authorTeamAppIds = resources.AuthorTeamAppIds.Distinct().ToList();
+
+                if (authorTeamAppIds.Any())
+                {
+                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds, false)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
+                    connectPart = " OR ";
+                }
+
+                if (readerSecurityResourceIds.Any() && versionType == ProcessVersionType.Published)
+                {
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds, false)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
+                }
+
+                if (securityTrimming != "")
+                {
+                    securityTrimming = $"({securityTrimming})";
+                }
+            }
+
+            return securityTrimming;
+        }
+
         private static string GenerateCheckedOutByTrimming(string loginName)
         {
             return $"{ProcessTableAlias}.[{nameof(Process.CheckedOutBy)}] = '{loginName}'";
@@ -186,9 +219,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return ids.Distinct().ToList();
         }
 
-        private static string GeneratePermissionForSecurityProcessId(List<Guid> securityResourceIds)
+        private static string GeneratePermissionForSecurityProcessId(List<Guid> securityResourceIds, bool useAlias = true)
         {
-            var securityTrimming = $"{ProcessTableAlias}.[{nameof(Process.SecurityResourceId)}] IN ('{string.Join("' , '", securityResourceIds)}')";
+            var securityTrimming = useAlias == true ? $"{ProcessTableAlias}.[{nameof(Process.SecurityResourceId)}] IN ('{string.Join("' , '", securityResourceIds)}')" :
+                $"[{nameof(Process.SecurityResourceId)}] IN ('{string.Join("' , '", securityResourceIds)}')";
             return securityTrimming;
         }
 
@@ -198,9 +232,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return securityTrimming;
         }
 
-        private static string GeneratePermissionForTeamAppIds(List<Guid> teamAppIds)
+        private static string GeneratePermissionForTeamAppIds(List<Guid> teamAppIds, bool useAlias = true)
         {
-            var securityTrimming = $"{ProcessTableAlias}.[{nameof(Process.TeamAppId)}] IN ('{string.Join("' , '", teamAppIds)}')";
+            var securityTrimming = useAlias == true ? $"{ProcessTableAlias}.[{nameof(Process.TeamAppId)}] IN ('{string.Join("' , '", teamAppIds)}')" :
+                $"[{nameof(Process.TeamAppId)}] IN ('{string.Join("' , '", teamAppIds)}')";
             return securityTrimming;
         }
     }

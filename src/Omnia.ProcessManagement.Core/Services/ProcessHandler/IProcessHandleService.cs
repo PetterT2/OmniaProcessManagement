@@ -9,6 +9,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 {
     public interface IProcessHandleService
     {
-        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync();
+        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr);
     }
 }

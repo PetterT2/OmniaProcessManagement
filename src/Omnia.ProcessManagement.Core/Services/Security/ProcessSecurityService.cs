@@ -62,6 +62,13 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
+        public async ValueTask<string> GetRollupSecurityTrimmingQuery(ProcessVersionType versionType)
+        {
+            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
+            string securityTrimmingQuery = SecurityTrimmingHelper.GenerateRollupSecurityTrimming(authorizedResource, versionType);
+            return securityTrimmingQuery;
+        }
+
         public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();

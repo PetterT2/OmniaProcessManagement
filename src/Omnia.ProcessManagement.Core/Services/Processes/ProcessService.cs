@@ -153,10 +153,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return beingUsed;
         }
 
-        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery)
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery, string securityTrimmingQuery)
         {
             var queryHelper = new ItemQueryHelper(itemQuery);
-            return await ProcessRepository.QueryProcesses(queryHelper);
+            return await ProcessRepository.QueryProcesses(queryHelper, securityTrimmingQuery);
         }
 
         async ValueTask<InternalProcess> IProcessService.GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)

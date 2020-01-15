@@ -414,14 +414,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery)
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery)
         {
             var result = new ItemQueryResult<Process>();
 
+            var filterBeginStr = "WHERE (";
             result.Total = 0;
             if (itemQuery.IncludeTotal)
             {
                 var (queryWithoutSortingAndPaging, queryTotalParameters) = itemQuery.GetQueryWithoutSortingAndPaging(OPMConstants.Database.Tables.Processes, excludeDeleted:false);
+                queryWithoutSortingAndPaging = queryWithoutSortingAndPaging.Insert(queryWithoutSortingAndPaging.LastIndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
                 if (!string.IsNullOrWhiteSpace(queryWithoutSortingAndPaging))
                 {
                     result.Total = await DbContext.AlternativeProcessEFView
@@ -430,6 +432,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
             }
             var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted:false);
+            query = query.Insert(query.LastIndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
             if (!string.IsNullOrWhiteSpace((string)query))
             {
                 var temp = await DbContext.AlternativeProcessEFView.FromSqlRaw(query, parameters.ToArray()).ToListAsync();

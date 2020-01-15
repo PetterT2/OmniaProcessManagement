@@ -29,12 +29,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
         public async ValueTask<RollupProcessResult> QueryProcessRollup(RollupSetting setting)
         {
             var helper = new RollupHelper(setting);
-            var processQuery = await ProcessHandleService.BuildProcessQueryAsync();
+            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id);
 
             processQuery
-            .Where(subItem => subItem.Property(OPMConstants.Database.TableProps.Processes.VersionType).NotEqual(ProcessVersionType.Draft))
-            .AndWhere(subItem => subItem.Property(OPMConstants.Database.TableProps.Processes.VersionType).NotEqual(ProcessVersionType.CheckedOut))
-            .AndWhere(subItem => helper.ResolveResourcesFilters(subItem))
+            .Where(subItem => helper.ResolveResourcesFilters(subItem))
             .AndWhere(subItem => helper.ResolveCustomFilters(subItem));
 
             if (setting.Skip.HasValue)

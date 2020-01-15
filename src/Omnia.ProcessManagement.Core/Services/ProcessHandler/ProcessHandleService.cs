@@ -2,6 +2,8 @@
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.Queries;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.Security;
+using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
     {
         IProcessService ProcessService { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
+        IProcessSecurityService ProcessSecurityService { get; }
 
         private IList<string> DefaultAppProperties
         {
@@ -23,14 +26,18 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
             }
         }
 
-        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService, IProcessService processService)
+        private ProcessVersionType VersionType;
+
+        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService, IProcessService processService, IProcessSecurityService processSecurityService)
         {
             EnterprisePropertyService = enterprisePropertyService;
             ProcessService = processService;
+            ProcessSecurityService = processSecurityService;
         }
 
-        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync()
+        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr)
         {
+            Enum.TryParse(versionTypeStr, out VersionType);
             var (enterpriseProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();
             var queryFilterResolver = new QueryFilterResolver(enterpriseProperties, DefaultAppProperties);
             return new QueryBuilder<Process>(QueryProcesses, queryFilterResolver);
@@ -38,7 +45,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 
         protected async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery)
         {
-            return await ProcessService.QueryProcesses(itemQuery);
+            string securityTrimmingQuery = await ProcessSecurityService.GetRollupSecurityTrimmingQuery(VersionType);
+            return await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery);
         }
     }
 }
