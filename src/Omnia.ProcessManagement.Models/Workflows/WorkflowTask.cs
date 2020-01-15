@@ -46,6 +46,8 @@ namespace Omnia.ProcessManagement.Models.Workflows
         }
         public Guid Id { get; set; }
 
+        public Guid RootProcessId { get; set; }
+
         public Guid WorkflowId { get; set; }
 
         public bool IsCompleted { get; set; }

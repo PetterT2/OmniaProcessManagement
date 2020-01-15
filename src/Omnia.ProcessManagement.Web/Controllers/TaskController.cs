@@ -31,20 +31,15 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ProcessController> Logger { get; }
         IWorkflowTaskService WorkflowTaskService { get; }
-        ISharePointTaskService SharePointTaskService { get; }
-        IProcessSecurityService ProcessSecurityService { get; }
-        ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
+        IProcessService ProcessService { get; }
+
         public TaskController(ILogger<ProcessController> logger,
             IWorkflowTaskService workflowTaskService,
-            ISharePointTaskService sharePointTaskService,
-            IProcessSecurityService processSecurityService,
-            ITeamCollaborationAppsService teamCollaborationAppsService)
+            IProcessService processService)
         {
             WorkflowTaskService = workflowTaskService;
-            SharePointTaskService = sharePointTaskService;
-            ProcessSecurityService = processSecurityService;
-            TeamCollaborationAppsService = teamCollaborationAppsService;
             Logger = logger;
+            ProcessService = processService;
         }
 
 
@@ -56,6 +51,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 //We based on the permission on SharePoint for this task item
                 var workflowTask = await WorkflowTaskService.GetAsync(spItemId, teamAppId, true);
+                var process = await ProcessService.GetProcessByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, DraftOrPublishedVersionType.Draft);
+                if (process != null)
+                    workflowTask.RootProcessId = process.RootProcessStep.Id;
                 return workflowTask.AsApiResponse();
             }
             catch (Exception ex)

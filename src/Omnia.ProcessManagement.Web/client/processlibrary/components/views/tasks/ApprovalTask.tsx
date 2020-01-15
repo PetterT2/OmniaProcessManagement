@@ -14,9 +14,11 @@ import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskO
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
+import { OPMUtils } from '../../../../fx';
 
 interface ApprovalTaskProps {
     closeCallback: () => void;
+    previewPageUrl: string;
 }
 
 @Component
@@ -24,6 +26,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() closeCallback: () => void;
+    @Prop() previewPageUrl: string;
 
     @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(PublishProcessService) publishProcessService: PublishProcessService;
@@ -137,6 +140,13 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         return this.task && !this.task.isCompleted && this.task.sharePointTask.isCurrentResponsible && this.task.workflow.completedType == WorkflowCompletedType.None;
     }
 
+    private previewProcess(e: MouseEvent) {
+        e.preventDefault();
+        let url = OPMUtils.createProcessPreviewUrl(this.task.rootProcessId, this.previewPageUrl);
+        var win = window.open(url, '_blank');
+        win.focus();
+    }
+
     renderBody(h) {
         if (this.task.workflow.completedType == WorkflowCompletedType.Cancelled) {
             return (
@@ -161,7 +171,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                         <div>
 
                             <div>
-                                <div><p>{this.task.sharePointTask.title}</p></div>
+                                <div><p><a href="javascript:void(0)" onClick={this.previewProcess} target="_blank">{this.task.sharePointTask.title}</a></p></div>
 
                                 <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}</p>
                                 <p>{this.task.createdByUserDisplayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>

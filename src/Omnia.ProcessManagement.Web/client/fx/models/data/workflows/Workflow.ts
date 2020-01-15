@@ -5,7 +5,7 @@ import { WorkflowCompletedType } from '../enums';
 
 export interface Workflow {
     id: GuidValue,
-    processId: GuidValue,
+    opmProcessId: GuidValue,
     comment: string,
     dueDate: Date,
     completedType: WorkflowCompletedType,

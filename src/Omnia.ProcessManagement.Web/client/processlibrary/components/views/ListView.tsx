@@ -154,7 +154,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                             : null}
                     </v-tab-item>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Task}`} v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>
-                        {this.selectingTab == ProcessLibraryListViewTabs.Task ? <TasksView></TasksView> : null}
+                        {this.selectingTab == ProcessLibraryListViewTabs.Task ? <TasksView previewPageUrl={this.viewSettings.previewPageUrl}></TasksView> : null}
                     </v-tab-item>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Published}`}>
                         {this.selectingTab == ProcessLibraryListViewTabs.Published ?

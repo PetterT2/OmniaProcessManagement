@@ -11,6 +11,7 @@ import { DevicePreviewerStyles } from './DevicePreviewer.css';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { CurrentProcessStore } from '../../fx/stores';
 import { ProcessDesignerStore } from '../stores';
+import { OPMUtils } from '../../fx';
 
 export interface DevicePreviewerProps {
 }
@@ -41,16 +42,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     private createIframeUrl() {
         let currentProcess = this.currentProcessStore.getters.referenceData();
         let previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
-        let iframeUrl = '';
-        if (Utils.isNullOrEmpty(previewPageUrl)) {
-            iframeUrl = location.protocol + '//' + location.host + location.pathname + `#/@pm/${currentProcess.current.processStep.id}/preview/g`;
-        }
-        else {
-            //TODO : should we handle if the previewPageUrl is in SharePoint then it need to have a #
-            iframeUrl  = previewPageUrl + `/@pm/${currentProcess.current.processStep.id}/preview`;
-        }
-
-        return iframeUrl;
+        return OPMUtils.createProcessPreviewUrl(currentProcess.current.processStep.id, previewPageUrl);
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {

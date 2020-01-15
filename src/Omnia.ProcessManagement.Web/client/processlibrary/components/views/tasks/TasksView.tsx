@@ -16,7 +16,7 @@ import Vue from 'vue';
 declare var moment;
 
 interface TasksViewProps {
-
+    previewPageUrl: string;
 }
 
 interface TaskViewOption {
@@ -35,7 +35,7 @@ interface Header {
 export class TasksView extends VueComponentBase<TasksViewProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
-    @Prop() displaySettings: ProcessLibraryDisplaySettings;
+    @Prop() previewPageUrl: string;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(SharePointContext) private spContext: SharePointContext;
@@ -284,7 +284,7 @@ export class TasksView extends VueComponentBase<TasksViewProps>
     renderEditTaskForm(h) {
         switch (this.selectingTaskType) {
             case Enums.TaskContentType.ApprovalTask:
-                return (<ApprovalTask closeCallback={this.onEditTaskFormClose}></ApprovalTask>)
+                return (<ApprovalTask closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ApprovalTask>)
 
             default:
                 return null
