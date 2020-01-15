@@ -375,7 +375,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                                             domProps: {
                                                 closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
                                                 process: item,
-                                                isAuthor: this.isAuthor
+                                                isAuthor: this.isAuthor,
+                                                viewPageUrl: this.previewPageUrl
                                             }
                                         })}
                                     </td>
