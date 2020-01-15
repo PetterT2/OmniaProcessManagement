@@ -94,7 +94,7 @@
                 Title: string,
                 Description: string
             },
-            ViewProcess: {
+            ProcessInformation: {
                 Title: string
             },
             Tasks: {

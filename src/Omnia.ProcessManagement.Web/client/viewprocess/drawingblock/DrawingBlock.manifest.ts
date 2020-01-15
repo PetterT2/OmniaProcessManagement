@@ -22,7 +22,7 @@ Composer
         icon: new FontAwesomeIcon("fa fa-image")
     })
     .registerOmniaBlock({
-        category: "$Localize:OPM.Core.Blocks.ViewProcess.Title;"
+        category: "$Localize:OPM.Core.Blocks.ProcessInformation.Title;"
     })
 
 Composer
