@@ -167,6 +167,8 @@ export class DisplayTab extends tsx.Component<DisplayTabProps>
 
                 <v-text-field filled onChange={() => { this.updateBlockData(); }} v-model={this.blockData.settings.viewPageUrl} label={this.loc.Settings.ViewPageUrl}></v-text-field>
 
+                <v-checkbox input-value={this.blockData.settings.openInNewWindow} onChange={(val) => { this.blockData.settings.openInNewWindow = val; this.updateBlockData(); }} label={this.loc.Settings.OpenInNewWindow}></v-checkbox>
+
                 <v-select dark={this.omniaTheming.promoted.body.dark}
                     label={this.loc.Settings.Paging}
                     item-value="id"

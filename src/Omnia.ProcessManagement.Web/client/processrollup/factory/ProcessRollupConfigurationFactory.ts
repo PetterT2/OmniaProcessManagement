@@ -1,4 +1,4 @@
-﻿import { Enums, ProcessRollupBlockData, ProcessRollupBlockSettings,  } from '../../fx/models';
+﻿import { Enums, ProcessRollupBlockData, ProcessRollupBlockSettings, } from '../../fx/models';
 import { BuiltInEnterprisePropertyInternalNames } from '@omnia/fx-models';
 
 /**
@@ -16,7 +16,8 @@ export const ProcessRollupConfigurationFactory = {
                 orderBy: [{ propertyName: '', descending: true }],
                 uiFilters: [],
                 pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
-                displayFields: []
+                displayFields: [],
+                openInNewWindow: false
             } as ProcessRollupBlockSettings
         };
 

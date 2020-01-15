@@ -142,7 +142,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
     private previewProcess(e: MouseEvent) {
         e.preventDefault();
-        let url = OPMUtils.createProcessPreviewUrl(this.task.rootProcessId, this.previewPageUrl);
+        let url = OPMUtils.createProcessNavigationUrl(this.task.rootProcessId, this.previewPageUrl, true);
         var win = window.open(url, '_blank');
         win.focus();
     }

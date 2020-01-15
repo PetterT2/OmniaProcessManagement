@@ -9,7 +9,7 @@ import { OmniaContext, Inject, Localize, Utils, ResolvablePromise, SubscriptionH
 import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding, Guid } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
-import { ProcessService } from '../../../fx';
+import { ProcessService, OPMUtils } from '../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields, ProcessLibraryListViewTabs } from '../../Constants';
 import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
@@ -276,14 +276,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private openProcess(item: Process) {
-        //temporarily
-
-        var viewUrl = this.previewPageUrl + '/@pm/' + item.rootProcessStep.id.toString();
-
-        if (this.versionType == ProcessVersionType.Draft) {
-            viewUrl += '/preview';
-        }
-
+        var viewUrl = OPMUtils.createProcessNavigationUrl(item.rootProcessStep.id, this.previewPageUrl, this.versionType == ProcessVersionType.Draft);
         var win = window.open(viewUrl, '_blank');
         win.focus();
     }

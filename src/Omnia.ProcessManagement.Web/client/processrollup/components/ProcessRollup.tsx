@@ -452,6 +452,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
                     viewSettings: Utils.clone(this.blockData.settings.viewSettings),
                     spacingSetting: this.blockData.settings.spacing,
                     viewPageUrl: this.blockData.settings.viewPageUrl,
+                    openInNewWindow: this.blockData.settings.openInNewWindow,
                     styles: this.styles,
                     settingsKey: this.settingsKey
                 }

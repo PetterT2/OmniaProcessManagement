@@ -62,7 +62,8 @@ Composer.registerManifest("39ea7d35-7472-48f4-825d-866b0ddce732")
             QueryScope: {
                 PublishedProcesses: "Published Processes",
                 ArchivedProcesses: "Archived Processes"
-            }
+            },
+            OpenInNewWindow: "Open in new window"
         },
         Common: {
             NoProcessToShow: "No process to show.",

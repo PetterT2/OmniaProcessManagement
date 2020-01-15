@@ -11,4 +11,5 @@ export interface ProcessRollupBlockSettings extends RollupSetting {
     spacing?: SpacingSetting;
     searchScope: Enums.ProcessViewEnums.QueryScope;
     viewPageUrl: string;
+    openInNewWindow: boolean;
 }

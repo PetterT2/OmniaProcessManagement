@@ -12,7 +12,7 @@ import {
 } from '../../../../models';
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
-import { DefaultDateFormat, ProcessRollupConstants, OPMRouter } from '../../../../fx';
+import { DefaultDateFormat, ProcessRollupConstants, OPMRouter, OPMUtils } from '../../../../fx';
 import { RollupProcess, Enums, RouteOptions } from '../../../../fx/models';
 import './List.css';
 import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
@@ -27,6 +27,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
     @Prop() processes: Array<RollupProcess>;
     @Prop() viewSettings: ProcessRollupListViewSettings;
     @Prop() spacingSetting: SpacingSetting;
+    @Prop() openInNewWindow: boolean;
     @Prop() sortByCallback?: (sortKey: string, descending: boolean) => void;
     @Localize(ProcessRollupLocalization.namespace) loc: ProcessRollupLocalization.locInterface;
 
@@ -96,16 +97,8 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
     }
 
     openProcess(rollupProcess: RollupProcess) {
-        if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
-            var viewUrl = this.viewPageUrl + '/@pm/' + rollupProcess.process.rootProcessStep.id.toString();
-            var win = window.open(viewUrl, '_blank');
-            win.focus();
-        }
-        else {
-            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer).then(() => {
-
-            });
-        }
+        var win = window.open(OPMUtils.createProcessNavigationUrl(rollupProcess.process.rootProcessStep.id, this.viewPageUrl, false), this.openInNewWindow ? '_blank' : '_self');
+        win.focus();
     }
 
     // -------------------------------------------------------------------------

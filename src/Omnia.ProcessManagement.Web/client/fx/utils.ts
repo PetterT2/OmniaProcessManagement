@@ -101,14 +101,16 @@ export module OPMUtils {
         return arr.length > 1 ? arr[arr.length - 1] : loginName;
     }
 
-    export function createProcessPreviewUrl(processId: GuidValue, previewPageUrl: string) {
+    export function createProcessNavigationUrl(processId: GuidValue, previewPageUrl: string, isPreview: boolean) {
         let url = "";
+        let preview = isPreview ? "/preview" : "";
+        let hash = isPreview ? "#" : "";
         if (Utils.isNullOrEmpty(previewPageUrl)) {
-            url = location.protocol + '//' + location.host + location.pathname + `#/@pm/${processId}/preview/g`;
+            url = location.protocol + '//' + location.host + location.pathname + `${hash}/@pm/${processId}${preview}/g`;
         }
         else {
             //TODO : should we handle if the previewPageUrl is in SharePoint then it need to have a #
-            url = previewPageUrl + `/@pm/${processId}/preview`;
+            url = previewPageUrl + `/@pm/${processId}${preview}`;
         }
 
         return url;
