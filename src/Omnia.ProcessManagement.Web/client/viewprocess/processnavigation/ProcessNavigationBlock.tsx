@@ -65,6 +65,9 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
             });
         });
         this.refreshExpandState();
+        this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
+            this.refreshExpandState();
+        })
     }
 
     setBlockData(blockData: ProcessNavigationBlockData) {
@@ -86,8 +89,10 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
 
     refreshExpandState() {
         let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
-        let newExpandState = OPMUtils.generateProcessStepExpandState(currentProcessReferenceData.process.rootProcessStep, OPMRouter.routeContext.route.processStepId);
-        this.expandState = Object.assign({}, this.expandState, newExpandState);
+        if (currentProcessReferenceData) {
+            let newExpandState = OPMUtils.generateProcessStepExpandState(currentProcessReferenceData.process.rootProcessStep, OPMRouter.routeContext.route.processStepId);
+            this.expandState = Object.assign({}, this.expandState, newExpandState);
+        }
     }
 
     renderProcessNavigation(h) {

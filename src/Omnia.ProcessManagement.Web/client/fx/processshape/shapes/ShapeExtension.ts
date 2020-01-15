@@ -87,7 +87,7 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected updateTextPosition(object: fabric.Object) {
+    protected onScaling(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
         let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), true);
         this.fabricShapes[1].fabricObject.set({
@@ -163,7 +163,7 @@ export class ShapeExtension implements Shape {
                 this.shapeObject[1].setCoords();
             },
             "scaling": (e) => {
-                this.updateTextPosition(e.target);
+                this.onScaling(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {

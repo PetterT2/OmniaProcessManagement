@@ -53,13 +53,14 @@ export class PentagonShape extends ShapeExtension implements Shape {
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
-    protected updateTextPosition(object: fabric.Object) {
+    protected onScaling(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
         let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), false);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top
         });
+        this.updatePoints(this.shapeObject[0]);
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
@@ -78,7 +79,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         }
     }
 
-    private calculatePoints() {
+    private calculatePoints(): Array<{ x: number; y: number }> {
         let triangleWidth = Math.floor(this.definition.height / 2);
         let points: Array<{ x: number; y: number }> = [
             { x: 0, y: 0 },
@@ -87,5 +88,24 @@ export class PentagonShape extends ShapeExtension implements Shape {
             { x: this.definition.width - triangleWidth, y: this.definition.height },
             { x: 0, y: this.definition.height }];
         return points;
+    }
+
+    private updatePoints(object: fabric.Object) {
+        let scaleWidth = Math.floor(object.width * object.scaleX);
+        let points = object.toJSON()['points'];
+        let triangleWidth = Math.floor(this.definition.height / 2);
+        points[1].x = (scaleWidth - triangleWidth) / object.scaleX;
+        points[3].x = points[1].x;
+        (object as any).points = points;
+        object.dirty = true;
+    }
+
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+        super.addEventListener(canvas, gridX, gridY);
+        this.shapeObject[0].on({
+            "scaled": (e) => {
+                this.updatePoints(e.target);                
+            }
+        })
     }
 }

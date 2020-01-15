@@ -62,8 +62,10 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
             this.model.iFrame.element = document.getElementById(this.iFrameId) as HTMLIFrameElement;
         }
         let window = (this.model.iFrame.element as HTMLIFrameElement).contentWindow;
-        let height = Math.max(window.document.body.scrollHeight, window.document.body.offsetHeight, window.document.documentElement.clientHeight, window.document.documentElement.scrollHeight, window.document.documentElement.offsetHeight);
-        this.model.iFrame.height = height + "px";
+        if (window.document.body) {
+            let height = Math.max(window.document.body.scrollHeight, window.document.body.offsetHeight, window.document.documentElement.clientHeight, window.document.documentElement.scrollHeight, window.document.documentElement.offsetHeight);
+            this.model.iFrame.height = height + "px";
+        }
     }
 
     /**
