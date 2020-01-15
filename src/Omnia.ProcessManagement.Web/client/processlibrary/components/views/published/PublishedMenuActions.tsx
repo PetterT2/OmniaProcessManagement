@@ -14,6 +14,7 @@ interface PublishedMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     process: DisplayProcess;
     isAuthor: boolean;
+    viewPageUrl: string;
 }
 
 @Component
@@ -22,6 +23,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() process: DisplayProcess;
     @Prop() isAuthor: boolean;
+    @Prop() viewPageUrl: string;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;

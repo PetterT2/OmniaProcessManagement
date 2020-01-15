@@ -20,6 +20,7 @@ interface DraftsMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     process: DisplayProcess;
     isAuthor: boolean;
+    viewPageUrl: string;
 }
 
 @Component
@@ -28,6 +29,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() process: DisplayProcess;
     @Prop() isAuthor: boolean;
+    @Prop() viewPageUrl: string;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -69,6 +71,19 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                     this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                 })
             })
+    }
+
+    private previewProcess() {
+        if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
+            var viewUrl = this.viewPageUrl + '/@pm/' + this.process.rootProcessStep.id.toString() + '/preview';
+            var win = window.open(viewUrl, '_blank');
+            win.focus();
+        }
+        else {
+            OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.previewInGlobalRenderer).then(() => {
+
+            });
+        }
     }
 
     private openDeleteDraft() {
@@ -117,7 +132,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                         <v-list-item onClick={() => { this.editProcess(); }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.loc.ProcessActions.Edit}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item onClick={() => { }}>
+                        <v-list-item onClick={() => { this.previewProcess(); }}>
                             <v-list-item-title>{this.loc.ProcessActions.Preview}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>

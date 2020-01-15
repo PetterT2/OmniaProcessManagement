@@ -37,14 +37,14 @@ export class DiamondShape extends ShapeExtension implements Shape {
             if (polygontNode)
                 this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygontNode.properties || {})));
             if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: false }, textNode.properties) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: selectable }, textNode.properties) || {}, title));
         }
         else if (this.definition) {
             let points = this.calculatePoints();
             let position = this.correctPosition(left, top);
             let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
             this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }

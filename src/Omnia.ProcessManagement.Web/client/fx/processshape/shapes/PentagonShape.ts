@@ -47,10 +47,19 @@ export class PentagonShape extends ShapeExtension implements Shape {
             fabricGroupObjects.push(rectShape.fabricObject);
         }
         if (textNode) {
-            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: false }, textNode.properties || {}), title);
+            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties || {}), title);
             this.fabricShapes.push(textShape);
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
+    }
+
+    protected updateTextPosition(object: fabric.Object) {
+        let position = this.correctPosition(object.left, object.top);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), false);
+        this.fabricShapes[1].fabricObject.set({
+            left: textPosition.left,
+            top: textPosition.top
+        });
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
@@ -63,7 +72,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
             let points = this.calculatePoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
 
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
         }

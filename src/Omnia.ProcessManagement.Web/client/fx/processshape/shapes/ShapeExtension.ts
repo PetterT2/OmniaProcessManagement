@@ -13,8 +13,9 @@ export class ShapeExtension implements Shape {
     left: number;
     top: number;
     protected fabricShapes: Array<FabricShape> = [];
-    protected startPoint: { x: number, y: number } = { x: 0, y: 0 };
-    protected originPos: { x: number, y: number } = { x: 0, y: 0 };
+    private startPoint: { x: number, y: number } = { x: 0, y: 0 };
+    private originPos: { x: number, y: number } = { x: 0, y: 0 };
+    private originShapePos: { x: number, y: number } = { x: 0, y: 0 };
     private allowSetHover: boolean = false;
     private isHovering: boolean = false;
     private isSelected: boolean = false;
@@ -70,8 +71,8 @@ export class ShapeExtension implements Shape {
             name: this.name,
             nodes: nodes,
             definition: this.definition,
-            left: this.left,
-            top: this.top
+            left: this.fabricShapes[0].fabricObject.left,
+            top: this.fabricShapes[0].fabricObject.top
         }
     }
 
@@ -86,7 +87,7 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected finishScaling(object: fabric.Object) {
+    protected updateTextPosition(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
         let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), true);
         this.fabricShapes[1].fabricObject.set({
@@ -141,43 +142,28 @@ export class ShapeExtension implements Shape {
     addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
         if (this.shapeObject.length < 2 || this.shapeObject.findIndex(f => f == null) > -1)
             return;
-        let left = this.shapeObject[1].left; let top = this.shapeObject[1].top;
-        let left0 = this.shapeObject[0].left; let top0 = this.shapeObject[0].top;
 
         this.shapeObject[0].on({
             "mousedown": (e) => {
-                left = this.shapeObject[1].left; top = this.shapeObject[1].top;
-                left0 = this.shapeObject[0].left; top0 = this.shapeObject[0].top;
                 this.startPoint = canvas.getPointer(e.e);
                 this.originPos = { x: this.shapeObject[1].left, y: this.shapeObject[1].top };
+                this.originShapePos = { x: this.shapeObject[0].left, y: this.shapeObject[0].top };
             },
             "moving": (e) => {
                 var currPos = canvas.getPointer(e.e),
                     moveX = currPos.x - this.startPoint.x,
                     moveY = currPos.y - this.startPoint.y;
-
-                if (gridX)
-                    this.shapeObject[1].set({
-                        left: Math.round(this.shapeObject[0].left / gridX) * gridX - left0 + left
-                    });
-                else
-                    this.shapeObject[1].set({
-                        left: this.originPos.x + moveX
-                    });
-
-                if (gridY)
-                    this.shapeObject[1].set({
-                        top: Math.round(this.shapeObject[0].top / gridY) * gridY - top0 + top
-                    });
-                else
-                    this.shapeObject[1].set({
-                        top: this.originPos.y + moveY
-                    });
+                let tleft = gridX ? Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x : this.originPos.x + moveX;
+                let ttop = gridY ? Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y : this.originPos.y + moveY;
+                this.shapeObject[1].set({
+                    left: tleft,
+                    top: ttop
+                });
 
                 this.shapeObject[1].setCoords();
             },
             "scaling": (e) => {
-                this.finishScaling(e.target);
+                this.updateTextPosition(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {
@@ -193,7 +179,38 @@ export class ShapeExtension implements Shape {
             }
         })
         this.shapeObject[1].on({
-            "mouseover": (e) => {
+            "mousedown": (e) => {
+                this.startPoint = canvas.getPointer(e.e);
+                this.originPos = { x: this.shapeObject[1].left, y: this.shapeObject[1].top };
+                this.originShapePos = { x: this.shapeObject[0].left, y: this.shapeObject[0].top };
+            },
+            "moving": (e) => {
+                var currPos = canvas.getPointer(e.e),
+                    moveX = currPos.x - this.startPoint.x,
+                    moveY = currPos.y - this.startPoint.y;
+                let left = this.originShapePos.x + moveX;
+                let top = this.originShapePos.y + moveY;
+                let tleft = gridX ? Math.round(left / gridX) * gridX : left;
+                let ttop = gridY ? Math.round(top / gridY) * gridY : top;
+                this.shapeObject[0].set({
+                    left: tleft,
+                    top: ttop
+                });
+                if (gridX) {
+                    this.shapeObject[1].set({
+                        left: Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x,
+                    });
+                }
+                if (gridY) {
+                    this.shapeObject[1].set({
+                        top: Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y
+                    });
+                }
+                if (gridX || gridY)
+                    this.shapeObject[1].setCoords();
+                this.shapeObject[0].setCoords();
+            },
+           "mouseover": (e) => {
                 if (this.allowSetHover) {
                     this.setHover(this.shapeObject, true);
                     canvas.renderAll();

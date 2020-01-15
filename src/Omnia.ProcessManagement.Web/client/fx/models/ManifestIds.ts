@@ -61,6 +61,10 @@ export class OPMWebComponentManifests {
     public static get LinksBlock(): Guid { return new Guid('7227e805-61f8-4ffc-9ed9-657a4ce21bb1'); }
     public static get LinksBlockSettings(): Guid { return new Guid('8f058d05-1a9b-4ea1-a6cc-87fae540bd91'); }
 
+    public static get ProcessNavigationBlockCore(): Guid { return new Guid('91b5e2c6-6e66-454d-a849-d79c78a12574'); }
+    public static get ProcessNavigationBlock(): Guid { return new Guid('82677598-496e-48aa-99ae-96b23aa6f4a9'); }
+    public static get ProcessNavigationBlockSettings(): Guid { return new Guid('321378ba-2fc3-449b-b321-95368b987590'); }
+
     public static get ProcessRollup(): Guid { return new Guid('f9f26f4b-6c1c-40a1-b10e-781f0062bfd3'); }
     public static get ProcessRollupSettings(): Guid { return new Guid('0aec18e0-41d3-4148-b08a-0c123d83b4cb'); }
     public static get ProcessRollupListView(): Guid { return new Guid('6fa93477-75b3-4dd0-a626-62a484905ecd'); }

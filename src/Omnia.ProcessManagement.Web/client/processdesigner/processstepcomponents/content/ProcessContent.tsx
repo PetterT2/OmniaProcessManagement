@@ -64,25 +64,22 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
         this.extensions.push(new MediaPickerEditorExtension(new MediaPickerConfiguration().getConfig()));
     }
 
-    onContentChanged(content) {
+    onContentChanged(content: MultilingualString) {
         let referenceData = this.currentProcessStepReferenceData;
+        //remove empty html
+        Object.keys(content).forEach(key => {
+            if (content[key] == '<p></p>')
+                delete content[key];
+        })
         referenceData.processData.content = content;
         this.processDesignerStore.actions.saveState.dispatch();
     }
 
-    generateDefaultValue(content: MultilingualString) {
-        if (Utils.isNullOrEmpty(this.multilingualStore.getters.stringValue(content)))
-            content = this.multilingualStore.getters.ensureMultilingualString("<p></p>");
-        return content;
-    }
-
     get currentProcessStepReferenceData() {
         let referenceData = this.currentProcessStore.getters.referenceData();
-        if (!this.isProcessStepShortcut) {           
-            referenceData.current.processData.content = this.generateDefaultValue(referenceData.current.processData.content);
+        if (!this.isProcessStepShortcut) {
             return referenceData.current;
         }
-        referenceData.shortcut.processData.content = this.generateDefaultValue(referenceData.shortcut.processData.content);
         return referenceData.shortcut;
     }
 
@@ -92,7 +89,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
         */
     render(h) {
         let processStepData = this.currentProcessStepReferenceData.processData;
-       return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
+        return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
                 {
                     this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="paragraph"></v-skeleton-loader> :

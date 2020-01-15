@@ -26,14 +26,14 @@ export class CircleShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ selectable: selectable }, circleNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: false }, textNode.properties || {}), title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: selectable }, textNode.properties || {}), title));
             }
         }
         else if (this.definition) {
             let position = this.correctPosition(left, top);
             let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
             this.fabricShapes.push(new FabricCircleShape(this.definition, { left: position.left, top: position.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: false }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
