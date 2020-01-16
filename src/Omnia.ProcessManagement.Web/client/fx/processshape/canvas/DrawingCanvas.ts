@@ -225,7 +225,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     updateCanvasSize(readyDrawingShape: DrawingShape) {
-        let fontSizeSpace = readyDrawingShape.shape.definition.textPosition == TextPosition.Center ? 0 : readyDrawingShape.shape.definition.fontSize;
+        let fontSizeSpace = readyDrawingShape.shape.definition.textPosition == TextPosition.On ? 0 : readyDrawingShape.shape.definition.fontSize;
         let canvasHeight = parseFloat(readyDrawingShape.shape.definition.height.toString()) + TextSpacingWithShape + fontSizeSpace;
         let canvasWidth = readyDrawingShape.shape.definition.width;
         if (!Utils.isNullOrEmpty(readyDrawingShape.shape.definition.borderColor)) {
@@ -247,7 +247,7 @@ export class DrawingCanvas implements CanvasDefinition {
             let resolved = true;
 
             if (definition.shapeTemplate) {
-                let fontSizeSpace = definition.textPosition == TextPosition.Center ? 0 : definition.fontSize;
+                let fontSizeSpace = definition.textPosition == TextPosition.On ? 0 : definition.fontSize;
                 this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + fontSizeSpace)
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
                 if (oldShapeIndex > -1) {

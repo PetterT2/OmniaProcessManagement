@@ -57,8 +57,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.opmCoreloc.DrawingShapeSettings.Above
         },
         {
-            value: TextPosition.Center,
-            title: this.opmCoreloc.DrawingShapeSettings.Center
+            value: TextPosition.On,
+            title: this.opmCoreloc.DrawingShapeSettings.On
         },
         {
             value: TextPosition.Bottom,
@@ -225,7 +225,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private getCanvasSize(): { width: number, height: number } {
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-        if (this.internalShapeDefinition.textPosition != TextPosition.Center)
+        if (this.internalShapeDefinition.textPosition != TextPosition.On)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
         if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
             canvasWidth += 2;
