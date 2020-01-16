@@ -9,7 +9,7 @@ import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessSto
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, RouteOptions } from '../../../fx/models';
-import { Guid, GuidValue } from '@omnia/fx-models';
+import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';
 import { ProcessDesignerStore } from '../../../processdesigner/stores';
@@ -167,11 +167,11 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                     <omfx-multilingual-input
                         requiredWithValidator={this.validator}
                         model={this.process.rootProcessStep.title}
-                        onModelChange={(title) => {
+                        onModelChange={(title: MultilingualString) => {
                             this.process.rootProcessStep.title = title;
                             if (!this.process.rootProcessStep.enterpriseProperties)
                                 this.process.rootProcessStep.enterpriseProperties = {};
-                            this.process.rootProcessStep.enterpriseProperties[PropertyInternalNamesConstants.title] = title;
+                            this.process.rootProcessStep.enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(title);
                         }}
                         forceTenantLanguages
                         label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>

@@ -137,7 +137,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         currentReferenceData.current.processStep.title = this.title;
         currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
         if ((currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties) {
-            (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = this.title;
+            (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(this.title);
         }
         this.loading = true;
         this.processDesignerStore.actions.saveState.dispatch().then(() => {

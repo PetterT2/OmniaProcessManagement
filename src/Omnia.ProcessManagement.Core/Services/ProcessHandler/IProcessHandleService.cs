@@ -1,4 +1,5 @@
-﻿using Omnia.Fx.Queries;
+﻿using Omnia.Fx.Models.Rollup;
+using Omnia.Fx.Queries;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 {
     public interface IProcessHandleService
     {
-        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr);
+        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters, List<RollupFilter> titleQueries);
     }
 }
