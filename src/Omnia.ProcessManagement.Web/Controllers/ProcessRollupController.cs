@@ -31,7 +31,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
 
                 var result = await ProcessRollupService.QueryProcessRollup(setting);
-
                 return Ok(ApiUtils.CreateSuccessResponse(result));
             }
             catch (Exception ex)
