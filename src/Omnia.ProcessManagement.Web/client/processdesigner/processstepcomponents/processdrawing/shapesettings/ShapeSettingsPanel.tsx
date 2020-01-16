@@ -48,7 +48,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
     created() {
         this.init();
-    }   
+    }
 
     init() {
         this.initSelectedShape();
@@ -77,7 +77,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title,
-            nodes: this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ? this.selectedShape.shape.nodes : null
+            shape: this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ? this.selectedShape.shape : null
         };
         this.previousProcessStepId = this.selectedProcessStepId;
 
@@ -129,10 +129,10 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     }
 
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
-        let nodes = this.drawingShapeOptions.nodes;
+        let shape = this.drawingShapeOptions.shape;
         this.drawingShapeOptions = drawingOptions;
-        if (Utils.isArrayNullOrEmpty(drawingOptions.nodes) && this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
-            this.drawingShapeOptions.nodes = nodes;
+        if (Utils.isNullOrEmpty(drawingOptions.shape) && this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
+            this.drawingShapeOptions.shape = shape;
 
         if (this.lockedSubmitShapeSettings) {
             this.lockedSubmitShapeSettings = false;

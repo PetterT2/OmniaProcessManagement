@@ -106,7 +106,7 @@ export class ShapeExtension implements Shape {
     getTextPosition(position: { left: number, top: number }, width: number, height: number, isCenter?: boolean) {
         let tleft = isCenter ? position.left + Math.floor(width / 2) : position.left + TextSpacingWithShape, ttop = position.top;
         switch (this.definition.textPosition) {
-            case TextPosition.Center:
+            case TextPosition.On:
                 ttop += Math.floor(height / 2 - this.definition.fontSize / 2 - 2);
                 break;
             case TextPosition.Bottom:

@@ -8,6 +8,7 @@ using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.SharePoint.Services.Users;
+using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.Workflows;
@@ -38,7 +39,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         ISharePointGroupService SharePointGroupService { get; }
         ISettingsService SettingsService { get; }
         ISharePointPermissionService SharePointPermissionService { get; }
-
+        IProcessSecurityService ProcessSecurityService { get; }
         public ApprovalTaskService(ISharePointClientContextProvider sharePointClientContextProvider,
           IWorkflowService workflowService,
           ISharePointListService sharePointListService,
@@ -49,7 +50,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
           ISharePointGroupService sharePointGroupService,
           ISharePointPermissionService sharePointPermissionService,
           ISettingsService settingsService,
-          IUserService spUSerService)
+          IUserService spUSerService,
+          IProcessSecurityService processSecurityService)
         {
             WorkflowService = workflowService;
             SharePointListService = sharePointListService;
@@ -62,6 +64,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             SharePointPermissionService = sharePointPermissionService;
             SettingsService = settingsService;
             SPUSerService = spUSerService;
+            ProcessSecurityService = processSecurityService;
         }
 
         public async ValueTask AddWorkflowAsync(PublishProcessWithApprovalRequest request)
@@ -129,12 +132,15 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             string temporaryApprovalGroupTitle = OPMConstants.TemporaryGroupPrefixes.ApproversGroup + process.OPMProcessId.ToString().ToLower();
             var temporaryApprovalGroup = await SharePointGroupService.EnsureGroupOnWebAsync(appCtx, appCtx.Web, temporaryApprovalGroupTitle,
-                new List<RoleDefinition> { appCtx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, null, new List<User> { approverSPUser });
+                new List<RoleDefinition>(), null, new List<User> { approverSPUser });
 
             Dictionary<Principal, List<RoleType>> taskItemRoleAssignments = new Dictionary<Principal, List<RoleType>>();
             taskItemRoleAssignments.Add(temporaryApprovalGroup, new List<RoleType> { RoleType.Contributor });
             taskItemRoleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
+            await ProcessSecurityService.EnsureReadPermissionOnProcessLibraryAsync(appCtx, temporaryApprovalGroup);
+
+            taskList.RoleAssignments.Add(temporaryApprovalGroup, new RoleDefinitionBindingCollection(appCtx) { appCtx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
             await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, taskItemRoleAssignments);
 
             await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl, process.RootProcessStep.Id);
@@ -250,7 +256,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
         private async ValueTask SendCancellWorkflowEmail(Workflow workflow, string processTitle, User approverSPUser, string webUrl)
         {
-            
+
             foreach (WorkflowTask workflowTask in workflow.WorkflowTasks)
             {
                 if (!string.IsNullOrEmpty(approverSPUser.Email))
@@ -259,7 +265,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     emailInfo.Subject = OPMConstants.EmailTemplates.CancelApproval.SubjectLocalizedKey;
                     emailInfo.Body.Add(OPMConstants.EmailTemplates.CancelApproval.BodyLocalizedKey);
                     emailInfo.LocalizationSetting.ApplyUserSetting(approverSPUser.UserPrincipalName);
-                   
+
                     emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
                             { OPMConstants.EmailTemplates.CancelApproval.Tokens.ApproverName,  approverSPUser.Title },
                             {OPMConstants.EmailTemplates.CancelApproval.Tokens.ProcessTitle, processTitle }
@@ -323,7 +329,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 emailInfo.Subject = emailTitle;
                 emailInfo.Body.Add(emailTemplate);
                 emailInfo.LocalizationSetting.ApplyUserSetting(author.UserPrincipalName);
-             
+
                 emailInfo.TokenInfo.AddTokenValues(new System.Collections.Specialized.NameValueCollection {
                     {OPMConstants.EmailTemplates.CompleteApproval.Tokens.AuthorName,  author.Title},
                     {OPMConstants.EmailTemplates.CompleteApproval.Tokens.ApproverName,  approver.Title},

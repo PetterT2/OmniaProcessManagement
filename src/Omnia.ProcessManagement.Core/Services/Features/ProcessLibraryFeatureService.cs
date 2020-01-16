@@ -76,15 +76,17 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             await ctx.ExecuteQueryAsync();
 
             var (authorGroup, readerGroup) = await EnsureSharePointGroupsAsync(ctx, teamAppId);
-             await EnsureListsAsync(ctx, authorGroup, readerGroup);
-            
+            await EnsureListsAsync(ctx);
+
             await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.PublishList,
                 new List<Group> { authorGroup, readerGroup },
                 new List<RoleType> { RoleType.Reader });
 
-            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.TaskList, null, null);
+            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.TaskList,
+                new List<Group> { authorGroup },
+                new List<RoleType> { RoleType.Reader });
 
-            await EnsurePage(ctx, web);
+            await EnsurePageAsync(ctx, web, readerGroup);
             await ConfigQuickLaunch(ctx, web);
         }
 
@@ -123,7 +125,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             if (readerGroup == null)
             {
                 string opmReaderGroupName = await GetGroupNameAsync(OPMConstants.LocalizedTextKeys.ReadersGroupSuffix, ctx.Web.Title, ctx.Web.Language);
-                readerGroup = await SPGroupService.EnsureGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmReaderGroupName, new List<RoleDefinition> { ctx.Site.RootWeb.RoleDefinitions.GetByType(RoleType.Reader) }, owner);
+                readerGroup = await SPGroupService.EnsureGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmReaderGroupName, new List<RoleDefinition>(), owner);
 
                 settings.DefaultReaderGroupId = readerGroup.Id;
                 settingsChanged = true;
@@ -143,7 +145,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             return webTitle + " " + suffix;
         }
 
-        private async ValueTask EnsureListsAsync(PortableClientContext clientContext, Group authorGroup, Group readerGroup)
+        private async ValueTask EnsureListsAsync(PortableClientContext clientContext)
         {
             string contentTypeGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ContentTypeGroupName, clientContext.Web.Language);
             string fieldGroupName = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.FieldGroupName, clientContext.Web.Language);
@@ -234,7 +236,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             }
         }
 
-        private async ValueTask EnsurePage(PortableClientContext clientContext, Web web)
+        private async ValueTask EnsurePageAsync(PortableClientContext clientContext, Web web, Group readerGroup)
         {
             List sitePageList = web.GetList(web.ServerRelativeUrl + "/" + OPMConstants.OPMPages.SitePages);
             clientContext.Load(sitePageList, l => l.RootFolder,
@@ -249,6 +251,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             clientContext.Web.Context.Load(pageFile,
                 f => f.ListItemAllFields,
                 f => f.Exists);
+
             await clientContext.Web.Context.ExecuteQueryAsync();
 
             if (!pageFile.Exists)
@@ -269,77 +272,24 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 }
 
                 await clientContext.Web.Context.ExecuteQueryAsync();
+
+                pageFile = item.File;
             }
-            else
-            {
-                clientContext.Web.Context.Load(pageFile,
-                f => f.CheckOutType,
-                f => f.MinorVersion,
-                f => f.CheckedOutByUser,
-                f => f.Level);
-                await clientContext.Web.Context.ExecuteQueryAsync();
 
-                if ((!sitePageList.EnableVersioning || (pageFile.CheckOutType == CheckOutType.None && pageFile.MinorVersion == 0)) &&
-                    pageFile.ListItemAllFields[OPMConstants.SharePoint.SharePointFields.PageLayoutType].ToString() != OPMConstants.OPMPages.SingleWebPartAppPageLayoutType)
-                {
-                    if (sitePageList.EnableVersioning)
-                    {
-                        pageFile.CheckOut();
-                        await clientContext.Web.Context.ExecuteQueryAsync();
-                    }
-
-                    pageFile.ListItemAllFields[OPMConstants.SharePoint.SharePointFields.PageLayoutType] = OPMConstants.OPMPages.SingleWebPartAppPageLayoutType;
-                    pageFile.ListItemAllFields.SystemUpdate();
-
-                    var isCheckIn = await CheckInIfNeededAsync(clientContext, sitePageList, pageFile, "Set Single WebPart App Page Layout Type");
-                    if (!isCheckIn)
-                    {
-                        await clientContext.Web.Context.ExecuteQueryAsync();
-                    }
-                    pageFile = await LoadRequiredInfoForVersioning(clientContext, serverRelativePageName);
-                }
-            }
-        }
-
-        private async ValueTask<bool> CheckInIfNeededAsync(PortableClientContext clientContext, List list, File file, string comment)
-        {
-            if (list != null)
-            {
-                if (list.EnableVersioning)
-                {
-                    file.CheckIn(comment, CheckinType.MajorCheckIn);
-                    if (list.EnableMinorVersions &&
-                        file.Level != FileLevel.Published)
-                    {
-                        file.Publish(comment);
-                        if (list.EnableModeration)
-                        {
-                            file.Approve("Automatically approved");
-                        }
-                    }
-
-                    await clientContext.Web.Context.ExecuteQueryAsync();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private async ValueTask<File> LoadRequiredInfoForVersioning(PortableClientContext clientContext, string serverRelativePageName)
-        {
-            var file = clientContext.Web.GetFileByServerRelativeUrl(serverRelativePageName);
-
-            clientContext.Web.Context.Load(file,
-                f => f.ListItemAllFields,
-                f => f.Exists,
-                f => f.CheckOutType,
-                f => f.MinorVersion,
-                f => f.CheckedOutByUser,
-                f => f.CheckedOutByUser.LoginName,
-                f => f.Level);
+            clientContext.Web.Context.Load(pageFile, f => f.ListItemAllFields);
+            clientContext.Web.Context.Load(pageFile.ListItemAllFields, l => l.HasUniqueRoleAssignments);
             await clientContext.Web.Context.ExecuteQueryAsync();
-            return file;
+
+            if (!pageFile.ListItemAllFields.HasUniqueRoleAssignments)
+            {
+                pageFile.ListItemAllFields.BreakRoleInheritance(true, false);
+            }
+
+            pageFile.ListItemAllFields.RoleAssignments.Add(readerGroup,
+                new RoleDefinitionBindingCollection(clientContext) { clientContext.Web.RoleDefinitions.GetByType(RoleType.Reader) });
+            await clientContext.Web.Context.ExecuteQueryAsync();
         }
+
 
     }
 }

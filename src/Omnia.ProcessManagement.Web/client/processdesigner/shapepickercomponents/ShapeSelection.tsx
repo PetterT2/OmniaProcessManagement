@@ -236,7 +236,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
 
         if (!srcDrawingCanvasListing[canvasId]) {
             let canvasSize = 100;
-            let iconSize = drawingShapeDefinition.textPosition == TextPosition.Center ? canvasSize : 80;
+            let iconSize = drawingShapeDefinition.textPosition == TextPosition.On ? canvasSize : 80;
             let shapeIconWidth = this.getNumber(drawingShapeDefinition.width);
             let shapeIconHeight = this.getNumber(drawingShapeDefinition.height);
 

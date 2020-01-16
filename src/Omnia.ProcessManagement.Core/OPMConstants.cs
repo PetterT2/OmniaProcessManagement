@@ -219,10 +219,15 @@ namespace Omnia.ProcessManagement.Core
             public const string ProcessLibraryComponent = "opm-process-library";
         }
 
+        /// <summary>
+        /// Its so important that we do not change the value of these constants below
+        /// We have to base on the naming convention to add/remove old permission
+        /// </summary>
         public static class TemporaryGroupPrefixes
         {
             public const string ReviewsGroup = "Temporary Process Reviewers ";
             public const string ApproversGroup = "Temporary Process Approvers ";
+            public const string LimitedReadAccessGroup = "Process Limited Readers ";
         }
 
 

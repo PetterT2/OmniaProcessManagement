@@ -1,6 +1,6 @@
 ﻿export enum TextPosition {
     Above = 1,
-    Center = 2,
+    On = 2,
     Bottom = 3
 }
 

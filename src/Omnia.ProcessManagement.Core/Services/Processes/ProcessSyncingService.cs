@@ -106,6 +106,16 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var ctx = SharePointClientContextProvider.CreateClientContext(spUrl, true);
 
+            var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
+
+            if (siteGroupIdSettings == null)
+                throw new Exception("Missing Process Author SharePoint group");
+
+            var authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
+            if (authorGroup == null)
+                throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
+
+
             var (enterpriseProperties, cache) = await EnterprisePropertyService.GetAllAsync();
             var enterprisePropertyDict = enterpriseProperties.ToDictionary(e => e.InternalName, e => e);
 
@@ -124,25 +134,30 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var folder = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
 
+            Principal readerPrincipal = null;
             if (process.SecurityResourceId == process.OPMProcessId)
             {
-                var limitedReadAccessUser = await ProcessSecurityService.EnsureProcessLimitedReadAccessSharePointUsersAsync(ctx, process.OPMProcessId);
+                readerPrincipal = await ProcessSecurityService.EnsureLimitedReadAccessSharePointGroupAsync(ctx, process.OPMProcessId);
 
-                var siteGroupIdSettings = await SettingsService.GetAsync<SiteGroupIdSettings>(process.TeamAppId.ToString());
+                await ProcessSecurityService.EnsureReadPermissionOnProcessLibraryAsync(ctx, readerPrincipal);
 
-                if (siteGroupIdSettings == null)
-                    throw new Exception("Missing Process Author SharePoint group");
-
-                var authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
-                if (authorGroup == null)
-                    throw new Exception($"Cannot get Process Author SharePoint group with id: {siteGroupIdSettings.AuthorGroupId}");
-
-                Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
-                limitedReadAccessUser.ForEach(user => roleAssignments.Add(user, new List<RoleType> { RoleType.Reader }));
-                roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
-
-                await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folder.ListItemAllFields, false, false, roleAssignments);
+                publishedList.RoleAssignments.Add(readerPrincipal, new RoleDefinitionBindingCollection(ctx) { ctx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
+                await ctx.ExecuteQueryAsync();
             }
+            else
+            {
+                await ProcessSecurityService.EnsureRemoveLimitedReadAccessSharePointGroupAsync(ctx, process.OPMProcessId);
+
+                readerPrincipal = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.DefaultReaderGroupId);
+                if (readerPrincipal == null)
+                    throw new Exception($"Cannot get Process Default Reader SharePoint group with id: {siteGroupIdSettings.DefaultReaderGroupId}");
+            }
+
+            Dictionary<Principal, List<RoleType>> roleAssignments = new Dictionary<Principal, List<RoleType>>();
+            roleAssignments.Add(readerPrincipal, new List<RoleType> { RoleType.Reader });
+            roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
+
+            await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folder.ListItemAllFields, false, false, roleAssignments);
         }
 
         private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)
@@ -180,7 +195,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 foreach (var imageReference in processActionModel.ImageReferences)
                 {
                     var imageRelativeApiUrl = ImageHelper.GenerateRelativeApiUrl(imageReference, processActionModel.Process.OPMProcessId);
-                    var isUsed = 
+                    var isUsed =
                         serializedprocessActionModel.Contains(imageRelativeApiUrl + "\"") ||
                         serializedprocessActionModel.Contains(imageRelativeApiUrl + "\\") ||
                         serializedprocessActionModel.Contains(imageRelativeApiUrl + "'");

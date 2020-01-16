@@ -151,7 +151,7 @@
             TextPosition: string,
             FontSize: string,
             Above: string,
-            Center: string,
+            On: string,
             Below: string
         },
         Buttons: {

@@ -42,9 +42,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         });
     }
 
-    updateShape(id: GuidValue, drawingOptions: DrawingShapeOptions, left?: number, top?: number) {
+    updateShape(drawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.updateShape(id, drawingOptions, left, top).then((drawingShapeResult: DrawingShape) => {
+            super.updateShape(drawingShape, drawingOptions).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);
