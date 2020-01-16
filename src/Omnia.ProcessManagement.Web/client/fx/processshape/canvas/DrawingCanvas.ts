@@ -291,7 +291,12 @@ export class DrawingCanvas implements CanvasDefinition {
                 }
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
                 if (oldShapeIndex > -1) {
-                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];                   
+                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+                    if (nodes == null) {
+                        let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
+                        currentLeft = fabricShapeObject.left;
+                        currentTop = fabricShapeObject.top;
+                    }
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;

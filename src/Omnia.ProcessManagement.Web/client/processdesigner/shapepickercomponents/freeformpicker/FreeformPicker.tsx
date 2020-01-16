@@ -4,7 +4,7 @@ import { Inject, Localize, Utils } from "@omnia/fx";
 import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShapeDefinition, DrawingShape, ShapeSelectionStyles, ICanvasDefinition } from '../../../fx/models';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { DrawingCanvasFreeForm, CurrentProcessStore, OPMUtils, ProcessStore, IShape } from '../../../fx';
+import { DrawingCanvasFreeForm, CurrentProcessStore, OPMUtils, ProcessStore, IShape, Shape } from '../../../fx';
 import { Guid } from '@omnia/fx-models';
 import { setTimeout } from 'timers';
 
@@ -63,7 +63,7 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
     private addNewFreeformPicker() {
         this.dialogModel.visible = false;
         if (this.drawingCanvas.drawingShapes.length > 0) {
-            let shape = this.drawingCanvas.drawingShapes[0].shape;
+            let shape = (this.drawingCanvas.drawingShapes[0].shape as Shape).getShapeJson();
             if (!this.canvasDefinition.backgroundImageUrl) {
                 shape.left = 0;
                 shape.top = 0;
