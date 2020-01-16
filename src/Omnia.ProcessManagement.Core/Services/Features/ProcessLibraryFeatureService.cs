@@ -82,7 +82,9 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 new List<Group> { authorGroup, readerGroup },
                 new List<RoleType> { RoleType.Reader });
 
-            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.TaskList, null, null);
+            await EnsureUniquePermissionOnListAsync(ctx, web.ServerRelativeUrl + "/" + OPMConstants.SharePoint.ListUrl.TaskList,
+                new List<Group> { authorGroup },
+                new List<RoleType> { RoleType.Reader });
 
             await EnsurePageAsync(ctx, web, readerGroup);
             await ConfigQuickLaunch(ctx, web);
@@ -288,6 +290,6 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             await clientContext.Web.Context.ExecuteQueryAsync();
         }
 
-       
+
     }
 }

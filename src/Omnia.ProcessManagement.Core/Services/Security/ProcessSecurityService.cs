@@ -185,6 +185,17 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return group;
         }
 
+        public async ValueTask EnsureReadPermissionOnProcessLibraryAsync(PortableClientContext ctx, Principal principal)
+        {
+            await ctx.LoadIfNeeded(ctx.Web, l => l.ServerRelativeUrl).ExecuteQueryIfNeededAsync();
+            string serverRelativePageName = ctx.Web.ServerRelativeUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName;
+            var pageFile = ctx.Web.GetFileByServerRelativeUrl(serverRelativePageName);
+
+            pageFile.ListItemAllFields.RoleAssignments.Add(principal,
+                new RoleDefinitionBindingCollection(ctx) { ctx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
+            await ctx.ExecuteQueryAsync();
+        }
+
         public async ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null)
         {
             var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(teamAppId, opmProcessId, limitedUserItentities != null);

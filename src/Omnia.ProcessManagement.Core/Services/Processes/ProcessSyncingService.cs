@@ -139,7 +139,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             {
                 readerPrincipal = await ProcessSecurityService.EnsureLimitedReadAccessSharePointGroupAsync(ctx, process.OPMProcessId);
 
-                await EnsureLimitedReadPermissionOnProcessLibraryAsync(ctx, readerPrincipal);
+                await ProcessSecurityService.EnsureReadPermissionOnProcessLibraryAsync(ctx, readerPrincipal);
 
                 publishedList.RoleAssignments.Add(readerPrincipal, new RoleDefinitionBindingCollection(ctx) { ctx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
                 await ctx.ExecuteQueryAsync();
@@ -158,17 +158,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             roleAssignments.Add(authorGroup, new List<RoleType> { RoleType.Reader });
 
             await SharePointPermissionService.BreakListItemPermissionAsync(ctx, folder.ListItemAllFields, false, false, roleAssignments);
-        }
-
-        private async ValueTask EnsureLimitedReadPermissionOnProcessLibraryAsync(PortableClientContext ctx, Principal limitedReaderGroup)
-        {
-            await ctx.LoadIfNeeded(ctx.Web, l => l.ServerRelativeUrl).ExecuteQueryIfNeededAsync();
-            string serverRelativePageName = ctx.Web.ServerRelativeUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName;
-            var pageFile = ctx.Web.GetFileByServerRelativeUrl(serverRelativePageName);
-
-            pageFile.ListItemAllFields.RoleAssignments.Add(limitedReaderGroup,
-                new RoleDefinitionBindingCollection(ctx) { ctx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
-            await ctx.ExecuteQueryAsync();
         }
 
         private async ValueTask<Folder> SyncProcessToPublishedListAsync(PortableClientContext ctx, List publishedList, ProcessWithImagesActionModel processActionModel, Dictionary<string, EnterprisePropertyDefinition> enterprisePropertyDict)

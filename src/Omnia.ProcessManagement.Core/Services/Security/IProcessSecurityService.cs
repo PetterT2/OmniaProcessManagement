@@ -1,4 +1,5 @@
-﻿using Omnia.Fx.Models.Users;
+﻿using Microsoft.SharePoint.Client;
+using Omnia.Fx.Models.Users;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Helpers.Security;
@@ -29,6 +30,8 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
         ValueTask<Microsoft.SharePoint.Client.Group> EnsureLimitedReadAccessSharePointGroupAsync(PortableClientContext ctx, Guid opmProcessId);
         ValueTask EnsureRemoveLimitedReadAccessSharePointGroupAsync(PortableClientContext ctx, Guid opmProcessId);
+
+        ValueTask EnsureReadPermissionOnProcessLibraryAsync(PortableClientContext ctx, Principal principal);
 
         /// <summary>
         /// 
