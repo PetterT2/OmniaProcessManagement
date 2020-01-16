@@ -15,6 +15,7 @@ import { OPMRouter } from '../../../../fx/routing';
 import { PublishDialog } from './PublishDialog';
 import { DeletedDialog } from './DeleteDialog';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
+import { OPMUtils } from '../../../../fx';
 
 interface DraftsMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
@@ -75,8 +76,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
 
     private previewProcess() {
         if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
-            var viewUrl = this.viewPageUrl + '/@pm/' + this.process.rootProcessStep.id.toString() + '/preview';
-            var win = window.open(viewUrl, '_blank');
+            var win = window.open(OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, true), '_blank');
             win.focus();
         }
         else {

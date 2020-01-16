@@ -321,7 +321,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
                 .then((readyDrawingShape: DrawingShape) => {
-                    if (readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
+                    if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
                         this.updateAfterRenderImage(readyDrawingShape);
                 });
         }

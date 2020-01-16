@@ -58,7 +58,8 @@
             QueryScope: {
                 PublishedProcesses: string,
                 ArchivedProcesses: string
-            }
+            },
+            OpenInNewWindow: string
         },
         Common: {
             NoProcessToShow: string,

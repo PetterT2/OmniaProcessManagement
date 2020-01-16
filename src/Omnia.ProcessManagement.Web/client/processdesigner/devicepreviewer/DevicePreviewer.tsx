@@ -11,6 +11,7 @@ import { DevicePreviewerStyles } from './DevicePreviewer.css';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { CurrentProcessStore } from '../../fx/stores';
 import { ProcessDesignerStore } from '../stores';
+import { OPMUtils } from '../../fx';
 
 export interface DevicePreviewerProps {
 }
@@ -41,16 +42,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     private createIframeUrl() {
         let currentProcess = this.currentProcessStore.getters.referenceData();
         let previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
-        let iframeUrl = '';
-        if (Utils.isNullOrEmpty(previewPageUrl)) {
-            iframeUrl = location.protocol + '//' + location.host + location.pathname + `#/@pm/${currentProcess.current.processStep.id}/preview/g`;
-        }
-        else {
-            //TODO : should we handle if the previewPageUrl is in SharePoint then it need to have a #
-            iframeUrl  = previewPageUrl + `/@pm/${currentProcess.current.processStep.id}/preview`;
-        }
-
-        return iframeUrl;
+        return OPMUtils.createProcessNavigationUrl(currentProcess.current.processStep.id, previewPageUrl, true);
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {
@@ -62,8 +54,10 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
             this.model.iFrame.element = document.getElementById(this.iFrameId) as HTMLIFrameElement;
         }
         let window = (this.model.iFrame.element as HTMLIFrameElement).contentWindow;
-        let height = Math.max(window.document.body.scrollHeight, window.document.body.offsetHeight, window.document.documentElement.clientHeight, window.document.documentElement.scrollHeight, window.document.documentElement.offsetHeight);
-        this.model.iFrame.height = height + "px";
+        if (window.document.body) {
+            let height = Math.max(window.document.body.scrollHeight, window.document.body.offsetHeight, window.document.documentElement.clientHeight, window.document.documentElement.scrollHeight, window.document.documentElement.offsetHeight);
+            this.model.iFrame.height = height + "px";
+        }
     }
 
     /**
