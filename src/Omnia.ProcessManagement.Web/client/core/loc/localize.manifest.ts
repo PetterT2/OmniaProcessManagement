@@ -156,7 +156,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             TextPosition: "Text Position",
             FontSize: "Font Size",
             Above: "Above",
-            Center: "Center",
+            On: "On",
             Below: "Below"
         },
         Buttons: {

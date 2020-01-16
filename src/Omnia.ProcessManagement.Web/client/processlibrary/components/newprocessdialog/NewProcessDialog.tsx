@@ -5,7 +5,7 @@ import { Localize, Inject, IWebComponentInstance, WebComponentBootstrapper, vueC
 import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation, DialogModel, IValidator } from '@omnia/fx/ux';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryStyles } from '../../../models';
-import { ProcessService, ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, OPMRouter } from '../../../fx';
+import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, PropertyInternalNamesConstants } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, RouteOptions } from '../../../fx/models';
@@ -169,6 +169,9 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                         model={this.process.rootProcessStep.title}
                         onModelChange={(title) => {
                             this.process.rootProcessStep.title = title;
+                            if (!this.process.rootProcessStep.enterpriseProperties)
+                                this.process.rootProcessStep.enterpriseProperties = {};
+                            this.process.rootProcessStep.enterpriseProperties[PropertyInternalNamesConstants.title] = title;
                         }}
                         forceTenantLanguages
                         label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>

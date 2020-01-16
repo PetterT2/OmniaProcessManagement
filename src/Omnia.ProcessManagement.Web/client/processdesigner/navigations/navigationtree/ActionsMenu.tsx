@@ -4,7 +4,7 @@ import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils } from '../../../fx';
+import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils, PropertyInternalNamesConstants } from '../../../fx';
 import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
 import { RootProcessStep, ProcessStep, IdDict } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
@@ -119,6 +119,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true).then((result) => {
             let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
             this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+                this.loading = false;
                 this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
             });
         })
@@ -126,16 +127,22 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     deleteProcessStep() {
         this.loading = true;
-        this.currentProcessStore.actions.deleteProcessStep.dispatch()
+        this.currentProcessStore.actions.deleteProcessStep.dispatch().then(() => {
+            this.loading = false;
+        })
     }
 
     editTitle() {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
         currentReferenceData.current.processStep.title = this.title;
         currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
+        if ((currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties) {
+            (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = this.title;
+        }
         this.loading = true;
         this.processDesignerStore.actions.saveState.dispatch().then(() => {
             this.showEditTitleDialog = false;
+            this.loading = false;
         })
     }
 

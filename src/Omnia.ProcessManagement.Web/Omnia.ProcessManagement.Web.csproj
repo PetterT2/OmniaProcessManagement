@@ -344,6 +344,7 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\Tasks.manifest.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\shapepickercomponents\freeformpicker\FreeformPicker.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\stores\AddShapeWizardStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessDesignerPanelStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessLinksStore.ts" />
@@ -518,8 +519,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.44-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.44-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.47-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.47-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 

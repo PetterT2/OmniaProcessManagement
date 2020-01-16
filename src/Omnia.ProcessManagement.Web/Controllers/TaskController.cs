@@ -51,9 +51,12 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 //We based on the permission on SharePoint for this task item
                 var workflowTask = await WorkflowTaskService.GetAsync(spItemId, teamAppId, true);
-                var process = await ProcessService.GetProcessByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, DraftOrPublishedVersionType.Draft);
-                if (process != null)
-                    workflowTask.RootProcessId = process.RootProcessStep.Id;
+                if (!workflowTask.IsCompleted)
+                {
+                    var process = await ProcessService.GetProcessByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, DraftOrPublishedVersionType.Draft);
+                    if (process != null)
+                        workflowTask.RootProcessId = process.RootProcessStep.Id;
+                }
                 return workflowTask.AsApiResponse();
             }
             catch (Exception ex)

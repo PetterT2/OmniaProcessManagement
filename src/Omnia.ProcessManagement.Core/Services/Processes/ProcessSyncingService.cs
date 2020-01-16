@@ -121,7 +121,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             var publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
 
-            var internalNames = process.RootProcessStep.EnterpriseProperties.Keys.ToList();
+            var internalNames = process.RootProcessStep.EnterpriseProperties.Keys.Where(k => k != Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName).ToList();
 
             var ensuredSharePointNewFields = await EnsureSharePointFieldsAsync(ctx, internalNames, publishedList, OPMConstants.SharePoint.ListUrl.PublishList, enterprisePropertyDict);
             if (ensuredSharePointNewFields)

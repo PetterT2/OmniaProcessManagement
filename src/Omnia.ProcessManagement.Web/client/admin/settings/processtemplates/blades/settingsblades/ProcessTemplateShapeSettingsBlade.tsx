@@ -56,8 +56,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             title: this.opmCoreloc.DrawingShapeSettings.Above
         },
         {
-            value: TextPosition.Center,
-            title: this.opmCoreloc.DrawingShapeSettings.Center
+            value: TextPosition.On,
+            title: this.opmCoreloc.DrawingShapeSettings.On
         },
         {
             value: TextPosition.Bottom,

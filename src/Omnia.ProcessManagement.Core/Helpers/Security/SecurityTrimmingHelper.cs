@@ -43,8 +43,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 var publishedVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Published)}";
                 var checkedOutVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)}";
                 var notCheckedOutVersionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
-
-
                 var connectPart = "";
 
                 var authorTeamAppIds = resources.AuthorTeamAppIds.Distinct().ToList();

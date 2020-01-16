@@ -54,5 +54,6 @@
         MessageNoTasksItem: string;
         ShapeSettings: string;
         DeleteShapeConfirmMessage: string;
+        DrawFreeform: string;
     }
 }

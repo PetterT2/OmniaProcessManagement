@@ -17,7 +17,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         RecentShapes: "Recent Shapes",
         SelectShape: "Select Shape",
         AddShape: "Add Shape",
-        Redraw: "Redraw",
+        Redraw: "Draw freeform",
         DeleteShape: "Delete Shape",
         ShapeType: "Shape Type",
         Search: "Search",
@@ -57,5 +57,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         ShapeSettings: "Shape Settings",
         MessageNoLinksItem: "There are no links for this process.",
         MessageNoTasksItem: "There are no tasks for this process.",
-        DeleteShapeConfirmMessage: "Are you sure you want to delete this shape?"
+        DeleteShapeConfirmMessage: "Are you sure you want to delete this shape?",
+        DrawFreeform: "Draw Freeform"
     });
