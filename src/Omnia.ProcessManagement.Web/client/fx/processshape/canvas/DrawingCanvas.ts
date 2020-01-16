@@ -276,21 +276,24 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    updateShape(id: GuidValue, drawingOptions: DrawingShapeOptions, left?: number, top?: number) {
+    updateShape(drawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (drawingOptions.shapeDefinition.shapeTemplate) {
-                let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
+                let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
+                let nodes = null;
+                if (drawingOptions.shape) {
+                    if (drawingOptions.shape.left != 0) {
+                        currentLeft = drawingOptions.shape.left;
+                        currentTop = drawingOptions.shape.top;
+                    }
+                    nodes = drawingOptions.shape.nodes;
+                }
+                let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
                 if (oldShapeIndex > -1) {
-                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];
-
-                    let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    let currentLeft = fabricShapeObject.left;
-                    let currentTop = fabricShapeObject.top;
-
+                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];                   
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
-
                     currentDrawingShape.title = drawingOptions.title;
                     delete currentDrawingShape['processStepId'];
                     delete currentDrawingShape['linkId'];
@@ -303,7 +306,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     }
                     currentDrawingShape.shape = {
                         name: drawingOptions.shapeDefinition.shapeTemplate.name,
-                        nodes: drawingOptions.nodes,
+                        nodes: nodes,
                         definition: drawingOptions.shapeDefinition,
                         left: currentLeft,
                         top: currentTop
@@ -315,7 +318,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     });
                 }
                 else {
-                    this.addShape(id, drawingOptions.shapeType, drawingOptions.shapeDefinition, drawingOptions.title, left, top, drawingOptions.processStepId, drawingOptions.customLinkId, drawingOptions.nodes);
+                    this.addShape(drawingShape.id, drawingOptions.shapeType, drawingOptions.shapeDefinition, drawingOptions.title, drawingShape.shape.left, drawingShape.shape.top, drawingOptions.processStepId, drawingOptions.customLinkId, nodes);
                 }
             }
             if (resolved) {

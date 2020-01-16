@@ -93,24 +93,28 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
-        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, 0, 0, addShapeOptions.processStepId, addShapeOptions.customLinkId, addShapeOptions.nodes);
-
-        setTimeout(() => {
-            this.saveState(true);
-        }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+        let left = 0; let top = 0;
+        let nodes = null;
+        if (addShapeOptions.shape) {
+            left = addShapeOptions.shape.left;
+            top = addShapeOptions.shape.top;
+            nodes = addShapeOptions.shape.nodes;
+        }
+        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title,
+            left, top, addShapeOptions.processStepId, addShapeOptions.customLinkId, nodes).then(() => { this.saveState(true); });
     }
 
     private onSelectingShape(shape: DrawingShape) {
+        let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
+        if (shape && drawingShapeToUpdate && shape.id != drawingShapeToUpdate.id) {
+            this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
+        }
         this.processDesignerStore.mutations.setSelectingShape.commit(shape);
     }
 
     private onEditedShape(drawingOptions: DrawingShapeOptions) {
         let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate.id, drawingOptions, drawingShapeToUpdate.shape.left, drawingShapeToUpdate.shape.top);
-
-        setTimeout(() => {
-            this.saveState(true);
-        }, 200); //ToDo: refactor to remove this timeout, reason: the addShape has async code
+        this.drawingCanvasEditor.updateShape(drawingShapeToUpdate, drawingOptions).then(() => { this.saveState(true); });
     }
 
     private onDeletedShape() {

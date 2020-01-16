@@ -6,4 +6,7 @@ export const ShapeSelectionStyles = {} as {
     shapeDefinitionItem?: (size: number) => types.NestedCSSProperties;
     canvasWrapper?: (theme: OmniaTheming, size: number) => types.NestedCSSProperties;
     iconWrapper?: types.NestedCSSProperties;
+    wrapper: types.NestedCSSProperties;
+    dialogFooter: types.NestedCSSProperties;
+    centerDialogBody: types.NestedCSSProperties;
 };
