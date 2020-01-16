@@ -14,6 +14,7 @@ using Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Settings;
+using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.Images;
@@ -40,6 +41,8 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         IOmniaCacheWithKeyHelper<IOmniaMemoryDependencyCache> CacheHelper { get; }
         IPrincipalService PrincipalService { get; }
 
+        ISharePointGroupService SPGroupService { get; }
+
         ISettingsService SettingsService { get; }
 
         public ProcessSecurityService(
@@ -50,6 +53,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             IRoleService roleService,
             IPrincipalService principalService,
             ISettingsService settingsService,
+            ISharePointGroupService spGroupService,
             IOmniaMemoryDependencyCache omniaMemoryDependencyCache)
         {
             DynamicScopedContextProvider = dynamicScopedContextProvider;
@@ -59,6 +63,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             RoleService = roleService;
             PrincipalService = principalService;
             SettingsService = settingsService;
+            SPGroupService = spGroupService;
             CacheHelper = omniaMemoryDependencyCache.AddKeyHelper(this);
         }
 
@@ -138,7 +143,13 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return result.Value;
         }
 
-        public async ValueTask<List<Microsoft.SharePoint.Client.User>> EnsureProcessLimitedReadAccessSharePointUsersAsync(PortableClientContext ctx, Guid opmProcessId)
+        public async ValueTask EnsureRemoveLimitedReadAccessSharePointGroupAsync(PortableClientContext ctx, Guid opmProcessId)
+        {
+            var opmLimitedGroupName = OPMConstants.TemporaryGroupPrefixes.LimitedReadAccessGroup + opmProcessId.ToString().ToLower();
+            await SPGroupService.EnsureRemoveGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmLimitedGroupName);
+        }
+
+        public async ValueTask<Microsoft.SharePoint.Client.Group> EnsureLimitedReadAccessSharePointGroupAsync(PortableClientContext ctx, Guid opmProcessId)
         {
             var queryInput = new PermissionBindingsByResourcesQueryInput();
             queryInput.Resources.Add(SecurityResourceIdResourceHelper.GenerateResource(opmProcessId));
@@ -166,7 +177,12 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             }
 
             var users = await PrincipalService.EnsureSharePointUsersAsync(ctx, identities);
-            return users;
+            var opmLimitedGroupName = OPMConstants.TemporaryGroupPrefixes.LimitedReadAccessGroup + opmProcessId.ToString().ToLower();
+
+            await SPGroupService.EnsureRemoveGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmLimitedGroupName);
+            var group = await SPGroupService.EnsureGroupOnWebAsync(ctx, ctx.Site.RootWeb, opmLimitedGroupName, new List<RoleDefinition>(), users: users);
+
+            return group;
         }
 
         public async ValueTask<Guid> AddOrUpdateOPMReaderPermissionAsync(Guid teamAppId, Guid opmProcessId, List<UserIdentity> limitedUserItentities = null)

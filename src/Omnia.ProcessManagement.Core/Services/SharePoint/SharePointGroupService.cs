@@ -38,7 +38,9 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                 });
                 if (owner != null) existingGroup.Owner = owner;
                 existingGroup.Update();
+                ctx.Load(existingGroup);
                 await ctx.ExecuteQueryAsync();
+
             }
 
             if (users != null && users.Any())
