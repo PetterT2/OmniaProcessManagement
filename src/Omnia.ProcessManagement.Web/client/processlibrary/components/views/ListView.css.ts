@@ -25,13 +25,6 @@ StyleFlow.define(ProcessLibraryListViewStyles,
             $nest: {
                 '.v-slide-group__wrapper': {
                     paddingLeft: '20px',
-                    background: '#f4f4f4',
-                },
-                '.v-datatable > thead >tr': {
-                    borderTop: '1px solid rgba(0,0,0,.12)'
-                },
-                '.v-datatable > tbody >tr:last-child': {
-                    borderBottom: '1px solid rgba(0,0,0,.12)'
                 }
             }
         },

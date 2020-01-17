@@ -132,11 +132,11 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
             <div class={this.listViewClasses.wrapper}>
                 {
                     this.hasPermission &&
-                    <v-btn text class={[this.listViewClasses.permissionBtn, 'mb-0']} onClick={() => { this.openPermissionDialog = true; }}>{this.omniaUxLoc.Common.Permission}</v-btn>
+                    <v-btn text dark={this.omniaTheming.promoted.header.dark} class={[this.listViewClasses.permissionBtn, 'mb-0']} onClick={() => { this.openPermissionDialog = true; }}>{this.omniaUxLoc.Common.Permission}</v-btn>
                 }
                 <v-tabs ripple class={this.listViewClasses.mainTab} v-model={this.selectingTab}
-                    background-color={this.omniaTheming.promoted.header.primary.base}
-                    color={this.omniaTheming.promoted.header.text.base}
+                    dark={this.omniaTheming.promoted.header.dark}
+                    background-color={this.omniaTheming.promoted.header.background.base}
                     slider-color={this.omniaTheming.promoted.header.text.base}
                     onChange={this.changeTab}>
                     <v-tab href={`#${ProcessLibraryListViewTabs.Draft}`}>
