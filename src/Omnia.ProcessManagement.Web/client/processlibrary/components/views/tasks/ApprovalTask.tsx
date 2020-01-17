@@ -10,11 +10,11 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, TaskService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
+import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome, RouteOptions } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
-import { OPMUtils } from '../../../../fx';
+import { OPMUtils, OPMRouter, ProcessStore } from '../../../../fx';
 
 interface ApprovalTaskProps {
     closeCallback: () => void;
@@ -35,6 +35,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(UserService) private omniaUserService: UserService;
     @Inject(OPMContext) private opmContext: OPMContext;
+    @Inject(ProcessStore) private processStore: ProcessStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -142,9 +143,15 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
     private previewProcess(e: MouseEvent) {
         e.preventDefault();
-        let url = OPMUtils.createProcessNavigationUrl(this.task.rootProcessId, this.previewPageUrl, true);
-        var win = window.open(url, '_blank');
-        win.focus();
+        if (this.previewPageUrl) {
+            var viewUrl = OPMUtils.createProcessNavigationUrl(this.task.rootProcessId, this.previewPageUrl, true, false);
+            var win = window.open(viewUrl, '_blank');
+            win.focus();
+        } else {
+            this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId).then(process => {
+                OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.previewInGlobalRenderer);
+            })
+        }
     }
 
     renderBody(h) {

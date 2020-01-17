@@ -2,7 +2,8 @@
 
 export const GlobalProcessRendererStyles = {} as
     {
-        containerInOmnia: types.NestedCSSProperties;
-        containerInSpfx: types.NestedCSSProperties;
-        containerInSpfxIFrame: types.NestedCSSProperties;
+        containerInOmnia: () => types.NestedCSSProperties;
+        containerInSpfx: () => types.NestedCSSProperties;
+        containerInSpfxIFrame: () => types.NestedCSSProperties;
+        background: types.NestedCSSProperties;
     }

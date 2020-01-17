@@ -76,7 +76,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
 
     private previewProcess() {
         if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
-            var win = window.open(OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, true), '_blank');
+            var win = window.open(OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, true, false), '_blank');
             win.focus();
         }
         else {

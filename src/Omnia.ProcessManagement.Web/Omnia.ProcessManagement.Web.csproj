@@ -422,8 +422,6 @@
     <TypeScriptCompile Remove="client\processlibrary\services\PublishProcessService.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\TaskService.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\UnpublishProcessService.ts" />
-    <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.manifest.ts" />
-    <TypeScriptCompile Remove="client\processrenderer\block\BlockProcessRenderer.tsx" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.tsx" />

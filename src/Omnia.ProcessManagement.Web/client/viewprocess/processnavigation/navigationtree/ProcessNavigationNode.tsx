@@ -45,11 +45,6 @@ ProcessNavigationNodeComponentProps>
 
     mounted() {
         this.ensureData();
-        if (this.messageBusSubscriptionHandlerObj) {
-            this.messageBusSubscriptionHandlerObj.handler = this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
-                this.ensureData();
-            });
-        }
     }
 
     ensureData() {

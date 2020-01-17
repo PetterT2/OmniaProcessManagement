@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
-import { Inject, Utils } from '@omnia/fx';
+import { Inject, Utils, OmniaContext } from '@omnia/fx';
 import 'vue-tsx-support/enable-check';
 import { Guid } from '@omnia/fx-models';
 import { DisplayBreakPointFactory } from '../factory/BreakPointFactory';
@@ -21,6 +21,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
 {
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(OmniaContext) omniaContext: OmniaContext;
 
     private iFrameId = Guid.newGuid().toString();
     private model = {
@@ -42,7 +43,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     private createIframeUrl() {
         let currentProcess = this.currentProcessStore.getters.referenceData();
         let previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
-        return OPMUtils.createProcessNavigationUrl(currentProcess.current.processStep.id, previewPageUrl, true);
+        return OPMUtils.createProcessNavigationUrl(currentProcess.current.processStep.id, previewPageUrl, true, false);
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {

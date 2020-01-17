@@ -101,16 +101,17 @@ export module OPMUtils {
         return arr.length > 1 ? arr[arr.length - 1] : loginName;
     }
 
-    export function createProcessNavigationUrl(processId: GuidValue, previewPageUrl: string, isPreview: boolean) {
+    export function createProcessNavigationUrl(processId: GuidValue, previewPageUrl: string, preview: boolean, omniaApp: boolean) {
         let url = "";
-        let preview = isPreview ? "/preview" : "";
-        let hash = isPreview ? "#" : "";
-        if (Utils.isNullOrEmpty(previewPageUrl)) {
-            url = location.protocol + '//' + location.host + location.pathname + `${hash}/@pm/${processId}${preview}/g`;
+
+        let previewSegment = preview ? "/preview" : "";
+        let hash = omniaApp ? '' : '#';
+
+        if (previewPageUrl) {
+            url = previewPageUrl + `/@pm/${processId}${previewSegment}`;
         }
         else {
-            //TODO : should we handle if the previewPageUrl is in SharePoint then it need to have a #
-            url = previewPageUrl + `/@pm/${processId}${preview}`;
+            url = location.protocol + '//' + location.host + location.pathname + `${hash}/@pm/${processId}${previewSegment}/g`;
         }
 
         return url;
