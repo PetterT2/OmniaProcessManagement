@@ -140,7 +140,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             await ProcessSecurityService.EnsureReadPermissionOnProcessLibraryAsync(appCtx, temporaryApprovalGroup);
 
-            taskList.RoleAssignments.Add(temporaryApprovalGroup, new RoleDefinitionBindingCollection(appCtx) { appCtx.Web.RoleDefinitions.GetByType(RoleType.Reader) });
             await SharePointPermissionService.BreakListItemPermissionAsync(appCtx, taskListItem, false, false, taskItemRoleAssignments);
 
             await SendForApprovalEmailAsync(workflow, workflowApprovalData, approverSPUser, authorSPUser, processTitle, taskTitle, taskListItem.Id, webUrl, process.RootProcessStep.Id);
