@@ -6,4 +6,5 @@ export const ProcessLibraryStyles = {} as
         dialogFooter: types.NestedCSSProperties;
         centerDialogBody: types.NestedCSSProperties;
         error: types.NestedCSSProperties;
+        spTitleStyleWrapper: types.NestedCSSProperties;
     }

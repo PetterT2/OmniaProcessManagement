@@ -19,7 +19,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     @Prop() styles: typeof ProcessLibraryStyles | any;
 
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
-  
+
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
     // -------------------------------------------------------------------------
@@ -94,17 +94,6 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
         this.$forceUpdate();
     }
 
-    isComponentEmtpy() {
-        let title = '';
-        if (this.blockData && this.blockData.settings) {
-            if (this.blockData.settings.title) {
-                title = this.multilingualStore.getters.stringValue(this.blockData.settings.title);
-                title = title.trim();
-            }
-        }
-        return !title;
-    }
-
     // -------------------------------------------------------------------------
     // Render
     // -------------------------------------------------------------------------
@@ -120,18 +109,26 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     }
 
     render(h) {
-        let isEmpty = this.isComponentEmtpy();
+        let multilingualTitle = this.blockData ?
+            this.multilingualStore.getters.stringValue(this.blockData.settings.title) : '';
         return (
             <div>
                 {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        isEmpty ?
-                            <wcm-empty-block-view dark={false} icon={"fal fa-file-alt"} text={this.corLoc.Blocks.ProcessLibrary.Title}></wcm-empty-block-view>
-                            :
-                            <div>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderProcessLibrary(h)}</div>
-                            </div>
+                    !this.blockData ?
+                        <v-skeleton-loader
+                            loading={true}
+                            height="100%"
+                            type="table">
+                        </v-skeleton-loader> :
+                        <div>
+                            {
+                                multilingualTitle &&
+                                <div class={this.processLibraryClasses.spTitleStyleWrapper}>
+                                    <div>{multilingualTitle}</div>
+                                </div>
+                            }
+                            <div key={this.componentUniqueKey}>{this.renderProcessLibrary(h)}</div>
+                        </div>
                 }
             </div>
         );

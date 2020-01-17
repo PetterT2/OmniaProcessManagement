@@ -26,6 +26,11 @@ StyleFlow.define(ProcessLibraryStyles,
         },
         error: {
             color: 'red'
+        },
+        spTitleStyleWrapper: {
+            padding: '23px 32px 20px 32px',
+            fontSize: '28px',
+            fontWeight: 100
         }
     }
 )
