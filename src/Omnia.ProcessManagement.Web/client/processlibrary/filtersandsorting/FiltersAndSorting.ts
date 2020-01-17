@@ -46,6 +46,10 @@ export class FiltersAndSorting {
                     return label;
                 case PropertyIndexedType.Taxonomy:
                     let taxonomyValue = '';
+                    //For process type, the value is single
+                    if (typeof value === 'string') {
+                        value = [value]
+                    }
                     this.termStore.getters.getTermByIds((field.settings as TaxonomyPropertySettings).termSetId, value, this.lcid)
                         .forEach((term, index) => {
                             let separate = index == 0 ? '' : ', ';
@@ -90,7 +94,7 @@ export class FiltersAndSorting {
     public applyFiltersAndSort(processes: Array<DisplayProcess>, request: FilterAndSortInfo, pageSize: number): FilterAndSortResponse {
         let result: FilterAndSortResponse = {
             total: processes.length,
-            processes: [...processes] 
+            processes: [...processes]
         };
         if (request.filters) {
             Object.getOwnPropertyNames(request.filters).forEach(key => {
