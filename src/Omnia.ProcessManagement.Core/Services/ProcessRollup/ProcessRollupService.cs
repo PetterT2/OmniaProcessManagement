@@ -28,8 +28,23 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 
         public async ValueTask<RollupProcessResult> QueryProcessRollup(RollupSetting setting)
         {
+            List<RollupFilter> titleFilters = new List<RollupFilter>();
+            List<RollupFilter> titleQueries = new List<RollupFilter>();
+
+            if(setting.CustomFilters != null && setting.CustomFilters.Count > 0)
+            {
+                titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
+                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList(); ;
+            }
+
+            if(setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
+            {
+                titleQueries = setting.Resources[0].Filters.Where(f => f.Property == "Title").ToList();
+                setting.Resources[0].Filters = setting.Resources[0].Filters.Where(f => f.Property != "Title").ToList(); ;
+            }
+
             var helper = new RollupHelper(setting);
-            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id);
+            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id, titleFilters, titleQueries);
 
             processQuery
             .Where(subItem => helper.ResolveResourcesFilters(subItem))

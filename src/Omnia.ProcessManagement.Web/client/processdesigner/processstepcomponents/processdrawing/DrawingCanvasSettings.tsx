@@ -104,7 +104,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                     <div>{this.pdLoc.Size}</div>
                 </v-col>
                 <v-col cols="6">
-                    <v-text-field v-model={this.editingCanvasDefinition.width} label={this.pdLoc.Width} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
+                    <v-text-field v-model={this.editingCanvasDefinition.width} label={this.pdLoc.Width} type="number" max="2000" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
                 </v-col>
                 <v-col cols="6">
                     <v-text-field v-model={this.editingCanvasDefinition.height} label={this.pdLoc.Height} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>

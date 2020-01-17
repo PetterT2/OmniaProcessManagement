@@ -31,7 +31,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
 
 
-        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery);
+        ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> filterQueries);
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);

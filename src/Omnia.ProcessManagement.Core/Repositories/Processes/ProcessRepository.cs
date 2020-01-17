@@ -14,6 +14,7 @@ using Omnia.Fx.Models.Queries;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core.Extensions;
 using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
@@ -68,7 +69,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
             process.OPMProcessId = Guid.NewGuid();
-            process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
+            process.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(actionModel.Process.RootProcessStep.EnterpriseProperties));
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
@@ -231,7 +232,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 rootProcessStep.Comment = comment;
                 draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
-                draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
+                draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
 
                 draftProcess.SecurityResourceId = securityResourceId;
 
@@ -294,7 +295,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             RemoveOldProcessData(actionModel.Process.Id, existingProcessDataDict, usingProcessDataIdHashSet);
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
-            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
+            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(actionModel.Process.RootProcessStep.EnterpriseProperties));
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
 
@@ -414,15 +415,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery)
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> filterQueries)
         {
             var result = new ItemQueryResult<Process>();
-            var filterBeginStr = " WHERE ";
             result.Total = 0;
             if (itemQuery.IncludeTotal)
             {
                 var (queryWithoutSortingAndPaging, queryTotalParameters) = itemQuery.GetQueryWithoutSortingAndPaging(OPMConstants.Database.Tables.Processes, excludeDeleted: false, alias: "P"); ;
-                queryWithoutSortingAndPaging = queryWithoutSortingAndPaging.Insert(queryWithoutSortingAndPaging.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+                queryWithoutSortingAndPaging = AttachAditionalFilterQueries(queryWithoutSortingAndPaging, securityTrimmingQuery, filterQueries);
                 if (!string.IsNullOrWhiteSpace(queryWithoutSortingAndPaging))
                 {
                     result.Total = await DbContext.AlternativeProcessEFView
@@ -431,7 +431,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
             }
             var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted:false, alias: "P");
-            query = query.Insert(query.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+            query = AttachAditionalFilterQueries(query, securityTrimmingQuery, filterQueries);
             if (!string.IsNullOrWhiteSpace((string)query))
             {
                 var temp = await DbContext.AlternativeProcessEFView.FromSqlRaw(query, parameters.ToArray()).ToListAsync();
@@ -440,6 +440,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 temp.ForEach(p => result.Items.Add(MapEfToModel(p)));
             }
             return result;
+        }
+
+        private string AttachAditionalFilterQueries(string originalQuery, string securityTrimmingQuery, List<string> filterQueries)
+        {
+            string filterBeginStr = " WHERE ";
+
+            originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+
+            return originalQuery;
         }
 
         private async ValueTask<T> InitConcurrencyLockForActionAsync<T>(Guid opmProcessId, Func<ValueTask<T>> action)
@@ -599,7 +608,18 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         }
 
-
+        private Dictionary<string, JToken> ModifyTitleProp(Dictionary<string, JToken> enterpriseProperties)
+        {
+            var titleProp = enterpriseProperties[Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName];
+            var titlePropDic = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(titleProp.ToString());
+            var languageKeysList = titlePropDic.Keys.ToList();
+            foreach (var key in languageKeysList)
+            {
+                titlePropDic.RenameKey(key, key.Replace("-", ""));
+            }
+            enterpriseProperties[Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName] = JsonConvert.SerializeObject(titlePropDic);
+            return enterpriseProperties;
+        }
 
         private void RemoveProcessData(Guid id, Guid processId)
         {
