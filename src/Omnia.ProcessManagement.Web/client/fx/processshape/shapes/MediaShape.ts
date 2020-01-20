@@ -34,7 +34,7 @@ export class MediaShape extends ShapeExtension implements Shape {
                             this.definition.width = newWidth;
                             this.definition.height = newHeight;
                             let position = this.correctPosition(this.left, this.top);
-                            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
+                            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
                             this.fabricShapes[1].fabricObject.top = textPosition.top;
                             this.fabricShapes[1].fabricObject.left = textPosition.left;
                             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
@@ -50,6 +50,10 @@ export class MediaShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.left = left;
         this.top = top;
+
+        let position = this.correctPosition(left, top);
+        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+
         if (this.nodes) {
             let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.image);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
@@ -57,15 +61,15 @@ export class MediaShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({ selectable: selectable }, imageNode.properties || {})));
             }
             if (textNode) {
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: selectable }, textNode.properties) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }
         else if (this.definition) {
-            let position = this.correctPosition(left, top);
-            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
+            
             this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), { left: position.left, top: position.top, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
+        this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
 }

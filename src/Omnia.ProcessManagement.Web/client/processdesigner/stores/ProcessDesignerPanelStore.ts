@@ -5,7 +5,6 @@ import { DisplayBreakPoint } from '@omnia/wcm/models';
 
 export interface IPanelState {
     show: boolean;
-    visible: boolean;
 }
 
 @Injectable({
@@ -16,16 +15,13 @@ export class ProcessDesignerPanelStore extends Store {
      * State
      */
     drawingCanvasSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
-        show: false,
-        visible: false
+        show: false
     });
     addShapePanel: StoreState<IPanelState> = this.state<IPanelState>({
-        show: false,
-        visible: false
+        show: false
     });
     editShapeSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
-        show: false,
-        visible: false
+        show: false
     });
 
     constructor() {
@@ -59,20 +55,17 @@ export class ProcessDesignerPanelStore extends Store {
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
             this.drawingCanvasSettingsPanel.mutate({
-                show: show,
-                visible: show
+                show: show
             });
         }),
         toggleAddShapePanel: this.mutation((show: boolean) => {
             this.addShapePanel.mutate({
-                show: show,
-                visible: show
+                show: show
             });
         }),
         toggleEditShapeSettingsPanel: this.mutation((show: boolean) => {
             this.editShapeSettingsPanel.mutate({
-                show: show,
-                visible: show
+                show: show
             });
         })
     }

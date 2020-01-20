@@ -149,10 +149,16 @@
             Width: string,
             Height: string,
             TextPosition: string,
+            TextAlignment: string,
+            TextVerticalAdjustment: string,
+            TextHorizontalAdjustment: string,
             FontSize: string,
             Above: string,
             On: string,
-            Below: string
+            Below: string,
+            Left: string,
+            Center: string,
+            Right: string
         },
         Buttons: {
             DiscardChanges: string,

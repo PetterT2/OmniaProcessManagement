@@ -154,10 +154,16 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Width: "Width",
             Height: "Height",
             TextPosition: "Text Position",
+            TextAlignment: "Text Alignment",
+            TextVerticalAdjustment: "Text Vertical Adjustment",
+            TextHorizontalAdjustment:"Text Horizontal Adjustment",
             FontSize: "Font Size",
             Above: "Above",
             On: "On",
-            Below: "Below"
+            Below: "Below",
+            Left: "Left",
+            Center: "Center",
+            Right: "Right"
         },
         Buttons: {
             DiscardChanges: "Discard changes",

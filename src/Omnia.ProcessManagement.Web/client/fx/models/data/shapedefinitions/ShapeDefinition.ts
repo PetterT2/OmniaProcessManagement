@@ -2,6 +2,7 @@
 import { OmniaTheming } from '@omnia/fx/ux';
 import { DrawingShapeDefinition } from './DrawingShapeDefinition';
 import { ShapeTemplatesConstants } from '../../../constants';
+import { TextPosition, TextAlignment } from '../enums';
 
 export enum ShapeDefinitionTypes {
     Heading = 1,
@@ -37,7 +38,10 @@ export const ShapeDefinitionFactory = {
             (shapeDefinition as DrawingShapeDefinition).textColor = theming.promoted.header.text.base;
             (shapeDefinition as DrawingShapeDefinition).width = 100;
             (shapeDefinition as DrawingShapeDefinition).height = 100;
-            (shapeDefinition as DrawingShapeDefinition).textPosition = 2;
+            (shapeDefinition as DrawingShapeDefinition).textPosition = TextPosition.On;
+            (shapeDefinition as DrawingShapeDefinition).textAlignment = TextAlignment.Center;
+            (shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment = 0;
+            (shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment = 0;
         }
 
         return shapeDefinition;
