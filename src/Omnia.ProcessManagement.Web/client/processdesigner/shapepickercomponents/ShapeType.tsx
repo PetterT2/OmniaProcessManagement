@@ -106,7 +106,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
-        this.shapeTitle = this.drawingOptions.title ? this.drawingOptions.title : this.internalShapeDefinition.title;
+        this.shapeTitle = this.drawingOptions.title;
     }
 
     beforeDestroy() {
