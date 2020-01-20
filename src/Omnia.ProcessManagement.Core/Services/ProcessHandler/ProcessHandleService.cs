@@ -1,13 +1,18 @@
 ﻿using Omnia.Fx.EnterpriseProperties;
+using Omnia.Fx.Models.BusinessProfiles.PropertyBag;
+using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Queries;
+using Omnia.Fx.Tenant;
+using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +23,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
         IProcessService ProcessService { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
+        IUserService UserService { get; }
+        private ITenantService TenantService { get; }
 
         private IList<string> DefaultAppProperties
         {
@@ -29,20 +36,24 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 
         private ProcessVersionType VersionType;
         private List<RollupFilter> TitleFilters;
-        private List<RollupFilter> TitleQueries;
 
-        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService, IProcessService processService, IProcessSecurityService processSecurityService)
+        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService, 
+            IProcessService processService, 
+            IProcessSecurityService processSecurityService,
+            IUserService userService,
+            ITenantService tenantService)
         {
             EnterprisePropertyService = enterprisePropertyService;
             ProcessService = processService;
             ProcessSecurityService = processSecurityService;
+            UserService = userService;
+            TenantService = tenantService;
         }
 
-        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters, List<RollupFilter> titleQueries)
+        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters)
         {
             Enum.TryParse(versionTypeStr, out VersionType);
             TitleFilters = titleFilters;
-            TitleQueries = titleQueries;
             var (enterpriseProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();
             var queryFilterResolver = new QueryFilterResolver(enterpriseProperties, DefaultAppProperties);
             return new QueryBuilder<Process>(QueryProcesses, queryFilterResolver);
@@ -52,8 +63,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
         {
             string securityTrimmingQuery = await ProcessSecurityService.GetRollupSecurityTrimmingQuery(VersionType);
             List<string> titleFilters = await GetTitleFilterQuery();
-            List<string> titleQueries = await GetTitleQueryQuery();
-            titleFilters.AddRange(titleQueries);
             return await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery, titleFilters);
         }
 
@@ -62,19 +71,41 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
             List<string> queries = new List<string>();
             if(TitleFilters != null && TitleFilters.Count > 0)
             {
+                Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
+                string currentUserPreferredLanguage = currentUser.PreferredLanguage.ToString().ToLower().Replace("-", "");
+                string tenantDefaultLanguage = await GetTenantDefaultLanguage();
 
+                var titleColumnName = "P.[Proptitle]";
+                foreach (var filter in TitleFilters)
+                {
+                    string searchText = filter.ValueObj.AdditionalProperties["searchValue"].ToString();
+                    string query = @$"(ISJSON({titleColumnName}) > 0 AND (JSON_VALUE({titleColumnName}, '$.{currentUserPreferredLanguage}') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.{tenantDefaultLanguage}') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.{tenantDefaultLanguage}') LIKE '%:""{searchText}""%'))";
+                    queries.Add(query);
+                }
             }
             return queries;
         }
 
-        private async ValueTask<List<string>> GetTitleQueryQuery()
+        private async ValueTask<string> GetTenantDefaultLanguage()
         {
-            List<string> queries = new List<string>();
-            if (TitleQueries != null && TitleQueries.Count > 0)
-            {
+            string tenantDefaultLanguage = "";
 
+            var properties = await TenantService.GetPropertyBag().GetAllValuesAsync();
+            var tenantLanguageSettings = properties.GetModel<TenantPropertyLanguage>();
+
+            if (tenantLanguageSettings != null)
+            {
+                if (tenantLanguageSettings.Languages != null)
+                {
+                    var defaultLanguage = tenantLanguageSettings.Languages.FirstOrDefault(l => l.Default);
+                    if(defaultLanguage != null)
+                    {
+                        tenantDefaultLanguage = defaultLanguage.Name.ToString().ToLower().Replace("-", "");
+                    }
+                }
             }
-            return queries;
+
+            return tenantDefaultLanguage;
         }
     }
 }
