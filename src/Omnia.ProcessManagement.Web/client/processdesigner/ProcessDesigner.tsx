@@ -6,12 +6,13 @@ import 'vue-tsx-support/enable-check';
 import { JourneyInstance, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessDesignerStyles } from './ProcessDesigner.css';
 import { ContentNavigationComponent } from './navigations/ContentNavigation';
-import { CurrentProcessStore } from '../fx';
+import { CurrentProcessStore, OPMUtils } from '../fx';
 import { TabsPanelComponent } from './tabspanel';
 import { ProcessDesignerStore } from './stores';
 import { ActionToolbarComponent } from './actionstoolbar/ActionToolbar';
 import { DisplayModes } from '../models/processdesigner';
 import DevicePreviewerComponent from './devicepreviewer/DevicePreviewer';
+import { ProcessDesignerItemFactory } from './designeritems';
 
 
 export interface ContentNavigationProps {
@@ -39,6 +40,13 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
 
     created() {
         this.processDesignerStore.actions.clearRecentShapeDefinitionSelection.dispatch();
+
+        this.currentProcessStore.actions.deleteProcessStep.onDispatched(() => {
+            let currentReferenceData = this.currentProcessStore.getters.referenceData();
+            this.processDesignerStore.actions.setProcessToShow.dispatch(currentReferenceData.process, currentReferenceData.current.parentProcessStep).then(() => {
+                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+            })
+        })
     }
 
     mounted() {

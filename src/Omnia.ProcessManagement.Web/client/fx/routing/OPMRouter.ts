@@ -187,8 +187,3 @@ if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) 
     OPMRouter.navigateWithCurrentRoute(preview);
 }
 
-currentProcessStore.actions.deleteProcessStep.onDispatched(() => {
-    let currentReferenceData = currentProcessStore.getters.referenceData();
-    let processRefrerence = OPMUtils.generateProcessReference(currentReferenceData.process, currentReferenceData.current.parentProcessStep.id);
-    currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence);
-})

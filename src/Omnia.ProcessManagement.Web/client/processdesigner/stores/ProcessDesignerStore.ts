@@ -6,7 +6,7 @@ import { ProcessDesignerSettingsStore } from './ProcessDesignerSettingsStore';
 import { ProcessDesignerTabStore } from './ProcessDesignerTabStore';
 import { CurrentProcessStore, OPMUtils } from '../../fx';
 import { IProcessDesignerItem, ActionItem, DisplayModes, DrawingShapeOptions } from '../../models/processdesigner';
-import { IProcessDesignerItemFactory } from '../../processdesigner/designeritems';
+import { IProcessDesignerItemFactory, ProcessDesignerItemFactory } from '../../processdesigner/designeritems';
 import { ProcessDesignerPanelStore } from './ProcessDesignerPanelStore';
 import { DrawingShape, ShapeDefinition, Process, ProcessStep, CanvasDefinition } from '../../fx/models';
 
@@ -252,7 +252,7 @@ export class ProcessDesignerStore extends Store {
         setProcessToShow: this.action((process: Process, processStep: ProcessStep): Promise<null> => {
             let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
             if (processRefrerence) {
-                return this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence)
+                return this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence);
             }
 
             throw `Process step with id ${processStep.id} not found in process with id ${process.id}`;
