@@ -123,9 +123,12 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
                 this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
             }}>{this.pdLoc.AddShape}</v-btn></div>);
-            result.push(<div v-show={this.processDesignerStore.getters.selectingShape() != null} class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
-                this.deleteShape();
-            }}>{this.pdLoc.DeleteShape}</v-btn></div>);
+
+            if (this.processDesignerStore.getters.shapeToEditSettings()) {
+                result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
+                    this.deleteShape();
+                }}>{this.pdLoc.DeleteShape}</v-btn></div>);
+            }
         }
         result.push(<v-spacer></v-spacer>);
         if (hasDataChanged === true) {

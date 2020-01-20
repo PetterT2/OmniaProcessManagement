@@ -10,11 +10,11 @@ import { IFabricShape } from '../fabricshape';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     private onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
-    private onDrawingChanged: () => void;
+    private onDrawingChanged: (refreshSettingsPanel?: boolean) => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
 
-    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: () => void) {
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: (refreshSettingsPanel?: boolean) => void) {
         super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover);
         this.onClickEditShapeSettings = onClickEditShapeSettings;
         this.onDrawingChanged = onDrawingChanged;
@@ -157,7 +157,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
         this.canvasObject.on('object:scaled', (options) => {
             if (this.onDrawingChanged) {
-                this.onDrawingChanged();
+                this.onDrawingChanged(true);
             }
         });
 

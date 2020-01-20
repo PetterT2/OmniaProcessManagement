@@ -37,25 +37,9 @@ export class PentagonShape extends ShapeExtension implements Shape {
         return basicShapeJSON;
     }
 
-    private initExistingNodes(title: MultilingualString, recDefinition: DrawingShapeDefinition, selectable: boolean) {
-        var fabricGroupObjects: fabric.Object[] = [];
-        let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
-        let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
-        if (polygonNode) {
-            let rectShape = new FabricPolygonShape(recDefinition, Object.assign({ selectable: selectable }, polygonNode.properties || {}));
-            this.fabricShapes.push(rectShape);
-            fabricGroupObjects.push(rectShape.fabricObject);
-        }
-        if (textNode) {
-            let textShape = new FabricTextShape(this.definition, Object.assign({ selectable: selectable }, textNode.properties || {}), title);
-            this.fabricShapes.push(textShape);
-        }
-        this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
-    }
-
     protected onScaling(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
-        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), false);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top
@@ -64,19 +48,30 @@ export class PentagonShape extends ShapeExtension implements Shape {
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+        let position = this.correctPosition(left, top);
+        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+
         if (this.nodes) {
-            this.initExistingNodes(title, this.definition, selectable);
+            var fabricGroupObjects: fabric.Object[] = [];
+            let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
+            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
+            if (polygonNode) {
+                let rectShape = new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygonNode.properties || {}));
+                this.fabricShapes.push(rectShape);
+                fabricGroupObjects.push(rectShape.fabricObject);
+            }
+            if (textNode) {
+                let textShape = new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
+                this.fabricShapes.push(textShape);
+            }
+
         }
         else if (this.definition) {
-            let position = this.correctPosition(left, top);
-            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, false);
-
             let points = this.calculatePoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'left', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
-
-            this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
+        this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
     private calculatePoints(): Array<{ x: number; y: number }> {
@@ -104,7 +99,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         super.addEventListener(canvas, gridX, gridY);
         this.shapeObject[0].on({
             "scaled": (e) => {
-                this.updatePoints(e.target);                
+                this.updatePoints(e.target);
             }
         })
     }

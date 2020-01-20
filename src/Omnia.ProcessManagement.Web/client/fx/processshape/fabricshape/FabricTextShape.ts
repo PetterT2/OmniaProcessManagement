@@ -5,7 +5,7 @@ import { fabric } from 'fabric';
 import { FabricShapeTypes } from './IFabricShape';
 import { FabricShape } from './FabricShape';
 import { MultilingualString, MultilingualScopes } from '@omnia/fx-models';
-import { DrawingShapeDefinition } from '../../models';
+import { DrawingShapeDefinition, TextAlignment } from '../../models';
 
 export class FabricTextShape extends FabricShapeExtension implements FabricShape {
     private multilingualStore: MultilingualStore;
@@ -36,6 +36,17 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             }
         }
         this.fabricObject = new fabric.Text(text, this.properties);
+
+        if (definition.textAlignment == TextAlignment.Left) {
+            this.fabricObject.set({
+                left: this.properties['left'] + Math.floor(this.fabricObject.width / 2)
+            })
+        }
+        else if (definition.textAlignment == TextAlignment.Right) {
+            this.fabricObject.set({
+                left: this.properties['left'] - Math.floor(this.fabricObject.width / 2)
+            })
+        }
     }
 
     get shapeNodeType() {

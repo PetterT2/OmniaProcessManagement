@@ -1,6 +1,6 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { DrawingShapeDefinition, TextPosition } from '../../models';
+import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
 import { IShape } from './IShape';
 import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
@@ -89,7 +89,7 @@ export class ShapeExtension implements Shape {
 
     protected onScaling(object: fabric.Object) {
         let position = this.correctPosition(object.left, object.top);
-        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), true);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top
@@ -103,20 +103,36 @@ export class ShapeExtension implements Shape {
         return { left: left, top: top };
     }
 
-    getTextPosition(position: { left: number, top: number }, width: number, height: number, isCenter?: boolean) {
-        let tleft = isCenter ? position.left + Math.floor(width / 2) : position.left + TextSpacingWithShape, ttop = position.top;
+    getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment: number, yAdjustMent: number) {
+        let tleft = position.left;
+        let ttop = position.top;
+        xAdjustment = xAdjustment || 0;
+        yAdjustMent = yAdjustMent || 0;
+
+        switch (this.definition.textAlignment) {
+            case TextAlignment.Right:
+                tleft = position.left + width;
+                break;
+            case TextAlignment.Left:
+                tleft = position.left;
+                break;
+            default:
+                tleft = position.left + Math.floor(width / 2);
+                break;
+        }
+
         switch (this.definition.textPosition) {
-            case TextPosition.On:
-                ttop += Math.floor(height / 2 - this.definition.fontSize / 2 - 2);
+            case TextPosition.Above:
+                ttop -= this.definition.fontSize + TextSpacingWithShape;
                 break;
             case TextPosition.Bottom:
                 ttop += height + TextSpacingWithShape;
                 break;
             default:
-                ttop -= this.definition.fontSize + TextSpacingWithShape;
+                ttop += Math.floor(height / 2 - this.definition.fontSize / 2 - 2);
                 break;
         }
-        return { left: tleft, top: ttop };
+        return { left: tleft + xAdjustment, top: ttop + yAdjustMent };
     }
 
     setSelectedShape(isSelected: boolean) {
@@ -210,7 +226,7 @@ export class ShapeExtension implements Shape {
                     this.shapeObject[1].setCoords();
                 this.shapeObject[0].setCoords();
             },
-           "mouseover": (e) => {
+            "mouseover": (e) => {
                 if (this.allowSetHover) {
                     this.setHover(this.shapeObject, true);
                     canvas.renderAll();

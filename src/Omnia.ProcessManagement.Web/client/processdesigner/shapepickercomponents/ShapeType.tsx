@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Link, Enums, DrawingShape, DrawingImageShapeDefinition } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -65,6 +65,21 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.opmCoreloc.DrawingShapeSettings.Below
         }
     ];
+    private textAlignment = [
+        {
+            value: TextAlignment.Left,
+            title: this.opmCoreloc.DrawingShapeSettings.Left
+        },
+        {
+            value: TextAlignment.Center,
+            title: this.opmCoreloc.DrawingShapeSettings.Center
+        },
+        {
+            value: TextAlignment.Right,
+            title: this.opmCoreloc.DrawingShapeSettings.Right
+        }
+    ];
+
     private shapeTypes = [
         {
             value: DrawingShapeTypes.Undefined,
@@ -292,6 +307,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     updateDrawedShape() {
+        if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
+            this.freeShape = null;
+
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
                 this.freeShape = this.drawingCanvas.drawingShapes[0].shape;
@@ -300,11 +318,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 .then((readyDrawingShape: DrawingShape) => {
                     if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
                         this.updateAfterRenderImage(readyDrawingShape);
+                    else {
+                        this.onDrawingShapeOptionChanged();
+                    }
                 });
         }
-        if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
-            this.freeShape = null;
-        this.onDrawingShapeOptionChanged();
+        else {
+            this.onDrawingShapeOptionChanged();
+        }
     }
 
     private addFreefromShape(shape: IShape) {
@@ -421,16 +442,28 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private renderShapeSettings(h) {
         let isMediaShape = this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id;
-        return <v-container class={this.shapeTypeStepStyles.drawingSettingsWrapper}>
+        return <v-container fluid class="px-0">
             <v-row dense>
-                <v-col cols="6">
+                <v-col cols="4">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textPosition}></v-select>
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="4">
+                    <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
+                        onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textAlignment}></v-select>
+                </v-col>
+                <v-col cols="4">
                     <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
                         onChange={this.updateDrawedShape} type="number" suffix="px"
                         rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                    <v-text-field v-model={this.internalShapeDefinition.textHorizontalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextHorizontalAdjustment}
+                        onChange={(val) => { this.internalShapeDefinition.textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                    <v-text-field v-model={this.internalShapeDefinition.textVerticalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextVerticalAdjustment}
+                        onChange={(val) => { this.internalShapeDefinition.textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
                 </v-col>
             </v-row>
             <v-row dense>

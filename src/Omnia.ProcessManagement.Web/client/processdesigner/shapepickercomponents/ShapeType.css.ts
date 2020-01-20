@@ -7,7 +7,7 @@ StyleFlow.define(ShapeTypeStyles, {
         maxHeight: '300px',
         overflow: 'auto'
     },
-    drawingSettingsWrapper: {
-
+    textMarginLabel: {
+        fontSize: '12px'
     }
 });

@@ -4,6 +4,12 @@
     Bottom = 3
 }
 
+export enum TextAlignment {
+    Left = 'left',
+    Center = 'center',
+    Right = 'right'
+}
+
 export enum ProcessVersionType {
     Draft = 0,
     CheckedOut = 1,

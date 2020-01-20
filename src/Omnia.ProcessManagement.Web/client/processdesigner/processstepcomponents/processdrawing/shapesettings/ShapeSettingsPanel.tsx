@@ -41,24 +41,14 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private selectedTab = StaticTabNames.shape;
     private lockedSubmitShapeSettings = true;
     private previousProcessStepId: GuidValue = null;
-    private pendingUnsubmitted: boolean = false;
-    private autoUpdatingTimewatch = 'DrawingShapeSettingsAutoUpdating';
-    private timewatchId = null;
 
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
     created() {
-        this.init();
-    }
-
-    init() {
         this.initSelectedShape();
 
-        this.subscriptionHandler = this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(this.onSelectedShapeChanged);
-    }
-
-    onSelectedShapeChanged(selectedShape: DrawingShape) {
-        //ToDo: handle checking pending changes that has not been saved
-        this.initSelectedShape();
+        this.subscriptionHandler = this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(() => {
+            console.log('abc');
+        });
     }
 
     initSelectedShape() {
@@ -95,10 +85,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             this.subscriptionHandler.unsubscribe();
     }
 
-    private onClose() {
-        if (this.timewatchId) {
-            Utils.clearTimewatch(this.timewatchId);
-        }
+    onClose() {
         this.validateAndSubmitChanges(true);
     }
 
@@ -131,7 +118,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
         let shape = this.drawingShapeOptions.shape;
         this.drawingShapeOptions = drawingOptions;
-        if (Utils.isNullOrEmpty(drawingOptions.shape) && this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
+        if (Utils.isNullOrEmpty(drawingOptions.shape) && drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
             this.drawingShapeOptions.shape = shape;
 
         if (this.lockedSubmitShapeSettings) {
@@ -142,19 +129,13 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (this.previousProcessStepId != this.drawingShapeOptions.processStepId) {
             this.previousProcessStepId = this.drawingShapeOptions.processStepId;
             this.initShortcut().then(() => {
-                this.timeWatchToSaveChanges();
+                this.validateAndSubmitChanges(false);
             });
         }
         else {
-            this.timeWatchToSaveChanges();
+            this.validateAndSubmitChanges(false);
         }
 
-    }
-
-    timeWatchToSaveChanges() {
-        this.timewatchId = Utils.timewatch(this.autoUpdatingTimewatch, () => {
-            this.validateAndSubmitChanges(false);
-        }, 1500);
     }
 
     validateAndSubmitChanges(isClosed: boolean) {

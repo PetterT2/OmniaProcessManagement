@@ -31,18 +31,21 @@ export class DiamondShape extends ShapeExtension implements Shape {
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+        let position = this.correctPosition(left, top);
+        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         if (this.nodes) {
             let polygontNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
-            if (polygontNode)
+            if (polygontNode) {
                 this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygontNode.properties || {})));
-            if (textNode)
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', selectable: selectable }, textNode.properties) || {}, title));
+            }
+
+            if (textNode) {
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
+            }
         }
         else if (this.definition) {
             let points = this.calculatePoints();
-            let position = this.correctPosition(left, top);
-            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, true);
             this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
@@ -52,9 +55,9 @@ export class DiamondShape extends ShapeExtension implements Shape {
     private calculatePoints() {
         let points: Array<{ x: number; y: number }> = [
             { x: this.definition.width / 2, y: 0 },
-            { x: this.definition.width, y: this.definition.width / 2 },
-            { x: this.definition.width / 2, y: this.definition.width },
-            { x: 0, y: this.definition.width / 2 }];
+            { x: this.definition.width, y: this.definition.height / 2 },
+            { x: this.definition.width / 2, y: this.definition.height },
+            { x: 0, y: this.definition.height / 2 }];
         return points;
     }
 }
