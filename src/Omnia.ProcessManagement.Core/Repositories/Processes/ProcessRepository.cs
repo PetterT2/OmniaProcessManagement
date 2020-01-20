@@ -415,14 +415,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> filterQueries)
+        public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> titleFilters)
         {
             var result = new ItemQueryResult<Process>();
             result.Total = 0;
             if (itemQuery.IncludeTotal)
             {
                 var (queryWithoutSortingAndPaging, queryTotalParameters) = itemQuery.GetQueryWithoutSortingAndPaging(OPMConstants.Database.Tables.Processes, excludeDeleted: false, alias: "P"); ;
-                queryWithoutSortingAndPaging = AttachAditionalFilterQueries(queryWithoutSortingAndPaging, securityTrimmingQuery, filterQueries);
+                queryWithoutSortingAndPaging = AttachAditionalFilterQueries(queryWithoutSortingAndPaging, securityTrimmingQuery, titleFilters);
                 if (!string.IsNullOrWhiteSpace(queryWithoutSortingAndPaging))
                 {
                     result.Total = await DbContext.AlternativeProcessEFView
@@ -431,7 +431,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
             }
             var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted:false, alias: "P");
-            query = AttachAditionalFilterQueries(query, securityTrimmingQuery, filterQueries);
+            query = AttachAditionalFilterQueries(query, securityTrimmingQuery, titleFilters);
             if (!string.IsNullOrWhiteSpace((string)query))
             {
                 var temp = await DbContext.AlternativeProcessEFView.FromSqlRaw(query, parameters.ToArray()).ToListAsync();
@@ -442,11 +442,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return result;
         }
 
-        private string AttachAditionalFilterQueries(string originalQuery, string securityTrimmingQuery, List<string> filterQueries)
+        private string AttachAditionalFilterQueries(string originalQuery, string securityTrimmingQuery, List<string> titleFilters)
         {
             string filterBeginStr = " WHERE ";
 
             originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+
+            foreach(var filter in titleFilters)
+            {
+                originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, filter + " AND ");
+            }
 
             return originalQuery;
         }

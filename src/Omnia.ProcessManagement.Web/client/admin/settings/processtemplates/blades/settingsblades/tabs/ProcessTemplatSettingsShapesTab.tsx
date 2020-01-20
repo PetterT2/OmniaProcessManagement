@@ -73,12 +73,12 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
 
                                     return (
                                         <v-list-item>
-                                            <v-list-item-action>
-                                                <v-btn icon class="mr-0" onClick={() => { }}>
-                                                    <v-icon class="drag-handle" size='14'>fal fa-grip-lines</v-icon>
-                                                </v-btn>
-                                            </v-list-item-action>
-                                            <v-list-item-content>{shape.multilingualTitle}</v-list-item-content>
+                                            <v-list-item-content>
+                                                <v-list-item-title style={{
+                                                    fontWeight: shape.type == ShapeDefinitionTypes.Heading ? 'bold' : 'unset',
+                                                    paddingLeft: shape.type == ShapeDefinitionTypes.Drawing ? '15px' : ''
+                                                }}>{shape.multilingualTitle}</v-list-item-title>
+                                            </v-list-item-content>
                                             <v-list-item-action>
                                                 <v-btn icon class="mr-0" onClick={() => { this.travelToEditShape(shape, index); }}>
                                                     <v-icon size='18'>fal fa-pencil-alt</v-icon>
@@ -91,6 +91,11 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
                                                     type={ConfirmDialogDisplay.Icon}
                                                     onClose={(res) => { res == ConfirmDialogResponse.Ok && this.removeShape(index) }}>
                                                 </omfx-confirm-dialog>
+                                            </v-list-item-action>
+                                            <v-list-item-action>
+                                                <v-btn icon class="mr-0" onClick={() => { }}>
+                                                    <v-icon class="drag-handle" size='18'>fal fa-grip-lines</v-icon>
+                                                </v-btn>
                                             </v-list-item-action>
                                         </v-list-item>
                                     )
