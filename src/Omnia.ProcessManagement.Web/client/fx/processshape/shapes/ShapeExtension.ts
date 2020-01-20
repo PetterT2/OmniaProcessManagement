@@ -5,7 +5,8 @@ import { IShape } from './IShape';
 import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape } from '../../constants';
-import { Utils } from '@omnia/fx';
+import { Utils, ServiceContainer } from '@omnia/fx';
+import { CurrentProcessStore } from '../../stores';
 
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
@@ -19,7 +20,7 @@ export class ShapeExtension implements Shape {
     private allowSetHover: boolean = false;
     private isHovering: boolean = false;
     private isSelected: boolean = false;
-
+    private currentProcessStore: CurrentProcessStore = null;
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number) {
         this.left = left;
@@ -32,6 +33,7 @@ export class ShapeExtension implements Shape {
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
+        this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
         this.initNodes(title, selectable, left, top);
     }
 
@@ -88,8 +90,101 @@ export class ShapeExtension implements Shape {
     }
 
     protected onScaling(object: fabric.Object) {
-        let position = this.correctPosition(object.left, object.top);
-        let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
+        //Don't have time to revisit this solution to improve it. its good to do that at some point.
+
+        let gridX = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition.gridX;
+        let gridY = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition.gridY;
+
+        var target = object,
+            w = target.width * target.scaleX,
+            h = target.height * target.scaleY,
+            snap = { // Closest snapping points
+                top: Math.round(target.top / gridY) * gridY,
+                left: Math.round(target.left / gridX) * gridX,
+                bottom: Math.round((target.top + h) / gridY) * gridY,
+                right: Math.round((target.left + w) / gridX) * gridX
+            },
+            dist = { // Distance from snapping points
+                top: Math.abs(snap.top - target.top),
+                left: Math.abs(snap.left - target.left),
+                bottom: Math.abs(snap.bottom - target.top - h),
+                right: Math.abs(snap.right - target.left - w)
+            },
+            attrs = {
+                scaleX: target.scaleX,
+                scaleY: target.scaleY,
+                top: target.top,
+                left: target.left
+            };
+        switch (target['__corner']) {
+            case 'tl':
+                if (dist.left < dist.top && dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.top = target.top + (h - target.height * attrs.scaleY);
+                    attrs.left = snap.left;
+                } else if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.left = attrs.left + (w - target.width * attrs.scaleX);
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'mt':
+                if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'tr':
+                if (dist.right < dist.top && dist.right < gridX) {
+                    attrs.scaleX = (snap.right - target.left) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.top = target.top + (h - target.height * attrs.scaleY);
+                } else if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'ml':
+                if (dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.left = snap.left;
+                }
+                break;
+            case 'mr':
+                if (dist.right < gridX) attrs.scaleX = (snap.right - target.left) / target.width;
+                break;
+            case 'bl':
+                if (dist.left < dist.bottom && dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.left = snap.left;
+                } else if (dist.bottom < gridY) {
+                    attrs.scaleY = (snap.bottom - target.top) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.left = attrs.left + (w - target.width * attrs.scaleX);
+                }
+                break;
+            case 'mb':
+                if (dist.bottom < gridY) attrs.scaleY = (snap.bottom - target.top) / target.height;
+                break;
+            case 'br':
+                if (dist.right < dist.bottom && dist.right < gridX) {
+                    attrs.scaleX = (snap.right - target.left) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                } else if (dist.bottom < gridY) {
+                    attrs.scaleY = (snap.bottom - target.top) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                }
+                break;
+        }
+        target.set(attrs);
+
+        let position = this.correctPosition(attrs.left, attrs.top);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top
