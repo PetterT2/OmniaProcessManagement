@@ -36,7 +36,12 @@ export class ProcessDesignerStore extends Store {
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     selectedShape = this.state<DrawingShape>(null);
-
+    readonly canvasSize = {
+        maxHeight: 5000,
+        maxWidth: 5000,
+        defaultHeight: 500,
+        defaultWidth: 700
+    }
     private previewPageUrl = this.state<string>("");
     private hasDataChanged = this.state<boolean>(null);
     private contentChangedTimewatchId: string = "processstep_contentchanged_" + Utils.generateGuid();
@@ -257,8 +262,8 @@ export class ProcessDesignerStore extends Store {
     private initDefaultCanvasDefinition() {
         return {
             drawingShapes: [],
-            width: 700,
-            height: 500,
+            width: this.canvasSize.defaultWidth,
+            height: this.canvasSize.defaultHeight,
             gridX: 20,
             gridY: 20,
             backgroundImageUrl: ''

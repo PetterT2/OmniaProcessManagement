@@ -74,6 +74,17 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
         this.$forceUpdate();
     }
 
+    private getSafeValue(val, defaultVal: number, maxVal: number) {
+        let result = defaultVal;
+        if (val) {
+            val = parseInt(val);
+            if (val) {
+                result = val > maxVal ? maxVal : val;
+            }
+        }
+        return result;
+    }
+
     renderSettings(h) {
         return <v-container>
             <v-row>
@@ -104,10 +115,20 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                     <div>{this.pdLoc.Size}</div>
                 </v-col>
                 <v-col cols="6">
-                    <v-text-field v-model={this.editingCanvasDefinition.width} label={this.pdLoc.Width} type="number" max="2000" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
+                    <v-text-field v-model={this.editingCanvasDefinition.width} label={this.pdLoc.Width} type="number"
+                        max={this.processDesignerStore.canvasSize.maxWidth} suffix="px"
+                        onChange={(val) => {
+                            this.editingCanvasDefinition.width = this.getSafeValue(val, this.processDesignerStore.canvasSize.defaultWidth, this.processDesignerStore.canvasSize.maxWidth);
+                            this.onSettingsChanged();
+                        }}></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-text-field v-model={this.editingCanvasDefinition.height} label={this.pdLoc.Height} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
+                    <v-text-field v-model={this.editingCanvasDefinition.height} label={this.pdLoc.Height} type="number"
+                        max={this.processDesignerStore.canvasSize.maxHeight} suffix="px"
+                        onChange={(val) => {
+                            this.editingCanvasDefinition.height = this.getSafeValue(val, this.processDesignerStore.canvasSize.defaultHeight, this.processDesignerStore.canvasSize.maxHeight);
+                            this.onSettingsChanged();
+                        }}></v-text-field>
                 </v-col>
                 <v-col cols="6">
                     <v-text-field v-model={this.editingCanvasDefinition.gridX} label={this.pdLoc.GridX} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
