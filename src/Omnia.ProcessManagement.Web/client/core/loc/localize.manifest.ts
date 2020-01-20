@@ -158,9 +158,9 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             TextVerticalAdjustment: "Text Vertical Adjustment",
             TextHorizontalAdjustment:"Text Horizontal Adjustment",
             FontSize: "Font Size",
-            Above: "Above",
-            On: "On",
-            Below: "Below",
+            Above: "Above Shape",
+            On: "On Shape",
+            Below: "Below Shape",
             Left: "Left",
             Center: "Center",
             Right: "Right"
