@@ -51,7 +51,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             processStepId: Guid.empty,
             shapeDefinition: this.selectedShapeDefinition,
             shapeType: DrawingShapeTypes.ProcessStep,
-            title: this.selectedShapeDefinition.title
+            title: null
         };
     }
 

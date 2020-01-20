@@ -199,7 +199,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             customLinkId: this.selectedCustomLinkId,
             shapeDefinition: selectedShapeDefinition,
             shapeType: this.selectedShape.type,
-            title: null
+            title: this.selectedShape.title
         };
         this.isShowChangeShape = false;
     }
