@@ -119,6 +119,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onClickEditShape(selectedShape: DrawingShape) {
+        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(false);
         this.processDesignerStore.mutations.setSelectedShapeToEdit.commit(selectedShape);
         this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(true);
     }
@@ -217,6 +218,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private showCanvasSettings() {
+        this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
     }
 
@@ -225,17 +227,21 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         * @param h
         */
     render(h) {
-        return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
-            <v-card-text>
-                <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
-                    <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
-                        <canvas id={this.canvasId}></canvas>
-                    </div>
-                    {this.renderCanvasToolbar(h)}
-                </div>
+        return (
+            <div>
+                <v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
+                    <v-card-text>
+                        <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
+                            <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
+                                <canvas id={this.canvasId}></canvas>
+                            </div>
+                            {this.renderCanvasToolbar(h)}
+                        </div>
+                    </v-card-text>
+                </v-card>
                 {this.renderPanels(h)}
-            </v-card-text>
-        </v-card>)
+            </div>
+        )
     }
 }
 
