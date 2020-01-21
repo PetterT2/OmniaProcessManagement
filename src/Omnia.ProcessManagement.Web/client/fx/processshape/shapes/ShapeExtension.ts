@@ -21,8 +21,10 @@ export class ShapeExtension implements Shape {
     private isHovering: boolean = false;
     private isSelected: boolean = false;
     private currentProcessStore: CurrentProcessStore = null;
+    private darkHighlight?: boolean;
+
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
-        left?: number, top?: number) {
+        left?: number, top?: number, darkHighlight?: boolean) {
         this.left = left;
         this.top = top;
         definition.width = definition.width ? parseFloat(definition.width.toString()) : 0;
@@ -34,6 +36,8 @@ export class ShapeExtension implements Shape {
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
         this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
+        this.darkHighlight = darkHighlight;
+
         this.initNodes(title, selectable, left, top);
     }
 
@@ -89,7 +93,7 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected onScaling(object: fabric.Object) {
+    protected getScalingSnapToGridAttrs(object: fabric.Object) {
         //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
         //Don't have time to revisit this solution to improve it. its good to do that at some point.
 
@@ -181,6 +185,13 @@ export class ShapeExtension implements Shape {
                 }
                 break;
         }
+
+        return attrs;
+    }
+
+    protected onScaling(object: fabric.Object) {
+        let target = object
+        let attrs = this.getScalingSnapToGridAttrs(object);
         target.set(attrs);
 
         let position = this.correctPosition(attrs.left, attrs.top);
@@ -189,6 +200,15 @@ export class ShapeExtension implements Shape {
             left: textPosition.left,
             top: textPosition.top
         });
+    }
+
+    protected getStrokeProperties() {
+        let properties = {};
+        if (this.darkHighlight != null) {
+            properties['stroke'] = this.darkHighlight ? 'black' : 'white';
+            properties['strokeDashArray'] = [5, 5];
+        }
+        return properties;
     }
 
     protected correctPosition(left: number, top: number): { left: number, top: number } {
@@ -238,15 +258,24 @@ export class ShapeExtension implements Shape {
     private setHover(objects: fabric.Object[], isActive: boolean) {
         this.isHovering = isActive;
         objects.forEach((object) => {
-            if (object.type == 'text')
+            if (object.type == 'text') {
                 object.set({
                     fill: isActive || this.isSelected ? this.definition.activeTextColor : this.definition.textColor
                 });
-            else
-                object.set({
+            }
+            else {
+                let stroke: string = isActive || this.isSelected ? this.definition.activeBorderColor : this.definition.borderColor;
+
+                let strokeProperties = {};
+                if (!isActive || !stroke) {
+                    strokeProperties = this.getStrokeProperties();
+                }
+
+                object.set(Object.assign({
                     fill: isActive || this.isSelected ? this.definition.activeBackgroundColor : this.definition.backgroundColor,
-                    stroke: isActive || this.isSelected ? this.definition.activeBorderColor : this.definition.borderColor
-                });
+                    stroke: stroke
+                }, strokeProperties));
+            }
         });
     }
 

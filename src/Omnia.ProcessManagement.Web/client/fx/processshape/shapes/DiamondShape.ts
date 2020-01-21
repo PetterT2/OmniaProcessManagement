@@ -9,8 +9,8 @@ import { IShape } from '.';
 
 export class DiamondShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
-        left?: number, top?: number) {
-        super(definition, nodes, title, selectable, left, top);
+        left?: number, top?: number, darkHighlight?: boolean) {
+        super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 
     get name() {
@@ -33,11 +33,13 @@ export class DiamondShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let position = this.correctPosition(left, top);
         let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let strokeProperties = this.getStrokeProperties();
+
         if (this.nodes) {
             let polygontNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (polygontNode) {
-                this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygontNode.properties || {})));
+                this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygontNode.properties || {}, strokeProperties)));
             }
 
             if (textNode) {
@@ -46,7 +48,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
         }
         else if (this.definition) {
             let points = this.calculatePoints();
-            this.fabricShapes.push(new FabricPolygonShape(this.definition, { points: points, left: position.left, top: position.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ points: points, left: position.left, top: position.top, selectable: selectable }, strokeProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

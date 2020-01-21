@@ -61,15 +61,32 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     initSubscription() {
         this.subscriptionHandler = this.processDesignerStore.mutations.updateCanvasSettings.onCommited((canvasDefinition) => {
             this.onCanvasDefinitionChanged();
+        });
+
+        this.subscriptionHandler.add(this.processDesignerStore.showGridlines.onMutated(() => {
+            this.onCanvasDefinitionChanged(false);
         })
+        );
+
+        this.subscriptionHandler.add(this.processDesignerStore.highlightShapes.onMutated(() => {
+            this.onCanvasDefinitionChanged(false);
+        })
+        );
+
+        this.subscriptionHandler.add(this.processDesignerStore.highlightShapesWithDarkColor.onMutated(() => {
+            this.onCanvasDefinitionChanged(false);
+        })
+        );
 
         this.subscriptionHandler.add(this.processDesignerStore.mutations.addShapeToDrawing.onCommited(this.onAddNewShape));
         this.subscriptionHandler.add(this.processDesignerStore.mutations.updateDrawingShape.onCommited(this.onEditedShape));
         this.subscriptionHandler.add(this.processDesignerStore.mutations.deleteSelectingDrawingShape.onCommited(this.onDeletedShape));
     }
 
-    private onCanvasDefinitionChanged() {
-        this.saveState(false);
+    private onCanvasDefinitionChanged(saveState: boolean = true) {
+        if (saveState) {
+            this.saveState(false);
+        }
         if (this.drawingCanvasEditor) {
             this.drawingCanvasEditor.destroy();
         }
@@ -78,7 +95,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private initDrawingCanvas() {
         setTimeout(() => {
-            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false, this.onClickEditShape, this.onShapeChange);
+            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false,
+                this.onClickEditShape, this.onShapeChange, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
             this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
         }, 300);
         //note: need to render the canvas div element before init this DrawingCanvasEditor

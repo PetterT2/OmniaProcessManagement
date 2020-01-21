@@ -7,6 +7,7 @@ import { ProcessDesignerLocalization } from '../../loc/localize';
 import { DrawingCanvasFreeForm, CurrentProcessStore, OPMUtils, ProcessStore, IShape, Shape } from '../../../fx';
 import { Guid } from '@omnia/fx-models';
 import { setTimeout } from 'timers';
+import { ProcessDesignerStore } from '../../stores';
 
 interface FreeformPickerComponentProps {
     shapeDefinition: DrawingShapeDefinition;
@@ -24,6 +25,8 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+
     @Localize(ProcessDesignerLocalization.namespace) loc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
@@ -50,24 +53,20 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
             this.drawingCanvas.destroy();
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvasFreeForm(this.canvasId.toString(), {},
-                this.canvasDefinition, true);
+                this.canvasDefinition, true, null, null, this.processDesignerStore.showGridlines.state);
             (this.drawingCanvas as DrawingCanvasFreeForm).setSelectingShapeCallback((selectedShape) => {
                 this.isFinished = selectedShape != null;
                 if (this.isFinished)
                     this.drawingCanvas.stop();
             });
             (this.drawingCanvas as DrawingCanvasFreeForm).start(this.shapeDefinition, "");
-        },0)
+        }, 0)
     }
 
     private addNewFreeformPicker() {
         this.dialogModel.visible = false;
         if (this.drawingCanvas.drawingShapes.length > 0) {
             let shape = (this.drawingCanvas.drawingShapes[0].shape as Shape).getShapeJson();
-            if (!this.canvasDefinition.backgroundImageUrl) {
-                shape.left = 0;
-                shape.top = 0;
-            }
             this.save(shape);
         }
     }

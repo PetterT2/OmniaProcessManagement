@@ -8,6 +8,10 @@
         Height: string;
         GridX: string;
         GridY: string;
+        ShowGridlinnes: string,
+        HighlightShapes: string,
+        Dark: string,
+        Light: string,
         AddImage: string;
         AllShapes: string;
         RecentShapes: string;

@@ -271,7 +271,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     height: this.drawingOptions.shape ? canvasSize.height : 100,
                     gridX: 20,
                     gridY: 20
-                }, true);
+                }, true, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
 
         } else {
             let canvasSize = this.getCanvasSize();
