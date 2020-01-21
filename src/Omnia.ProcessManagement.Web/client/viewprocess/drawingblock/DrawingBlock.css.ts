@@ -25,7 +25,12 @@ StyleFlow.define(DrawingBlockStyles,
         },
         canvasOverflowWrapper: {
             overflow: 'auto',
-            width: '100%'
+            width: '100%',
+            $nest: {
+                '.upper-canvas': {
+                    cursor: "default !important"
+                }
+            }
         }
     }
 )
