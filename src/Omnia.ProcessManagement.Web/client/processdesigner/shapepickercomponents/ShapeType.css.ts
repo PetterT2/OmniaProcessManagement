@@ -5,12 +5,7 @@ StyleFlow.define(ShapeTypeStyles, {
     canvasPreviewWrapper: {
         maxWidth: '100%',
         maxHeight: '300px',
-        overflow: 'auto',
-        $nest: {
-            '.upper-canvas': {
-                cursor: "default !important"
-            }
-        }
+        overflow: 'auto'
     },
     textMarginLabel: {
         fontSize: '12px'

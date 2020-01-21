@@ -38,12 +38,7 @@ StyleFlow.define(ProcessStepDrawingStyles, {
     },
     canvasOverflowWrapper: {
         overflow: 'auto',
-        width: '100%',
-        $nest: {
-            '.upper-canvas': {
-                cursor: "default !important"
-            }
-        }
+        width: '100%'
     },
     canvasToolbar: (theme: OmniaTheming) => {
         return {
