@@ -361,9 +361,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 </v-col>
                 <v-col cols="6">
                     {this.renderShapePreview(h)}
-                    <div class="mt-2">
-                        {this.renderChangeShapeSection(h)}
-                    </div>
                 </v-col>
             </v-row>
         </v-container>;
@@ -562,10 +559,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
         </div>
-    }
-
-    private renderChangeShapeSection(h) {
-        return <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.changeShapeCallback}>{this.pdLoc.ChangeShape}</v-btn>
     }
 
     /**
