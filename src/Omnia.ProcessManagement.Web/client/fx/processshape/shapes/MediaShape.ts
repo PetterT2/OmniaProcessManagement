@@ -13,8 +13,8 @@ export class MediaShape extends ShapeExtension implements Shape {
     top: number;
 
     constructor(definition: DrawingImageShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
-        left?: number, top?: number) {
-        super(definition, nodes, title, selectable, left, top);
+        left?: number, top?: number, darkHighlight?: boolean) {
+        super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 
     get name() {

@@ -12,7 +12,7 @@ export declare abstract class Shape implements IShape {
     top: number;
     readonly shapeObject: fabric.Object[];
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
-        left?: number, top?: number, grouping?: boolean);
+        left?: number, top?: number, darkHighlight?: boolean);
     setAllowHover(allowSetHover: boolean);
     setSelectedShape(isSelected: boolean);
     isHover(): boolean;
@@ -22,19 +22,15 @@ export declare abstract class Shape implements IShape {
     abstract getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment?: number, yAdjustment?: number): { left: number, top: number };
 }
 
-export interface Shape {
-
-}
-
 interface ShapeClasses<T> {
     new(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
-        left?: number, top?: number, grouping?: boolean): T;
+        left?: number, top?: number, darkHighlight?: boolean): T;
 }
 
 class ShapeClassesFactory<T> {
     public createService(ctor: ShapeClasses<T>, definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
-        left?: number, top?: number, grouping?: boolean) {
-        return new ctor(definition, nodes, title, selectable, left, top, grouping);
+        left?: number, top?: number, darkHighlight?: boolean) {
+        return new ctor(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 }
 export const ShapeFactory: ShapeClassesFactory<Shape> = new ShapeClassesFactory<Shape>();

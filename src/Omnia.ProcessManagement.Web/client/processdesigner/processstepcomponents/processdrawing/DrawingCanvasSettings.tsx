@@ -140,6 +140,32 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                 <v-col cols="6">
                     <v-text-field v-model={this.editingCanvasDefinition.gridY} label={this.pdLoc.GridY} type="number" suffix="px" onChange={this.onSettingsChanged}></v-text-field>
                 </v-col>
+
+                <v-col cols="12">
+                    <v-checkbox
+                        input-value={this.processDesignerStore.showGridlines.state}
+                        onChange={(val) => { this.processDesignerStore.showGridlines.mutate(val) }}
+                        label={this.pdLoc.ShowGridlinnes}></v-checkbox>
+                </v-col>
+            </v-row>
+            <v-row>
+
+                <v-col cols="auto">
+                    <v-checkbox
+                        input-value={this.processDesignerStore.highlightShapes.state}
+                        onChange={(val) => { this.processDesignerStore.highlightShapes.mutate(val) }}
+                        label={this.pdLoc.HighlightShapes}></v-checkbox>
+                </v-col>
+                {
+                    this.processDesignerStore.highlightShapes.state &&
+                    <v-col cols="auto">
+                        <v-switch
+                            input-value={this.processDesignerStore.highlightShapesWithDarkColor.state}
+                            label={this.processDesignerStore.highlightShapesWithDarkColor.state ? this.pdLoc.Dark : this.pdLoc.Light}
+                            onChange={(val) => { this.processDesignerStore.highlightShapesWithDarkColor.mutate(val) }}></v-switch>
+                    </v-col>
+                }
+                <v-spacer />
             </v-row>
         </v-container>;
     }

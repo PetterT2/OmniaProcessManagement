@@ -104,7 +104,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
                     </v-toolbar>
                 </div>
                 <div class={DevicePreviewerStyles.deviceWrapper(this.model.currentDisplayBreakPoint, this.model.iFrame.height)}>
-                    <iframe id={this.iFrameId} src={this.createIframeUrl()} scrolling="no" height={this.model.iFrame.height} sandbox="allow-same-origin allow-scripts" class={DevicePreviewerStyles.iFrame}></iframe>
+                    <iframe id={this.iFrameId} src={this.createIframeUrl()} scrolling="no" height={this.model.iFrame.height} sandbox="allow-same-origin allow-scripts allow-popups" class={DevicePreviewerStyles.iFrame}></iframe>
                 </div>
             </v-layout>
         </v-content>

@@ -8,8 +8,8 @@ import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 
 export class FreeformShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
-        left?: number, top?: number) {
-        super(definition, nodes, title, selectable, left, top);
+        left?: number, top?: number, darkHightlight?: boolean) {
+        super(definition, nodes, title, selectable, left, top, darkHightlight);
     }
 
     get name() {
@@ -18,6 +18,8 @@ export class FreeformShape extends ShapeExtension implements Shape {
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
+        let strokeProperties = this.getStrokeProperties();
+
         if (this.nodes) {
             let hasPosition = (left != null && left != undefined) && (top != null && top != undefined);
             if (hasPosition) {
@@ -30,7 +32,7 @@ export class FreeformShape extends ShapeExtension implements Shape {
                     pathNode.properties['left'] = left;
                     pathNode.properties['top'] = top;
                 }
-                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({ selectable: selectable }, pathNode.properties || {}), true));
+                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({ selectable: selectable }, pathNode.properties || {}, strokeProperties), true));
                 let position = this.correctPosition(this.fabricShapes[0].fabricObject.left, this.fabricShapes[0].fabricObject.top);
                 let textPosition = this.getTextPosition(position, this.fabricShapes[0].fabricObject.width, this.fabricShapes[0].fabricObject.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
                 

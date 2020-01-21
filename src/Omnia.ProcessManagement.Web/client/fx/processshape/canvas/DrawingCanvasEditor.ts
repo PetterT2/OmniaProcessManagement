@@ -14,8 +14,11 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     private editObject: fabric.Object;
     private isMoving: boolean = false;
 
-    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, onClickEditShapeSettings?: (drawingShape: DrawingShape) => void, onDrawingChanged?: (refreshSettingsPanel?: boolean) => void) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover);
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
+        onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
+        onDrawingChanged?: (refreshSettingsPanel?: boolean) => void,
+        showGridlines?: boolean, darkHightlight?: boolean) {
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover, showGridlines, darkHightlight);
         this.onClickEditShapeSettings = onClickEditShapeSettings;
         this.onDrawingChanged = onDrawingChanged;
     }

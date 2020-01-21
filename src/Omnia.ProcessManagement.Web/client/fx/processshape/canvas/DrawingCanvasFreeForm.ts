@@ -22,8 +22,11 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private borderColor;
     private shapeTitle: string;
 
-    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, callback?: (drawingShape: DrawingShape) => void) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover, callback);
+    constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
+        onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
+        onDrawingChanged?: (refreshSettingsPanel?: boolean) => void,
+        showGridlines?: boolean) {
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover, onClickEditShapeSettings, onDrawingChanged, showGridlines);
     }
 
     private init() {

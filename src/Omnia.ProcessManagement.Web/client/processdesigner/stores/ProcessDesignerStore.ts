@@ -36,6 +36,10 @@ export class ProcessDesignerStore extends Store {
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     selectedShape = this.state<DrawingShape>(null);
+    showGridlines = this.state<boolean>(true);
+    highlightShapes = this.state<boolean>(false);
+    highlightShapesWithDarkColor = this.state<boolean>(true);
+
     readonly canvasSize = {
         maxHeight: 5000,
         maxWidth: 5000,
@@ -72,6 +76,12 @@ export class ProcessDesignerStore extends Store {
         },
         previewPageUrl: (): string => {
             return this.previewPageUrl.state;
+        },
+        darkHightlight: (): boolean => {
+            let darkHightlight = this.highlightShapes.state ?
+                this.highlightShapesWithDarkColor.state : null
+
+            return darkHightlight;
         }
     }
 
