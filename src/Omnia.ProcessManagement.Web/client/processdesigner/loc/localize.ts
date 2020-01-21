@@ -13,6 +13,7 @@
         Dark: string,
         Light: string,
         AddImage: string;
+        EditImage: string;
         AllShapes: string;
         RecentShapes: string;
         AddShape: string;

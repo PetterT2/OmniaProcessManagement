@@ -57,16 +57,21 @@ export class ProcessDesignerPanelStore extends Store {
             this.drawingCanvasSettingsPanel.mutate({
                 show: show
             });
+
+            this.editShapeSettingsPanel.mutate({ show: false });
         }),
         toggleAddShapePanel: this.mutation((show: boolean) => {
             this.addShapePanel.mutate({
                 show: show
             });
+            this.editShapeSettingsPanel.mutate({ show: false });
+            this.drawingCanvasSettingsPanel.mutate({ show: false });
         }),
         toggleEditShapeSettingsPanel: this.mutation((show: boolean) => {
             this.editShapeSettingsPanel.mutate({
                 show: show
             });
+            this.drawingCanvasSettingsPanel.mutate({ show: false });
         })
     }
 }

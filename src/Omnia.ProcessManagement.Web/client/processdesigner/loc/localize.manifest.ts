@@ -17,6 +17,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         Dark: "Dark",
         Light: "Light",
         AddImage: "Add Image",
+        EditImage: "Edit Image",
         AllShapes: "All Shapes",
         RecentShapes: "Recent Shapes",
         SelectShape: "Select Shape",

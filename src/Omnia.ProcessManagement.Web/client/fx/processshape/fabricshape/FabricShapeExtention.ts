@@ -28,6 +28,7 @@ export class FabricShapeExtension implements FabricShape {
             this.properties["width"] = definition.width;
             this.properties["height"] = definition.height;
             this.properties["fill"] = definition.backgroundColor;
+            this.properties["stroke"] = definition.borderColor;
         }
     }
 

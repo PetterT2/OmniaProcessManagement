@@ -39,16 +39,11 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private drawingShapeOptions: DrawingShapeOptions = null;
     private isShowChangeShape: boolean = false;
     private selectedTab = StaticTabNames.shape;
-    private lockedSubmitShapeSettings = true;
     private previousProcessStepId: GuidValue = null;
 
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
     created() {
         this.initSelectedShape();
-
-        this.subscriptionHandler = this.processDesignerStore.mutations.setSelectedShapeToEdit.onCommited(() => {
-            console.log('abc');
-        });
     }
 
     initSelectedShape() {
@@ -56,7 +51,6 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (this.selectedShape == null || this.selectedShape == undefined)
             return;
         this.isShowChangeShape = false;
-        this.lockedSubmitShapeSettings = true;
 
         this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
         this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
@@ -67,8 +61,9 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title,
-            shape: this.selectedShape.shape.definition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ? this.selectedShape.shape : null
+            shape: this.selectedShape.shape
         };
+
         this.previousProcessStepId = this.selectedProcessStepId;
 
         this.initShortcut();
@@ -116,15 +111,10 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     }
 
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
-        let shape = this.drawingShapeOptions.shape;
         this.drawingShapeOptions = drawingOptions;
-        if (Utils.isNullOrEmpty(drawingOptions.shape) && drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
-            this.drawingShapeOptions.shape = shape;
 
-        if (this.lockedSubmitShapeSettings) {
-            this.lockedSubmitShapeSettings = false;
-            return;
-        }
+        //if (Utils.isNullOrEmpty(drawingOptions.shape) && drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
+        //    this.drawingShapeOptions.shape = shape;
 
         if (this.previousProcessStepId != this.drawingShapeOptions.processStepId) {
             this.previousProcessStepId = this.drawingShapeOptions.processStepId;

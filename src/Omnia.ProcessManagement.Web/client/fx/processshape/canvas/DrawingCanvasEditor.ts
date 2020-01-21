@@ -147,9 +147,11 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     this.canvasObject.setActiveObject(this.editObject);
                 }
             }
+
             if (this.onSelectingShape) {
                 this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
             }
+
             if (this.isMoving) {
                 this.isMoving = false;
                 if (this.onDrawingChanged) {
@@ -164,11 +166,11 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
             }
         });
 
-        this.canvasObject.on('object:selected', (options) => {
-            if (options.target && this.onSelectingShape) {
-                this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
-            }
-        });
+        //this.canvasObject.on('object:selected', (options) => {
+        //    if (options.target && this.onSelectingShape) {
+        //        this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
+        //    }
+        //});
     }
 
 }

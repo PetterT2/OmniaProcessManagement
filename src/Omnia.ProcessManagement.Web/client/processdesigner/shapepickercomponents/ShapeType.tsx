@@ -50,7 +50,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
     private shapeTitle: MultilingualString = null;
-    private freeShape: IShape = null;
+    private shape: IShape = null;
     private textPositions = [
         {
             value: TextPosition.Above,
@@ -143,7 +143,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
             title: this.shapeTitle,
-            shape: this.freeShape
+            shape: this.shape
         };
         if (this.changeDrawingOptionsCallback) {
             this.changeDrawingOptionsCallback(drawingOptions);
@@ -215,26 +215,42 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     renderShapePreview(h) {
-        return <div>
-            {
-                this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id ?
-                    <v-btn text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.redrawFreeShape}>{this.pdLoc.Redraw}</v-btn>
-                    : null
-            }
-            <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}>
+        let isFreeform = this.drawingOptions.shapeDefinition.shapeTemplate.id === ShapeTemplatesConstants.Freeform.id;
+        let isMedia = this.drawingOptions.shapeDefinition.shapeTemplate.id === ShapeTemplatesConstants.Media.id;
+        let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
+        return [
+
+            <div class={this.shapeTypeStepStyles.previewWrapper}>
                 {
-                    this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id ?
-                        <v-btn icon large onClick={() => { this.isOpenMediaPicker = true; }}>
-                            <v-icon large>image</v-icon>
-                        </v-btn>
-                        : null
+                    renderCanvas &&
+                    <div class={this.shapeTypeStepStyles.webkitScrollbar}>
+                        <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>
+                    </div>
                 }
-                <canvas id={this.previewCanvasId.toString()}></canvas>
                 {
-                    this.isOpenMediaPicker && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={() => { this.isOpenMediaPicker = false; }}></opm-media-picker>
+                    !renderCanvas && isFreeform && <v-icon>fa fa-draw-polygon</v-icon>
                 }
-            </div>
-        </div>;
+                {
+                    !renderCanvas && isMedia && <v-icon>fa fa-photo-video</v-icon>
+                }
+                {
+                    isFreeform &&
+                    <v-btn class="mt-2" text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.redrawFreeShape}>{this.pdLoc.Redraw}</v-btn>
+                }
+                {
+                    isMedia &&
+                    <v-btn
+                        class="mt-2"
+                        text
+                        color={this.omniaTheming.themes.primary.base}
+                        dark={this.omniaTheming.promoted.body.dark}
+                        onClick={() => { this.isOpenMediaPicker = true; }}>
+                        {renderCanvas ? this.pdLoc.EditImage : this.pdLoc.AddImage}
+                    </v-btn>
+                }
+            </div>,
+            this.isOpenMediaPicker && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={() => { this.isOpenMediaPicker = false; }}></opm-media-picker>
+        ];
     }
 
     private getCanvasSize(): { width: number, height: number } {
@@ -247,10 +263,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             canvasHeight += 2;
         }
 
-        if (this.isNewMedia()) {
-            canvasWidth = 10;
-            canvasHeight = 10;
-        }
         return { width: canvasWidth, height: canvasHeight };
     }
 
@@ -258,46 +270,34 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.drawingCanvas)
             this.drawingCanvas.destroy();
 
-        if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id) {
-            if (!Utils.isNullOrEmpty(this.drawingOptions.shape)) {
-                this.internalShapeDefinition.width = this.drawingOptions.shape.nodes[0].properties.width;
-                this.internalShapeDefinition.height = this.drawingOptions.shape.nodes[0].properties.height;
-            }
-            let canvasSize = this.getCanvasSize();
-            this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
-                {
-                    drawingShapes: [],
-                    width: this.drawingOptions.shape ? canvasSize.width : 100,
-                    height: this.drawingOptions.shape ? canvasSize.height : 100,
-                    gridX: 20,
-                    gridY: 20
-                }, true, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
+        let canvasSize = this.getCanvasSize();
 
-        } else {
-            let canvasSize = this.getCanvasSize();
-
-            this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
-                {
-                    drawingShapes: [],
-                    width: canvasSize.width,
-                    height: canvasSize.height
-                }, true);
-        }
+        this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
+            {
+                drawingShapes: [],
+                width: canvasSize.width,
+                height: canvasSize.height
+            }, true, false, this.processDesignerStore.getters.darkHightlight());
     }
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
             this.$nextTick(() => {
                 this.initDrawingCanvas();
-                if (!this.isNewMedia())
-                    this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
+                //if (!this.isNewMedia())
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
             });
         }
     }
 
     private isNewMedia() {
         return this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id &&
-            Utils.isNullOrEmpty((this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl);
+            !(this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
+    }
+
+    private isNewFreeForm() {
+        return this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id &&
+            (!this.drawingOptions.shape || this.drawingOptions.shape.nodes.length == 0) ? true : false;
     }
 
     private getNumber(value: any) {
@@ -307,15 +307,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     updateDrawedShape() {
-        if (this.drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id)
-            this.freeShape = null;
-
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            if (this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id)
-                this.freeShape = this.drawingCanvas.drawingShapes[0].shape;
             let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
                 .then((readyDrawingShape: DrawingShape) => {
+                    this.shape = this.drawingCanvas.drawingShapes[0].shape;
+
                     if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
                         this.updateAfterRenderImage(readyDrawingShape);
                     else {
@@ -331,7 +328,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private addFreefromShape(shape: IShape) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
-            this.freeShape = shape;
+            this.shape = shape;
+            this.internalShapeDefinition.width = this.shape.nodes[0].properties['width'];
+            this.internalShapeDefinition.height = this.shape.nodes[0].properties['height'];
             this.onDrawingShapeOptionChanged();
             this.startToDrawShape();
         }

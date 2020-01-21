@@ -30,35 +30,26 @@ export class PentagonShape extends ShapeExtension implements Shape {
         if (basicShapeJSON.nodes) {
             basicShapeJSON.nodes.forEach((nodeItem) => {
                 if (nodeItem.shapeNodeType != FabricShapeTypes.text && nodeItem.properties.points) {
-                    nodeItem.properties.points = this.calculatePoints();
+                    let points = this.shapeObject[0].get('points' as any);
+                    let scaleX = this.shapeObject[0].scaleX;
+                    let scaleY = this.shapeObject[0].scaleY;
+                    nodeItem.properties.points = this.getCalculatedPoints(points, scaleX, scaleY);
                 }
             });
         }
         return basicShapeJSON;
     }
 
-    //protected onScaling(object: fabric.Object) {
-    //    let position = this.correctPosition(object.left, object.top);
-    //    let textPosition = this.getTextPosition(position, Math.floor(object.width * object.scaleX), Math.floor(object.height * object.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
-    //    this.fabricShapes[1].fabricObject.set({
-    //        left: textPosition.left,
-    //        top: textPosition.top
-    //    });
-    //    this.updatePoints(this.shapeObject[0]);
-    //}
-
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let position = this.correctPosition(left, top);
         let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         let strokeProperties = this.getStrokeProperties();
         if (this.nodes) {
-            var fabricGroupObjects: fabric.Object[] = [];
             let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (polygonNode) {
-                let rectShape = new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygonNode.properties || {}, strokeProperties));
+                let rectShape = new FabricPolygonShape(this.definition, Object.assign({}, polygonNode.properties, { left: position.left, top: position.top, selectable: selectable }, strokeProperties));
                 this.fabricShapes.push(rectShape);
-                fabricGroupObjects.push(rectShape.fabricObject);
             }
             if (textNode) {
                 let textShape = new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
@@ -67,14 +58,14 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
         }
         else if (this.definition) {
-            let points = this.calculatePoints();
+            let points = this.getDefaultPoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ points: points, left: position.left, top: position.top, selectable: selectable }, strokeProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
-    private calculatePoints(): Array<{ x: number; y: number }> {
+    private getDefaultPoints(): Array<{ x: number; y: number }> {
         let triangleWidth = Math.floor(this.definition.height / 2);
         let points: Array<{ x: number; y: number }> = [
             { x: 0, y: 0 },
@@ -85,21 +76,11 @@ export class PentagonShape extends ShapeExtension implements Shape {
         return points;
     }
 
-    private updatePoints(object: fabric.Object) {
-        let scaleWidth = Math.floor(object.width * object.scaleX);
-        let points = object.toJSON()['points'];
-        let triangleWidth = Math.floor(this.definition.height / 2);
-        points[1].x = (scaleWidth - triangleWidth) / object.scaleX;
-        points[3].x = points[1].x;
-        (object as any).points = points;
-        object.dirty = true;
-    }
-
-    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
-        super.addEventListener(canvas, gridX, gridY);
-        this.shapeObject[0].on({
-            "scaled": (e) => {
-                this.updatePoints(e.target);
+    private getCalculatedPoints(points: Array<{ x: number; y: number }>, scaleX: number, scaleY: number): Array<{ x: number; y: number }> {
+        return points.map(p => {
+            return {
+                x: p.x * scaleX,
+                y: p.y * scaleY
             }
         })
     }

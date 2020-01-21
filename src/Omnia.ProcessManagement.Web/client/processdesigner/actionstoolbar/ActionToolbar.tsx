@@ -14,6 +14,7 @@ import { DisplaySettingsToolbarComponent } from './DisplaySettingsToolbar';
 import { Localization } from '@omnia/tooling-composers';
 import { ProcessDesignerLocalization } from '../loc/localize';
 import { ProcessStepDesignerItem } from '../designeritems/ProcessStepDesignerItem';
+import { ProcessDesignerPanelStore } from '../stores/ProcessDesignerPanelStore';
 
 export interface ActionToolbarProps {
 }
@@ -21,6 +22,7 @@ export interface ActionToolbarProps {
 @Component
 export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
 {
+    @Inject(ProcessDesignerPanelStore) processDesignerPanelStore: ProcessDesignerPanelStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) private omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -46,6 +48,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
     }
 
     private deleteShape() {
+        this.processDesignerPanelStore.mutations.hideAllPanels.commit();
         this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
             if (response === ConfirmDialogResponse.Ok) {
                 this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();

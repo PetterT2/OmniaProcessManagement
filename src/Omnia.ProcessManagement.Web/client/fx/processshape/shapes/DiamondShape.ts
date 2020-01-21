@@ -23,7 +23,10 @@ export class DiamondShape extends ShapeExtension implements Shape {
         if (basicShapeJSON.nodes) {
             basicShapeJSON.nodes.forEach((nodeItem) => {
                 if (nodeItem.shapeNodeType != FabricShapeTypes.text && nodeItem.properties.points) {
-                    nodeItem.properties.points = this.calculatePoints();
+                    let points = this.shapeObject[0].get('points' as any);
+                    let scaleX = this.shapeObject[0].scaleX;
+                    let scaleY = this.shapeObject[0].scaleY;
+                    nodeItem.properties.points = this.getCalculatedPoints(points, scaleX, scaleY);
                 }
             });
         }
@@ -39,7 +42,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
             let polygontNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (polygontNode) {
-                this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ selectable: selectable }, polygontNode.properties || {}, strokeProperties)));
+                this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({}, polygontNode.properties, { left: position.left, top: position.top, selectable: selectable }, strokeProperties)));
             }
 
             if (textNode) {
@@ -47,19 +50,28 @@ export class DiamondShape extends ShapeExtension implements Shape {
             }
         }
         else if (this.definition) {
-            let points = this.calculatePoints();
+            let points = this.getDefaultPoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ points: points, left: position.left, top: position.top, selectable: selectable }, strokeProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
 
-    private calculatePoints() {
+    private getDefaultPoints() {
         let points: Array<{ x: number; y: number }> = [
             { x: this.definition.width / 2, y: 0 },
             { x: this.definition.width, y: this.definition.height / 2 },
             { x: this.definition.width / 2, y: this.definition.height },
             { x: 0, y: this.definition.height / 2 }];
         return points;
+    }
+
+    private getCalculatedPoints(points: Array<{ x: number; y: number }>, scaleX: number, scaleY: number): Array<{ x: number; y: number }> {
+        return points.map(p => {
+            return {
+                x: p.x * scaleX,
+                y: p.y * scaleY
+            }
+        })
     }
 }
