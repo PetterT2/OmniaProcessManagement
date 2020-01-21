@@ -105,16 +105,22 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private renderActionButtons(h) {
-        return <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn text
-                color={this.omniaTheming.themes.primary.base}
-                dark={this.omniaTheming.promoted.body.dark}
-                loading={this.isCreatingChildStep}
-                onClick={this.createShape}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
-            <v-btn text
-                onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
-        </v-card-actions>;
+        return (
+            <v-card-actions>
+                <v-btn text
+                    color={this.omniaTheming.themes.primary.base}
+                    dark={this.omniaTheming.promoted.body.dark}
+                    onClick={this.changeShape}>{this.pdLoc.ChangeShape}</v-btn>
+                <v-spacer></v-spacer>
+                <v-btn text
+                    color={this.omniaTheming.themes.primary.base}
+                    dark={this.omniaTheming.promoted.body.dark}
+                    loading={this.isCreatingChildStep}
+                    onClick={this.createShape}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
+                <v-btn text
+                    onClick={this.onClose}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
+            </v-card-actions>
+        )
     }
     /**
         * Render 

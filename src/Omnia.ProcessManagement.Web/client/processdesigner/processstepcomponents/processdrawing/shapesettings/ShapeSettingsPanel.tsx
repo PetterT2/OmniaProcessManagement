@@ -167,14 +167,22 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     }
 
     renderShapeTypeSettings(h) {
-        return <div>
-            <ShapeTypeComponent
-                isHideCreateNew={true}
-                drawingOptions={this.drawingShapeOptions}
-                changeDrawingOptionsCallback={this.onChangedDrawingOptions}
-                formValidator={this.processDesignerStore.formValidator}
-                changeShapeCallback={this.onChangeShape}></ShapeTypeComponent>
-        </div>;
+        return (
+            <div>
+                <ShapeTypeComponent
+                    isHideCreateNew={true}
+                    drawingOptions={this.drawingShapeOptions}
+                    changeDrawingOptionsCallback={this.onChangedDrawingOptions}
+                    formValidator={this.processDesignerStore.formValidator}
+                    changeShapeCallback={this.onChangeShape}></ShapeTypeComponent>
+                <v-card-actions>
+                    <v-btn text
+                        color={this.omniaTheming.themes.primary.base}
+                        dark={this.omniaTheming.promoted.body.dark}
+                        onClick={this.onChangeShape}>{this.pdLoc.ChangeShape}</v-btn>
+                </v-card-actions>
+            </div>
+        )
     }
 
     renderShapeSelection(h) {
