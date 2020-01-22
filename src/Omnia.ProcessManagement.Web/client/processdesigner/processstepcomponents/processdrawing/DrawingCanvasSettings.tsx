@@ -54,8 +54,12 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(false);
     }
 
-    private onImageSaved(imageUrl: string) {
+    private onImageSaved(imageUrl: string, width: number, height: number) {
         this.editingCanvasDefinition.backgroundImageUrl = imageUrl;
+        if (width && width > 0 && height && height > 0) {
+            this.editingCanvasDefinition.width = width;
+            this.editingCanvasDefinition.height = height;
+        }
         this.onSettingsChanged();
         this.$forceUpdate();
     }

@@ -5,7 +5,7 @@ import { MediaPickerImageContent, MediaPickerVideoContent } from '../../fx/model
 /*@WebComponentInterface("opm-media-picker")*/
 export interface IMediaPickerComponent {
     /*@DomProperty*/
-    onImageSaved: (imageUrl: string) => void;
+    onImageSaved: (imageUrl: string, width: number, height: number) => void;
 
     /*@DomProperty*/
     onClosed: () => void;

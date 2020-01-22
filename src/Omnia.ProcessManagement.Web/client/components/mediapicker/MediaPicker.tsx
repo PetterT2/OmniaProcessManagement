@@ -10,7 +10,7 @@ import './MediaPicker.css';
 
 @Component
 export class MediaPickerComponent extends VueComponentBase implements IWebComponentInstance {
-    @Prop() onImageSaved: (imageUrl: string) => void;
+    @Prop() onImageSaved: (imageUrl: string, width: number, height: number) => void;
     @Prop() onClosed: () => void;
 
     @Inject(ImageService) imageService: ImageService;
@@ -47,9 +47,9 @@ export class MediaPickerComponent extends VueComponentBase implements IWebCompon
         return providers;
     }
 
-    onInternalSaved() {
+    onInternalSaved(image: MediaPickerImageProviderResult) {
         let imageSrc = (this.content.value as MediaPickerImageContent).imageSrc;
-        this.onImageSaved(imageSrc);
+        this.onImageSaved(imageSrc, image.width, image.height);
     }
 
     onInternalClosed() {
@@ -115,7 +115,7 @@ export class MediaPickerComponent extends VueComponentBase implements IWebCompon
                     imageSrc: imageUrl,
                     description: image.description
                 }
-                this.onInternalSaved();
+                this.onInternalSaved(image);
                 this.onInternalClosed();
             });
     }
