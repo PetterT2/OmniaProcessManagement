@@ -138,11 +138,12 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private createFreeFromShape() {
         let freeNodes = this.generateNodes();
         this.shapeDefinition.borderColor = this.shapeDefinition.borderColor || '#000';
+
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),
             type: DrawingShapeTypes.Undefined,
             title: null,
-            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true)
+            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, this.polylineShape.left, this.polylineShape.top)
         };
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
