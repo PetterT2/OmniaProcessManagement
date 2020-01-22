@@ -2,7 +2,7 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { IMessageBusSubscriptionHandler, SpacingSetting } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, SpacingSetting, GuidValue } from '@omnia/fx/models';
 import './ProcessNavigationBlock.css';
 import { ProcessNavigationBlockStyles } from '../../models';
 import { ProcessNavigationBlockLocalization } from './loc/localize';
@@ -10,7 +10,7 @@ import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
 import { CurrentProcessStore, OPMUtils, OPMRouter } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
-import { ProcessNavigationBlockData } from '../../fx/models';
+import { ProcessNavigationBlockData, RootProcessStep, ProcessStep } from '../../fx/models';
 import { ProcessNavigationNodeComponent } from './navigationtree/ProcessNavigationNode';
 
 @Component
@@ -32,6 +32,7 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     processnavigationClasses = StyleFlow.use(ProcessNavigationBlockStyles, this.styles);
 
+    currentProcessId: GuidValue = '';
     indentation: number = 0;
     spacingSetting: SpacingSetting = null;
     expandState: { [id: string]: true } = {};
@@ -54,6 +55,13 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
             .onKeyValueUpdated(this.settingsKey)
             .subscribe(this.setBlockData);
 
+        this.subscriptionHandler.add(
+            this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()(() => {
+                this.refreshExpandState();
+            })
+        )
+        this.refreshExpandState();
+
         this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-processnavigation-block-settings");
         this.settingsService.getValue(this.settingsKey).then((blockData) => {
             this.setBlockData(blockData || {
@@ -64,6 +72,16 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
                 }
             });
         });
+    }
+
+    refreshExpandState() {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (this.currentProcessId != referenceData.process.id) {
+            this.currentProcessId = referenceData.process.id;
+            let newExpandState = OPMUtils.generateProcessStepExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep.id);
+            this.expandState = Object.assign({}, this.expandState, newExpandState);
+            this.componentUniqueKey = Utils.generateGuid();
+        }
     }
 
     setBlockData(blockData: ProcessNavigationBlockData) {
