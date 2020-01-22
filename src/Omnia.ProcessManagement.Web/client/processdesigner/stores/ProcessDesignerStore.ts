@@ -199,10 +199,11 @@ export class ProcessDesignerStore extends Store {
             return new Promise<null>((resolve, reject) => {
                 if (displayMode)
                     this.settings.displayMode.mutate(displayMode);
-                let currentProcess = this.currentProcessStore.getters.referenceData();
-                if (!currentProcess.current.processData.canvasDefinition) {
-                    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
-                }
+
+                //let currentProcess = this.currentProcessStore.getters.referenceData();
+                //if (!currentProcess.current.processData.canvasDefinition) {
+                //    currentProcess.current.processData.canvasDefinition = this.initDefaultCanvasDefinition();
+                //}
 
                 let defaultShowContentNavigation: boolean = false;
                 if (this.editmode.state) {

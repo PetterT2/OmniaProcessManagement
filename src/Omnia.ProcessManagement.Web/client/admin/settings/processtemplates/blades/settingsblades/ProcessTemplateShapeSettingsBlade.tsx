@@ -213,6 +213,26 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                     </omfx-field-validation>
                                 </v-flex>
                             </div>
+                            <div class={this.classes.flexDisplay}>
+                                <v-flex lg6>
+                                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
+                                        onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
+                                    <omfx-field-validation
+                                        useValidator={this.internalValidator}
+                                        checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
+                                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                                    </omfx-field-validation>
+                                </v-flex>
+                                <v-flex lg6 class={this.classes.contentPadding}>
+                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
+                                        onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                    <omfx-field-validation
+                                        useValidator={this.internalValidator}
+                                        checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
+                                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                                    </omfx-field-validation>
+                                </v-flex>
+                            </div>
                         </v-flex>
                         <v-flex lg6 class={this.classes.contentPadding}>
                             {
@@ -239,26 +259,27 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 disableRgba={true}
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
-                            <div class={this.classes.flexDisplay}>
-                                <v-flex lg6>
-                                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                                        onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                                <v-flex lg6 class={this.classes.contentPadding}>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                        onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                            </div>
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor }}
+                                disableRgba={true}
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor = p.color; this.updateTemplateShape(); }}>
+                            </omfx-color-picker>
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBorderColor }}
+                                disableRgba={true}
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBorderColor = p.color; this.updateTemplateShape(); }}>
+                            </omfx-color-picker>
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).selectedTextColor }}
+                                disableRgba={true}
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedTextColor = p.color; this.updateTemplateShape(); }}>
+                            </omfx-color-picker>
                         </v-flex>
                     </div>
                 }

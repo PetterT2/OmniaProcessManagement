@@ -535,6 +535,33 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 onChange={(p) => { this.internalShapeDefinition.activeTextColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
+                        <v-col cols="12">
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
+                                model={{ color: this.internalShapeDefinition.selectedBackgroundColor }}
+                                disableRgba={true}
+                                onChange={(p) => { this.internalShapeDefinition.selectedBackgroundColor = p.color; this.updateDrawedShape(); }}>
+                            </omfx-color-picker>
+                        </v-col>
+                        <v-col cols="12">
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
+                                model={{ color: this.internalShapeDefinition.selectedBorderColor }}
+                                disableRgba={true}
+                                onChange={(p) => { this.internalShapeDefinition.selectedBorderColor = p.color; this.updateDrawedShape(); }}>
+                            </omfx-color-picker>
+                        </v-col>
+                        <v-col cols="12">
+                            <omfx-color-picker
+                                dark={this.omniaTheming.promoted.body.dark}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
+                                model={{ color: this.internalShapeDefinition.selectedTextColor }}
+                                disableRgba={true}
+                                onChange={(p) => { this.internalShapeDefinition.selectedTextColor = p.color; this.updateDrawedShape(); }}>
+                            </omfx-color-picker>
+                        </v-col>
                     </v-row>
                 </v-col>
             </v-row>

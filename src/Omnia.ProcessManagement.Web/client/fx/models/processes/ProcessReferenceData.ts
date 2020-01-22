@@ -6,6 +6,7 @@ export interface ProcessReferenceData {
 
     //the process step that match to the current route
     readonly current: {
+        parentProcessData?: ProcessData; //If null - root process step
         parentProcessStep?: ProcessStep; //If null - root process step
         processStep: ProcessStep;
         processData: ProcessData;

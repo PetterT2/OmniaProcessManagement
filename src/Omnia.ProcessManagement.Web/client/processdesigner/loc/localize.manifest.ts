@@ -53,6 +53,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
             OpenNewWindow: "Open new window"
         },
         ChangeShape: "Change Shape",
+        CreateDrawing: "Create Drawing",
         ProcessTemplateDoesNotHaveShapeDefinitions: "The current process template doesn't have any Shape Definitions.",
         FilterShapeDefinitionNoResult: "No result",
         Media: "Media",
