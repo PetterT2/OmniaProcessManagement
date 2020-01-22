@@ -49,6 +49,16 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
             throw new NotSupportedException();
         }
 
+        public bool IsReviewer(Guid opmProcessId)
+        {
+            return AuthorizedResource.ReviewerOPMProcessIds.Contains(opmProcessId);
+        }
+
+        public bool IsAuthor(Guid teamAppId)
+        {
+            return AuthorizedResource.AuthorTeamAppIds.Contains(teamAppId);
+        }
+
         protected virtual List<string> SelectColumns
         {
             get

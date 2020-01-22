@@ -29,7 +29,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         tabName: this.opmCoreLoc.Process.Drawing,
         active: true,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
         }
@@ -41,7 +41,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         tabName: this.opmCoreLoc.Process.Content,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
         }
@@ -52,7 +52,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         tabName: this.opmCoreLoc.Process.Documents,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
         }
@@ -63,7 +63,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         tabName: this.opmCoreLoc.Process.Links,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
         }
@@ -74,7 +74,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
         tabName: this.opmCoreLoc.Process.Tasks,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
         }

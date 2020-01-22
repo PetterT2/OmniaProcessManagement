@@ -19,17 +19,10 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
     }
 
     public onCheckOut() {
-        //todo
         return new Promise<any>((resolve, reject) => {
-            this.processDesignerStore.errorTabIndex.mutate(-1);
-            //TabManager.addLoadingToButton(this as any, ActionButtonIds.edit);
-
-            //this.currentProcessStore.actions.checkOutProcess.dispatch().then(() => {
-            //    TabManager.removeLoadingFromButton(this as any, ActionButtonIds.edit);
-            //    this.processDesignerStore.actions.setEditorToCheckedOutMode.dispatch();
-            //    resolve();
-            //}).catch(reject);
-            this.processDesignerStore.actions.setEditorToCheckedOutMode.dispatch();
+            this.currentProcessStore.actions.checkOut.dispatch().then(() => {
+                this.processDesignerStore.actions.setEditorToCheckedOutMode.dispatch().then(resolve).catch(reject);
+            }).catch(reject)
         });
     }
 
@@ -45,7 +38,7 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Drawing,
         active: true,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }
@@ -57,9 +50,9 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Content,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
-            notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }
     };
     protected documentsTab: TabRegistration = {
@@ -68,9 +61,9 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Documents,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
-            notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }
     };
     protected linksTab: TabRegistration = {
@@ -79,9 +72,9 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Links,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
-            notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }
     };
     protected tasksTab: TabRegistration = {
@@ -90,9 +83,9 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Tasks,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
-            notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }
     };
     protected propertiesTab: TabRegistration = {
@@ -101,7 +94,7 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         tabName: this.opmCoreLoc.Process.Properties,
         active: false,
         actionToolbar: {
-            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(),
+            editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultRootProcessNotCheckoutedButtons(this),
         }

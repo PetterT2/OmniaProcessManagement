@@ -81,20 +81,13 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         if (navigateToNode) {
-            if (this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser) {
 
-                //Ensure savestate before navigating to another process step
-                this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
-                    this.processDesignerStore.actions.setProcessToShow.dispatch(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
-                        this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-                    });
-                })
-            }
-            else {
+            //Ensure savestate before navigating to another process step
+            this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
                 this.processDesignerStore.actions.setProcessToShow.dispatch(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
                     this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
                 });
-            }
+            })
         }
     }
 
@@ -136,7 +129,6 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep;
 
         let isSelectedNode = (currentProcessStep == this.processStep);
-        let isCheckedOutByCurrentUser = this.currentProcessStore.getters.referenceData().process.isCheckedOutByCurrentUser;
 
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
 
@@ -158,7 +150,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                     </div>
                     <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
                     {
-                        isSelectedNode && isCheckedOutByCurrentUser &&
+                        isSelectedNode && 
                         <div class={[this.navigationNodeStyles.actionBar]}>
                             {
                                 !this.firstNode || !this.lastNode ? [

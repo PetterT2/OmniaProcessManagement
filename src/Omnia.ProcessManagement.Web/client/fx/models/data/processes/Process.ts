@@ -6,7 +6,6 @@ export interface Process {
     id: GuidValue;
     opmProcessId: GuidValue;
     rootProcessStep: RootProcessStep;
-    checkedOutBy: string;
     versionType: ProcessVersionType;
     teamAppId: GuidValue;
     webId: GuidValue;
@@ -15,6 +14,4 @@ export interface Process {
     modifiedBy: string;
     createAt: Date;
     modifiedAt: Date;
-    //client-side
-    readonly isCheckedOutByCurrentUser: boolean;
 }

@@ -3,13 +3,12 @@ import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, Confir
 import { ProcessStepDesignerItemBase } from '../designeritems/ProcessStepDesignerItemBase';
 import { ActionItem, ActionItemType, ActionButton, DisplayActionButton, DisplayModes } from '../../models/processdesigner';
 import { ActionButtonIds } from './ActionButtonIds';
-import { ProcessDesignerStore } from '../stores';
 import { RootProcessStepDesignerItem } from '../designeritems/RootProcessStepDesignerItem';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ProcessDesignerLocalization } from '../loc/localize';
+import { ProcessVersionType } from '../../fx/models';
 
 export class ActionButtonFactory {
-    @Inject(ProcessDesignerStore) static processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) static omniaTheming: OmniaTheming;
     @Inject(OmniaContext) static omniaCtx: OmniaContext;
 
@@ -50,16 +49,23 @@ export class ActionButtonFactory {
     }
 
     static editRootProcessButton(editorItem: RootProcessStepDesignerItem, highLighted: boolean): ActionItem {
+        let checkoutInfo = editorItem.processStore.getters.processCheckoutInfo(editorItem.currentProcessStore.getters.referenceData().process.rootProcessStep.id);
+        let title = this.omniaLoc.Common.Buttons.Edit;
+
+        if (checkoutInfo && !checkoutInfo.canCheckout && checkoutInfo.checkedOutBy) {
+            title = this.loc.CheckedOutTo + " " + checkoutInfo.checkedOutBy
+        }
+
         return {
             type: ActionItemType.Button,
             loading: false,
-            disabled: false,
+            disabled: !checkoutInfo || !checkoutInfo.canCheckout,
             id: ActionButtonIds.edit,
             actionCallback: editorItem.onCheckOut.bind(editorItem),
             highLighted: highLighted,
             icon: "",
-            title: this.omniaLoc.Common.Buttons.Edit,
-            visibilityCallBack: () => { return true; }
+            title: title,
+            visibilityCallBack: () => { return checkoutInfo != null }
         } as ActionButton
     }
 
@@ -81,14 +87,14 @@ export class ActionButtonFactory {
             //this.editButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]
-    }   
+    }
 
     static createDefaultRootProcessNotCheckoutedButtons(editorItem: RootProcessStepDesignerItem): Array<ActionItem> {
         return [
             this.editRootProcessButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]
-    } 
+    }
 
     static createDefaultCheckoutedButtons(editorItem: ProcessStepDesignerItemBase): Array<ActionItem> {
         return [
@@ -98,7 +104,7 @@ export class ActionButtonFactory {
         ]
     }
 
-    static createDisplaySettingsButtons(): Array<DisplayActionButton> {
+    static createDisplaySettingsButtons(editorItem: ProcessStepDesignerItemBase): Array<DisplayActionButton> {
         return [
             {
                 type: ActionItemType.Button,
@@ -106,7 +112,8 @@ export class ActionButtonFactory {
                 highLighted: false,
                 icon: "view_quilt",
                 title: ActionButtonFactory.opmCoreLoc.Buttons.Design,
-                displayMode: DisplayModes.contentEditing
+                displayMode: DisplayModes.contentEditing,
+                visibilityCallBack: () => { return editorItem.currentProcessStore.getters.referenceData().process.versionType == ProcessVersionType.CheckedOut; }
             } as DisplayActionButton,
             {
                 type: ActionItemType.Button,
@@ -114,7 +121,8 @@ export class ActionButtonFactory {
                 highLighted: false,
                 icon: "phonelink",
                 title: ActionButtonFactory.opmCoreLoc.Buttons.Preview,
-                displayMode: DisplayModes.contentPreview
+                displayMode: DisplayModes.contentPreview,
+                visibilityCallBack: () => { return true }
             } as DisplayActionButton
         ]
     }

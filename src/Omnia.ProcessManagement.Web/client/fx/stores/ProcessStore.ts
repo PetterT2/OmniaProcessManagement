@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo } from '../models';
 import { OPMUtils } from '../utils';
 
 
@@ -18,6 +18,10 @@ interface ProcessStepIdAndProcessIdDict {
     [processStepId: string]: string
 }
 
+interface ProcessCheckoutInfoDict {
+    [opmProcessId: string]: ProcessCheckoutInfo;
+}
+
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -28,6 +32,7 @@ export class ProcessStore extends Store {
 
     //states
     private processDict = this.state<ProcessDict>({});
+    private processCheckoutInfoDict = this.state<ProcessCheckoutInfoDict>({});
     private processDataDict = this.state<ProcessDataDict>({});
 
 
@@ -100,9 +105,11 @@ export class ProcessStore extends Store {
                 }
             }
             return processReferenceData
+        },
+        processCheckoutInfo: (rootProcessStepId: GuidValue) => {
+            return this.processCheckoutInfoDict.state[rootProcessStepId.toString()];
         }
     }
-
 
 
     public actions = {
@@ -146,6 +153,12 @@ export class ProcessStore extends Store {
                 this.internalMutations.addOrUpdateProcess(process);
 
                 return process;
+            })
+        }),
+        ensureProcessCheckoutInfo: this.action((rootProcessStepId: GuidValue) => {
+            return this.processService.getProcessCheckoutInfo(rootProcessStepId).then((info) => {
+                this.internalMutations.addOrUpdateProcessCheckoutInfo(rootProcessStepId, info);
+                return info;
             })
         }),
         ensureProcessReferenceData: this.action((processReferences: Array<ProcessReference>) => {
@@ -241,6 +254,12 @@ export class ProcessStore extends Store {
             if (!resolvablePromise.resolved) {
                 resolvablePromise.resolve(null);
             }
+        },
+        addOrUpdateProcessCheckoutInfo: (opmProcessId: GuidValue, info: ProcessCheckoutInfo) => {
+            let currentState = this.processCheckoutInfoDict.state;
+            let key = this.getProcessCheckoutCacheKey(opmProcessId);
+            let newState = Object.assign({}, currentState, { [key]: info });
+            this.processCheckoutInfoDict.mutate(newState);
         },
         addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessData) => {
             let currentState = this.processDataDict.state;
@@ -344,6 +363,10 @@ export class ProcessStore extends Store {
         }
 
         return this.processDataLoadPromises[key];
+    }
+
+    private getProcessCheckoutCacheKey = (rootProcessStepId: GuidValue) => {
+        return `${rootProcessStepId.toString()}`.toLowerCase();
     }
 
     private getProcessCacheKey = (processId: GuidValue) => {

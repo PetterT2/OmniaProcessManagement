@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -75,6 +75,19 @@ export class ProcessService {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/savecheckedout', processActionModel).then((response) => {
                 if (response.data.success) {
                     this.generateClientSideData([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
+    public getProcessCheckoutInfo = (rootProcessStepId: GuidValue) => {
+        return new Promise<ProcessCheckoutInfo>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessCheckoutInfo>>(`/api/processes/checkoutinfo/${rootProcessStepId}`).then((response) => {
+                if (response.data.success) {
                     resolve(response.data.data);
                 }
                 else {
@@ -281,16 +294,10 @@ export class ProcessService {
         })
     }
 
-    private generateClientSideData = (processes: Array<Process>) => {
-        return this.omniaContext.user.then((user) => {
-            let currentUserLoginName = user.loginName.toLowerCase();
-            for (let process of processes) {
-                //We want to keep this property as readonly. So we set the value by this way (only here)
-                (process as any).isCheckedOutByCurrentUser = process.checkedOutBy.toLowerCase() == currentUserLoginName
-
-                this.setProcessStepMultilingualTitle(process.rootProcessStep);
-            }
-        })
+    private generateClientSideData = (processes: Array<Process>, ) => {
+        for (let process of processes) {
+            this.setProcessStepMultilingualTitle(process.rootProcessStep);
+        }
     }
 
     private setProcessStepMultilingualTitle = (processStep: ProcessStep) => {

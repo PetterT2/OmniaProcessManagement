@@ -64,5 +64,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         MessageNoLinksItem: "There are no links for this process.",
         MessageNoTasksItem: "There are no tasks for this process.",
         DeleteShapeConfirmMessage: "Are you sure you want to delete this shape?",
-        DrawFreeform: "Draw Freeform"
+        DrawFreeform: "Draw Freeform",
+        CheckedOutTo: "Checked out to"
     });

@@ -19,7 +19,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
     {
         ValueTask<string> GetRollupSecurityTrimmingQuery(ProcessVersionType versionType);
         ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType versionType, List<Guid> limitedTeamAppIds = null, List<Guid> limitedOPMProcessIds = null);
-        ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid opmProcessId);
+        ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid processStepId);
         ValueTask<IAuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef, Guid opmProcessId);
 
         IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);

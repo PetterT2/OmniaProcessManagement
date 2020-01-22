@@ -9,6 +9,7 @@ import { ActionToolbarStyles } from './ActionToolbar.css';
 import { DisplayModes, DisplayActionButton } from '../../models/processdesigner';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
+import { CurrentProcessStore } from '../../fx';
 
 
 export interface DisplaySettingsActionButtonsProps {
@@ -18,6 +19,7 @@ export interface DisplaySettingsActionButtonsProps {
 @Component
 export class DisplaySettingsToolbarComponent extends tsx.Component<DisplaySettingsActionButtonsProps>
 {
+    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) private omniaTheming: OmniaTheming;
 
@@ -44,16 +46,12 @@ export class DisplaySettingsToolbarComponent extends tsx.Component<DisplaySettin
         this.processDesignerStore.mutations.changeDisplayMode.commit(editorDisplayMode);
     }
 
-    private renderEditorActionButtonWithPermission(h, button: DisplayActionButton) {
-        if (button.requiredRoles && button.requiredRoles.length > 0) {
-            return <omfx-security-trimer key={1} roles={button.requiredRoles}
-                content={this.renderEditorActionButton(h, button)}>
-            </omfx-security-trimer>
-        }
-        return this.renderEditorActionButton(h, button);
-    }
 
     private renderEditorActionButton(h, button: DisplayActionButton) {
+        let showButton = true;
+        if (button.visibilityCallBack) showButton = button.visibilityCallBack();
+        if (!showButton) return null;
+
         return (<v-btn
             text
             key={1}
@@ -84,7 +82,7 @@ export class DisplaySettingsToolbarComponent extends tsx.Component<DisplaySettin
         let displaySettingsButtons = new Array<JSX.Element>();
         if (this.processDesignerStore.tabs.selectedTab.state)
             this.processDesignerStore.tabs.selectedTab.state.actionToolbar.editorDisplayActionButtons.forEach((button) => {
-                displaySettingsButtons.push(this.renderEditorActionButtonWithPermission(h, button));
+                displaySettingsButtons.push(this.renderEditorActionButton(h, button));
             });
         return (
             <v-layout key={1} class={[ActionToolbarStyles.positioning(this.omniaTheming.chrome.background), compensateDrawerLeftCss, compensateDrawerRightCss]}>

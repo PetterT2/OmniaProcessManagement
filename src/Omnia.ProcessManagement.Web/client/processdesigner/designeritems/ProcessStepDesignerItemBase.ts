@@ -1,5 +1,5 @@
 ﻿import { Inject, Localize, Utils as omfUtils, ServiceContainer } from '@omnia/fx';
-import { CurrentProcessStore, OPMRouter } from '../../fx';
+import { CurrentProcessStore, ProcessStore, OPMRouter } from '../../fx';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerUtils } from '../../processdesigner/Utils';
 import { FormValidator } from '@omnia/fx/ux';
@@ -9,11 +9,13 @@ import { ActionButtonIds } from '../factory/ActionButtonIds';
 export class ProcessStepDesignerItemBase {
     currentProcessStore: CurrentProcessStore;
     processDesignerStore: ProcessDesignerStore;
+    processStore: ProcessStore;
     formValidator: FormValidator = null;
 
     constructor() {
         this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
         this.processDesignerStore = ServiceContainer.createInstance(ProcessDesignerStore);
+        this.processStore = ServiceContainer.createInstance(ProcessStore);
         this.formValidator = new FormValidator();
     }
 

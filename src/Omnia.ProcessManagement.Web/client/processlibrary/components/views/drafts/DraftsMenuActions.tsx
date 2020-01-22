@@ -5,7 +5,7 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { CurrentProcessStore } from '../../../../fx/stores';
+import { CurrentProcessStore, ProcessStore } from '../../../../fx/stores';
 import { RouteOptions, Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
@@ -39,6 +39,8 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(ProcessStore) processStore: ProcessStore;
+
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
@@ -67,23 +69,29 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     private editProcess() {
         this.processDesignerStore.actions.setProcessToShow.dispatch(this.process, this.process.rootProcessStep)
             .then(() => {
+                let checkoutInfoPromise = this.processStore.actions.ensureProcessCheckoutInfo.dispatch(this.process.rootProcessStep.id);
                 this.currentProcessStore.actions.checkOut.dispatch().then(() => {
                     ProcessDesignerUtils.openProcessDesigner();
                     this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                }).catch(() => {
+                    checkoutInfoPromise.then((info) => {
+                        if (info.checkedOutBy && !info.canCheckout) {
+                            ProcessDesignerUtils.openProcessDesigner();
+                            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
+                        }
+                    })
                 })
             })
     }
 
     private previewProcess() {
-        if (!Utils.isNullOrEmpty(this.viewPageUrl)) {
-            var win = window.open(OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, true, false), '_blank');
-            win.focus();
-        }
-        else {
-            OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.previewInGlobalRenderer).then(() => {
-
-            });
-        }
+        this.processDesignerStore.actions.setProcessToShow.dispatch(this.process, this.process.rootProcessStep)
+            .then(() => {
+                this.processStore.actions.ensureProcessCheckoutInfo.dispatch(this.process.rootProcessStep.id).then(() => {
+                    ProcessDesignerUtils.openProcessDesigner();
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
+                })
+            })
     }
 
     private openDeleteDraft() {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Apps;
+using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Models.Shared;
@@ -27,11 +28,49 @@ namespace Omnia.ProcessManagement.Web.Controllers
         IProcessService ProcessService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
 
-        public ProcessController(IProcessService processService, ILogger<ProcessController> logger, IProcessSecurityService processSecurityService)
+        IOmniaContext OmniaContext { get; }
+
+        public ProcessController(IProcessService processService, ILogger<ProcessController> logger, IProcessSecurityService processSecurityService,
+            IOmniaContext omniaContext)
         {
             ProcessService = processService;
             ProcessSecurityService = processSecurityService;
+            OmniaContext = omniaContext;
             Logger = logger;
+        }
+
+        [HttpGet, Route("checkoutinfo/{rootProcessStepId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<ProcessCheckoutInfo>> GetProcessCheckoutInfoAsync(Guid rootProcessStepId)
+        {
+            try
+            {
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(rootProcessStepId);
+                var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
+
+                var checkedOutProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
+                var draftProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
+
+                if (draftProcess == null || draftProcess.RootProcessStep.Id != rootProcessStepId)
+                    throw new Exception($"Unauthorized or process root step id: {rootProcessStepId} not found");
+
+
+                var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";
+
+                var checkoutInfo = new ProcessCheckoutInfo
+                {
+                    CheckedOutBy = checkedOutBy,
+                    CanCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
+                    (authorizedProcessQuery.IsAuthor(draftProcess.TeamAppId) || authorizedProcessQuery.IsReviewer(draftProcess.TeamAppId))
+                };
+
+                return checkoutInfo.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<ProcessCheckoutInfo>(ex);
+            }
         }
 
         [HttpPost, Route("createdraft/{opmProcessId:guid}")]

@@ -47,5 +47,15 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
         }
 
         protected abstract List<string> SelectColumns { get; }
+
+        public bool IsReviewer(Guid opmProcessId)
+        {
+            return AuthorizedResource.ReviewerOPMProcessIds.Contains(opmProcessId);
+        }
+
+        public bool IsAuthor(Guid teamAppId)
+        {
+            return AuthorizedResource.AuthorTeamAppIds.Contains(teamAppId);
+        }
     }
 }

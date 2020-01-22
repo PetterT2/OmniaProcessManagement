@@ -61,5 +61,6 @@
         ShapeSettings: string;
         DeleteShapeConfirmMessage: string;
         DrawFreeform: string;
+        CheckedOutTo: string;
     }
 }

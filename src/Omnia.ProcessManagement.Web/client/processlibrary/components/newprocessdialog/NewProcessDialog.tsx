@@ -58,8 +58,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                 processTemplateId: null,
                 enterpriseProperties: {}
             } as RootProcessStep,
-            versionType: ProcessVersionType.Draft,
-            checkedOutBy: null
+            versionType: ProcessVersionType.Draft
         } as Process;
     }
 
