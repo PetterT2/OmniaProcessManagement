@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas } from '../../../fx';
-import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
@@ -32,9 +32,11 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private drawingCanvasEditor: DrawingCanvasEditor = null;
+    private drawingParentCanvas: DrawingCanvas = null;
     private shapeSettingsPanelComponentKey = Utils.generateGuid();
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
+    private parentCanvasId = 'parentcanvas_' + Utils.generateGuid().toString();
 
     created() {
 
@@ -56,6 +58,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     get canvasDefinition() {
         return this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition;
+    }
+
+    get parentProcessData() {
+        return this.currentProcessStore.getters.referenceData().current.parentProcessData;
     }
 
     initSubscription() {
@@ -94,11 +100,27 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private initDrawingCanvas() {
-        setTimeout(() => {
-            this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false,
-                this.onClickEditShape, this.onShapeChange, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
-            this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
-        }, 300);
+        if (this.canvasDefinition) {
+            setTimeout(() => {
+                this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false,
+                    this.onClickEditShape, this.onShapeChange, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
+                this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
+            }, 20);
+        }
+        else if (this.parentProcessData && this.parentProcessData.canvasDefinition) {
+            setTimeout(() => {
+                var cloneParentCavasDefinition: CanvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
+                var selectedShape: DrawingShape = cloneParentCavasDefinition.drawingShapes && cloneParentCavasDefinition.drawingShapes.length > 0 ?
+                    cloneParentCavasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
+                if (selectedShape) {
+                    selectedShape.shape.definition.backgroundColor = selectedShape.shape.definition.selectedBackgroundColor ? selectedShape.shape.definition.selectedBackgroundColor : selectedShape.shape.definition.backgroundColor;
+                    selectedShape.shape.definition.textColor = selectedShape.shape.definition.selectedTextColor ? selectedShape.shape.definition.selectedTextColor : selectedShape.shape.definition.selectedTextColor;
+                    selectedShape.shape.definition.borderColor = selectedShape.shape.definition.selectedBorderColor ? selectedShape.shape.definition.selectedBorderColor : selectedShape.shape.definition.selectedBorderColor;
+                }
+                this.drawingParentCanvas = new DrawingCanvas(this.parentCanvasId, {}, cloneParentCavasDefinition, false, this.processDesignerStore.showGridlines.state,
+                    this.processDesignerStore.getters.darkHightlight());
+            }, 20);
+        }
         //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
 
@@ -155,6 +177,34 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
         this.processDesignerStore.actions.saveState.dispatch();
     }
+
+    private createDrawing() {
+        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = {
+            drawingShapes: [],
+            width: 700,
+            height: 500,
+            gridX: 20,
+            gridY: 20,
+            backgroundImageUrl: ''
+        };
+        this.processDesignerStore.actions.saveState.dispatch();
+        this.initDrawingCanvas();
+    }
+
+    private deleteDrawing() {
+        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = null;
+        this.processDesignerStore.actions.saveState.dispatch();
+        this.initDrawingCanvas();
+    }
+
+    private showCanvasSettings() {
+        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
+    }
+    
+    /**
+        * Render 
+        * @param h
+        */
 
     private renderPanels(h) {
         let components: Array<JSX.Element> = [];
@@ -225,6 +275,16 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private renderCanvasToolbar(h) {
         return <div class={this.processStepDrawingStyles.canvasToolbar(this.omniaTheming)}>
+            {
+                this.canvasDefinition && this.parentProcessData &&
+                <omfx-confirm-dialog
+                    icon="fal fa-trash-alt"
+                    styles={{ icon: { fontSize: "16px !important", color: this.omniaTheming.system.grey.lighten5 + " !important" }, button: { marginLeft: "0px !important" } }}
+                    type={ConfirmDialogDisplay.Icon}
+                    onClose={(res) => { res == ConfirmDialogResponse.Ok && this.deleteDrawing() }}>
+                </omfx-confirm-dialog>
+            }
+            
             <v-btn
                 small
                 icon
@@ -234,14 +294,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         </div>;
     }
 
-    private showCanvasSettings() {
-        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
-    }
-
-    /**
-        * Render 
-        * @param h
-        */
     render(h) {
         return (
             <div>
@@ -249,10 +301,22 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                     <v-card-text>
                         <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
                             <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
-                                <canvas id={this.canvasId}></canvas>
+                                {
+                                    this.canvasDefinition ? <canvas id={this.canvasId}></canvas> :
+                                        this.parentProcessData && this.parentProcessData.canvasDefinition ? <canvas id={this.parentCanvasId}></canvas> : null
+                                }
                             </div>
-                            {this.renderCanvasToolbar(h)}
+                            {this.canvasDefinition  && this.renderCanvasToolbar(h)}
                         </div>
+                        {!this.canvasDefinition ? 
+                            <div>
+                                <v-btn text
+                                    color={this.omniaTheming.themes.primary.base}
+                                    dark={this.omniaTheming.promoted.body.dark}
+                                    onClick={this.createDrawing}>{this.pdLoc.CreateDrawing}</v-btn>
+                            </div> : null
+                        }
+                        
                     </v-card-text>
                 </v-card>
                 {this.renderPanels(h)}

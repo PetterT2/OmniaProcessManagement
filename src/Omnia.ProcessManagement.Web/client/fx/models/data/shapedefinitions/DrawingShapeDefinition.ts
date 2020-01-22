@@ -11,9 +11,12 @@ export interface DrawingShapeDefinition extends ShapeDefinition {
     backgroundColor: string;
     borderColor: string;
     textColor: string;
-    activeBackgroundColor: string;
-    activeBorderColor: string;
-    activeTextColor: string;
+    hoverBackgroundColor: string;
+    hoverBorderColor: string;
+    hoverTextColor: string;
+    selectedBackgroundColor: string,
+    selectedBorderColor: string,
+    selectedTextColor: string,
     width: number;
     height: number;
     textPosition: TextPosition;

@@ -147,7 +147,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     renderDrawingSettings(h) {
         return (
-            <div>
+            <v-container fluid class="px-0">
                 <div class={this.classes.flexDisplay}>
                     <v-flex lg6>
                         <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
@@ -163,106 +163,148 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         <canvas id={this.canvasId} width="100%" height="100%"></canvas>
                     </v-flex>
                 </div>
-                {
-                    <div class={classes(this.classes.flexDisplay, this.classes.shapeSettingsContainer)}>
-                        <v-flex lg6>
-                            {
-                                this.needToShowShapeSettings() &&
-                                <omfx-color-picker
-                                    required={true}
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    label={this.omniaUxLoc.Common.BackgroundColor}
-                                    model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
-                                    disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
-                                </omfx-color-picker>
-                            }
+
+                <v-row>
+                    <v-col cols="3">
+                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
+                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                        <omfx-field-validation
+                            useValidator={this.internalValidator}
+                            checkValue={(this.editingShape as DrawingShapeDefinition).width}
+                            rules={new FieldValueValidation().IsRequired().getRules()}>
+                        </omfx-field-validation>
+                    </v-col>
+                    <v-col cols="3">
+                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
+                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                        <omfx-field-validation
+                            useValidator={this.internalValidator}
+                            checkValue={(this.editingShape as DrawingShapeDefinition).height}
+                            rules={new FieldValueValidation().IsRequired().getRules()}>
+                        </omfx-field-validation>
+                    </v-col>
+                    <v-col cols="3">
+                        <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
+                            onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
+                        <omfx-field-validation
+                            useValidator={this.internalValidator}
+                            checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
+                            rules={new FieldValueValidation().IsRequired().getRules()}>
+                        </omfx-field-validation>
+                    </v-col>
+                    <v-col cols="3">
+                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
+                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                        <omfx-field-validation
+                            useValidator={this.internalValidator}
+                            checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
+                            rules={new FieldValueValidation().IsRequired().getRules()}>
+                        </omfx-field-validation>
+                    </v-col>
+                </v-row>
+
+                <v-row>
+                    {
+                        this.needToShowShapeSettings() &&
+                        <v-col cols="4">
                             <omfx-color-picker
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.omniaUxLoc.Common.BorderColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).borderColor }}
+                                label={this.omniaUxLoc.Common.BackgroundColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
                                 disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; this.updateTemplateShape(); }}>
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
-                            <omfx-color-picker
-                                required={true}
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.TextColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
-                                disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; this.updateTemplateShape(); }}>
-                            </omfx-color-picker>
-                            <div class={this.classes.flexDisplay}>
-                                <v-flex lg6>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
-                                        onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).width}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                                <v-flex lg6 class={this.classes.contentPadding}>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
-                                        onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).height}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                            </div>
-                        </v-flex>
-                        <v-flex lg6 class={this.classes.contentPadding}>
-                            {
-                                this.needToShowShapeSettings() &&
-                                <omfx-color-picker
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
-                                    model={{ color: (this.editingShape as DrawingShapeDefinition).activeBackgroundColor }}
-                                    disableRgba={true}
-                                    onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBackgroundColor = p.color; this.updateTemplateShape(); }}>
-                                </omfx-color-picker>
-                            }
+                        </v-col>
+                    }
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            required={true}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.omniaUxLoc.Common.BorderColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).borderColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            required={true}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.opmCoreloc.DrawingShapeSettings.TextColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                </v-row>
+
+                <v-row>
+                    {
+                        this.needToShowShapeSettings() &&
+                        <v-col cols="4">
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBorderColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).activeBorderColor }}
+                                label={this.opmCoreloc.DrawingShapeSettings.HoverBackgroundColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).hoverBackgroundColor }}
                                 disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeBorderColor = p.color; this.updateTemplateShape(); }}>
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverBackgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
+                        </v-col>
+                    }
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.opmCoreloc.DrawingShapeSettings.HoverBorderColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).hoverBorderColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverBorderColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.opmCoreloc.DrawingShapeSettings.HoverTextColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).hoverTextColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverTextColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                </v-row>
+
+                <v-row>
+                    {
+                        this.needToShowShapeSettings() &&
+                        <v-col cols="4">
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveTextColor}
-                                model={{ color: (this.editingShape as DrawingShapeDefinition).activeTextColor }}
+                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
+                                model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor }}
                                 disableRgba={true}
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).activeTextColor = p.color; this.updateTemplateShape(); }}>
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
-                            <div class={this.classes.flexDisplay}>
-                                <v-flex lg6>
-                                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                                        onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                                <v-flex lg6 class={this.classes.contentPadding}>
-                                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                        onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                                    <omfx-field-validation
-                                        useValidator={this.internalValidator}
-                                        checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
-                                        rules={new FieldValueValidation().IsRequired().getRules()}>
-                                    </omfx-field-validation>
-                                </v-flex>
-                            </div>
-                        </v-flex>
-                    </div>
-                }
-            </div>
+                        </v-col>
+                    }
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBorderColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBorderColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                    <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
+                        <omfx-color-picker
+                            dark={this.omniaTheming.promoted.body.dark}
+                            label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
+                            model={{ color: (this.editingShape as DrawingShapeDefinition).selectedTextColor }}
+                            disableRgba={true}
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedTextColor = p.color; this.updateTemplateShape(); }}>
+                        </omfx-color-picker>
+                    </v-col>
+                </v-row>
+            </v-container>
         )
     }
 

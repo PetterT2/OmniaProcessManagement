@@ -262,11 +262,11 @@ export class ShapeExtension implements Shape {
         objects.forEach((object) => {
             if (object.type == 'text') {
                 object.set({
-                    fill: isActive || this.isSelected ? this.definition.activeTextColor : this.definition.textColor
+                    fill: isActive || this.isSelected ? this.definition.hoverTextColor : this.definition.textColor
                 });
             }
             else {
-                let stroke: string = isActive || this.isSelected ? this.definition.activeBorderColor : this.definition.borderColor;
+                let stroke: string = isActive || this.isSelected ? this.definition.hoverBorderColor : this.definition.borderColor;
 
                 let strokeProperties = {};
                 if (!isActive || !stroke) {
@@ -274,7 +274,7 @@ export class ShapeExtension implements Shape {
                 }
 
                 object.set(Object.assign({
-                    fill: isActive || this.isSelected ? this.definition.activeBackgroundColor : this.definition.backgroundColor,
+                    fill: isActive || this.isSelected ? this.definition.hoverBackgroundColor : this.definition.backgroundColor,
                     stroke: stroke
                 }, strokeProperties));
             }

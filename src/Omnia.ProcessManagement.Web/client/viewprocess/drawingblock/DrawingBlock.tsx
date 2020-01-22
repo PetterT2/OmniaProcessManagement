@@ -49,6 +49,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             this.subscriptionHandler.unsubscribe();
     }
 
+    get parentProcessData() {
+        return this.currentProcessStore.getters.referenceData().current.parentProcessData;
+    }
+
     init() {
         this.subscriptionHandler = this.settingsService
             .onKeyValueUpdated(this.settingsKey)
@@ -69,15 +73,27 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     private drawShapes() {
+        if (!this.canvasDefinition && this.parentProcessData && this.parentProcessData.canvasDefinition) {
+            this.canvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
+            var selectedShape: DrawingShape = this.canvasDefinition.drawingShapes && this.canvasDefinition.drawingShapes.length > 0 ?
+                this.canvasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
+            if (selectedShape) {
+                selectedShape.shape.definition.backgroundColor = selectedShape.shape.definition.selectedBackgroundColor ? selectedShape.shape.definition.selectedBackgroundColor : selectedShape.shape.definition.backgroundColor;
+                selectedShape.shape.definition.textColor = selectedShape.shape.definition.selectedTextColor ? selectedShape.shape.definition.selectedTextColor : selectedShape.shape.definition.selectedTextColor;
+                selectedShape.shape.definition.borderColor = selectedShape.shape.definition.selectedBorderColor ? selectedShape.shape.definition.selectedBorderColor : selectedShape.shape.definition.selectedBorderColor;
+            }
+        }
+        else if (!this.canvasDefinition) return;
+
         this.canvasDefinition.gridX = 0;
         this.canvasDefinition.gridY = 0;
+
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
             this.drawingCanvas.setSelectingShapeCallback(this.onSelectingShape);
-            if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-                this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId, DrawingShapeTypes.ProcessStep);
-            }
-        }, 300);
+        }, 20);
+
+
     }
 
     private initCanvas() {
@@ -85,20 +101,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         if (this.drawingCanvas)
             this.drawingCanvas.destroy();
         if (!currentReferenceData) return;
-        if (currentReferenceData.current.processData.canvasDefinition) {
-            this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
-            this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
-            this.drawShapes();
-        }
-        else if (currentReferenceData.current.parentProcessStep) {
-            let processRefrerence = OPMUtils.generateProcessReference(currentReferenceData.process, currentReferenceData.current.parentProcessStep.id);
-            this.processStore.actions.ensureProcessReferenceData.dispatch([processRefrerence]).then(() => {
-                let processReferenceData = this.processStore.getters.getProcessReferenceData(processRefrerence);
-                this.currentDrawingProcessData = Utils.clone(processReferenceData.current.processData);
-                this.canvasDefinition = Utils.clone(processReferenceData.current.processData.canvasDefinition);
-                this.drawShapes();
-            })
-        }
+
+        this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
+        this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
+        this.drawShapes();
     }
 
     private onSelectingShape(shape: DrawingShape) {

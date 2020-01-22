@@ -65,6 +65,13 @@ export class ProcessStore extends Store {
             if (processStepRef.desiredProcessStep == null)
                 throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.processStepId}`;
 
+            let parentProcessData = null;
+            if (processStepRef.parentProcessStep) {
+                let parentProcessDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processStepRef.parentProcessStep.id);
+                parentProcessData = this.processDataDict.state[parentProcessDataCacheKey];
+                if (parentProcessData == null)
+                    throw `Process with id: ${processReference.processId} does not contains valid process data for process step id: ${processStepRef.parentProcessStep.id}`;
+            }
 
             let processReferenceData: ProcessReferenceData = null;
 
@@ -85,7 +92,8 @@ export class ProcessStore extends Store {
                     current: {
                         processStep: processStepRef.desiredProcessStep,
                         processData: processData,
-                        parentProcessStep: processStepRef.parentProcessStep
+                        parentProcessStep: processStepRef.parentProcessStep,
+                        parentProcessData: parentProcessData
                     },
                     shortcut: {
                         processStep: shortcutProcessStepRef.desiredProcessStep,
@@ -100,7 +108,8 @@ export class ProcessStore extends Store {
                     current: {
                         processStep: processStepRef.desiredProcessStep,
                         processData: processData,
-                        parentProcessStep: processStepRef.parentProcessStep
+                        parentProcessStep: processStepRef.parentProcessStep,
+                        parentProcessData: parentProcessData
                     }
                 }
             }
@@ -175,6 +184,10 @@ export class ProcessStore extends Store {
                             let promises: Array<Promise<ProcessData>> = [];
 
                             promises.push(this.ensureProcessData(process, processReference.processStepId));
+                            var processStepData = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.processStepId);
+
+                            if (processStepData.parentProcessStep)
+                                promises.push(this.ensureProcessData(process, processStepData.parentProcessStep.id));
 
                             if (processReference.shortcutProcessStepId) {
                                 promises.push(this.ensureProcessData(process, processReference.shortcutProcessStepId));

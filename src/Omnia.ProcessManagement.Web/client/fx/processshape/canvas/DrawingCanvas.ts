@@ -353,9 +353,11 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape) {
-        let readyDrawingShape = Utils.clone(drawingShape);
+        let readyDrawingShape: DrawingShape = Utils.clone(drawingShape);
 
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition, readyDrawingShape.shape.nodes, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top, this.darkHightlight);
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition,
+            readyDrawingShape.shape.nodes, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top, this.darkHightlight);
+
         return new Promise<DrawingShape>((resolve, reject) => {
             newShape.ready().then((result) => {
                 if (result) {

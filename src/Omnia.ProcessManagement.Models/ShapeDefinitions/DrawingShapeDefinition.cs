@@ -14,9 +14,9 @@ namespace Omnia.ProcessManagement.Models.Shapes
         public string BackgroundColor { get; set; }
         public string BorderColor { get; set; }
         public string TextColor { get; set; }
-        public string ActiveBackgroundColor { get; set; }
-        public string ActiveBorderColor { get; set; }
-        public string ActiveTextColor { get; set; }
+        public string HoverBackgroundColor { get; set; }
+        public string HoverBorderColor { get; set; }
+        public string HoverTextColor { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
         public TextPosition TextPosition { get; set; }
