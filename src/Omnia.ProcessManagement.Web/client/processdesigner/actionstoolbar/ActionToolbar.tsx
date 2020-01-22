@@ -4,17 +4,15 @@ import 'vue-tsx-support/enable-check';
 import { Inject, Utils, Localize } from '@omnia/fx';
 import { OmniaTheming, Router } from "@omnia/fx/ux"
 import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessDesignerStore } from '../stores';
+import { ProcessDesignerStore, ProcessDesignerPanelStore } from '../stores';
 import { CurrentProcessStore } from '../../fx';
 import { ProcessVersionType } from '../../fx/models';
 import { ActionItem, ActionItemType, ActionCustomButton, ActionButton, DisplayModes } from '../../models/processdesigner';
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
 import { ActionToolbarStyles } from './ActionToolbar.css';
 import { DisplaySettingsToolbarComponent } from './DisplaySettingsToolbar';
-import { Localization } from '@omnia/tooling-composers';
 import { ProcessDesignerLocalization } from '../loc/localize';
 import { ProcessStepDesignerItem } from '../designeritems/ProcessStepDesignerItem';
-import { ProcessDesignerPanelStore } from '../stores/ProcessDesignerPanelStore';
 
 export interface ActionToolbarProps {
 }

@@ -235,7 +235,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 }
                 {
                     isFreeform &&
-                    <v-btn class="mt-2" text color={this.omniaTheming.themes.primary.base} dark={this.omniaTheming.promoted.body.dark} onClick={this.redrawFreeShape}>{this.pdLoc.Redraw}</v-btn>
+                    <v-btn
+                        class="mt-2"
+                        text
+                        color={this.omniaTheming.themes.primary.base}
+                        dark={this.omniaTheming.promoted.body.dark}
+                        onClick={this.redrawFreeShape}>
+                        {renderCanvas ? this.pdLoc.RedrawShape : this.pdLoc.DrawShape}
+                    </v-btn>
                 }
                 {
                     isMedia &&

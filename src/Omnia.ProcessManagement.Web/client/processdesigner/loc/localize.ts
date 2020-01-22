@@ -17,7 +17,8 @@
         AllShapes: string;
         RecentShapes: string;
         AddShape: string;
-        Redraw: string;
+        RedrawShape: string;
+        DrawShape: string;
         DeleteShape: string;
         SelectShape: string;
         ShapeType: string;
