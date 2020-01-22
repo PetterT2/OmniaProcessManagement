@@ -16,7 +16,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
         this.initTextProperties(definition, title);
     }
 
-    private initTextProperties(definition: DrawingShapeDefinition, title?: MultilingualString | string) {
+    private initTextProperties(definition: DrawingShapeDefinition, title?: MultilingualString | string, hoverCursor: string = "pointer") {
         if (definition) {
             this.properties["fontSize"] = definition.fontSize;
             this.properties["fill"] = definition.textColor;
@@ -25,7 +25,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             this.properties["fontWeight"] = 'normal';
             this.properties['strokeWidth'] = 0;
         }
-        this.properties["hoverCursor"] = "default";
+        this.properties["hoverCursor"] = hoverCursor;
         let text = "Sample Text";
         if (typeof (title) == 'string')
             text = title as string;

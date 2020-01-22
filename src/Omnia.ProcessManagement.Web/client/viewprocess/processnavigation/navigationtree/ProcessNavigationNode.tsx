@@ -56,9 +56,12 @@ ProcessNavigationNodeComponentProps>
         e.preventDefault();
         if (handleExpandNode) {
             this.isExpanded = !this.isExpanded;
-            this.expandState[this.processStep.id.toString().toLowerCase()] = this.isExpanded;
+            this.expandState[this.processStep.id.toString().toLowerCase()] = this.isExpanded ? true : false; //remove the component property references
         }
         if (navigateToNode) {
+            this.isExpanded = true;
+            this.expandState[this.processStep.id.toString().toLowerCase()] = true;
+
             let currentReferenceData = this.currentProcessStore.getters.referenceData();
             OPMRouter.navigate(currentReferenceData.process, this.processStep).then(() => {
             });
