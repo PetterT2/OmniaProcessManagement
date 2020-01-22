@@ -4,7 +4,7 @@ import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../model
 import { IShape } from './IShape';
 import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
-import { TextSpacingWithShape } from '../../constants';
+import { TextSpacingWithShape, ShapeHighlightProperties } from '../../constants';
 import { Utils, ServiceContainer } from '@omnia/fx';
 import { CurrentProcessStore } from '../../stores';
 
@@ -202,11 +202,13 @@ export class ShapeExtension implements Shape {
         });
     }
 
-    protected getStrokeProperties() {
+    protected getHighlightProperties() {
         let properties = {};
-        if (this.darkHighlight != null) {
-            properties['stroke'] = this.darkHighlight ? 'black' : 'white';
-            properties['strokeDashArray'] = [5, 5];
+        if (this.darkHighlight == true) {
+            properties = ShapeHighlightProperties.dark
+        }
+        else if (this.darkHighlight == false) {
+            properties = ShapeHighlightProperties.light
         }
         return properties;
     }
@@ -268,7 +270,7 @@ export class ShapeExtension implements Shape {
 
                 let strokeProperties = {};
                 if (!isActive || !stroke) {
-                    strokeProperties = this.getStrokeProperties();
+                    strokeProperties = this.getHighlightProperties();
                 }
 
                 object.set(Object.assign({

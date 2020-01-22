@@ -35,14 +35,14 @@ export class FreeformShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
         let position = this.correctPosition(left, top);
-        let strokeProperties = this.getStrokeProperties();
+        let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
             
             let pathNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.path);
             if (pathNode) {
 
-                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({}, pathNode.properties, { left: position.left, top: position.top, selectable: selectable }, strokeProperties), false));
+                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({}, pathNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties), false));
                 
                 let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
                 

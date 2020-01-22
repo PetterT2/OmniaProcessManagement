@@ -10,8 +10,8 @@
         GridY: string;
         ShowGridlinnes: string,
         HighlightShapes: string,
-        Dark: string,
-        Light: string,
+        OnDarkBackground: string,
+        OnLightBackground: string,
         AddImage: string;
         EditImage: string;
         AllShapes: string;

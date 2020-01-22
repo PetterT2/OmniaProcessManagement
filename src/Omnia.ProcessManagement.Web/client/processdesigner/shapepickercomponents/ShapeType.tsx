@@ -284,7 +284,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 drawingShapes: [],
                 width: canvasSize.width,
                 height: canvasSize.height
-            }, true, false, this.processDesignerStore.getters.darkHightlight());
+            }, true, false);
     }
 
     startToDrawShape() {

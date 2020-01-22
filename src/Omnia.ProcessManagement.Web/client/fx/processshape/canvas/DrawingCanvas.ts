@@ -24,8 +24,8 @@ export class DrawingCanvas implements CanvasDefinition {
     private lineColor = '#ccc';
     private defaultPosition = 10;
     private isSetHover: boolean = false;
-    private showGridlines: boolean = true;
-    private darkHightlight: boolean = null;
+    protected showGridlines: boolean = true;
+    protected darkHightlight: boolean = null;
     private selectedShape: { id: GuidValue, type: DrawingShapeTypes } = null;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, showGridlines?: boolean, darkHightlight?: boolean) {
