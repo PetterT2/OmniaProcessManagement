@@ -20,6 +20,7 @@
         RedrawShape: string;
         DrawShape: string;
         DeleteShape: string;
+        DeleteDrawing: string;
         SelectShape: string;
         ShapeType: string;
         Search: string;

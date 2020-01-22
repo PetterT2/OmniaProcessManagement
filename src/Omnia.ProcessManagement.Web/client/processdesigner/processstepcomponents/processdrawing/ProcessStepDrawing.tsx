@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas } from '../../../fx';
-import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
@@ -191,6 +191,21 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         this.initDrawingCanvas();
     }
 
+    private deleteDrawing() {
+        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = null;
+        this.processDesignerStore.actions.saveState.dispatch();
+        this.initDrawingCanvas();
+    }
+
+    private showCanvasSettings() {
+        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
+    }
+    
+    /**
+        * Render 
+        * @param h
+        */
+
     private renderPanels(h) {
         let components: Array<JSX.Element> = [];
         /* Right panel drawer */
@@ -260,6 +275,16 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private renderCanvasToolbar(h) {
         return <div class={this.processStepDrawingStyles.canvasToolbar(this.omniaTheming)}>
+            {
+                this.canvasDefinition && this.parentProcessData &&
+                <omfx-confirm-dialog
+                    icon="fal fa-trash-alt"
+                    styles={{ icon: { fontSize: "16px !important", color: this.omniaTheming.system.grey.lighten5 + " !important" }, button: { marginLeft: "0px !important" } }}
+                    type={ConfirmDialogDisplay.Icon}
+                    onClose={(res) => { res == ConfirmDialogResponse.Ok && this.deleteDrawing() }}>
+                </omfx-confirm-dialog>
+            }
+            
             <v-btn
                 small
                 icon
@@ -269,14 +294,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         </div>;
     }
 
-    private showCanvasSettings() {
-        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
-    }
-
-    /**
-        * Render 
-        * @param h
-        */
     render(h) {
         return (
             <div>

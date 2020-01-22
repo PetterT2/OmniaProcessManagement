@@ -469,79 +469,82 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         onChange={(val) => { this.internalShapeDefinition.textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
                 </v-col>
             </v-row>
-            <v-row dense>
-                <v-col cols="6">
-                    <v-row>
-                        {
-                            isMediaShape ? null
-                                :
-                                <v-col cols="12">
-                                    <omfx-color-picker
-                                        required={true}
-                                        dark={this.omniaTheming.promoted.body.dark}
-                                        label={this.omniaLoc.Common.BackgroundColor}
-                                        model={{ color: this.internalShapeDefinition.backgroundColor }}
-                                        disableRgba={true}
-                                        onChange={(p) => { this.internalShapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
-                                    </omfx-color-picker>
-                                </v-col>
-                        }
-                        <v-col cols="12">
+
+            <v-row>
+                {
+                    isMediaShape ? null
+                        :
+                        <v-col cols="4">
                             <omfx-color-picker
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.omniaLoc.Common.BorderColor}
-                                model={{ color: this.internalShapeDefinition.borderColor }}
+                                label={this.omniaLoc.Common.BackgroundColor}
+                                model={{ color: this.internalShapeDefinition.backgroundColor }}
                                 disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.borderColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { this.internalShapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                required={true}
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.TextColor}
-                                model={{ color: this.internalShapeDefinition.textColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.textColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
-                    </v-row>
+                }
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        required={true}
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.omniaLoc.Common.BorderColor}
+                        model={{ color: this.internalShapeDefinition.borderColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.borderColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
                 </v-col>
-                <v-col cols="6">
-                    <v-row>
-                        {
-                            isMediaShape ? null
-                                :
-                                <v-col cols="12">
-                                    <omfx-color-picker
-                                        dark={this.omniaTheming.promoted.body.dark}
-                                        label={this.opmCoreloc.DrawingShapeSettings.ActiveBackgroundColor}
-                                        model={{ color: this.internalShapeDefinition.activeBackgroundColor }}
-                                        disableRgba={true}
-                                        onChange={(p) => { this.internalShapeDefinition.activeBackgroundColor = p.color; this.updateDrawedShape(); }}>
-                                    </omfx-color-picker>
-                                </v-col>
-                        }
-                        <v-col cols="12">
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        required={true}
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.opmCoreloc.DrawingShapeSettings.TextColor}
+                        model={{ color: this.internalShapeDefinition.textColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.textColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
+                </v-col>
+            </v-row>
+
+            <v-row>
+                {
+                    isMediaShape ? null
+                        :
+                        <v-col cols="4">
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveBorderColor}
-                                model={{ color: this.internalShapeDefinition.activeBorderColor }}
+                                label={this.opmCoreloc.DrawingShapeSettings.HoverBackgroundColor}
+                                model={{ color: this.internalShapeDefinition.hoverBackgroundColor }}
                                 disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.activeBorderColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { this.internalShapeDefinition.hoverBackgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.ActiveTextColor}
-                                model={{ color: this.internalShapeDefinition.activeTextColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.activeTextColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
-                        <v-col cols="12">
+                }
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.opmCoreloc.DrawingShapeSettings.HoverBorderColor}
+                        model={{ color: this.internalShapeDefinition.hoverBorderColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.hoverBorderColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
+                </v-col>
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.opmCoreloc.DrawingShapeSettings.HoverTextColor}
+                        model={{ color: this.internalShapeDefinition.hoverTextColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.hoverTextColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
+                </v-col>
+            </v-row>
+
+            <v-row>
+                {
+                    isMediaShape ? null :
+                        <v-col cols="4">
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
@@ -550,27 +553,27 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 onChange={(p) => { this.internalShapeDefinition.selectedBackgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
-                                model={{ color: this.internalShapeDefinition.selectedBorderColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.selectedBorderColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
-                        <v-col cols="12">
-                            <omfx-color-picker
-                                dark={this.omniaTheming.promoted.body.dark}
-                                label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
-                                model={{ color: this.internalShapeDefinition.selectedTextColor }}
-                                disableRgba={true}
-                                onChange={(p) => { this.internalShapeDefinition.selectedTextColor = p.color; this.updateDrawedShape(); }}>
-                            </omfx-color-picker>
-                        </v-col>
-                    </v-row>
+                }
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
+                        model={{ color: this.internalShapeDefinition.selectedBorderColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.selectedBorderColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
+                </v-col>
+                <v-col cols={isMediaShape ? "6" : "4"}>
+                    <omfx-color-picker
+                        dark={this.omniaTheming.promoted.body.dark}
+                        label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
+                        model={{ color: this.internalShapeDefinition.selectedTextColor }}
+                        disableRgba={true}
+                        onChange={(p) => { this.internalShapeDefinition.selectedTextColor = p.color; this.updateDrawedShape(); }}>
+                    </omfx-color-picker>
                 </v-col>
             </v-row>
+
         </v-container>;
     }
 

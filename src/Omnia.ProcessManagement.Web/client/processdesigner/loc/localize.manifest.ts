@@ -25,6 +25,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         RedrawShape: "Redraw Shape",
         DrawShape: "Draw Shape",
         DeleteShape: "Delete Shape",
+        DeleteDrawing: "Delete Drawing",
         ShapeType: "Shape Type",
         Search: "Search",
         ShapeTypes: {
