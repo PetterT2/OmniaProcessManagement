@@ -53,7 +53,7 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
             this.drawingCanvas.destroy();
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvasFreeForm(this.canvasId.toString(), {},
-                this.canvasDefinition, true, null, null, this.processDesignerStore.showGridlines.state);
+                this.canvasDefinition, true, null, null, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
             (this.drawingCanvas as DrawingCanvasFreeForm).setSelectingShapeCallback((selectedShape) => {
                 this.isFinished = selectedShape != null;
                 if (this.isFinished)
@@ -67,6 +67,7 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
         this.dialogModel.visible = false;
         if (this.drawingCanvas.drawingShapes.length > 0) {
             let shape = (this.drawingCanvas.drawingShapes[0].shape as Shape).getShapeJson();
+            shape.nodes[0].properties['stroke'] = this.shapeDefinition.borderColor;
             this.save(shape);
         }
     }

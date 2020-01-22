@@ -143,6 +143,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
 
                 <v-col cols="12">
                     <v-checkbox
+                        hide-details
                         input-value={this.processDesignerStore.showGridlines.state}
                         onChange={(val) => { this.processDesignerStore.showGridlines.mutate(val) }}
                         label={this.pdLoc.ShowGridlinnes}></v-checkbox>
@@ -158,10 +159,10 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                 </v-col>
                 {
                     this.processDesignerStore.highlightShapes.state &&
-                    <v-col cols="auto">
+                    <v-col cols="auto px-0">
                         <v-switch
                             input-value={this.processDesignerStore.highlightShapesWithDarkColor.state}
-                            label={this.processDesignerStore.highlightShapesWithDarkColor.state ? this.pdLoc.Dark : this.pdLoc.Light}
+                            label={this.processDesignerStore.highlightShapesWithDarkColor.state ? this.pdLoc.OnDarkBackground : this.pdLoc.OnLightBackground}
                             onChange={(val) => { this.processDesignerStore.highlightShapesWithDarkColor.mutate(val) }}></v-switch>
                     </v-col>
                 }

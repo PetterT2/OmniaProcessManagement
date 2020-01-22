@@ -9,6 +9,7 @@ Composer
             "./core/index.js",
             "./loc/**/*.js",
             "./stores/ProcessDesignerStore.js",
+            "./stores/ProcessDesignerTabStore.js",
             "./stores/index.js",
             "./stores/AddShapeWizardStore.js",
             "./RawStyles.css.js", ,

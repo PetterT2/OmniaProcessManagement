@@ -10,8 +10,22 @@ export class FabricCircleShape extends FabricShapeExtension implements FabricSha
         this.initCircleProperties(definition);
     }
 
+    protected getSpecificProperties(): { [k: string]: any } {
+        let prop = {};
+        if (this.fabricObject) {
+            let options = this.fabricObject.toJSON();
+
+            prop["radius"] = options["radius"];
+            prop["startAngle"] = options["startAngle"];
+            prop["endAngle"] = options["endAngle"];
+            prop["scaleY"] = options["scaleY"];
+            prop["scaleX"] = options["scaleX"];
+        }
+        return prop;
+    }
+
     private initCircleProperties(definition: DrawingShapeDefinition) {
-        if (definition) {
+        if (definition && !this.properties["radius"]) {
             this.properties["radius"] = definition.width / 2;
         }
         this.fabricObject = new fabric.Circle(this.properties);

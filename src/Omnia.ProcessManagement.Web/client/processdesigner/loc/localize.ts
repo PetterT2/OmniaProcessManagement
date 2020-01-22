@@ -10,13 +10,15 @@
         GridY: string;
         ShowGridlinnes: string,
         HighlightShapes: string,
-        Dark: string,
-        Light: string,
+        OnDarkBackground: string,
+        OnLightBackground: string,
         AddImage: string;
+        EditImage: string;
         AllShapes: string;
         RecentShapes: string;
         AddShape: string;
-        Redraw: string;
+        RedrawShape: string;
+        DrawShape: string;
         DeleteShape: string;
         SelectShape: string;
         ShapeType: string;

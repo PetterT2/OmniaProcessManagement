@@ -53,12 +53,13 @@ export class MediaShape extends ShapeExtension implements Shape {
 
         let position = this.correctPosition(left, top);
         let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
             let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.image);
             let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
             if (imageNode) {
-                this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({ selectable: selectable }, imageNode.properties || {})));
+                this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({}, imageNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }
             if (textNode) {
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
@@ -66,7 +67,7 @@ export class MediaShape extends ShapeExtension implements Shape {
         }
         else if (this.definition) {
             
-            this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), { left: position.left, top: position.top, selectable: selectable }));
+            this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

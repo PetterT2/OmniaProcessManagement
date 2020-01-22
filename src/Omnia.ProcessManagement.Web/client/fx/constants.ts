@@ -57,3 +57,18 @@ export const DefaultDateFormat = "YYYY-MM-DD";
 export const ProcessTableColumnsConstants = {
     get versionType() { return "VersionType"},
 }
+
+export const ShapeHighlightProperties = {
+    get dark() {
+        return {
+            stroke: 'white',
+            strokeDashArray: [5,5]
+        }
+    },
+    get light() {
+        return {
+            stroke: 'black',
+            strokeDashArray: [5, 5]
+        }
+    }
+}

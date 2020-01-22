@@ -28,6 +28,10 @@ export class FabricShapeExtension implements FabricShape {
             this.properties["width"] = definition.width;
             this.properties["height"] = definition.height;
             this.properties["fill"] = definition.backgroundColor;
+
+            if (!this.properties["stroke"]) {
+                this.properties["stroke"] = definition.borderColor;
+            }
         }
     }
 
@@ -42,7 +46,6 @@ export class FabricShapeExtension implements FabricShape {
             opt['left'] = options['left'];
             opt['top'] = options['top'];
             opt['fill'] = options['fill'];
-            opt['stroke'] = options['stroke'];
             opt['strokeWidth'] = 1;
             opt['width'] = Math.floor(options['width'] * options['scaleX']);
             opt['height'] = Math.floor(options['height'] * options['scaleY']);

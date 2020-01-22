@@ -5,7 +5,7 @@ import { DrawingCanvasEditor } from './DrawingCanvasEditor';
 import { DrawingShapeDefinition } from '../../models';
 import { Guid, MultilingualString, GuidValue } from '@omnia/fx-models';
 import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape, IFabricShape, FabricShape } from '../fabricshape';
-import { Utils } from '@omnia/fx';
+import { ShapeHighlightProperties } from '../../constants';
 
 export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements CanvasDefinition {
     private polylineShape: fabric.Polyline = null;
@@ -19,14 +19,15 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     private isDrawingFree: boolean = false;
     private isMouseDown: boolean = false;
     private shapeDefinition: DrawingShapeDefinition;
-    private borderColor;
+
     private shapeTitle: string;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
         onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
         onDrawingChanged?: (refreshSettingsPanel?: boolean) => void,
-        showGridlines?: boolean) {
-        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover, onClickEditShapeSettings, onDrawingChanged, showGridlines);
+        showGridlines?: boolean,
+        darkHightlight?: boolean) {
+        super(elementId, Object.assign({ preserveObjectStacking: true }, options || {}), definition, isSetHover, onClickEditShapeSettings, onDrawingChanged, showGridlines, darkHightlight);
     }
 
     private init() {
@@ -42,17 +43,21 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     protected addEventListener() {
+
         this.canvasObject.on('mouse:down', (options) => {
             if (!this.isDrawing)
                 return;
             this.isMouseDown = true;
+
+            let highlightProperties = this.getHighlightProperties();
+
             if (this.isDrawing && this.polylineShape == null) {
-                this.addLine(options, this.shapeDefinition.borderColor);
+                this.addLine(options, highlightProperties);
                 this.canvasObject.on('mouse:up', (options) => {
                     if (!this.isDrawing)
                         return;
                     if (this.isDrawingFree) {
-                        this.addLine(options, this.shapeDefinition.borderColor);
+                        this.addLine(options, highlightProperties);
                     }
                     this.isDrawingFree = false;
                     this.isMouseDown = false;
@@ -80,17 +85,25 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         });
     }
 
-    private addLine(options, stroke) {
+    getHighlightProperties() {
+        let highlightProperties = this.darkHightlight === true ? ShapeHighlightProperties.dark :
+            this.darkHightlight === false ? ShapeHighlightProperties.light : {
+                stroke: this.shapeDefinition.borderColor || '#000'
+            };
+
+        return highlightProperties;
+    }
+
+    private addLine(options, highlightProperties) {
         this.canvasObject.selection = false;
         this.setStartingPoint(options);
         this.points.push(new fabric.Point(this.x, this.y));
         var points = [this.x, this.y, this.x, this.y];
-        var line = new fabric.Line(points, {
+        var line = new fabric.Line(points, Object.assign({
             strokeWidth: this.strokeWidth,
             selectable: false,
-            stroke: stroke,
             fill: this.shapeDefinition.backgroundColor
-        });
+        }, highlightProperties));
         this.lines.push(line);
         this.canvasObject.add(this.lines[this.lineCounter]);
         this.lineCounter++;
@@ -137,12 +150,12 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
 
     private createFreeFromShape() {
         let freeNodes = this.generateNodes();
-        this.shapeDefinition.borderColor = this.shapeDefinition.borderColor || '#000';
+
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),
             type: DrawingShapeTypes.Undefined,
             title: null,
-            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true)
+            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, this.polylineShape.left, this.polylineShape.top, this.darkHightlight)
         };
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
@@ -168,10 +181,10 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             return object.type == 'path' && object.path.length > 2;
         });
         let pathShapes: Array<FabricPathShape> = [];
-        this.shapeDefinition.borderColor = this.borderColor;
+
         pathsObject.forEach((object, index) => {
             let objectJson = object.toObject();
-            objectJson['stroke'] = this.borderColor;
+            objectJson['stroke'] = this.shapeDefinition.borderColor;
             pathShapes.push(new FabricPathShape(this.shapeDefinition, objectJson));
         })
         if (pathsObject.length > 0) {
@@ -309,11 +322,10 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     start(shapeDefinition: DrawingShapeDefinition, title: string) {
         this.init();
         this.shapeDefinition = shapeDefinition;
-        this.borderColor = this.shapeDefinition.borderColor;
-        this.shapeDefinition.borderColor = this.shapeDefinition.borderColor || '#000';
         this.canvasObject.isDrawingMode = true;
-        this.canvasObject.freeDrawingBrush.color = this.shapeDefinition.borderColor;
-        this.canvasObject.freeDrawingBrush.width = this.strokeWidth;
+
+        //this.canvasObject.freeDrawingBrush.color = this.shapeDefinition.borderColor;
+        //this.canvasObject.freeDrawingBrush.width = this.strokeWidth;
         this.shapeTitle = title;
     }
 

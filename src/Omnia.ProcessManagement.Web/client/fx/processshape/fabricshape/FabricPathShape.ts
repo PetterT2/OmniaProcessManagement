@@ -39,12 +39,14 @@ export class FabricPathShape extends FabricShapeExtension implements FabricShape
         if (this.fabricObject) {
             let options = this.fabricObject.toJSON();
             prop["path"] = options["path"];
-            if (options.scaleX != 1 || options.scaleY != 1) {
-                this.calculateScalePointsToDefinition(options.scaleX, options.scaleY, options);
-                prop["path"] = options["path"];
-                prop["left"] = options["left"];
-                prop["top"] = options["top"];
-            }
+            prop["scaleY"] = options["scaleY"];
+            prop["scaleX"] = options["scaleX"];
+
+
+            //this.calculateScalePointsToDefinition(options.scaleX, options.scaleY, options);
+            //    prop["left"] = options["left"];
+            //    prop["top"] = options["top"];
+            //}
         }
         return prop;
     }

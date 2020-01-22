@@ -5,6 +5,7 @@ import { DrawingShapeDefinition, TextPosition } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { IShape } from '.';
 
 export class FreeformShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
@@ -16,25 +17,34 @@ export class FreeformShape extends ShapeExtension implements Shape {
         return ShapeTemplatesConstants.Freeform.name;
     }
 
+    getShapeJson(): IShape {
+        let basicShapeJSON = super.getShapeJson();
+
+        if (basicShapeJSON.nodes) {
+            basicShapeJSON.nodes.forEach((nodeItem) => {
+                if (nodeItem.shapeNodeType != FabricShapeTypes.text && nodeItem.properties.path) {
+                    nodeItem.properties['path'] = this.shapeObject[0]['path'];
+                    nodeItem.properties['scaleY'] = this.shapeObject[0]['scaleY'];
+                    nodeItem.properties['scaleX'] = this.shapeObject[0]['scaleX'];
+                }
+            });
+        }
+        return basicShapeJSON;
+    }
+
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
-        let strokeProperties = this.getStrokeProperties();
+        let position = this.correctPosition(left, top);
+        let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
-            let hasPosition = (left != null && left != undefined) && (top != null && top != undefined);
-            if (hasPosition) {
-                left = parseFloat(left.toString());
-                top = parseFloat(top.toString());
-            }
+            
             let pathNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.path);
             if (pathNode) {
-                if (hasPosition) {
-                    pathNode.properties['left'] = left;
-                    pathNode.properties['top'] = top;
-                }
-                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({ selectable: selectable }, pathNode.properties || {}, strokeProperties), true));
-                let position = this.correctPosition(this.fabricShapes[0].fabricObject.left, this.fabricShapes[0].fabricObject.top);
-                let textPosition = this.getTextPosition(position, this.fabricShapes[0].fabricObject.width, this.fabricShapes[0].fabricObject.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+
+                this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({}, pathNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties), false));
+                
+                let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
                 
                 this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', selectable: selectable, left: textPosition.left, top: textPosition.top }, title));
             }

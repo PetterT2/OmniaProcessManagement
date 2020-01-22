@@ -159,7 +159,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onClickEditShape(selectedShape: DrawingShape) {
-        this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(false);
         this.processDesignerStore.mutations.setSelectedShapeToEdit.commit(selectedShape);
         this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(true);
     }
@@ -271,7 +270,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private showCanvasSettings() {
-        this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
     }
 

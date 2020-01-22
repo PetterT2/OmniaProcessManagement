@@ -24,8 +24,8 @@ export class DrawingCanvas implements CanvasDefinition {
     private lineColor = '#ccc';
     private defaultPosition = 10;
     private isSetHover: boolean = false;
-    private showGridlines: boolean = true;
-    private darkHightlight: boolean = null;
+    protected showGridlines: boolean = true;
+    protected darkHightlight: boolean = null;
     private selectedShape: { id: GuidValue, type: DrawingShapeTypes } = null;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, showGridlines?: boolean, darkHightlight?: boolean) {
@@ -55,7 +55,15 @@ export class DrawingCanvas implements CanvasDefinition {
     getCanvasDefinitionJson(): CanvasDefinition {
         let shapes: DrawingShape[] = [];
         this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));
-        shapes.forEach(s => s.shape = (s.shape as Shape).getShapeJson());
+
+        shapes.forEach((s, index) => {
+            s.shape = (s.shape as Shape).getShapeJson()
+            this.drawingShapes[index].shape.nodes = s.shape.nodes;
+        });
+
+        if (this.onSelectingShape) {
+            this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
+        }
 
         return {
             backgroundImageUrl: this.backgroundImageUrl,
@@ -75,7 +83,9 @@ export class DrawingCanvas implements CanvasDefinition {
     private updateSelectedShapeStyle() {
         if (this.selectedShape == null)
             return;
+
         this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
+
         let drawingShape: DrawingShape = null;
         if (this.selectedShape.type == DrawingShapeTypes.ProcessStep) {
             drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
@@ -126,16 +136,6 @@ export class DrawingCanvas implements CanvasDefinition {
     protected initShapes(elementId: string, options: fabric.ICanvasOptions, drawingShapes: DrawingShape[]) {
         this.selectable = false;
         this.renderCanvas(elementId, options, drawingShapes);
-        this.addEventListener();
-    }
-
-    protected addEventListener() {
-        this.canvasObject.on('mouse:down', (options) => {
-            let findShape = this.drawingShapes.find(s => (s.shape as Shape).isHover());
-            if (findShape != null && this.onSelectingShape) {
-                this.onSelectingShape(findShape);
-            }
-        });
     }
 
     protected renderCanvas(elementId: string, options: fabric.ICanvasOptions, drawingShapes: DrawingShape[]) {
@@ -154,15 +154,15 @@ export class DrawingCanvas implements CanvasDefinition {
         if (this.showGridlines) {
             if (this.gridX) {
                 for (var i = 0; i < (this.width / this.gridX); i++) {
-                    this.canvasObject.add(new fabric.Line([i * this.gridX, 0, i * this.gridX, this.height], { stroke: this.lineColor, selectable: false }));
+                    this.canvasObject.add(new fabric.Line([i * this.gridX, 0, i * this.gridX, this.height], { stroke: this.lineColor, selectable: false, moveCursor: 'auto', hoverCursor: 'auto' }));
                 }
-                this.canvasObject.add(new fabric.Line([this.width - 1, 0, this.width - 1, this.height], { stroke: this.lineColor, selectable: false }));
+                this.canvasObject.add(new fabric.Line([this.width - 1, 0, this.width - 1, this.height], { stroke: this.lineColor, selectable: false, moveCursor: 'auto', hoverCursor: 'auto' }));
             }
             if (this.gridY) {
                 for (var i = 0; i < (this.height / this.gridY); i++) {
-                    this.canvasObject.add(new fabric.Line([0, i * this.gridY, this.width, i * this.gridY], { stroke: this.lineColor, selectable: false }))
+                    this.canvasObject.add(new fabric.Line([0, i * this.gridY, this.width, i * this.gridY], { stroke: this.lineColor, selectable: false, moveCursor: 'auto', hoverCursor: 'auto' }))
                 }
-                this.canvasObject.add(new fabric.Line([0, this.height - 1, this.width, this.height - 1], { stroke: this.lineColor, selectable: false }));
+                this.canvasObject.add(new fabric.Line([0, this.height - 1, this.width, this.height - 1], { stroke: this.lineColor, selectable: false, moveCursor: 'auto', hoverCursor: 'auto' }));
             }
         }
 
@@ -268,7 +268,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     currentDrawingShape.title = title;
                     currentDrawingShape.shape = {
                         name: definition.shapeTemplate.name,
-                        nodes: definition.shapeTemplate.name == ShapeTemplatesConstants.Freeform.name ? currentDrawingShape.shape.nodes : null,
+                        nodes: currentDrawingShape.shape.nodes,
                         definition: definition,
                         left: position.left,
                         top: position.top
@@ -302,11 +302,13 @@ export class DrawingCanvas implements CanvasDefinition {
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
                 if (oldShapeIndex > -1) {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
-                    if (nodes == null) {
+                    //If this is not freeform, we keep the old position
+                    if (drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
                         let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
                     }
+
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;
