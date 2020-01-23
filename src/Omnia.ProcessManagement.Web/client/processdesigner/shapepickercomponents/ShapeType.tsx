@@ -480,7 +480,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.omniaLoc.Common.BackgroundColor}
                                 model={{ color: this.internalShapeDefinition.backgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { this.internalShapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -491,7 +491,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.omniaLoc.Common.BorderColor}
                         model={{ color: this.internalShapeDefinition.borderColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.borderColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>
@@ -501,7 +501,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.opmCoreloc.DrawingShapeSettings.TextColor}
                         model={{ color: this.internalShapeDefinition.textColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.textColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>
@@ -516,7 +516,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.HoverBackgroundColor}
                                 model={{ color: this.internalShapeDefinition.hoverBackgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { this.internalShapeDefinition.hoverBackgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -526,7 +526,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.opmCoreloc.DrawingShapeSettings.HoverBorderColor}
                         model={{ color: this.internalShapeDefinition.hoverBorderColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.hoverBorderColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>
@@ -535,7 +535,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.opmCoreloc.DrawingShapeSettings.HoverTextColor}
                         model={{ color: this.internalShapeDefinition.hoverTextColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.hoverTextColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>
@@ -549,7 +549,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
                                 model={{ color: this.internalShapeDefinition.selectedBackgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { this.internalShapeDefinition.selectedBackgroundColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -559,7 +559,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
                         model={{ color: this.internalShapeDefinition.selectedBorderColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.selectedBorderColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>
@@ -568,7 +568,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         dark={this.omniaTheming.promoted.body.dark}
                         label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
                         model={{ color: this.internalShapeDefinition.selectedTextColor }}
-                        disableRgba={true}
+                        allowRgba
                         onChange={(p) => { this.internalShapeDefinition.selectedTextColor = p.color; this.updateDrawedShape(); }}>
                     </omfx-color-picker>
                 </v-col>

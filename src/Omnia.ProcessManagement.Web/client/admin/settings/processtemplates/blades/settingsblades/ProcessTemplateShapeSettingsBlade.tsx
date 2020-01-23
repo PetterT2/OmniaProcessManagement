@@ -212,7 +212,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.omniaUxLoc.Common.BackgroundColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).backgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).backgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -223,7 +223,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.omniaUxLoc.Common.BorderColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).borderColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).borderColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
@@ -233,7 +233,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.opmCoreloc.DrawingShapeSettings.TextColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).textColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).textColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
@@ -247,7 +247,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.HoverBackgroundColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).hoverBackgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverBackgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -257,7 +257,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.opmCoreloc.DrawingShapeSettings.HoverBorderColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).hoverBorderColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverBorderColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
@@ -266,7 +266,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.opmCoreloc.DrawingShapeSettings.HoverTextColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).hoverTextColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).hoverTextColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
@@ -280,7 +280,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor }}
-                                disableRgba={true}
+                                allowRgba
                                 onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor = p.color; this.updateTemplateShape(); }}>
                             </omfx-color-picker>
                         </v-col>
@@ -290,7 +290,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBorderColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBorderColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
@@ -299,7 +299,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             dark={this.omniaTheming.promoted.body.dark}
                             label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).selectedTextColor }}
-                            disableRgba={true}
+                            allowRgba
                             onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedTextColor = p.color; this.updateTemplateShape(); }}>
                         </omfx-color-picker>
                     </v-col>
