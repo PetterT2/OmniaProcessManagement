@@ -101,10 +101,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        if (newValue.id !== oldValue.id) {
+        //if (newValue.id !== oldValue.id) {
             this.init();
             this.startToDrawShape();
-        }
+        //}
     }
     created() {
         if (this.formValidator)

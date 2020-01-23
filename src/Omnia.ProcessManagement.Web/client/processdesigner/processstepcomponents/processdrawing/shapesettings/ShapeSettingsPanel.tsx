@@ -200,6 +200,11 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             title: this.selectedShape.title
         };
         this.isShowChangeShape = false;
+
+        if (selectedShapeDefinition.shapeTemplate.id !== ShapeTemplatesConstants.Media.id &&
+            selectedShapeDefinition.shapeTemplate.id !== ShapeTemplatesConstants.Freeform.id) {
+            this.onChangedDrawingOptions(this.drawingShapeOptions);
+        }
     }
 
     renderShortcutSettings(h) {
