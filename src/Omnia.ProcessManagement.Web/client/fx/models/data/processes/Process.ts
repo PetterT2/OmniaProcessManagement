@@ -10,6 +10,7 @@ export interface Process {
     teamAppId: GuidValue;
     webId: GuidValue;
     processWorkingStatus: ProcessWorkingStatus;
+    checkedOutBy?: string;
     createdBy: string;
     modifiedBy: string;
     createAt: Date;

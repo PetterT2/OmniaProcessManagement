@@ -5,7 +5,7 @@ import { Localize, Inject, IWebComponentInstance, WebComponentBootstrapper, vueC
 import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation, DialogModel, IValidator } from '@omnia/fx/ux';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryStyles } from '../../../models';
-import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, PropertyInternalNamesConstants } from '../../../fx';
+import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, PropertyInternalNamesConstants, ProcessDefaultData } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, RouteOptions } from '../../../fx/models';
@@ -111,7 +111,9 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
             this.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType] = this.selectedProcessType.id;
             this.process.rootProcessStep.processTemplateId = this.selectedTemplate.id;
             let processData: { [processStepId: string]: ProcessData } = {};
-            processData[this.process.id.toString()] = {} as ProcessData;
+            processData[this.process.id.toString()] = {
+                canvasDefinition: ProcessDefaultData.canvasDefinition
+            } as ProcessData;
             let model: ProcessActionModel = {
                 process: this.process,
                 processData: processData

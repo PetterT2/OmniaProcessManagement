@@ -77,7 +77,11 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
 
     refreshExpandState() {
         let referenceData = this.currentProcessStore.getters.referenceData();
-        if (this.currentProcessId != referenceData.process.id) {
+        if (!referenceData) {
+            this.expandState = {};
+            this.currentProcessId = null;
+        }
+        else if (this.currentProcessId != referenceData.process.id) {
             this.currentProcessId = referenceData.process.id;
             let newExpandState = OPMUtils.generateProcessStepExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep.id);
             this.expandState = Object.assign({}, this.expandState, newExpandState);

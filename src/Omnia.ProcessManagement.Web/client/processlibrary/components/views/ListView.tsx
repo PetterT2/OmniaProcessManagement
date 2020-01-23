@@ -14,7 +14,6 @@ import { TasksView } from './tasks/TasksView';
 import { BaseListViewItems } from './BaseListViewItems';
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../../fx/contexts';
-import { ProcessDesignerStore } from '../../../processdesigner/stores';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
@@ -28,7 +27,6 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     @Inject(SecurityService) securityService: SecurityService;
     @Inject(OPMContext) opmContext: OPMContext;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
-    @Inject(ProcessDesignerStore) processDeisgnerStore: ProcessDesignerStore;
 
     private selectingTab = ProcessLibraryListViewTabs.Draft;
     
@@ -57,7 +55,6 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
     }
 
     created() {
-        this.processDeisgnerStore.mutations.setPreviewPageUrl.commit(this.viewSettings.previewPageUrl);
         this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
             [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString(),
             [Security.Parameters.SecurityResourceId]: this.opmContext.teamAppId.toString()

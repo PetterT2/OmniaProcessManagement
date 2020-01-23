@@ -56,7 +56,10 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
                     <v-col cols="auto">Breadcrumb</v-col>
                     <v-spacer></v-spacer>
                     <v-col cols="auto">
-                        <v-btn icon onClick={() => { OPMRouter.clearRoute() }}><v-icon>close</v-icon></v-btn>
+                        {
+                            window.self == window.top &&
+                            <v-btn icon onClick={() => { OPMRouter.clearRoute() }}><v-icon>close</v-icon></v-btn>
+                        }
                     </v-col>
                 </v-row>
                 <v-row justify="start">

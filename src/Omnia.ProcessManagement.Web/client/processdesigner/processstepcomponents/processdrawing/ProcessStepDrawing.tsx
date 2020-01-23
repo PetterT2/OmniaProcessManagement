@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas } from '../../../fx';
+import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData } from '../../../fx';
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
@@ -179,28 +179,25 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private createDrawing() {
-        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = {
-            drawingShapes: [],
-            width: 700,
-            height: 500,
-            gridX: 20,
-            gridY: 20,
-            backgroundImageUrl: ''
-        };
+        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = ProcessDefaultData.canvasDefinition;
         this.processDesignerStore.actions.saveState.dispatch();
         this.initDrawingCanvas();
     }
 
     private deleteDrawing() {
-        this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = null;
-        this.processDesignerStore.actions.saveState.dispatch();
-        this.initDrawingCanvas();
+        this.$confirm.open().then(resposne => {
+            if (resposne == ConfirmDialogResponse.Ok) {
+                this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = null;
+                this.processDesignerStore.actions.saveState.dispatch();
+                this.initDrawingCanvas();
+            }
+        })
     }
 
     private showCanvasSettings() {
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
     }
-    
+
     /**
         * Render 
         * @param h
@@ -277,14 +274,13 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         return <div class={this.processStepDrawingStyles.canvasToolbar(this.omniaTheming)}>
             {
                 this.canvasDefinition && this.parentProcessData &&
-                <omfx-confirm-dialog
-                    icon="fal fa-trash-alt"
-                    styles={{ icon: { fontSize: "16px !important", color: this.omniaTheming.system.grey.lighten5 + " !important" }, button: { marginLeft: "0px !important" } }}
-                    type={ConfirmDialogDisplay.Icon}
-                    onClose={(res) => { res == ConfirmDialogResponse.Ok && this.deleteDrawing() }}>
-                </omfx-confirm-dialog>
+                <v-btn
+                    small
+                    icon
+                    onClick={this.deleteDrawing}>
+                    <v-icon small color={this.omniaTheming.system.grey.lighten5}>fal fa-trash-alt</v-icon>
+                </v-btn>
             }
-            
             <v-btn
                 small
                 icon
@@ -306,17 +302,18 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                                         this.parentProcessData && this.parentProcessData.canvasDefinition ? <canvas id={this.parentCanvasId}></canvas> : null
                                 }
                             </div>
-                            {this.canvasDefinition  && this.renderCanvasToolbar(h)}
+                            {this.canvasDefinition && this.renderCanvasToolbar(h)}
                         </div>
-                        {!this.canvasDefinition ? 
-                            <div>
+                        {!this.canvasDefinition ?
+                            <div class="mt-5">
+                                <div style={{ color: 'black' }}>{this.pdLoc.NoDrawingMessage}</div>
                                 <v-btn text
                                     color={this.omniaTheming.themes.primary.base}
                                     dark={this.omniaTheming.promoted.body.dark}
                                     onClick={this.createDrawing}>{this.pdLoc.CreateDrawing}</v-btn>
                             </div> : null
                         }
-                        
+
                     </v-card-text>
                 </v-card>
                 {this.renderPanels(h)}

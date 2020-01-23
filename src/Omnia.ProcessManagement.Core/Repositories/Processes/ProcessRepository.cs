@@ -794,6 +794,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         throw new ProcessDraftVersionNotFoundException(opmProcessId);
                     }
 
+
+                    //This should be re-visit the logic when implement the send for review feature
+                    EnsureNoActiveWorkflow(existingDraftProcess);
+
                     process = await CloneProcessAsync(existingDraftProcess, ProcessVersionType.CheckedOut);
                 }
                 else if (process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
@@ -1248,16 +1252,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         private void EnsureNoActiveWorkflow(Entities.Processes.Process process)
         {
-            if (process.ProcessWorkingStatus == ProcessWorkingStatus.SendingForReview ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.SendingForApproval ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.SentForApproval ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.SentForReview ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApproval ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReview ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingApprovalFailed ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.CancellingReviewFailed ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.SyncingToSharePoint ||
-                process.ProcessWorkingStatus == ProcessWorkingStatus.Archiving)
+            var isActive = OPMUtilities.IsActiveWorkflow(process.ProcessWorkingStatus);
+            if (isActive)
             {
                 throw new Exception($"There is a active worflow for this process: {process.ProcessWorkingStatus.ToString()}, try later!");
             }

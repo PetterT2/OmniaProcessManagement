@@ -81,10 +81,17 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid processStepId)
+        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByOPMProcessIdQueryAsync(Guid opmProcessId, bool includeCheckedOutByOther = false)
         {
             var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
-            var authorizedProcessQuery = new AuthorizedProcessByProcessStepIdQuery(processStepId, authorizedResource, OmniaContext);
+            var authorizedProcessQuery = new AuthorizedProcessByOPMProcessIdQuery(opmProcessId, authorizedResource, OmniaContext, includeCheckedOutByOther);
+            return authorizedProcessQuery;
+        }
+
+        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid processStepId, bool includeCheckedOutByOther = false)
+        {
+            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
+            var authorizedProcessQuery = new AuthorizedProcessByProcessStepIdQuery(processStepId, authorizedResource, OmniaContext, includeCheckedOutByOther);
             return authorizedProcessQuery;
         }
 

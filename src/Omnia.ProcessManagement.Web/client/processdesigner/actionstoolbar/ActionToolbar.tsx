@@ -5,7 +5,7 @@ import { Inject, Utils, Localize } from '@omnia/fx';
 import { OmniaTheming, Router } from "@omnia/fx/ux"
 import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessDesignerStore, ProcessDesignerPanelStore } from '../stores';
-import { CurrentProcessStore } from '../../fx';
+import { CurrentProcessStore, ProcessStore } from '../../fx';
 import { ProcessVersionType } from '../../fx/models';
 import { ActionItem, ActionItemType, ActionCustomButton, ActionButton, DisplayModes } from '../../models/processdesigner';
 import { ProcessDesignerStyles } from '../ProcessDesigner.css';
@@ -20,6 +20,7 @@ export interface ActionToolbarProps {
 @Component
 export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
 {
+    @Inject(ProcessStore) processStore: ProcessStore;
     @Inject(ProcessDesignerPanelStore) processDesignerPanelStore: ProcessDesignerPanelStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) private omniaTheming: OmniaTheming;
@@ -107,7 +108,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
         let result = new Array<JSX.Element>();
         let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
         let hasDataChanged = this.processDesignerStore.getters.hasDataChanged();
-
+        let processCheckoutStatus = this.processStore.getters.processCheckoutInfo(currentProcessReferenceData.process.opmProcessId);
         /* Action buttons in toolbar */
         if (this.processDesignerStore.tabs.selectedTab.state && currentProcessReferenceData && currentProcessReferenceData.process) {
             if (currentProcessReferenceData.process.versionType == ProcessVersionType.CheckedOut) {
@@ -120,7 +121,8 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             }
         }
         if (this.processDesignerStore.tabs.selectedTab.state && this.processDesignerStore.tabs.selectedTab.state.tabId == ProcessStepDesignerItem.drawingTabId
-            && this.processDesignerStore.settings.displayMode.state === DisplayModes.contentEditing) {
+            && this.processDesignerStore.settings.displayMode.state === DisplayModes.contentEditing &&
+            currentProcessReferenceData.current.processData.canvasDefinition) {
             result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
                 this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
             }}>{this.pdLoc.AddShape}</v-btn></div>);
@@ -140,6 +142,12 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             result.push(<div class={[ActionToolbarStyles.statusButton]}>
                 <v-btn small text color="success"><v-icon>fal fa-check</v-icon>{this.pdLoc.NewDataHasBeenSaved}</v-btn></div>);
         }
+
+        if (processCheckoutStatus && !processCheckoutStatus.canCheckout && processCheckoutStatus.checkedOutBy) {
+            result.push(<div class={[ActionToolbarStyles.statusButton]}>
+                <v-btn small text>{`${this.pdLoc.CheckedOutTo} ${processCheckoutStatus.checkedOutBy}`}</v-btn></div>);
+        }
+
         result.push(
             <div class={[ActionToolbarStyles.actionButtons]}>
                 <div>{actionButtons}</div>

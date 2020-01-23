@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -84,9 +84,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessCheckoutInfo = (rootProcessStepId: GuidValue) => {
+    public getProcessCheckoutInfo = (opmProcessId: GuidValue) => {
         return new Promise<ProcessCheckoutInfo>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessCheckoutInfo>>(`/api/processes/checkoutinfo/${rootProcessStepId}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessCheckoutInfo>>(`/api/processes/checkoutinfo/${opmProcessId}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -180,10 +180,11 @@ export class ProcessService {
     }
 
     public getPreviewProcessByProcessStepId = (processStepId: GuidValue) => {
-        return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/preview`).then((response) => {
+        return new Promise<PreviewProcessWithCheckoutInfo>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<PreviewProcessWithCheckoutInfo>>(`/api/processes/byprocessstep/${processStepId}/preview`).then((response) => {
                 if (response.data.success) {
-                    this.generateClientSideData([response.data.data]);
+                    let process = response.data.data.process;
+                    this.generateClientSideData([process]);
                     resolve(response.data.data);
                 }
                 else {

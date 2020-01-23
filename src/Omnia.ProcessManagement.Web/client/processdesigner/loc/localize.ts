@@ -38,6 +38,7 @@
         EditLink: string;
         NoProperties: string;
         CreateProcessStep: string;
+        NoDrawingMessage: string;
         EditTitle: string;
         DeleteProcessStep: {
             Label: string;

@@ -164,6 +164,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processactions\ProcessActionModel.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Link.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\PreviewProcessWithCheckoutInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessCheckoutInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\ProcessData.ts" />
@@ -568,6 +569,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\data\processes\PreviewProcessWithCheckoutInfo.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\processes\ProcessCheckoutInfo.ts">

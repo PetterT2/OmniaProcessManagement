@@ -1,8 +1,8 @@
-﻿import { ShapeTemplate } from './models/data/drawingdefinitions';
+﻿import { ShapeTemplate, CanvasDefinition } from './models/data/drawingdefinitions';
 
 export const TextSpacingWithShape = 5;
 
-export const ShapeTemplatesConstants = {    
+export const ShapeTemplatesConstants = {
     get Circle(): ShapeTemplate {
         return {
             id: "b98c7edb-4739-4f88-b14b-55e2fc5d5a55", name: "CircleShape", title: { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }
@@ -55,20 +55,33 @@ export const ProcessRollupConstants = {
 export const DefaultDateFormat = "YYYY-MM-DD";
 
 export const ProcessTableColumnsConstants = {
-    get versionType() { return "VersionType"},
+    get versionType() { return "VersionType" },
 }
 
 export const ShapeHighlightProperties = {
     get dark() {
         return {
             stroke: 'white',
-            strokeDashArray: [5,5]
+            strokeDashArray: [5, 5]
         }
     },
     get light() {
         return {
             stroke: 'black',
             strokeDashArray: [5, 5]
+        }
+    }
+}
+
+export const ProcessDefaultData = {
+    get canvasDefinition(): CanvasDefinition {
+        return{
+            drawingShapes: [],
+            width: 700,
+            height: 500,
+            gridX: 20,
+            gridY: 20,
+            backgroundImageUrl: ''
         }
     }
 }

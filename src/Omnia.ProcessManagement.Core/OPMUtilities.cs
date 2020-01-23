@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +49,22 @@ namespace Omnia.ProcessManagement.Core
                 readBuffer = new byte[bufferSize];
             }
             destination.Flush();
+        }
+
+        public static bool IsActiveWorkflow(ProcessWorkingStatus status)
+        {
+            var isActive = status == ProcessWorkingStatus.SendingForReview ||
+                status == ProcessWorkingStatus.SendingForApproval ||
+                status == ProcessWorkingStatus.SentForApproval ||
+                status == ProcessWorkingStatus.SentForReview ||
+                status == ProcessWorkingStatus.CancellingApproval ||
+                status == ProcessWorkingStatus.CancellingReview ||
+                status == ProcessWorkingStatus.CancellingApprovalFailed ||
+                status == ProcessWorkingStatus.CancellingReviewFailed ||
+                status == ProcessWorkingStatus.SyncingToSharePoint ||
+                status == ProcessWorkingStatus.Archiving;
+
+            return isActive;
         }
     }
 }

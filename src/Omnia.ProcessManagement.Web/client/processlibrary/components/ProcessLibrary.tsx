@@ -8,9 +8,14 @@ import './ProcessLibrary.css';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../loc/localize';
 import { ProcessLibraryStyles } from '../../models';
-import { ProcessLibraryBlockData } from '../../fx/models';
+import { ProcessLibraryBlockData, RouteOptions } from '../../fx/models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ProcessLibraryConfigurationFactory } from '../factory/ProcessLibraryConfigurationFactory';
+import { OPMRouter, CurrentProcessStore, ProcessStore } from '../../fx';
+import { ProcessDesignerStore } from '../../processdesigner/stores';
+import { ProcessDesignerItemFactory } from '../../processdesigner/designeritems';
+import { DisplayModes } from '../../models/processdesigner';
+import { ProcessDesignerUtils } from '../../processdesigner/Utils';
 
 
 @Component
@@ -19,6 +24,8 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     @Prop() styles: typeof ProcessLibraryStyles | any;
 
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(ProcessStore) processStore: ProcessStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -90,8 +97,25 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     }
 
     setBlockData(blockData: ProcessLibraryBlockData) {
+        this.processDesignerStore.mutations.setPreviewPageUrl.commit(blockData.settings.viewSettings.previewPageUrl);
         this.blockData = blockData;
-        this.$forceUpdate();
+        this.handlePreviewOnPageLoad();
+    }
+
+    handlePreviewOnPageLoad() {
+        if (window.self == window.top && OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId &&
+            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer) {
+            let processStepId = OPMRouter.routeContext.route.processStepId;
+            OPMRouter.clearRoute();
+
+            let loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(processStepId);
+            loadProcessPromise.then(processWithCheckoutInfo => {
+                this.processDesignerStore.actions.setProcessToShow.dispatch(processWithCheckoutInfo.process, processWithCheckoutInfo.process.rootProcessStep).then(() => {
+                    ProcessDesignerUtils.openProcessDesigner();
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
+                });
+            })
+        }
     }
 
     // -------------------------------------------------------------------------

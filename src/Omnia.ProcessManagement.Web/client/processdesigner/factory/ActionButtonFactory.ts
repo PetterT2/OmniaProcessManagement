@@ -49,12 +49,7 @@ export class ActionButtonFactory {
     }
 
     static editRootProcessButton(editorItem: RootProcessStepDesignerItem, highLighted: boolean): ActionItem {
-        let checkoutInfo = editorItem.processStore.getters.processCheckoutInfo(editorItem.currentProcessStore.getters.referenceData().process.rootProcessStep.id);
-        let title = this.omniaLoc.Common.Buttons.Edit;
-
-        if (checkoutInfo && !checkoutInfo.canCheckout && checkoutInfo.checkedOutBy) {
-            title = this.loc.CheckedOutTo + " " + checkoutInfo.checkedOutBy
-        }
+        let checkoutInfo = editorItem.processStore.getters.processCheckoutInfo(editorItem.currentProcessStore.getters.referenceData().process.opmProcessId);
 
         return {
             type: ActionItemType.Button,
@@ -64,8 +59,8 @@ export class ActionButtonFactory {
             actionCallback: editorItem.onCheckOut.bind(editorItem),
             highLighted: highLighted,
             icon: "",
-            title: title,
-            visibilityCallBack: () => { return checkoutInfo != null }
+            title: this.omniaLoc.Common.Buttons.Edit,
+            visibilityCallBack: () => { return checkoutInfo && checkoutInfo.canCheckout ? true : false }
         } as ActionButton
     }
 
@@ -122,7 +117,7 @@ export class ActionButtonFactory {
                 icon: "phonelink",
                 title: ActionButtonFactory.opmCoreLoc.Buttons.Preview,
                 displayMode: DisplayModes.contentPreview,
-                visibilityCallBack: () => { return true }
+                visibilityCallBack: () => { return editorItem.currentProcessStore.getters.referenceData().process.versionType == ProcessVersionType.CheckedOut; }
             } as DisplayActionButton
         ]
     }

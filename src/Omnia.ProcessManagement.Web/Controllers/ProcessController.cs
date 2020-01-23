@@ -12,6 +12,8 @@ using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core;
+using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Models.Enums;
@@ -39,30 +41,19 @@ namespace Omnia.ProcessManagement.Web.Controllers
             Logger = logger;
         }
 
-        [HttpGet, Route("checkoutinfo/{rootProcessStepId:guid}")]
+        [HttpGet, Route("checkoutinfo/{opmProcessId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessCheckoutInfo>> GetProcessCheckoutInfoAsync(Guid rootProcessStepId)
+        public async ValueTask<ApiResponse<ProcessCheckoutInfo>> GetProcessCheckoutInfoAsync(Guid opmProcessId)
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(rootProcessStepId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByOPMProcessIdQueryAsync(opmProcessId, true);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
                 var checkedOutProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
                 var draftProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
 
-                if (draftProcess == null || draftProcess.RootProcessStep.Id != rootProcessStepId)
-                    throw new Exception($"Unauthorized or process root step id: {rootProcessStepId} not found");
-
-
-                var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";
-
-                var checkoutInfo = new ProcessCheckoutInfo
-                {
-                    CheckedOutBy = checkedOutBy,
-                    CanCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
-                    (authorizedProcessQuery.IsAuthor(draftProcess.TeamAppId) || authorizedProcessQuery.IsReviewer(draftProcess.TeamAppId))
-                };
+                var checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
 
                 return checkoutInfo.AsApiResponse();
             }
@@ -338,32 +329,53 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("byprocessstep/{processStepId:guid}/preview")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> GetPreviewProcessByProcessStepIdAsync(Guid processStepId)
+        public async ValueTask<ApiResponse<PreviewProcessWithCheckoutInfo>> GetPreviewProcessByProcessStepIdAsync(Guid processStepId)
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(processStepId);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(processStepId, true);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
-                var process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
-                if (process == null)
+                var checkedOutProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
+                var draftProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
+                var publishedProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Published);
+
+                ProcessCheckoutInfo checkoutInfo = null;
+                if (draftProcess != null)
                 {
-                    process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
-                }
-                if (process == null)
-                {
-                    process = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Published);
+                    checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
                 }
 
-                if (process == null)
+                Process process = null;
+                if (checkedOutProcess != null && checkoutInfo != null && checkoutInfo.CanCheckout)
+                {
+                    process = checkedOutProcess;
+                }
+                else if (draftProcess != null)
+                {
+                    process = draftProcess;
+                }
+                else if (publishedProcess != null)
+                {
+                    process = publishedProcess;
+                }
+                else
+                {
                     throw new Exception($"Unauthorized or process step id: {processStepId} not found");
+                }
 
-                return process.AsApiResponse();
+                var result = new PreviewProcessWithCheckoutInfo
+                {
+                    Process = process,
+                    CheckoutInfo = checkoutInfo
+                };
+
+                return result.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<Process>(ex);
+                return ApiUtils.CreateErrorResponse<PreviewProcessWithCheckoutInfo>(ex);
             }
         }
 
@@ -522,6 +534,21 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<bool>(ex);
             }
+        }
+
+        private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
+        {
+            var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";
+
+            var checkoutInfo = new ProcessCheckoutInfo
+            {
+                CheckedOutBy = checkedOutBy,
+                CanCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
+                    (authorizedProcessQuery.IsAuthor(draftProcess.TeamAppId) || authorizedProcessQuery.IsReviewer(draftProcess.TeamAppId)) &&
+                    !OPMUtilities.IsActiveWorkflow(draftProcess.ProcessWorkingStatus)
+            };
+
+            return checkoutInfo;
         }
     }
 }

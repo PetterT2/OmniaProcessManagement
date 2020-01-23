@@ -1,4 +1,4 @@
-﻿import { Inject, Injectable, ServiceContainer } from '@omnia/fx';
+﻿import { Inject, Injectable, ServiceContainer, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
 import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, RouteOptions } from '../models';
@@ -138,7 +138,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
 
             let loadProcessPromise: Promise<Process> = preview ?
-                this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId) :
+                this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => p.process) :
                 this.processStore.actions.loadPublishedProcessByProcessStepId.dispatch(newProcessStepId)
 
             if (newProcessStepId) {
@@ -164,8 +164,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 }
 
 export const OPMRouter: InternalOPMRouter = ServiceContainer.createInstance(InternalOPMRouter);
-
-const currentProcessStore: CurrentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
+const omniaContext: OmniaContext = ServiceContainer.createInstance(OmniaContext);
 
 OPMRouter.onNavigate.subscribe(ctx => {
     if (ctx.route && ctx.stateData) {
@@ -180,10 +179,14 @@ OPMRouter.onNavigate.subscribe(ctx => {
     }
 })
 
-if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
-    let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-        OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
+//Only handle page load route in omnia app or in iframe
+//In spfx (not iframe), the page load route will be handled in the ProcessLibrary with specific logic
+if (omniaContext.environment.omniaApp || window.self != window.top) {
+    if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
+        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
 
-    OPMRouter.navigateWithCurrentRoute(preview);
+        OPMRouter.navigateWithCurrentRoute(preview);
+    }
 }
 

@@ -5,3 +5,4 @@ export * from './RootProcessStep';
 export * from './Link';
 export * from './Task';
 export * from './ProcessCheckoutInfo';
+export * from './PreviewProcessWithCheckoutInfo';

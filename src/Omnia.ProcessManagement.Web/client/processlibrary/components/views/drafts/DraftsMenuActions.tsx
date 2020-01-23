@@ -66,32 +66,35 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         this.disableButtonUpdateAction = !(this.isAuthor && editActionsDict.findIndex(s => s == this.process.processWorkingStatus) > -1);
     }
 
+    openProcessDesigner(process: Process, mode: DisplayModes) {
+        this.processDesignerStore.actions.setProcessToShow.dispatch(process, process.rootProcessStep).then(() => {
+            ProcessDesignerUtils.openProcessDesigner();
+            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), mode);
+        })
+    }
+
     private editProcess() {
-        this.processDesignerStore.actions.setProcessToShow.dispatch(this.process, this.process.rootProcessStep)
-            .then(() => {
-                let checkoutInfoPromise = this.processStore.actions.ensureProcessCheckoutInfo.dispatch(this.process.rootProcessStep.id);
-                this.currentProcessStore.actions.checkOut.dispatch().then(() => {
-                    ProcessDesignerUtils.openProcessDesigner();
-                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-                }).catch(() => {
-                    checkoutInfoPromise.then((info) => {
-                        if (info.checkedOutBy && !info.canCheckout) {
-                            ProcessDesignerUtils.openProcessDesigner();
-                            this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
-                        }
-                    })
-                })
+        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.process.rootProcessStep.id);
+        let checkoutProcess = this.processStore.actions.checkoutProcess.dispatch(this.process.opmProcessId);
+
+        checkoutProcess.then(process => {
+            this.openProcessDesigner(process, DisplayModes.contentEditing);
+        }).catch(() => {
+            loadPreviewProcessPromise.then(processWithCheckoutInfo => {
+                //Does not have permission or checked out by other user
+                if (!processWithCheckoutInfo.checkoutInfo || !processWithCheckoutInfo.checkoutInfo.canCheckout) {
+                    this.openProcessDesigner(processWithCheckoutInfo.process, DisplayModes.contentPreview);
+                }
             })
+        })
     }
 
     private previewProcess() {
-        this.processDesignerStore.actions.setProcessToShow.dispatch(this.process, this.process.rootProcessStep)
-            .then(() => {
-                this.processStore.actions.ensureProcessCheckoutInfo.dispatch(this.process.rootProcessStep.id).then(() => {
-                    ProcessDesignerUtils.openProcessDesigner();
-                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
-                })
-            })
+        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.process.rootProcessStep.id);
+
+        loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
+            this.openProcessDesigner(processWithCheckoutInfo.process, DisplayModes.contentPreview);
+        })
     }
 
     private openDeleteDraft() {

@@ -15,6 +15,10 @@ import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
 import { OPMUtils, OPMRouter, ProcessStore } from '../../../../fx';
+import { ProcessDesignerStore } from '../../../../processdesigner/stores';
+import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
+import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
+import { DisplayModes } from '../../../../models/processdesigner';
 
 interface ApprovalTaskProps {
     closeCallback: () => void;
@@ -36,6 +40,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     @Inject(UserService) private omniaUserService: UserService;
     @Inject(OPMContext) private opmContext: OPMContext;
     @Inject(ProcessStore) private processStore: ProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
@@ -142,16 +147,14 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private previewProcess(e: MouseEvent) {
-        e.preventDefault();
-        if (this.previewPageUrl) {
-            var viewUrl = OPMUtils.createProcessNavigationUrl(this.task.rootProcessId, this.previewPageUrl, true, false);
-            var win = window.open(viewUrl, '_blank');
-            win.focus();
-        } else {
-            this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId).then(process => {
-                OPMRouter.navigate(process, process.rootProcessStep, RouteOptions.previewInGlobalRenderer);
+        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId);
+
+        loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
+            this.processDesignerStore.actions.setProcessToShow.dispatch(processWithCheckoutInfo.process, processWithCheckoutInfo.process.rootProcessStep).then(() => {
+                ProcessDesignerUtils.openProcessDesigner();
+                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
             })
-        }
+        })
     }
 
     renderBody(h) {

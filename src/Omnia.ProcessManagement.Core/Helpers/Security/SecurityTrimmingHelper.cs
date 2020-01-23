@@ -32,7 +32,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             };
         }
 
-        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, IOmniaContext omniaContext, Guid? opmProcessId)
+        public static string GenerateSecurityTrimming(UserAuthorizedResource resources, IOmniaContext omniaContext, Guid? opmProcessId, bool includeCheckedOutByOther = false)
         {
             var securityTrimming = "";
 
@@ -41,7 +41,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             {
                 var draftVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Draft)}";
                 var publishedVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Published)}";
-                var checkedOutVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)}";
+                var checkedOutVersionTrimming = includeCheckedOutByOther ? $"{GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)}" :
+                    $"({GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)})";
                 var notCheckedOutVersionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
                 var connectPart = "";
 
@@ -82,7 +83,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 if (reviewerOPMProcessIds.Any())
                 {
                     var reviewerTrimming = $"{GeneratePermissionForOPMProcessIds(reviewerOPMProcessIds)}";
-                    var reviewerTrimmingCombineWithCheckedOutVersion = $"({reviewerTrimming} AND {checkedOutVersionTrimming})";
+                    var reviewerTrimmingCombineWithCheckedOutVersion = $"({reviewerTrimming} AND ({notCheckedOutVersionTrimming} OR {checkedOutVersionTrimming}))";
                     securityTrimming = $"{securityTrimming}{connectPart}{reviewerTrimmingCombineWithCheckedOutVersion}";
                     connectPart = " OR ";
                 }

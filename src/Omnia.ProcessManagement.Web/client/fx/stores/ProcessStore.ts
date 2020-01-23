@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
 import { OPMUtils } from '../utils';
 
 
@@ -115,8 +115,8 @@ export class ProcessStore extends Store {
             }
             return processReferenceData
         },
-        processCheckoutInfo: (rootProcessStepId: GuidValue) => {
-            return this.processCheckoutInfoDict.state[rootProcessStepId.toString()];
+        processCheckoutInfo: (opmProcessId: GuidValue) => {
+            return this.processCheckoutInfoDict.state[opmProcessId.toString()];
         }
     }
 
@@ -164,9 +164,9 @@ export class ProcessStore extends Store {
                 return process;
             })
         }),
-        ensureProcessCheckoutInfo: this.action((rootProcessStepId: GuidValue) => {
-            return this.processService.getProcessCheckoutInfo(rootProcessStepId).then((info) => {
-                this.internalMutations.addOrUpdateProcessCheckoutInfo(rootProcessStepId, info);
+        ensureProcessCheckoutInfo: this.action((opmProcessId: GuidValue) => {
+            return this.processService.getProcessCheckoutInfo(opmProcessId).then((info) => {
+                this.internalMutations.addOrUpdateProcessCheckoutInfo(opmProcessId, info);
                 return info;
             })
         }),
@@ -234,10 +234,11 @@ export class ProcessStore extends Store {
             })
         }),
         loadPreviewProcessByProcessStepId: this.action((processStepId: GuidValue) => {
-            return new Promise<Process>((resolve, reject) => {
-                this.processService.getPreviewProcessByProcessStepId(processStepId).then(process => {
-                    this.internalMutations.addOrUpdateProcess(process);
-                    resolve(process);
+            return new Promise<PreviewProcessWithCheckoutInfo>((resolve, reject) => {
+                this.processService.getPreviewProcessByProcessStepId(processStepId).then(previewProcessWithCheckoutInfo => {
+                    this.internalMutations.addOrUpdateProcess(previewProcessWithCheckoutInfo.process);
+                    this.internalMutations.addOrUpdateProcessCheckoutInfo(previewProcessWithCheckoutInfo.process.opmProcessId, previewProcessWithCheckoutInfo.checkoutInfo);
+                    resolve(previewProcessWithCheckoutInfo);
                 }).catch(reject);
             })
         }),
@@ -378,8 +379,8 @@ export class ProcessStore extends Store {
         return this.processDataLoadPromises[key];
     }
 
-    private getProcessCheckoutCacheKey = (rootProcessStepId: GuidValue) => {
-        return `${rootProcessStepId.toString()}`.toLowerCase();
+    private getProcessCheckoutCacheKey = (opmProcessId: GuidValue) => {
+        return `${opmProcessId.toString()}`.toLowerCase();
     }
 
     private getProcessCacheKey = (processId: GuidValue) => {
