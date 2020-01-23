@@ -52,6 +52,12 @@ export class DrawingCanvas implements CanvasDefinition {
         this.onSelectingShape(null);
     }
 
+    setSelectShapeEventWithCallback(onSelectShape: (shape: DrawingShape) => void) {
+        this.canvasObject.on('mouse:up', (options) => {
+            onSelectShape(this.findDrawingShape(options.target));
+        });
+    }
+
     getCanvasDefinitionJson(): CanvasDefinition {
         let shapes: DrawingShape[] = [];
         this.drawingShapes.forEach(s => shapes.push(Object.assign({}, s)));

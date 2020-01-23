@@ -90,7 +90,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
-            this.drawingCanvas.setSelectingShapeCallback(this.onSelectingShape);
+            this.drawingCanvas.setSelectShapeEventWithCallback(this.onSelectShape);
         }, 20);
 
 
@@ -107,7 +107,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         this.drawShapes();
     }
 
-    private onSelectingShape(shape: DrawingShape) {
+    private onSelectShape(shape: DrawingShape) {
         if (shape) {
             let currentReferenceData = this.currentProcessStore.getters.referenceData();
             if (shape.type == DrawingShapeTypes.ProcessStep) {
