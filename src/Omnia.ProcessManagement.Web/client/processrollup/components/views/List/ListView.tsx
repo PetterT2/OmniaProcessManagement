@@ -174,7 +174,19 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     renderTaxonomy(process: RollupProcess, internalName: string) {
         let h = this.$createElement;
-        let termIds: Array<string> = process.properties[internalName];
+        let termIds: Array<string> = [];
+
+        let value = process.properties[internalName];
+        //For process type, the value is single
+        if (typeof value === 'string') {
+            value = [value]
+        }
+
+        if (value) {
+            termIds = value;
+        }
+
+        
         let property = this.taxonomyProperties[internalName];
         if (!termIds || termIds.length == 0)
             return null;
