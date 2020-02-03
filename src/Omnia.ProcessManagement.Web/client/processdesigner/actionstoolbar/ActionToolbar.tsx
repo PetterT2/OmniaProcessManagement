@@ -4,7 +4,7 @@ import 'vue-tsx-support/enable-check';
 import { Inject, Utils, Localize } from '@omnia/fx';
 import { OmniaTheming, Router } from "@omnia/fx/ux"
 import { VueComponentBase, ConfirmDialogOptions, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessDesignerStore, ProcessDesignerPanelStore } from '../stores';
+import { ProcessDesignerStore } from '../stores';
 import { CurrentProcessStore, ProcessStore } from '../../fx';
 import { ProcessVersionType } from '../../fx/models';
 import { ActionItem, ActionItemType, ActionCustomButton, ActionButton, DisplayModes } from '../../models/processdesigner';
@@ -21,7 +21,6 @@ export interface ActionToolbarProps {
 export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
 {
     @Inject(ProcessStore) processStore: ProcessStore;
-    @Inject(ProcessDesignerPanelStore) processDesignerPanelStore: ProcessDesignerPanelStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(OmniaTheming) private omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -44,15 +43,6 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             var result = callback();
             if (result instanceof Promise) result.catch(() => { });
         }
-    }
-
-    private deleteShape() {
-        this.processDesignerPanelStore.mutations.hideAllPanels.commit();
-        this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
-            if (response === ConfirmDialogResponse.Ok) {
-                this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();
-            }
-        });
     }
 
     private createButton(h, button: ActionItem, classStr?: string) {
@@ -118,19 +108,6 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             else {
                 actionButtons = this.createActionButtons(h,
                     this.processDesignerStore.tabs.selectedTab.state.actionToolbar.notCheckedOutActionButtons)
-            }
-        }
-        if (this.processDesignerStore.tabs.selectedTab.state && this.processDesignerStore.tabs.selectedTab.state.tabId == ProcessStepDesignerItem.drawingTabId
-            && this.processDesignerStore.settings.displayMode.state === DisplayModes.contentEditing &&
-            currentProcessReferenceData.current.processData.canvasDefinition) {
-            result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
-                this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-            }}>{this.pdLoc.AddShape}</v-btn></div>);
-
-            if (this.processDesignerStore.getters.shapeToEditSettings()) {
-                result.push(<div class={[ActionToolbarStyles.actionButtons]}><v-btn text onClick={() => {
-                    this.deleteShape();
-                }}>{this.pdLoc.DeleteShape}</v-btn></div>);
             }
         }
         result.push(<v-spacer></v-spacer>);

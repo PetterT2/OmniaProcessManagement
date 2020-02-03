@@ -280,7 +280,7 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, left?: number, top?: number) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean, left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
@@ -296,7 +296,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     currentDrawingShape.title = title;
                     currentDrawingShape.shape = {
                         name: definition.shapeTemplate.name,
-                        nodes: currentDrawingShape.shape.nodes,
+                        nodes: isGenerateNewNodes ? null : currentDrawingShape.shape.nodes,
                         definition: definition,
                         left: position.left,
                         top: position.top

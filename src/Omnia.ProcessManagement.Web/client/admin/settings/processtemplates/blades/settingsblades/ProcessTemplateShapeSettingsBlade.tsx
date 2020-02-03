@@ -4,7 +4,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx/constants';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
@@ -64,6 +64,20 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             title: this.opmCoreloc.DrawingShapeSettings.Below
         }
     ]
+    textAlignment = [
+        {
+            value: TextAlignment.Left,
+            title: this.opmCoreloc.DrawingShapeSettings.Left
+        },
+        {
+            value: TextAlignment.Center,
+            title: this.opmCoreloc.DrawingShapeSettings.Center
+        },
+        {
+            value: TextAlignment.Right,
+            title: this.opmCoreloc.DrawingShapeSettings.Right
+        }
+    ];
 
     created() {
         this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
@@ -101,7 +115,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         }
         else {
             let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, null, top);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true, null, top);
         }
     }
 
@@ -183,7 +197,9 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
                     </v-col>
-                    <v-col cols="3">
+                    <v-col cols="6">
+                    </v-col>
+                    <v-col cols="4">
                         <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                             onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
                         <omfx-field-validation
@@ -192,7 +208,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
                     </v-col>
-                    <v-col cols="3">
+                    <v-col cols="4">
+                        <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
+                            onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textAlignment}></v-select>
+                    </v-col>
+                    <v-col cols="4">
                         <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
                             onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
                         <omfx-field-validation
@@ -200,6 +220,16 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
+                    </v-col>
+                    <v-col cols="3">
+                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextHorizontalAdjustment}
+                            onChange={(val) => { (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateTemplateShape(); }} type="number" suffix="px"></v-text-field>
+                    </v-col>
+                    <v-col cols="3">
+                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).textVerticalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextVerticalAdjustment}
+                            onChange={(val) => { (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment = val ? parseInt(val) : 0; this.updateTemplateShape(); }} type="number" suffix="px"></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
                     </v-col>
                 </v-row>
 
