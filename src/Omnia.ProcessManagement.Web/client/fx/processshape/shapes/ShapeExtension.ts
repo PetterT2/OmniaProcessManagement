@@ -19,6 +19,7 @@ export class ShapeExtension implements Shape {
     private originShapePos: { x: number, y: number } = { x: 0, y: 0 };
     private allowSetHover: boolean = false;
     private isHovering: boolean = false;
+    private isHovered: boolean = false;
     private isSelected: boolean = false;
     private currentProcessStore: CurrentProcessStore = null;
     private darkHighlight?: boolean;
@@ -252,9 +253,37 @@ export class ShapeExtension implements Shape {
         return { left: tleft + xAdjustment, top: ttop + yAdjustMent };
     }
 
+    setHoveredShape(isHovered: boolean) {
+        this.isHovered = isHovered;
+        this.setHover(this.shapeObject, false);
+    }
+
     setSelectedShape(isSelected: boolean) {
         this.isSelected = isSelected;
-        this.setHover(this.shapeObject, false);
+        this.setSelected(this.shapeObject);
+    }
+
+    private setSelected(objects: fabric.Object[]) {
+        objects.forEach((object) => {
+            if (object.type == 'text') {
+                object.set({
+                    fill: this.isSelected ? this.definition.selectedTextColor : this.definition.textColor
+                });
+            }
+            else {
+                let stroke: string = this.isSelected ? this.definition.selectedBorderColor : this.definition.borderColor;
+
+                let strokeProperties = {};
+                if (!this.isSelected || !stroke) {
+                    strokeProperties = this.getHighlightProperties();
+                }
+
+                object.set(Object.assign({
+                    fill: this.isSelected ? this.definition.selectedBackgroundColor : this.definition.backgroundColor,
+                    stroke: stroke
+                }, strokeProperties));
+            }
+        });
     }
 
     private setHover(objects: fabric.Object[], isActive: boolean) {
@@ -262,11 +291,11 @@ export class ShapeExtension implements Shape {
         objects.forEach((object) => {
             if (object.type == 'text') {
                 object.set({
-                    fill: isActive || this.isSelected ? this.definition.hoverTextColor : this.definition.textColor
+                    fill: isActive || this.isHovered ? this.definition.hoverTextColor : this.definition.textColor
                 });
             }
             else {
-                let stroke: string = isActive || this.isSelected ? this.definition.hoverBorderColor : this.definition.borderColor;
+                let stroke: string = isActive || this.isHovered ? this.definition.hoverBorderColor : this.definition.borderColor;
 
                 let strokeProperties = {};
                 if (!isActive || !stroke) {
@@ -274,7 +303,7 @@ export class ShapeExtension implements Shape {
                 }
 
                 object.set(Object.assign({
-                    fill: isActive || this.isSelected ? this.definition.hoverBackgroundColor : this.definition.backgroundColor,
+                    fill: isActive || this.isHovered ? this.definition.hoverBackgroundColor : this.definition.backgroundColor,
                     stroke: stroke
                 }, strokeProperties));
             }

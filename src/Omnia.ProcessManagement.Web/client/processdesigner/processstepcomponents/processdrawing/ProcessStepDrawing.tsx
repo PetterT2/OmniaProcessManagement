@@ -112,13 +112,15 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 var cloneParentCavasDefinition: CanvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
                 var selectedShape: DrawingShape = cloneParentCavasDefinition.drawingShapes && cloneParentCavasDefinition.drawingShapes.length > 0 ?
                     cloneParentCavasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
-                if (selectedShape) {
-                    selectedShape.shape.definition.backgroundColor = selectedShape.shape.definition.selectedBackgroundColor ? selectedShape.shape.definition.selectedBackgroundColor : selectedShape.shape.definition.backgroundColor;
-                    selectedShape.shape.definition.textColor = selectedShape.shape.definition.selectedTextColor ? selectedShape.shape.definition.selectedTextColor : selectedShape.shape.definition.selectedTextColor;
-                    selectedShape.shape.definition.borderColor = selectedShape.shape.definition.selectedBorderColor ? selectedShape.shape.definition.selectedBorderColor : selectedShape.shape.definition.selectedBorderColor;
-                }
+
                 this.drawingParentCanvas = new DrawingCanvas(this.parentCanvasId, {}, cloneParentCavasDefinition, false, this.processDesignerStore.showGridlines.state,
                     this.processDesignerStore.getters.darkHightlight());
+
+                if (selectedShape) {
+                    setTimeout(() => {
+                        this.drawingParentCanvas.setSelectedShapeItemId(selectedShape.processStepId)
+                    }, 20)
+                }
             }, 20);
         }
         //note: need to render the canvas div element before init this DrawingCanvasEditor

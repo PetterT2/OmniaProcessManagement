@@ -14,6 +14,7 @@ export declare abstract class Shape implements IShape {
     constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean);
     setAllowHover(allowSetHover: boolean);
+    setHoveredShape(isHovered: boolean);
     setSelectedShape(isSelected: boolean);
     isHover(): boolean;
     abstract ready(): Promise<boolean>;
