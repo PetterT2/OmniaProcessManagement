@@ -54,6 +54,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (this.drawingCanvasEditor) {
             this.drawingCanvasEditor.destroy();
         }
+
+        if (this.drawingParentCanvas) {
+            this.drawingParentCanvas.destroy();
+        }
     }
 
     get canvasDefinition() {
@@ -183,6 +187,12 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private createDrawing() {
         this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = ProcessDefaultData.canvasDefinition;
         this.processDesignerStore.actions.saveState.dispatch();
+
+        if (this.drawingParentCanvas) {
+            this.drawingParentCanvas.destroy();
+            this.drawingParentCanvas = null;
+        }
+            
         this.initDrawingCanvas();
     }
 
@@ -191,6 +201,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             if (resposne == ConfirmDialogResponse.Ok) {
                 this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition = null;
                 this.processDesignerStore.actions.saveState.dispatch();
+                if (this.drawingCanvasEditor) {
+                    this.drawingCanvasEditor.destroy();
+                    this.drawingCanvasEditor = null;
+                }
                 this.initDrawingCanvas();
             }
         })
@@ -293,11 +307,14 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     render(h) {
+        var widthStr = this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' :
+            (this.parentProcessData && this.parentProcessData.canvasDefinition && this.parentProcessData.canvasDefinition.width ? this.parentProcessData.canvasDefinition.width + 'px' : 'auto');
+
         return (
             <div>
                 <v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
                     <v-card-text>
-                        <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
+                        <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: widthStr }}>
                             <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
                                 {
                                     this.canvasDefinition ? <canvas id={this.canvasId}></canvas> :
