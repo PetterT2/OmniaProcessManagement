@@ -149,7 +149,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     private createFreeFromShape() {
-        let freeNodes = this.generateNodes();
+        let freeNodes = this.isGenerateNewNodes();
 
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),
@@ -175,7 +175,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             this.onSelectingShape(this.drawingShapes[0]);
     }
 
-    private generateNodes() {
+    private isGenerateNewNodes() {
         let nodes: Array<FabricShape> = [];
         let pathsObject = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
             return object.type == 'path' && object.path.length > 2;

@@ -102,8 +102,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     @Watch('drawingOptions', { deep: false })
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
         //if (newValue.id !== oldValue.id) {
-            this.init();
-            this.startToDrawShape();
+        this.init();
+        this.startToDrawShape();
         //}
     }
     created() {
@@ -201,7 +201,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, 0, this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, 0, this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -316,7 +316,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.shape = this.drawingCanvas.drawingShapes[0].shape;
 
