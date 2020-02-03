@@ -8,7 +8,7 @@ import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDial
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
-import { ProcessDesignerStore } from '../../stores';
+import { ProcessDesignerStore, ProcessDesignerPanelStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { ProcessDesignerLocalization } from '../../loc/localize';
@@ -28,6 +28,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(ProcessDesignerPanelStore) processDesignerPanelStore: ProcessDesignerPanelStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
@@ -200,6 +201,15 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         this.processDesignerStore.panels.mutations.toggleDrawingCanvasSettingsPanel.commit(true);
     }
 
+    private deleteShape() {
+        this.processDesignerPanelStore.mutations.hideAllPanels.commit();
+        this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
+            if (response === ConfirmDialogResponse.Ok) {
+                this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();
+            }
+        });
+    }
+
     /**
         * Render 
         * @param h
@@ -297,6 +307,18 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             <div>
                 <v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
                     <v-card-text>
+                        <div class="mb-3">
+                            <v-btn text onClick={() => {
+                                this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
+                            }}>{this.pdLoc.AddShape}</v-btn>
+                            {
+                                this.processDesignerStore.getters.shapeToEditSettings() ?
+                                    <v-btn text onClick={() => {
+                                        this.deleteShape();
+                                    }}>{this.pdLoc.DeleteShape}</v-btn>
+                                    : null
+                            }
+                        </div>
                         <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: this.canvasDefinition && this.canvasDefinition.width ? this.canvasDefinition.width + 'px' : 'auto' }}>
                             <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
                                 {
