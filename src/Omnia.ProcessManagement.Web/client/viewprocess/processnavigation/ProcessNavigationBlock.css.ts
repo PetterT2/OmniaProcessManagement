@@ -30,8 +30,7 @@ StyleFlow.define(ProcessNavigationBlockStyles,
             width: '25px'
         },
         wrapper: {
-            width: "100%",
-            padding: "3px"
+            width: "100%"
         },
         headerWrapper: (level: number, indentation: number, isRoutePath: boolean, theming: Theming, padding: SpacingSetting) => {
             let colors = getColorsFromTheming(theming);

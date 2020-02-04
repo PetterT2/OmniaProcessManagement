@@ -147,6 +147,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     }
 
     private previewProcess(e: MouseEvent) {
+        e.preventDefault();
         let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId);
 
         loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
@@ -181,7 +182,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                         <div>
 
                             <div>
-                                <div><p><a href="javascript:void(0)" onClick={this.previewProcess} target="_blank">{this.task.sharePointTask.title}</a></p></div>
+                                <div><p><a href="javascript:void(0)" onClick={this.previewProcess}>{this.task.sharePointTask.title}</a></p></div>
 
                                 <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}</p>
                                 <p>{this.task.createdByUserDisplayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>

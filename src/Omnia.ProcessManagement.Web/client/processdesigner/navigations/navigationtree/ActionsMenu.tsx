@@ -38,6 +38,8 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     deletingProcessStepBeingUsed: boolean = false;
     deletingMultipleProcessSteps: boolean = false;
 
+    errorMessage: string = "";
+
     moveProcessStepDialogData: {
         dialogTitle: string,
         hiddenProcessStepIdsDict: IdDict<boolean>,
@@ -69,7 +71,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     onClickCreateProcessStep(e: Event): any {
         e.stopPropagation();
         this.menuModel.showMenu = false;
-
+        this.errorMessage = "";
         this.title = {} as MultilingualString;
         this.showCreateProcessStepDialog = true;
 
@@ -78,7 +80,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     onClickEditTitle(e: Event): any {
         e.stopPropagation();
         this.menuModel.showMenu = false;
-
+        this.errorMessage = "";
         this.title = Utils.clone(this.currentProcessStore.getters.referenceData().current.processStep.title);
         this.showEditTitleDialog = true;
 
@@ -115,14 +117,20 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     }
 
     addProcessStep() {
-        this.loading = true;
-        this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true).then((result) => {
-            let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
-            this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+        this.errorMessage = "";
+        if (this.internalValidator.validateAll()) {
+            this.loading = true;
+            this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true).then((result) => {
+                let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
+                this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
+                    this.loading = false;
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                });
+            }).catch((err) => {
+                this.errorMessage = err;
                 this.loading = false;
-                this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
-            });
-        })
+            })
+        }
     }
 
     deleteProcessStep() {
@@ -133,17 +141,23 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     }
 
     editTitle() {
-        let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        currentReferenceData.current.processStep.title = this.title;
-        currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
-        if ((currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties) {
-            (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(this.title);
+        this.errorMessage = "";
+        if (this.internalValidator.validateAll()) {
+            let currentReferenceData = this.currentProcessStore.getters.referenceData();
+            currentReferenceData.current.processStep.title = this.title;
+            currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
+            if ((currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties) {
+                (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(this.title);
+            }
+            this.loading = true;
+            this.processDesignerStore.actions.saveState.dispatch().then(() => {
+                this.showEditTitleDialog = false;
+                this.loading = false;
+            }).catch((err) => {
+                this.errorMessage = err;
+                this.loading = false;
+            })
         }
-        this.loading = true;
-        this.processDesignerStore.actions.saveState.dispatch().then(() => {
-            this.showEditTitleDialog = false;
-            this.loading = false;
-        })
     }
 
     moveToProcessStep(newParentProcessStep: ProcessStep): Promise<void> {
@@ -253,9 +267,11 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                         <v-divider></v-divider>
                         <v-card-text class={this.omniaTheming.promoted.body.class}>
                             <omfx-multilingual-input
+                                requiredWithValidator={this.internalValidator}
                                 model={this.title}
                                 onModelChange={(title) => { this.title = title }}
                                 forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                            <span style={{ color: 'red' }}>{this.errorMessage}</span>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn

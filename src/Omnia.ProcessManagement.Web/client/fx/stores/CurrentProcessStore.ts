@@ -1,5 +1,5 @@
 ﻿import { Store, MultilingualStore } from '@omnia/fx/store';
-import { Injectable, Inject, OmniaContext } from '@omnia/fx';
+import { Injectable, Inject, OmniaContext, Utils } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
 import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType } from '../models';
@@ -265,7 +265,8 @@ export class CurrentProcessStore extends Store {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
-
+                    if (Utils.isNullOrEmpty(title))
+                        title = { isMultilingualString: true };
                     let processStep: ProcessStep = {
                         id: Guid.newGuid(),
                         title: title,
@@ -290,6 +291,7 @@ export class CurrentProcessStore extends Store {
 
 
                     let actionModel: ProcessActionModel = {
+                        processStepTitle: processStep.title,
                         process: currentProcessReferenceData.process,
                         processData: { [processStep.id.toString()]: processData }
                     }
@@ -333,6 +335,7 @@ export class CurrentProcessStore extends Store {
 
                     if (processChanged || currentProcessStepDataChanged || shortcutProcessStepDataChanged) {
                         let actionModel: ProcessActionModel = {
+                            processStepTitle: currentProcessReferenceData.current.processStep.title,
                             process: currentProcess,
                             processData: {}
                         }

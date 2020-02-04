@@ -107,7 +107,7 @@ ProcessNavigationNodeComponentProps>
         let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
 
         return (
-            <div class={classes(this.styles.wrapper, 'pa-1')}>
+            <div class={classes(this.styles.wrapper)}>
                 <a tabindex={0}
                     class={[this.styles.headerWrapper(this.level, this.indentation, isSelectedNode, this.omniaContext.theming, this.spacingSetting)]}
                     onClick={(e) => this.onHeaderClick(e, true, false)}
