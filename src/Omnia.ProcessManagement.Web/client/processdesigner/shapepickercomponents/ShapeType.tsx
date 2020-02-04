@@ -127,6 +127,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
         this.shapeTitle = this.drawingOptions.title;
+        this.setAngle();
     }
 
     beforeDestroy() {
@@ -203,6 +204,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private updateAfterRenderImage(readyDrawingShape: DrawingShape) {
         this.drawingCanvas.updateCanvasSize(readyDrawingShape);
         this.onDrawingShapeOptionChanged();
+    }
+
+    private setAngle() {
+        if (this.drawingOptions && this.drawingOptions.shape && this.drawingOptions.shape.nodes)
+            this.drawingOptions.shape.nodes.forEach(n => n.properties.angle = 0);
     }
 
     private onImageSaved(imageUrl: string) {

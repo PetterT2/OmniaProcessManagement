@@ -19,7 +19,7 @@ export declare abstract class Shape implements IShape {
     isHover(): boolean;
     abstract ready(): Promise<boolean>;
     abstract getShapeJson(): IShape;
-    abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
+    abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number, enableGrid?: boolean);
     abstract getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment?: number, yAdjustment?: number): { left: number, top: number };
 }
 

@@ -43,7 +43,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     protected addEventListener() {
-
+        this.onMovingListener();
         this.canvasObject.on('mouse:down', (options) => {
             if (!this.isDrawing)
                 return;
@@ -157,6 +157,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             title: null,
             shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, this.polylineShape.left, this.polylineShape.top, this.darkHightlight)
         };
+        (drawingShape.shape as ShapeExtension).addEventListener(this.canvasObject, this.gridX, this.gridY, this.showGridlines);
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
         });

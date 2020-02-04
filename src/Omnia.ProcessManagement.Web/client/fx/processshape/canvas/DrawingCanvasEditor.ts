@@ -13,7 +13,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     private onDrawingChanged: (refreshSettingsPanel?: boolean) => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
-    private scaleX: number;
+    private isScaling: boolean = false;
+    private editIconPosition: { tl: fabric.Point, width: number };
+    private isSelectedEditIcon: boolean = false;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
         onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
@@ -70,27 +72,35 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
     private addEditIcon(object: fabric.Object) {
         if (object && object.aCoords) {
+            let x = object.aCoords.tr.x;
+            let y = object.aCoords.tr.y;
+            if (object.angle < 315 && object.angle > 225) {
+                x = object.aCoords.br.x;
+                y = object.aCoords.br.y;
+            }
+            if (object.angle <= 225 && object.angle > 115) {
+                x = object.aCoords.bl.x;
+                y = object.aCoords.bl.y;
+            }
+            if (object.angle <= 115 && object.angle > 45) {
+                x = object.aCoords.tl.x;
+                y = object.aCoords.tl.y;
+            }
+            this.editIconPosition = {
+                tl: new fabric.Point(x - 30, y + 28), width: 30
+            };
             let ctx = this.canvasObject.getContext();
-            setTimeout(() => {
-                ctx.font = '900 30px "Font Awesome 5 Pro"';
-                ctx.fillStyle = "grey";
-                ctx.fillText("\uF111", object.aCoords.tr.x - 30, object.aCoords.tr.y + 28);
-                ctx.font = '900 14px "Font Awesome 5 Pro"';
-                ctx.fillStyle = "white";
-                ctx.fillText("\uF040", object.aCoords.tr.x - 21, object.aCoords.tr.y + 20);
-                this.editObject = object;
-            }, 0);
+            ctx.font = '900 30px "Font Awesome 5 Pro"';
+            ctx.fillStyle = "grey";
+            ctx.fillText("\uF111", this.editIconPosition.tl.x, this.editIconPosition.tl.y);
+            ctx.font = '900 14px "Font Awesome 5 Pro"';
+            ctx.fillStyle = "white";
+            ctx.fillText("\uF040", this.editIconPosition.tl.x + 9, this.editIconPosition.tl.y - 8);
         }
+
     }
 
-    protected addEventListener() {
-        if (this.canvasObject == null)
-            return;
-
-        let ctx = this.canvasObject.getContext();
-        ctx.font = '900 0px "Font Awesome 5 Pro"';
-        ctx.fillText("", 0, 0);
-
+    protected onMovingListener() {
         this.canvasObject.on('object:moving', (options) => {
             let object = options.target;
             let drawingShape = this.findDrawingShape(object);
@@ -100,17 +110,34 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     this.canvasObject.setActiveObject(object);
                 }
             }
-            if (this.gridX)
-                object.set({
-                    left: Math.round(object.left / this.gridX) * this.gridX
-                });
-            if (this.gridY)
-                object.set({
-                    top: Math.round(object.top / this.gridY) * this.gridY
-                });
+            if (this.showGridlines) {
+                if (this.gridX)
+                    object.set({
+                        left: Math.round(object.left / this.gridX) * this.gridX
+                    });
+                if (this.gridY)
+                    object.set({
+                        top: Math.round(object.top / this.gridY) * this.gridY
+                    });
+            }
             this.isMoving = true;
+            let ctx = this.canvasObject.getContext();
+            ctx.font = '900 30px "Font Awesome 5 Pro"';
+            ctx.fillStyle = "grey";
+            ctx.fillText("\uF111", 0, 0);
         });
 
+
+    }
+
+    protected addEventListener() {
+        if (this.canvasObject == null)
+            return;
+
+        let ctx = this.canvasObject.getContext();
+        ctx.font = '900 0px "Font Awesome 5 Pro"';
+        ctx.fillText("", 0, 0);
+        this.onMovingListener();
         this.canvasObject.on('mouse:down', (options) => {
             if (options.target) {
                 let object = options.target;
@@ -120,14 +147,14 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                         object = (drawingShape.shape as Shape).shapeObject[0];
                         this.canvasObject.setActiveObject(object);
                     }
-                    this.addEditIcon(object);
-                }
-                this.scaleX = object.scaleX;
+                    this.editObject = object;
+                }               
             }
         });
 
         this.canvasObject.on('mouse:up', (options) => {
-            let isScaling = false;
+            this.isSelectedEditIcon = false;
+
             if (options.target) {
                 let object = options.target;
                 let drawingShape = this.findDrawingShape(object);
@@ -137,18 +164,19 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                         this.canvasObject.setActiveObject(object);
                         this.canvasObject.renderAll();
                     }
-                    this.addEditIcon(object);
+                    this.editObject = object;
                 }
-                isScaling = this.scaleX != options.target.scaleX;
             }
-            if (this.editObject && !isScaling) {
+            if (this.editObject && !this.isScaling && this.editIconPosition) {
                 var currPos = this.canvasObject.getPointer(options.e);
-                if (currPos.x < this.editObject.aCoords.tr.x && currPos.x > (this.editObject.aCoords.tr.x - 30)
-                    && currPos.y > this.editObject.aCoords.tr.y && currPos.y < (this.editObject.aCoords.tr.y + 28)) {
+                if (currPos.x > this.editIconPosition.tl.x && currPos.x < (this.editIconPosition.tl.x + this.editIconPosition.width)
+                    && currPos.y < this.editIconPosition.tl.y && currPos.y > (this.editIconPosition.tl.y - this.editIconPosition.width)) {
                     if (this.onClickEditShapeSettings) {
                         this.onClickEditShapeSettings(this.findDrawingShape(this.editObject));
                     }
+                    this.isSelectedEditIcon = true;
                     this.canvasObject.setActiveObject(this.editObject);
+                    this.canvasObject.renderAll();
                 }
             }
 
@@ -164,12 +192,23 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
             }
         });
 
+        this.canvasObject.on('object:scaling', (options) => {
+            this.isScaling = true;
+        });
+
         this.canvasObject.on('object:scaled', (options) => {
             if (this.onDrawingChanged) {
                 this.onDrawingChanged(true);
             }
+            this.isScaling = false;
         });
 
+        this.canvasObject.on('after:render', (options) => {
+            if (this.editObject && (this.isSelectedEditIcon || this.canvasObject.getActiveObject()) && !this.isMoving && !this.isScaling) {
+                this.addEditIcon(this.editObject);
+                this.canvasObject.setActiveObject(this.editObject);
+            }
+        });
         //this.canvasObject.on('object:selected', (options) => {
         //    if (options.target && this.onSelectingShape) {
         //        this.onSelectingShape(this.findDrawingShape(this.canvasObject.getActiveObject()));
