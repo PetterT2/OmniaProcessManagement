@@ -13,6 +13,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     private onDrawingChanged: (refreshSettingsPanel?: boolean) => void;
     private editObject: fabric.Object;
     private isMoving: boolean = false;
+    private scaleX: number;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
         onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
@@ -121,10 +122,12 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     }
                     this.addEditIcon(object);
                 }
+                this.scaleX = object.scaleX;
             }
         });
 
         this.canvasObject.on('mouse:up', (options) => {
+            let isScaling = false;
             if (options.target) {
                 let object = options.target;
                 let drawingShape = this.findDrawingShape(object);
@@ -136,8 +139,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     }
                     this.addEditIcon(object);
                 }
+                isScaling = this.scaleX != options.target.scaleX;
             }
-            if (this.editObject) {
+            if (this.editObject && !isScaling) {
                 var currPos = this.canvasObject.getPointer(options.e);
                 if (currPos.x < this.editObject.aCoords.tr.x && currPos.x > (this.editObject.aCoords.tr.x - 30)
                     && currPos.y > this.editObject.aCoords.tr.y && currPos.y < (this.editObject.aCoords.tr.y + 28)) {

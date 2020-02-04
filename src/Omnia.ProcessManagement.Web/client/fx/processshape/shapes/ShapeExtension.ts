@@ -199,7 +199,8 @@ export class ShapeExtension implements Shape {
         let textPosition = this.getTextPosition(position, Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
-            top: textPosition.top
+            top: textPosition.top,
+            originX: this.definition.textAlignment == TextAlignment.Left ? 'left' : this.definition.textAlignment == TextAlignment.Right ? 'right' : 'center'
         });
     }
 
