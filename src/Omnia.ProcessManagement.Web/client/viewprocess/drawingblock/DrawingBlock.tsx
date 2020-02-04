@@ -8,7 +8,7 @@ import { DrawingBlockStyles } from '../../models';
 import { DrawingBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessVersionType, RouteOptions, ProcessReferenceData, ProcessData } from '../../fx/models';
+import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessVersionType, RouteOptions, ProcessReferenceData, ProcessData, ProcessStep } from '../../fx/models';
 import { CurrentProcessStore, DrawingCanvas, OPMRouter, OPMUtils, ProcessStore, Shape } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 
@@ -35,6 +35,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     canvasId = 'viewcanvas_' + Utils.generateGuid().toString();
     drawingCanvas: DrawingCanvas = null;
     currentDrawingProcessData: ProcessData;
+    previousParentProcessStep: ProcessStep = null;
 
     created() {
         this.init();
@@ -51,6 +52,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
     get parentProcessData() {
         return this.currentProcessStore.getters.referenceData().current.parentProcessData;
+    }
+
+    get parentProcessStep() {
+        return this.currentProcessStore.getters.referenceData().current.parentProcessStep;
     }
 
     init() {
@@ -73,39 +78,53 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     private drawShapes() {
+        var needToDestroyCanvas = true;
         var selectedShape: DrawingShape = null;
         if (!this.canvasDefinition && this.parentProcessData && this.parentProcessData.canvasDefinition) {
             this.canvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
             selectedShape = this.canvasDefinition.drawingShapes && this.canvasDefinition.drawingShapes.length > 0 ?
                 this.canvasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
+            if (selectedShape && this.previousParentProcessStep && this.previousParentProcessStep.id.toString() == this.parentProcessStep.id.toString()) {
+                needToDestroyCanvas = false;
+            }
+            this.previousParentProcessStep = this.parentProcessStep;
         }
         else if (!this.canvasDefinition) return;
+
+        if (needToDestroyCanvas) this.destroyCanvas();
 
         this.canvasDefinition.gridX = 0;
         this.canvasDefinition.gridY = 0;
 
         setTimeout(() => {
-            this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
+            if (needToDestroyCanvas) {
+                this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
+                this.drawingCanvas.setSelectShapeEventWithCallback(this.onSelectShape);
+            }
             if (selectedShape) {
                 setTimeout(() => {
                     this.drawingCanvas.setSelectedShapeItemId(selectedShape.processStepId);
                 }, 20)
             }
-            this.drawingCanvas.setSelectShapeEventWithCallback(this.onSelectShape);
         }, 20);
-
-
     }
 
     private initCanvas() {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (this.drawingCanvas)
-            this.drawingCanvas.destroy();
-        if (!currentReferenceData) return;
+
+        if (!currentReferenceData) {
+            this.destroyCanvas();
+            return;
+        } 
 
         this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
         this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
         this.drawShapes();
+    }
+
+    private destroyCanvas() {
+        if (this.drawingCanvas)
+            this.drawingCanvas.destroy();
     }
 
     private onSelectShape(shape: DrawingShape) {
