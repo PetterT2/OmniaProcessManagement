@@ -10,6 +10,7 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
 
@@ -27,6 +28,10 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
+            if (actionModel.ProcessStepTitle != null && (actionModel.ProcessStepTitle.Count == 0 || actionModel.ProcessStepTitle.Values.Where(value => string.IsNullOrEmpty(value)).Count() > 0))
+            {
+                throw new ProcessTitleNotValidException();
+            }
             var process = await ProcessRepository.SaveCheckedOutProcessAsync(actionModel);
             return process;
         }

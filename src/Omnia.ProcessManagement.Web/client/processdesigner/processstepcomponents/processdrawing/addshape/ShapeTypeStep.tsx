@@ -36,6 +36,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     private internalValidator: FormValidator = new FormValidator(this);    
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
+    private errorMessage: string = "";
 
     created() {
         this.init();
@@ -69,6 +70,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private createShape() {
+        this.errorMessage = "";
         if (this.internalValidator.validateAll()) {
             let readyToDrawShape: boolean = true;
 
@@ -77,13 +79,13 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 {
                     this.isCreatingChildStep = true;
                     readyToDrawShape = false;
-
                     this.currentProcessStore.actions.addProcessStep.dispatch(this.drawingShapeOptions.title).then((result) => {
                         this.isCreatingChildStep = false;
                         this.drawingShapeOptions.processStepId = result.processStep.id;
                         this.completedAddShape();
-                    }).catch(() => {
+                    }).catch((err) => {
                         this.isCreatingChildStep = false;
+                        this.errorMessage = err;
                     });
                 }
             }
@@ -91,7 +93,11 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             if (readyToDrawShape) {
                 this.completedAddShape();
             }
-        }
+        }        
+    }
+
+    private reInitFormValidator() {
+        this.internalValidator = new FormValidator(this);
     }
 
     private completedAddShape() {
@@ -129,12 +135,14 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     render(h) {
         return <v-card flat>
             <v-card-content>
+                <span style={{ color: 'red' }}>{this.errorMessage}</span>
                 <ShapeTypeComponent
                     drawingOptions={this.drawingShapeOptions}
                     changeDrawingOptionsCallback={this.onChangedDrawingOptions}
                     changeShapeCallback={this.changeShape}
                     formValidator={this.internalValidator}
-                ></ShapeTypeComponent>
+                    reInitFormValidator={this.reInitFormValidator}
+                ></ShapeTypeComponent>                
             </v-card-content>
             {this.renderActionButtons(h)}
         </v-card>;
