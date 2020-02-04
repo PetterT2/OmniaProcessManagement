@@ -291,7 +291,7 @@ export class CurrentProcessStore extends Store {
 
 
                     let actionModel: ProcessActionModel = {
-                        processStepTitle: processStep.title,
+                        processStepTitle: title,
                         process: currentProcessReferenceData.process,
                         processData: { [processStep.id.toString()]: processData }
                     }
