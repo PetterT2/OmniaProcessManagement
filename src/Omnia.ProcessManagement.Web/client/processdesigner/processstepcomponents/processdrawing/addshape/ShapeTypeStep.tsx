@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { CurrentProcessStore,  ProcessTemplateStore, DrawingCanvas } from '../../../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link } from '../../../../fx/models';
@@ -20,7 +20,7 @@ export interface ShapeSelectionStepProps {
 }
 
 @Component
-export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepProps> implements IWebComponentInstance{
+export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepProps> implements IWebComponentInstance {
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
@@ -33,10 +33,11 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private selectedShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
-    private internalValidator: FormValidator = new FormValidator(this);    
+    private internalValidator: FormValidator = new FormValidator(this);
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private errorMessage: string = "";
+    private readyForSave: boolean = false;
 
     created() {
         this.init();
@@ -45,7 +46,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
     }
-       
+
     init() {
         this.selectedShapeDefinition = Utils.clone(this.addShapeWizardStore.selectedShape.state);
         this.drawingShapeOptions = {
@@ -75,8 +76,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             let readyToDrawShape: boolean = true;
 
             if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep) {
-                if (this.drawingShapeOptions.processStepId == Guid.empty)
-                {
+                if (this.drawingShapeOptions.processStepId == Guid.empty) {
                     this.isCreatingChildStep = true;
                     readyToDrawShape = false;
                     this.currentProcessStore.actions.addProcessStep.dispatch(this.drawingShapeOptions.title).then((result) => {
@@ -85,7 +85,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                         this.completedAddShape();
                     }).catch((err) => {
                         this.isCreatingChildStep = false;
-                        this.errorMessage = err;
+                        this.errorMessage = err || "";
                     });
                 }
             }
@@ -93,7 +93,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             if (readyToDrawShape) {
                 this.completedAddShape();
             }
-        }        
+        }
     }
 
     private reInitFormValidator() {
@@ -107,6 +107,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
+        this.readyForSave = true;
         this.drawingShapeOptions = drawingOptions;
     }
 
@@ -119,6 +120,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                     onClick={this.changeShape}>{this.pdLoc.ChangeShape}</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn text
+                    disabled={!this.readyForSave}
                     color={this.omniaTheming.themes.primary.base}
                     dark={this.omniaTheming.promoted.body.dark}
                     loading={this.isCreatingChildStep}
@@ -142,7 +144,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                     changeShapeCallback={this.changeShape}
                     formValidator={this.internalValidator}
                     reInitFormValidator={this.reInitFormValidator}
-                ></ShapeTypeComponent>                
+                ></ShapeTypeComponent>
             </v-card-content>
             {this.renderActionButtons(h)}
         </v-card>;
