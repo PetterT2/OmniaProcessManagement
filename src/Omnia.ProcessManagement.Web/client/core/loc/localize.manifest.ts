@@ -12,12 +12,12 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             ArchiveProcess: {
                 Category: "Process Management",
                 Description: "Creates a library to manage archived processes in the site.",
-                Title: "Archived Processes"
+                Title: "Process Archive"
             },
             ProcessLibrary: {
                 Category: "Process Management",
                 Description: "Creates a library to manage process in the site.",
-                Title: "Processes"
+                Title: "Process Library"
             },
             ProcessManagement: {
                 Category: "Tenant",
