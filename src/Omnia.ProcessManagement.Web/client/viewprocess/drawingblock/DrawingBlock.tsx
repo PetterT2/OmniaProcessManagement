@@ -89,7 +89,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             }
             this.previousParentProcessStep = this.parentProcessStep;
         }
-        else if (!this.canvasDefinition) return;
+        else {
+            this.previousParentProcessStep = null;
+            if (!this.canvasDefinition) return;
+        } 
 
         if (needToDestroyCanvas) this.destroyCanvas();
 
