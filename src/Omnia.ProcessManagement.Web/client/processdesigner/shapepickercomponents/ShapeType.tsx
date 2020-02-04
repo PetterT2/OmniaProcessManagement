@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -135,10 +135,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.drawingCanvas) {
             this.drawingCanvas.destroy();
         }
-    }
-
-    private onClose() {
-        this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(false);
     }
 
     private onDrawingShapeOptionChanged() {

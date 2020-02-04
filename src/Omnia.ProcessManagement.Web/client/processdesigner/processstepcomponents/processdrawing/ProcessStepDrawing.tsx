@@ -144,10 +144,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onSelectingShape(shape: DrawingShape) {
-        let drawingShapeToUpdate = this.processDesignerStore.getters.shapeToEditSettings();
-        if (shape && drawingShapeToUpdate && shape.id != drawingShapeToUpdate.id) {
-            this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
-        }
         this.processDesignerStore.mutations.setSelectedShapeToEdit.commit(shape);
     }
 

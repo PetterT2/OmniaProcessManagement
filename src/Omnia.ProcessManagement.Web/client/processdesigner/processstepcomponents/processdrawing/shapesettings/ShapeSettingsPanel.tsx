@@ -42,8 +42,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private previousProcessStepId: GuidValue = null;
 
     private shortcutDesignerItem: ProcessStepShortcutDesignerItem = null;
+
     created() {
         this.initSelectedShape();
+        this.subscriptionHandler = this.processDesignerStore.selectedShape.onMutated((args) => {
+            this.initSelectedShape();
+        })
     }
 
     initSelectedShape() {
