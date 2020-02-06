@@ -8,8 +8,8 @@ import { LinksBlockStyles } from '../../models';
 import { LinksBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
-import { LinksBlockData, ProcessReferenceData, Link, Enums } from '../../fx/models';
-import { CurrentProcessStore } from '../../fx';
+import { LinksBlockData, ProcessReferenceData, Link, Enums, RouteOptions } from '../../fx/models';
+import { CurrentProcessStore, OPMRouter } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { classes } from 'typestyle';
 
@@ -31,6 +31,7 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     links: Array<Link> = [];
     linksClasses = StyleFlow.use(LinksBlockStyles, this.styles);
+    target: string;
 
     created() {
         this.init();
@@ -61,6 +62,9 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
         this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
             this.initLinks();
         }));
+        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+        this.target = preview ? "_parent" : "";
     }
 
     initLinks() {
@@ -95,7 +99,7 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
                             ele.linkType == Enums.LinkType.CustomLink ?
                                 <a
                                     class={this.linksClasses.linkItemTitleText}
-                                    target={ele.openNewWindow ? "_blank" : ""}
+                                    target={ele.openNewWindow ? "_blank" : this.target}
                                     href={ele.url}>
                                     {ele.multilingualTitle}
                                 </a>

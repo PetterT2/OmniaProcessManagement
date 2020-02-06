@@ -144,7 +144,9 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             } else if (shape.type == DrawingShapeTypes.CustomLink && this.currentDrawingProcessData.links) {
                 let link = this.currentDrawingProcessData.links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
                 if (link) {
-                    window.open(link.url, link.openNewWindow ? '_blank' : '');
+                    let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+                        OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+                    window.open(link.url, link.openNewWindow ? '_blank' : preview ? '_parent' : '');
                     this.drawingCanvas.setHoveredShapeItemId(shape.id, DrawingShapeTypes.CustomLink);
                 }
             }
