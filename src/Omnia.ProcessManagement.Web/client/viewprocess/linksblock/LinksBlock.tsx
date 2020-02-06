@@ -62,9 +62,11 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
         this.subscriptionHandler.add(this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()((args) => {
             this.initLinks();
         }));
-        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
-        this.target = preview ? "_parent" : "";
+        if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
+            let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+                OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+            this.target = preview ? "_parent" : "";
+        }
     }
 
     initLinks() {

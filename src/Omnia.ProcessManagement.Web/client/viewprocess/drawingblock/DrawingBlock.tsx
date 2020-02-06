@@ -92,7 +92,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         else {
             this.previousParentProcessStep = null;
             if (!this.canvasDefinition) return;
-        } 
+        }
 
         if (needToDestroyCanvas) this.destroyCanvas();
 
@@ -118,7 +118,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         if (!currentReferenceData) {
             this.destroyCanvas();
             return;
-        } 
+        }
 
         this.currentDrawingProcessData = Utils.clone(currentReferenceData.current.processData);
         this.canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
@@ -144,9 +144,13 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             } else if (shape.type == DrawingShapeTypes.CustomLink && this.currentDrawingProcessData.links) {
                 let link = this.currentDrawingProcessData.links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
                 if (link) {
-                    let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-                        OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
-                    window.open(link.url, link.openNewWindow ? '_blank' : preview ? '_parent' : '');
+                    let target = "";
+                    if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
+                        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
+                            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+                        target = preview ? '_parent' : '';
+                    }
+                    window.open(link.url, link.openNewWindow ? '_blank' : target);
                     this.drawingCanvas.setHoveredShapeItemId(shape.id, DrawingShapeTypes.CustomLink);
                 }
             }
