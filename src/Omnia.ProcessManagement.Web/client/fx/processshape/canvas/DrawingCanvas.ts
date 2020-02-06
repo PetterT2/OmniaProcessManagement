@@ -319,7 +319,7 @@ export class DrawingCanvas implements CanvasDefinition {
             let resolved = true;
             if (drawingOptions.shapeDefinition.shapeTemplate) {
                 let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
-                let nodes = null;
+                let nodes: IFabricShape[] = null;
                 if (drawingOptions.shape) {
                     if (drawingOptions.shape.left != 0) {
                         currentLeft = drawingOptions.shape.left;
@@ -335,6 +335,8 @@ export class DrawingCanvas implements CanvasDefinition {
                         let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
+                        if (nodes && nodes.length > 0)
+                            nodes[0].properties.angle = fabricShapeObject.angle;
                     }
 
                     this.drawingShapes.splice(oldShapeIndex, 1);
@@ -400,7 +402,7 @@ export class DrawingCanvas implements CanvasDefinition {
         if (!this.canvasObject.getContext())
             return;
         newShape.setAllowHover(this.isSetHover);
-        newShape.addEventListener(this.canvasObject, this.gridX, this.gridY);
+        newShape.addEventListener(this.canvasObject, this.gridX, this.gridY, this.showGridlines);
         newShape.shapeObject.forEach(s => {
             this.canvasObject.add(s);
         });
