@@ -116,6 +116,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             ProcessRollup: {
                 Title: "Process Rollup",
                 Description: "Use this block to roll up processes with filter possibilities on the result."
+            },
+            Properties: {
+                Title: "Process Properties",
+                Description: ""
             }
         },
         BlockCategories: {

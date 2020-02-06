@@ -112,6 +112,10 @@
             ProcessRollup: {
                 Title: string,
                 Description: string
+            },
+            Properties: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {

@@ -173,18 +173,26 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     render(h) {
+        if (!this.blockData) {
+            return (
+                <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
+            )
+        }
+
+        if (Utils.isNullOrEmpty(this.canvasDefinition)) {
+            return (
+                <aside>
+                    <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.Blocks.Drawing.Title}></wcm-empty-block-view>
+                </aside>
+            )
+        }
         return (
             <aside>
-                {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        Utils.isNullOrEmpty(this.canvasDefinition) ?
-                            <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.Blocks.Drawing.Title}></wcm-empty-block-view>
-                            :
-                            <div class={this.drawingClasses.blockPadding(this.blockData.settings.spacing)}>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderDrawing(h)}</div>
-                            </div>
-                }
+                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                <div class={this.drawingClasses.blockPadding(this.blockData.settings.spacing)}>
+                    <div key={this.componentUniqueKey}>{this.renderDrawing(h)}</div>
+                </div>
             </aside>
         );
     }

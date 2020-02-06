@@ -122,18 +122,26 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     render(h) {
+        if (!this.blockData) {
+            return (
+                <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
+            )
+        }
+
+        if (Utils.isArrayNullOrEmpty(this.links)) {
+            return (
+                <aside>
+                    <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                    <wcm-empty-block-view dark={false} icon={"fal fa-link"} text={this.corLoc.Blocks.Links.Title}></wcm-empty-block-view>
+                </aside>
+            )
+        }
         return (
             <aside>
-                {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        Utils.isArrayNullOrEmpty(this.links) ?
-                            <wcm-empty-block-view dark={false} icon={"fal fa-link"} text={this.corLoc.Blocks.Links.Title}></wcm-empty-block-view>
-                            :
-                            <div class={this.linksClasses.blockPadding(this.blockData.settings.spacing)}>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderLinks(h)}</div>
-                            </div>
-                }
+                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                <div class={this.linksClasses.blockPadding(this.blockData.settings.spacing)}>
+                    <div key={this.componentUniqueKey}>{this.renderLinks(h)}</div>
+                </div>
             </aside>
         );
     }

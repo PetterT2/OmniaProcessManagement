@@ -85,3 +85,12 @@ export const ProcessDefaultData = {
         }
     }
 }
+
+export const SystemProcessProperties = {
+    get Published() {
+        return "a134131f-22cb-4c49-8bbf-b3c2191ba530";
+    },
+    get LinkToProcessLibrary() {
+        return "8bf649a0-4c3e-40a0-9932-4dd2f0f32942";
+    }
+}

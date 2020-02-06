@@ -12,3 +12,4 @@ export * from './TasksBlockStyles';
 export * from './LinksBlockStyles';
 export * from './ProcessRollupStyles';
 export * from './ProcessNavigationBlockStyles';
+export * from './PropertiesBlockStyles';
