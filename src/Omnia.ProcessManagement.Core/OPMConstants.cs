@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.ShapeGalleryItems;
 
 namespace Omnia.ProcessManagement.Core
 {
@@ -35,6 +36,71 @@ namespace Omnia.ProcessManagement.Core
 
         public static class Features
         {
+            public static class OPMDefaultShapeGalleryItems
+            {
+                public static IList<ShapeGalleryItem> ShapeGalleryItems => new List<ShapeGalleryItem>()
+                    {
+                        Circle, Pentagon, Diamond
+                    };
+
+                public static ShapeGalleryItem Circle 
+                {
+                    get
+                    {
+                        return new ShapeGalleryItem()
+                        {
+                            Id = new Guid("b98c7edb-4739-4f88-b14b-55e2fc5d5a55"),
+                            BuiltIn = false,
+                            Settings = new ShapeGalleryItemSettings() 
+                            {
+                                Title = new MultilingualString()
+                                {
+                                    [LanguageTag.EnUs] = "Circle"
+                                }
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeGalleryItem Pentagon
+                {
+                    get
+                    {
+                        return new ShapeGalleryItem()
+                        {
+                            Id = new Guid("b226d2e8-264c-45b8-832d-905e55a74b13"),
+                            BuiltIn = false,
+                            Settings = new ShapeGalleryItemSettings()
+                            {
+                                Title = new MultilingualString()
+                                {
+                                    [LanguageTag.EnUs] = "Pentagon"
+                                }
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeGalleryItem Diamond
+                {
+                    get
+                    {
+                        return new ShapeGalleryItem()
+                        {
+                            Id = new Guid("16b5dd18-8de2-4bbd-9aaa-27b4cb155b37"),
+                            BuiltIn = false,
+                            Settings = new ShapeGalleryItemSettings()
+                            {
+                                Title = new MultilingualString()
+                                {
+                                    [LanguageTag.EnUs] = "Diamond"
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+
             public static class OPMDefaultProperties
             {
                 public static IList<EnterprisePropertyDefinition> Properties => new List<EnterprisePropertyDefinition>()

@@ -98,6 +98,13 @@
                 NoProcessTemplate: string,
                 NoShapeTemplate: string
             }
+        },
+        ShapeGallery: {
+            Title: string,
+            CreateShape: string,
+            Messages: {
+                NoShapeItem: string
+            }
         }
     }
 }

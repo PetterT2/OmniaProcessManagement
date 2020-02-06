@@ -26,7 +26,7 @@ export class ProcessTemplateStore extends Store {
     }
 
     private privateMutations = {
-        addOrUpdateDocumentTemplates: this.mutation((templates: Array<any>, remove?: boolean) => {
+        addOrUpdateProcessTemplates: this.mutation((templates: Array<ProcessTemplate>, remove?: boolean) => {
             this.processTemplates.mutate(state => {
                 let ids = templates.map(t => t.id);
 
@@ -41,7 +41,7 @@ export class ProcessTemplateStore extends Store {
                 }
             })
         }),
-        addOrUpdateDocumentTemplate: this.mutation((template: ProcessTemplate) => {
+        addOrUpdateProcessTemplate: this.mutation((template: ProcessTemplate) => {
             var existedTemplateIndex = this.processTemplates.state.findIndex((item) =>
                 item.id == template.id);
             if (existedTemplateIndex >= 0) {
@@ -57,7 +57,7 @@ export class ProcessTemplateStore extends Store {
         ensureLoadProcessTemplates: this.action(() => {
             if (!this.ensureLoadProcessTemplatesPromise) {
                 this.ensureLoadProcessTemplatesPromise = this.processTemplateSerivice.getAllProcessTemplates().then(templates => {
-                    this.privateMutations.addOrUpdateDocumentTemplates.commit(templates);
+                    this.privateMutations.addOrUpdateProcessTemplates.commit(templates);
                     return null;
                 })
             }
@@ -74,7 +74,7 @@ export class ProcessTemplateStore extends Store {
                 }
                 if (!result) {
                     this.processTemplateSerivice.getProcessTemplateById(processTemplateId).then((template) => {
-                        this.privateMutations.addOrUpdateDocumentTemplate.commit(template);
+                        this.privateMutations.addOrUpdateProcessTemplate.commit(template);
                         resolve(template);
                     }).catch(reject);
                 }
@@ -85,13 +85,13 @@ export class ProcessTemplateStore extends Store {
         }),
         addOrUpdateProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
             return this.processTemplateSerivice.addOrUpdateProcessTemplate(processTemplate).then((result) => {
-                this.privateMutations.addOrUpdateDocumentTemplates.commit([result]);
+                this.privateMutations.addOrUpdateProcessTemplates.commit([result]);
                 return null;
             })
         }),
         deleteProcessTemplate: this.action((processTemplate: ProcessTemplate) => {
             return this.processTemplateSerivice.deleteProcessTemplate(processTemplate.id).then(() => {
-                this.privateMutations.addOrUpdateDocumentTemplates.commit([processTemplate], true);
+                this.privateMutations.addOrUpdateProcessTemplates.commit([processTemplate], true);
                 return null;
             })
         })

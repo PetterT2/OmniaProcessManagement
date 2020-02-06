@@ -10,3 +10,4 @@ export * from './workflows';
 export * from './security';
 export * from './sharepointtasks';
 export * from './processrollup';
+export * from './shapegallery';

@@ -102,5 +102,12 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
                 NoProcessTemplate: "There's no process template.",
                 NoShapeTemplate: "There's no shape template."
             }
+        },
+        ShapeGallery: {
+            Title: "Shape Gallery",
+            CreateShape: "Create Shape",
+            Messages: {
+                NoShapeItem: "There's no shape item."
+            }
         }
     });

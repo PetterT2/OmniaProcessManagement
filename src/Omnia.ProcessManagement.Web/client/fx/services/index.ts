@@ -6,3 +6,4 @@ export * from './PermissionService';
 export * from './SharePointTaskService';
 export * from './ImageService';
 export * from './ProcessRollupService';
+export * from './ShapeGalleryItemService';

@@ -9,6 +9,7 @@ using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
 using Omnia.ProcessManagement.Core.Entities.Settings;
+using Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems;
 using Omnia.ProcessManagement.Core.Entities.Workflows;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -58,7 +59,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<ImageReference> ImageReferences { get; set; }
-
+        public DbSet<ShapeGalleryItem> ShapeDeclarations { get; set; }
 
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }

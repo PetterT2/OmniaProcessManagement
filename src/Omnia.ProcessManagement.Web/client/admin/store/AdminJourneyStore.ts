@@ -42,8 +42,9 @@ export class AdminJourneyStore extends Store {
     protected onActivated() {
         this.subMenuItems.mutate([
             { element: 'opm-admin-settings-globalsettings-journey', title: this.loc.Settings, icon: 'fal fa-cogs' },
+            { element: 'opm-admin-settings-shape-gallery-journey', title: this.loc.ShapeGallery.Title, icon: 'fal fa-images' },
             { element: 'opm-admin-settings-process-types-journey', title: this.loc.ProcessTypes.Title, icon: 'fal fa-angle-right' },
-            { element: 'opm-admin-settings-process-templates-journey', title: this.loc.ProcessTemplates.Title, icon: 'fal fa-th' },
+            { element: 'opm-admin-settings-process-templates-journey', title: this.loc.ProcessTemplates.Title, icon: 'fal fa-th' }
         ])
     }
     protected onDisposing() {
