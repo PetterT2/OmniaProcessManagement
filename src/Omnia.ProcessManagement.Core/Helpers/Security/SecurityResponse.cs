@@ -163,7 +163,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         public ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes)
         {
-            return RequireApprover(versionTypes);
+            return RequireReader(versionTypes);
         }
 
         async ValueTask<T> ISecurityResponseHandler.DoAsync<T>(Func<InternalProcess, ValueTask<T>> action)
@@ -215,26 +215,26 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
             var isAuthorized = true;
 
-            if (!AuthorOnly)
-            {
-                if (Process.VersionType == ProcessVersionType.CheckedOut && Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
-                {
-                    throw new ProcessCheckedOutByAnotherUserException(Process.CheckedOutBy);
-                }
-            }
+            //if (!AuthorOnly)
+            //{
+            //    if (Process.VersionType == ProcessVersionType.CheckedOut && Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+            //    {
+            //        throw new ProcessCheckedOutByAnotherUserException(Process.CheckedOutBy);
+            //    }
+            //}
 
-            if (RequiredRoles.Count > 0)
-            {
-                EnsureContextParamsAsync();
+            //if (RequiredRoles.Count > 0)
+            //{
+            //    EnsureContextParamsAsync();
 
-                var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
-                var identityRoles = identityRolesResult.Values
-                    .Where(r => r.HasPermission == true)
-                    .Select(r => r.RoleId)
-                    .ToList();
-                isAuthorized = identityRoles.Any(
-                    roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
-            }
+            //    var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
+            //    var identityRoles = identityRolesResult.Values
+            //        .Where(r => r.HasPermission == true)
+            //        .Select(r => r.RoleId)
+            //        .ToList();
+            //    isAuthorized = identityRoles.Any(
+            //        roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
+            //}
             return isAuthorized;// || true; //TODO - remove true here when finish;
         }
 

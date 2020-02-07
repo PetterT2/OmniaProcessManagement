@@ -8,9 +8,5 @@
     <PackageReference Include="Omnia.Fx" Version="4.0.47-dev" />
     <PackageReference Include="Omnia.Fx.Models" Version="4.0.47-dev" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="ProcessLibrary\" />
-  </ItemGroup>
 
 </Project>

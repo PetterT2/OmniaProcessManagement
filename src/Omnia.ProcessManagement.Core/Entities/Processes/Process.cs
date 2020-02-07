@@ -22,6 +22,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public Guid SecurityResourceId { get; set; }
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
+        public DateTimeOffset? PublishedAt { get; set; }
         public ICollection<ProcessData> ProcessData { get; set; }
         public ICollection<ImageReference> ImageReferences { get; set; }
     }

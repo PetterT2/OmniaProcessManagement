@@ -4,10 +4,15 @@ import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
 import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
 import { OPMUtils } from '../utils';
+import { ProcessSite } from '../../models';
 
 
 interface ProcessDict {
     [processId: string]: Process
+}
+
+interface ProcessSiteDict {
+    [processStepId: string]: ProcessSite
 }
 
 interface ProcessDataDict {
@@ -34,11 +39,13 @@ export class ProcessStore extends Store {
     private processDict = this.state<ProcessDict>({});
     private processCheckoutInfoDict = this.state<ProcessCheckoutInfoDict>({});
     private processDataDict = this.state<ProcessDataDict>({});
+    private processSiteDict = this.state<ProcessSiteDict>({});
 
 
     //internal properties
     private processLoadPromises: { [processLoadPromiseKey: string]: ResolvablePromise<null> } = {};
     private processDataLoadPromises: { [processDataLoadPromiseKey: string]: ResolvablePromise<null> } = {};
+    private processSiteLoadPromises: { [processSiteLoadPromiseKey: string]: ResolvablePromise<null> } = {};
 
     private processStepIdAndProcessIdDict: ProcessStepIdAndProcessIdDict = {};
 
@@ -74,6 +81,7 @@ export class ProcessStore extends Store {
             }
 
             let processReferenceData: ProcessReferenceData = null;
+            let processSite = this.processSiteDict.state[this.getProcessSiteCacheKey(process.rootProcessStep.id)]
 
             if (processReference.shortcutProcessStepId) {
                 let shortcutProcessDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.shortcutProcessStepId);
@@ -86,7 +94,7 @@ export class ProcessStore extends Store {
 
                 if (shortcutProcessStepRef.desiredProcessStep == null)
                     throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.shortcutProcessStepId}`;
-
+             
                 processReferenceData = {
                     process: process,
                     current: {
@@ -99,7 +107,8 @@ export class ProcessStore extends Store {
                         processStep: shortcutProcessStepRef.desiredProcessStep,
                         processData: shortcutProcessData,
                         parentProcessStep: shortcutProcessStepRef.parentProcessStep
-                    }
+                    },
+                    processSite: processSite
                 }
             }
             else {
@@ -110,7 +119,8 @@ export class ProcessStore extends Store {
                         processData: processData,
                         parentProcessStep: processStepRef.parentProcessStep,
                         parentProcessData: parentProcessData
-                    }
+                    },
+                    processSite: processSite
                 }
             }
             return processReferenceData
@@ -192,7 +202,7 @@ export class ProcessStore extends Store {
                             if (processReference.shortcutProcessStepId) {
                                 promises.push(this.ensureProcessData(process, processReference.shortcutProcessStepId));
                             }
-
+                            promises.push(this.ensureProcessSite(process.rootProcessStep.id, process.versionType));
                             Promise.all(promises).then(() => { resolve() }).catch(reject);
                         })
                     });
@@ -269,6 +279,17 @@ export class ProcessStore extends Store {
                 resolvablePromise.resolve(null);
             }
         },
+        addOrUpdateProcessSite: (processSite: ProcessSite) => {
+            let currentState = this.processSiteDict.state;
+            let key = this.getProcessSiteCacheKey(processSite.id);
+            let newState = Object.assign({}, currentState, { [key]: processSite });
+            this.processSiteDict.mutate(newState);            
+
+            let resolvablePromise = this.getProcessSiteLoadResolvablePromise(processSite.id);
+            if (!resolvablePromise.resolved) {
+                resolvablePromise.resolve(null);
+            }
+        },
         addOrUpdateProcessCheckoutInfo: (opmProcessId: GuidValue, info: ProcessCheckoutInfo) => {
             let currentState = this.processCheckoutInfoDict.state;
             let key = this.getProcessCheckoutCacheKey(opmProcessId);
@@ -323,6 +344,22 @@ export class ProcessStore extends Store {
         return resolvablePromise.promise;
     }
 
+    private ensureProcessSite = (processStepId: GuidValue, versionType: ProcessVersionType): Promise<null> => {
+        let resolvablePromise = this.getProcessSiteLoadResolvablePromise(processStepId);
+
+        if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
+            resolvablePromise.resolving = true;
+
+            this.processService.getProcessSiteById(processStepId, versionType).then((processSite) => {
+                this.internalMutations.addOrUpdateProcessSite(processSite);
+            }).catch((reason) => {
+                resolvablePromise.reject(reason);
+            });
+        }
+
+        return resolvablePromise.promise;
+    }
+
     private ensureProcessData = (process: Process, processStepId: GuidValue): Promise<ProcessData> => {
         let promise: Promise<ProcessData> = null;
 
@@ -364,6 +401,22 @@ export class ProcessStore extends Store {
         return this.processLoadPromises[key];
     }
 
+    private getProcessSiteLoadResolvablePromise = (processStepId: GuidValue): ResolvablePromise<null> => {
+
+        let key = this.getProcessSiteCacheKey(processStepId);
+
+        let existingPromise = this.processSiteLoadPromises[key];
+
+        if (!existingPromise) {
+            this.processSiteLoadPromises[key] = new ResolvablePromise<null>();
+        } else if (existingPromise && existingPromise.rejected) {
+            //We have an server failed-result already for this ref, we create a new promise to refresh from server
+            this.processSiteLoadPromises[key] = new ResolvablePromise<null>();
+        }
+
+        return this.processSiteLoadPromises[key];
+    }
+
     private getProcessDataLoadResolvablePromise = (processId: GuidValue, processStepId: GuidValue, hash: string): ResolvablePromise<null> => {
         let key = `${processId.toString()}-${processStepId.toString()}-${hash}`.toLowerCase();
 
@@ -385,6 +438,10 @@ export class ProcessStore extends Store {
 
     private getProcessCacheKey = (processId: GuidValue) => {
         return `${processId.toString()}`.toLowerCase();
+    }
+
+    private getProcessSiteCacheKey = (processStepId: GuidValue) => {
+        return `${processStepId.toString()}-site`.toLowerCase();
     }
 
     private getProcessDataCacheKey = (processId: GuidValue, processStepId: GuidValue) => {
