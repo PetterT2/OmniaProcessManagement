@@ -59,7 +59,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     openSettingBlade(declaration?: ShapeGalleryItem) {
         this.journey().travelBackToFirstBlade();
         this.$nextTick(() => {
-            let shapeGalleryItem = declaration || ShapeGalleryItemFactory.createDefaultShapeGalleryItem();
+            let shapeGalleryItem = declaration || ShapeGalleryItemFactory.createDefaultShapeGalleryItem(this.omniaTheming);
             this.shapeGalleryJournayStore.mutations.setEditingShapeGalleryItem.commit(shapeGalleryItem);
             this.journey().travelToNext(ShapeGalleryJourneyBladeIds.shapeGallerySettingsDefault);
         });

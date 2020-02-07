@@ -5,11 +5,12 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ShapeGalleryItemStore, IShape, DrawingCanvas } from '../../../../../fx';
+import { ShapeGalleryItemStore, IShape, DrawingCanvas, ShapeTemplatesConstants } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
-import { ShapeGalleryItem, ShapeGalleryItemType, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes } from '../../../../../fx/models';
+import { ShapeGalleryItem, ShapeGalleryItemType, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition } from '../../../../../fx/models';
 import { OPMCoreLocalization } from '../../../../../core/loc/localize';
 import './ShapeGalleryDefaultSettingsBlade.css';
+import { MultilingualStore } from '@omnia/fx/store';
 
 interface ShapeGalleryDefaultSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -22,20 +23,15 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ShapeGalleryJourneyStore) shapeGalleryJournayStore: ShapeGalleryJourneyStore;
     @Inject(ShapeGalleryItemStore) shapeGalleryStore: ShapeGalleryItemStore;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     shapeGalleryItemTypes = [
-        {
-            id: ShapeGalleryItemType.Freeform,
-            title: this.coreLoc.ShapeNames.Freeform
-        },
-        {
-            id: ShapeGalleryItemType.Media,
-            title: this.coreLoc.ShapeNames.Media
-        }
+        ShapeTemplatesConstants.Freeform,
+        ShapeTemplatesConstants.Media
     ];
 
     textPositions = [
@@ -79,11 +75,15 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     isSaving: boolean = false;
 
     created() {
-
+        this.shapeGalleryItemTypes.forEach((shapeTemplateSelection) => {
+            shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
+        })
     }
 
     onShapeGalleryItemTypeChanged() {
-
+        if (this.drawingCanvas)
+            this.drawingCanvas.destroy();
+        this.shape = null;
     }
 
     drawFreeShape() {
@@ -112,9 +112,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         if (this.editingShapeGalleryItem.settings.shapeDefinition) {
             this.$nextTick(() => {
                 this.initDrawingCanvas();
-                //if (!this.isNewMedia())
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.editingShapeGalleryItem.settings.shapeDefinition,
-                    this.editingShapeGalleryItem.settings.title, 0, 0);
+                    this.editingShapeGalleryItem.settings.title, 0, 0, null, null, this.shape ? this.shape.nodes : null);
+                this.$forceUpdate();
             });
         }
     }
@@ -143,11 +143,12 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     }
 
     isNewMedia() {
-        return true;
+        return this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString() &&
+            !(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
     }
 
     isNewFreeForm() {
-        return true;
+        return this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString() && (!this.shape || this.shape.nodes.length == 0) ? true : false;
     }
 
     renderFreefromPicker(h) {
@@ -168,8 +169,8 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     }
 
     renderShapePreview(h) {
-        let isFreeform = this.editingShapeGalleryItem.settings.type == ShapeGalleryItemType.Freeform;
-        let isMedia = this.editingShapeGalleryItem.settings.type == ShapeGalleryItemType.Media;
+        let isFreeform = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString();
+        let isMedia = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
         let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
 
         return (
@@ -214,7 +215,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
 
     render(h) {
         this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
-        let isMediaShape = this.editingShapeGalleryItem.settings.type && this.editingShapeGalleryItem.settings.type == ShapeGalleryItemType.Media;
+        let isMediaShape = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate && this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
 
         return (
             <div>
@@ -232,16 +233,16 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                 model={this.editingShapeGalleryItem.settings.title}
                                 onModelChange={(title) => { this.editingShapeGalleryItem.settings.title = title }}
                                 forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
-                            <v-select item-value="id" item-text="title" items={this.shapeGalleryItemTypes} v-model={this.editingShapeGalleryItem.settings.type}
+                            <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeGalleryItemTypes} v-model={this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate}
                                 onChange={this.onShapeGalleryItemTypeChanged}></v-select>
                             <omfx-field-validation
                                 useValidator={this.internalValidator}
-                                checkValue={this.editingShapeGalleryItem.settings.type}
+                                checkValue={this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate}
                                 rules={new FieldValueValidation().IsRequired().getRules()}>
                             </omfx-field-validation>
                         </v-col>
                         <v-col cols="6">
-                            {this.editingShapeGalleryItem.settings.type && this.renderShapePreview(h)}
+                            {this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate && this.renderShapePreview(h)}
                         </v-col>
                     </v-row>
 

@@ -14,7 +14,7 @@ Composer
         resourcePaths: [
             './loc/**/*.js',
             './store/**/*.js',
-            './model/index.js',
+            './models/index.js',
             "./AdminJourneyConstants.js"
         ]
     })
