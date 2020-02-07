@@ -7,10 +7,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@omnia/fx": "4.0.47-dev",
-    "@omnia/fx-sp": "4.0.47-dev",
-    "@omnia/fx-spfx": "4.0.47-dev",
-    "@omnia/tooling-vue": "4.0.47-dev",
+    "@omnia/fx": "4.0.49-dev",
+    "@omnia/fx-sp": "4.0.49-dev",
+    "@omnia/fx-spfx": "4.0.49-dev",
+    "@omnia/tooling-vue": "4.0.49-dev",
     "@omnia/wcm": "4.0.1-dev",
     "@omnia/workplace": "4.0.1-dev",
     "fabric": "3.4.0",

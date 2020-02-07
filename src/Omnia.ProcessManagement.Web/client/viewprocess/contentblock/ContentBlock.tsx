@@ -28,7 +28,7 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     componentUniqueKey: string = Utils.generateGuid();
     blockData: ContentBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    content: string="";
+    content: string = "";
     contentClasses = StyleFlow.use(ContentBlockStyles, this.styles);
 
     created() {
@@ -90,18 +90,26 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     }
 
     render(h) {
+        if (!this.blockData) {
+            return (
+                <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
+            )
+        }
+
+        if (!this.hasContentValue()) {
+            return (
+                <aside>
+                    <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.Blocks.Content.Title}></wcm-empty-block-view>
+                </aside>
+            )
+        }
         return (
             <aside>
-                {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        !this.hasContentValue() ?
-                            <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.Blocks.Content.Title}></wcm-empty-block-view>
-                            :
-                            <div class={this.contentClasses.blockPadding(this.blockData.settings.spacing)}>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderContent(h)}</div>
-                            </div>
-                }
+                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                <div class={this.contentClasses.blockPadding(this.blockData.settings.spacing)}>
+                    <div key={this.componentUniqueKey}>{this.renderContent(h)}</div>
+                </div>
             </aside>
         );
     }

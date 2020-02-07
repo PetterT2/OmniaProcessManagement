@@ -123,19 +123,26 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
 
     render(h) {
         let isEmpty = this.currentProcessStore.getters.referenceData() == null;
+        if (!this.blockData) {
+            return (
+                <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
+            )
+        }
 
+        if (isEmpty) {
+            return (
+                <aside>
+                    <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                    <wcm-empty-block-view dark={false} icon={"fas fa-bars"} text={this.corLoc.Blocks.ProcessNavigation.Title}></wcm-empty-block-view>
+                </aside>
+            )
+        }
         return (
             <aside>
-                {
-                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
-                        isEmpty ?
-                            <wcm-empty-block-view dark={false} icon={"fas fa-bars"} text={this.corLoc.Blocks.ProcessNavigation.Title}></wcm-empty-block-view>
-                            :
-                            <div class={this.processnavigationClasses.blockPadding(this.blockData.settings.spacing)}>
-                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                                <div key={this.componentUniqueKey}>{this.renderProcessNavigation(h)}</div>
-                            </div>
-                }
+                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                <div class={this.processnavigationClasses.blockPadding(this.blockData.settings.spacing)}>
+                    <div key={this.componentUniqueKey}>{this.renderProcessNavigation(h)}</div>
+                </div>
             </aside>
         );
     }

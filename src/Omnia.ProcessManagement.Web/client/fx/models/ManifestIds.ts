@@ -69,5 +69,9 @@ export class OPMWebComponentManifests {
     public static get ProcessRollupSettings(): Guid { return new Guid('0aec18e0-41d3-4148-b08a-0c123d83b4cb'); }
     public static get ProcessRollupListView(): Guid { return new Guid('6fa93477-75b3-4dd0-a626-62a484905ecd'); }
     public static get ProcessRollupListViewSettings(): Guid { return new Guid('d5ea454b-d65b-45c3-9c77-9e01f684c1e2'); }
+
+    public static get PropertiesBlockCore(): Guid { return new Guid('f743fa95-eb45-465f-8788-9cb91a7ef18c'); }
+    public static get PropertiesBlock(): Guid { return new Guid('6fbb96f3-40e7-45ee-b99e-68533a993bd4'); }
+    public static get PropertiesBlockSettings(): Guid { return new Guid('bdab3f12-f9b8-4891-847f-a7a84ff8e27e'); }
 }
 
