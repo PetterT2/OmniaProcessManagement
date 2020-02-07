@@ -168,6 +168,15 @@
             Design: string,
             Preview: string,
             SaveAsDraft: string,
+            DrawShape: string,
+            RedrawShape: string,
+            AddImage: string,
+            EditImage: string,
+            DrawFreeform: string
+        },
+        ShapeNames: {
+            Freeform: string,
+            Media: string
         }
     }
 }

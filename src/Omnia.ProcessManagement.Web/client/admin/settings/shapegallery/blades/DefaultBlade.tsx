@@ -32,7 +32,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     created() {
         this.isLoading = true;
         Promise.all([
-            //this.shapeGalleryStore.actions.ensureLoadShapeGalleryItems.dispatch()
+            this.shapeGalleryItemStore.actions.ensureLoadShapeGalleryItems.dispatch()
         ]
         ).then(() => {
             this.isLoading = false;

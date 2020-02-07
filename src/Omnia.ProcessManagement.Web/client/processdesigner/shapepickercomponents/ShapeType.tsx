@@ -15,7 +15,6 @@ import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ShapeTypeStyles } from '../../fx/models/styles';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerLocalization } from '../loc/localize';
-import { FreeformPickerComponent } from './freeformpicker/FreeformPicker';
 
 export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
@@ -597,12 +596,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         var canvasDefinition = Utils.clone(currentReferenceData.current.processData.canvasDefinition);
         canvasDefinition.drawingShapes = [];
 
-        return <FreeformPickerComponent
+        return <opm-freeform-picker
             canvasDefinition={canvasDefinition}
             shapeDefinition={this.drawingOptions.shapeDefinition}
             save={(shape: IShape) => { this.addFreefromShape(shape); }}
             closed={() => { this.isOpenFreeformPicker = false; }}
-        ></FreeformPickerComponent>
+        ></opm-freeform-picker>
     }
 
     private renderDrawingShapeDefinition(h) {

@@ -172,6 +172,15 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             DiscardChanges: "Discard changes",
             Design: "Design",
             Preview: "Preview",
-            SaveAsDraft: "Save As Draft"
+            SaveAsDraft: "Save As Draft",
+            DrawShape: "Draw Shape",
+            RedrawShape: "Redraw Shape",
+            AddImage: "Add Image",
+            EditImage: "Edit Image",
+            DrawFreeform: "Draw Freeform"
+        },
+        ShapeNames: {
+            Freeform: "Freeform",
+            Media: "Media"
         }
     });

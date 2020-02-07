@@ -1,23 +1,17 @@
-﻿import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
-import { Inject, Localize, Utils } from "@omnia/fx";
-import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
-import { CanvasDefinition, DrawingShapeDefinition, DrawingShape, ShapeSelectionStyles, ICanvasDefinition } from '../../../fx/models';
-import { ProcessDesignerLocalization } from '../../loc/localize';
-import { DrawingCanvasFreeForm, CurrentProcessStore, OPMUtils, ProcessStore, IShape, Shape } from '../../../fx';
+﻿import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Prop, Watch, Emit } from 'vue-property-decorator'
+import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { Guid } from '@omnia/fx-models';
-import { setTimeout } from 'timers';
-import { ProcessDesignerStore } from '../../stores';
-
-interface FreeformPickerComponentProps {
-    shapeDefinition: DrawingShapeDefinition;
-    closed: () => void;
-    save: (shape: IShape) => void;
-    canvasDefinition: CanvasDefinition;
-}
+import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
+import { CurrentProcessStore, IShape, DrawingCanvasFreeForm, Shape } from '../../fx';
+import { DrawingShapeDefinition, CanvasDefinition, FreeformPickerStyles } from '../../fx/models';
+import { ProcessDesignerStore } from '../../processdesigner/stores';
+import { OPMCoreLocalization } from '../../core/loc/localize';
+import './FreeformPicker.css';
 
 @Component
-export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComponentProps> {
+export class FreeformPickerComponent extends VueComponentBase implements IWebComponentInstance {
     @Prop() shapeDefinition: DrawingShapeDefinition;
     @Prop() closed: () => void;
     @Prop() save: (shape: IShape) => void;
@@ -27,11 +21,11 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
-    @Localize(ProcessDesignerLocalization.namespace) loc: ProcessDesignerLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     private dialogModel: DialogModel = { visible: false };
-    private classes = StyleFlow.use(ShapeSelectionStyles);
+    private classes = StyleFlow.use(FreeformPickerStyles);
     private canvasId: string = 'opmcanvas' + Guid.newGuid().toString();
     private drawingCanvas: DrawingCanvasFreeForm;
     private isFinished: boolean = false;
@@ -89,7 +83,7 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
                     position={DialogPositions.Center}>
                     <div>
                         <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.loc.DrawFreeform}</v-toolbar-title>
+                            <v-toolbar-title>{this.coreLoc.Buttons.DrawFreeform}</v-toolbar-title>
                             <v-spacer></v-spacer>
                         </v-toolbar>
                         <v-divider></v-divider>
@@ -126,3 +120,6 @@ export class FreeformPickerComponent extends VueComponentBase<FreeformPickerComp
     }
 }
 
+WebComponentBootstrapper.registerElement((manifest) => {
+    vueCustomElement(manifest.elementName, FreeformPickerComponent);
+});

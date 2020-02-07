@@ -1,5 +1,5 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
-import { ShapeGalleryItemSettings } from './ShapeGalleryItemSettings';
+import { ShapeGalleryItemSettings, ShapeGalleryItemType } from './ShapeGalleryItemSettings';
 
 export interface ShapeGalleryItem {
     id: GuidValue,
@@ -17,7 +17,10 @@ export interface ShapeGalleryItem {
 export const ShapeGalleryItemFactory = {
     createDefaultShapeGalleryItem(): ShapeGalleryItem {
         let shapeGalleryItem: ShapeGalleryItem = {
-            settings: {},
+            settings: {
+                type: ShapeGalleryItemType.Freeform,
+                shapeDefinition: {}
+            },
             builtIn: false
         } as ShapeGalleryItem
 

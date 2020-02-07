@@ -59,7 +59,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<ImageReference> ImageReferences { get; set; }
-        public DbSet<ShapeGalleryItem> ShapeDeclarations { get; set; }
+        public DbSet<ShapeGalleryItem> ShapeGalleryItems { get; set; }
 
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
@@ -87,6 +87,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
             SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<ShapeGalleryItem>(modelBuilder, d => new { d.Id });
             modelBuilder.Entity<ProcessType>()
                 .HasIndex(c => new { c.RootId })
                 .IsUnique()

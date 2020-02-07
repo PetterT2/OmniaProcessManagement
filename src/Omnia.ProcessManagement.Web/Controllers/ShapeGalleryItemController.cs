@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
-    [Route("api/shapedeclaration")]
+    [Route("api/shapegalleryitem")]
     [ApiController]
     public class ShapeGalleryItemController : ControllerBase
     {

@@ -72,6 +72,10 @@
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\store\ShapeGalleryJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\AdminJourneyStore.ts" />
     <TypeScriptCompile Remove="client\admin\store\index.ts" />
+    <TypeScriptCompile Remove="client\components\freeformpicker\FreeformPicker.css.ts" />
+    <TypeScriptCompile Remove="client\components\freeformpicker\FreeformPicker.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\freeformpicker\FreeformPicker.tsx" />
+    <TypeScriptCompile Remove="client\components\freeformpicker\IFreeformPicker.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\IMediaPicker.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.css.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.manifest.ts" />
@@ -243,8 +247,10 @@
     <TypeScriptCompile Remove="client\fx\models\shared\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\MediaPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepPickerStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ShapeGalleryDefaultSettingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
@@ -360,7 +366,6 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\ProcessTasks.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\tasks\Tasks.manifest.ts" />
-    <TypeScriptCompile Remove="client\processdesigner\shapepickercomponents\freeformpicker\FreeformPicker.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\stores\AddShapeWizardStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessDesignerPanelStore.ts" />
     <TypeScriptCompile Remove="client\processdesigner\stores\ProcessLinksStore.ts" />
