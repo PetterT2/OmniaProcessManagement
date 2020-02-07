@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Omnia.ProcessManagement.Core.Repositories;
 
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    partial class OmniaPMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200207043821_AddPublishedAtColumnInProcessTable")]
+    partial class AddPublishedAtColumnInProcessTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -378,48 +380,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .HasAnnotation("SqlServer:Clustered", true);
 
                     b.ToTable("Settings");
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("BuiltIn")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("ClusteredId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("JsonValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("ClusteredId")
-                        .IsUnique()
-                        .HasAnnotation("SqlServer:Clustered", true);
-
-                    b.ToTable("ShapeGalleryItems");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>

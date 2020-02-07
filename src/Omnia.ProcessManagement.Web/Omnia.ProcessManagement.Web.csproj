@@ -318,6 +318,8 @@
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewDateTimeColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewSettings.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
+    <TypeScriptCompile Remove="client\models\processsite\index.ts" />
+    <TypeScriptCompile Remove="client\models\processsite\ProcessSite.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />

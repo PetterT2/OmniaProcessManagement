@@ -235,7 +235,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
 
                 draftProcess.SecurityResourceId = securityResourceId;
-
+                draftProcess.PublishedAt = DateTime.Now;
                 await DbContext.SaveChangesAsync();
 
                 var rawSql = GenerateUpdateRelatedWorkflowEditionRawSql(opmProcessId, edition);
@@ -1154,6 +1154,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.CreatedBy = processEf.CreatedBy;
             model.ModifiedAt = processEf.ModifiedAt;
             model.ModifiedBy = processEf.ModifiedBy;
+            model.PublishedAt = processEf.PublishedAt;
             return model;
         }
 
@@ -1197,6 +1198,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.CreatedBy = processEf.CreatedBy;
             model.ModifiedAt = processEf.ModifiedAt;
             model.ModifiedBy = processEf.ModifiedBy;
+            model.PublishedAt = processEf.PublishedAt;
             return model;
         }
 

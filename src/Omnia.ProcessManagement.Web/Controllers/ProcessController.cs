@@ -11,14 +11,19 @@ using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Models.Shared;
+using Omnia.Fx.SharePoint.Client;
+using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
+using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
+using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -29,16 +34,19 @@ namespace Omnia.ProcessManagement.Web.Controllers
         ILogger<ProcessController> Logger { get; }
         IProcessService ProcessService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
-
+        ISharePointClientContextProvider SharePointClientContextProvider { get; }
+        ITeamCollaborationAppsService TeamCollaborationAppService { get; }
         IOmniaContext OmniaContext { get; }
 
         public ProcessController(IProcessService processService, ILogger<ProcessController> logger, IProcessSecurityService processSecurityService,
-            IOmniaContext omniaContext)
+            IOmniaContext omniaContext, ITeamCollaborationAppsService teamCollaborationAppService, ISharePointClientContextProvider sharePointClientContextProvider)
         {
             ProcessService = processService;
             ProcessSecurityService = processSecurityService;
             OmniaContext = omniaContext;
             Logger = logger;
+            TeamCollaborationAppService = teamCollaborationAppService;
+            SharePointClientContextProvider = sharePointClientContextProvider;
         }
 
         [HttpGet, Route("checkoutinfo/{opmProcessId:guid}")]
@@ -313,7 +321,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReader()
+                    .OrRequireReader(ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, ProcessVersionType.Published);
@@ -533,6 +541,40 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<bool>(ex);
+            }
+        }
+
+        [HttpGet, Route("processsite/{processStepId:guid}/{versionType:int}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<ProcessSite>> GetProcessSiteAsync(Guid processStepId, ProcessVersionType versionType)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, versionType);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReader(versionType)
+                    .DoAsync(async (teamAppId, _) =>
+                    {
+                        var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(teamAppId);
+                        PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(webUrl);
+                        ctx.Load(ctx.Web, w => w.Title);
+                        await ctx.ExecuteQueryAsync();
+                        var siteInfo = new ProcessSite
+                        {
+                            Id = processStepId,
+                            Name = ctx.Web.Title,
+                            Url = webUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName
+                        };
+                        return siteInfo.AsApiResponse();
+                    });
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<ProcessSite>(ex);
             }
         }
 

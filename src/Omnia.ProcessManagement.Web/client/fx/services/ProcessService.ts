@@ -2,6 +2,7 @@
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
 import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
+import { ProcessSite } from '../../models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class ProcessService {
@@ -293,6 +294,18 @@ export class ProcessService {
                 }
             }).catch(reject);
         })
+    }
+
+    public getProcessSiteById = (processStepId: GuidValue, versionType: ProcessVersionType): Promise<ProcessSite> => {
+        return new Promise<ProcessSite>((resolve, reject) => {
+
+            this.httpClient.get<IHttpApiOperationResult<ProcessSite>>(`/api/processes/processsite/${processStepId}/${versionType}`).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
     }
 
     private generateClientSideData = (processes: Array<Process>, ) => {

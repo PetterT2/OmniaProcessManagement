@@ -1,5 +1,6 @@
 ﻿import { GuidValue } from '@omnia/fx-models';
 import { Process, ProcessStep, ProcessData } from '..';
+import { ProcessSite } from '../../../models';
 
 export interface ProcessReferenceData {
     readonly process: Process;
@@ -18,4 +19,6 @@ export interface ProcessReferenceData {
         processStep: ProcessStep;
         processData: ProcessData;
     }
+
+    readonly processSite: ProcessSite;
 }

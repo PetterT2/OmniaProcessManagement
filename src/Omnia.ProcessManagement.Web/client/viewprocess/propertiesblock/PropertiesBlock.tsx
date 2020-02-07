@@ -2,7 +2,7 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { IMessageBusSubscriptionHandler, GuidValue, EnterprisePropertyDefinition } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, GuidValue, EnterprisePropertyDefinition, EnterprisePropertyDataType, PropertyIndexedType } from '@omnia/fx/models';
 import './PropertiesBlock.css';
 import { PropertiesBlockStyles } from '../../models';
 import { PropertiesBlockLocalization } from './loc/localize';
@@ -34,7 +34,6 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
-    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     componentUniqueKey: string = Utils.generateGuid();
     blockData: PropertiesBlockData = null;
@@ -86,24 +85,48 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
         }));
     }
 
-    private generatePropertyValue(processProperties: { [internalName: string]: any }, item: ProcessPropertySetting) {
+    private generatePropertyValue(referenceData: ProcessReferenceData, availablePropertyTypes: EnterprisePropertyDataType[], item: ProcessPropertySetting) {
+        let processProperties: { [internalName: string]: any } = {};
+        if (referenceData) {
+            processProperties = referenceData.process.rootProcessStep.enterpriseProperties;
+        }
         let value = processProperties[item.internalName];
         let title = "";
+        let displayElement = "";
+        let contentProperty: EnterprisePropertyDefinition = null;
         if (item.internalName == SystemProcessProperties.Published) {
             title = this.loc.Properties.Published;
-            value = "";
+            let enterprisePropertyDataType = availablePropertyTypes.find((p) => {
+                return p.indexedType === PropertyIndexedType.DateTime;
+            });
+            if (enterprisePropertyDataType && enterprisePropertyDataType.uiOptions) {
+                displayElement = enterprisePropertyDataType.uiOptions.displayModeElementName || "";
+                contentProperty = { internalName: item.internalName } as EnterprisePropertyDefinition;
+            }
+            if (referenceData && referenceData.process.publishedAt) {
+                value = referenceData.process.publishedAt;
+            }
         }
-        //if (item.internalName == SystemProcessProperties.LinkToProcessLibrary) {
-        //    title = this.loc.Properties.LinkToProcessLibrary;
-        //    value = { title:};
-        //}
+        if (item.internalName == SystemProcessProperties.LinkToProcessLibrary) {
+            title = this.loc.Properties.LinkToProcessLibrary;
+            let enterprisePropertyDataType = availablePropertyTypes.find((p) => {
+                return p.indexedType === PropertyIndexedType.RichText;
+            });
+            if (enterprisePropertyDataType && enterprisePropertyDataType.uiOptions) {
+                displayElement = enterprisePropertyDataType.uiOptions.displayModeElementName || "";
+                contentProperty = { internalName: item.internalName } as EnterprisePropertyDefinition;
+            }
+            if (referenceData && referenceData.processSite) {
+                value = `<a href=${referenceData.processSite.url} target='_blank'>${referenceData.processSite.name}</a>`;
+            }
+        }
         let property: ProcessProperty = {
             internalName: item.internalName,
             value: value,
-            displayElement: "",
+            displayElement: displayElement,
             settings: item,
             title: title,
-            contentProperty: null
+            contentProperty: contentProperty
         } as ProcessProperty;
         return property;
     }
@@ -112,6 +135,7 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
         let properties: Array<ProcessProperty> = [];
         if (!this.isLoadingProperties || this.blockData == null) {
             let availableProperties = this.propertyStore.getters.enterprisePropertyDefinitions();
+            let availablePropertyTypes = this.propertyStore.getters.enterprisePropertyDataTypes();
 
             if (!Utils.isArrayNullOrEmpty(this.blockData.settings.properties)) {
 
@@ -128,13 +152,10 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
                 }
 
                 let referenceData = this.currentProcessStore.getters.referenceData();
-                let processProperties: { [internalName: string]: any } = {};
-                if (referenceData) {
-                    processProperties = referenceData.process.rootProcessStep.enterpriseProperties;
-                }
+
                 this.blockData.settings.properties.forEach((item) => {
                     if (!Utils.isNullOrEmpty(item.internalName)) {
-                        let property: ProcessProperty = this.generatePropertyValue(processProperties, item);
+                        let property: ProcessProperty = this.generatePropertyValue(referenceData, availablePropertyTypes, item);
                         let contentProperty = availableProperties.find((p) => {
                             return p.internalName === item.internalName;
                         });

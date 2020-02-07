@@ -19,6 +19,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public ProcessWorkingStatus ProcessWorkingStatus { get; set; }
         public ProcessVersionType VersionType { get; set; }
         public string JsonValue { get; set; }
+        public DateTimeOffset? PublishedAt { get; set; }
     }
 
     internal class AlternativeProcessEFWithoutData

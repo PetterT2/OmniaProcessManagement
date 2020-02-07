@@ -407,7 +407,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                             case ProcessLibraryFields.Published:
                                 return (
                                     <td>
-                                        {moment(item.modifiedAt).format(this.dateFormat)}
+                                        {moment(item.publishedAt).isValid() ? moment(item.publishedAt).format(this.dateFormat) : ""}
                                     </td>
                                 );
                             default:

@@ -77,7 +77,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
                     nameof (Process.CreatedAt),
                     nameof (Process.ModifiedAt),
                     nameof (Process.CreatedBy),
-                    nameof (Process.ModifiedBy)
+                    nameof (Process.ModifiedBy),
+                    nameof (Process.PublishedAt)
                 };
             }
         }
