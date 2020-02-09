@@ -5,9 +5,9 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ShapeGalleryItemStore, IShape, DrawingCanvas, ShapeTemplatesConstants } from '../../../../../fx';
+import { ShapeGalleryItemStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
-import { ShapeGalleryItem, ShapeGalleryItemType, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition } from '../../../../../fx/models';
+import { ShapeGalleryItem, ShapeGalleryItemType, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape, DrawingShapeDefinition } from '../../../../../fx/models';
 import { OPMCoreLocalization } from '../../../../../core/loc/localize';
 import './ShapeGalleryDefaultSettingsBlade.css';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -90,20 +90,47 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.isOpenFreeformPicker = true;
     }
 
-    onImageSaved() {
+    onImageSaved(imageUrl: string) {
+        (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
+        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition),
+                this.editingShapeGalleryItem.settings.title, false, 0,
+                (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0)
+                .then((readyDrawingShape: DrawingShape) => {
+                    this.updateAfterRenderImage(readyDrawingShape);
+                });
+        }
+        else {
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition), this.editingShapeGalleryItem.settings.title, 0, 0)
+                .then((readyDrawingShape: DrawingShape) => {
+                    this.updateAfterRenderImage(readyDrawingShape);
+                });
+        }
+    }
 
+    updateAfterRenderImage(readyDrawingShape: DrawingShape) {
+        this.drawingCanvas.updateCanvasSize(readyDrawingShape);
     }
 
     updateDrawedShape() {
+        if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
+            let top = (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition), this.editingShapeGalleryItem.settings.title, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
+                .then((readyDrawingShape: DrawingShape) => {
+                    this.shape = this.drawingCanvas.drawingShapes[0].shape;
 
+                    if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
+                        this.updateAfterRenderImage(readyDrawingShape);
+                });
+        }
     }
 
     addFreefromShape(shape: IShape) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
             this.shape = shape;
-            this.editingShapeGalleryItem.settings.shapeDefinition.width = this.shape.nodes[0].properties['width'];
-            this.editingShapeGalleryItem.settings.shapeDefinition.height = this.shape.nodes[0].properties['height'];
+            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).width = this.shape.nodes[0].properties['width'];
+            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).height = this.shape.nodes[0].properties['height'];
             this.startToDrawShape();
         }
     }
@@ -112,7 +139,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         if (this.editingShapeGalleryItem.settings.shapeDefinition) {
             this.$nextTick(() => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, this.editingShapeGalleryItem.settings.shapeDefinition,
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition),
                     this.editingShapeGalleryItem.settings.title, 0, 0, null, null, this.shape ? this.shape.nodes : null);
                 this.$forceUpdate();
             });
@@ -134,7 +161,6 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     save() {
         if (this.internalValidator.validateAll()) {
             this.isSaving = true;
-            this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
             this.shapeGalleryStore.actions.addOrUpdateShapeGalleryItem.dispatch(this.editingShapeGalleryItem).then(() => {
                 this.isSaving = false;
                 this.journey().travelBackToFirstBlade();
@@ -143,12 +169,12 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     }
 
     isNewMedia() {
-        return this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString() &&
+        return (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString() &&
             !(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
     }
 
     isNewFreeForm() {
-        return this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString() && (!this.shape || this.shape.nodes.length == 0) ? true : false;
+        return (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString() && (!this.shape || this.shape.nodes.length == 0) ? true : false;
     }
 
     renderFreefromPicker(h) {
@@ -162,15 +188,15 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
 
         return <opm-freeform-picker
             canvasDefinition={canvasDefinition}
-            shapeDefinition={this.editingShapeGalleryItem.settings.shapeDefinition}
+            shapeDefinition={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition)}
             save={(shape: IShape) => { this.addFreefromShape(shape); }}
             closed={() => { this.isOpenFreeformPicker = false; }}
         ></opm-freeform-picker>
     }
 
     renderShapePreview(h) {
-        let isFreeform = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString();
-        let isMedia = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
+        let isFreeform = (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString();
+        let isMedia = (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
         let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
 
         return (
@@ -215,7 +241,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
 
     render(h) {
         this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
-        let isMediaShape = this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate && this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
+        let isMediaShape = (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate && (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString();
 
         return (
             <div>
@@ -231,42 +257,42 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                             <omfx-multilingual-input
                                 requiredWithValidator={this.internalValidator}
                                 model={this.editingShapeGalleryItem.settings.title}
-                                onModelChange={(title) => { this.editingShapeGalleryItem.settings.title = title }}
+                                onModelChange={(title) => { this.editingShapeGalleryItem.settings.title = title; this.updateDrawedShape(); }}
                                 forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
-                            <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeGalleryItemTypes} v-model={this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate}
+                            <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeGalleryItemTypes} v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate}
                                 onChange={this.onShapeGalleryItemTypeChanged}></v-select>
                             <omfx-field-validation
                                 useValidator={this.internalValidator}
-                                checkValue={this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate}
+                                checkValue={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate}
                                 rules={new FieldValueValidation().IsRequired().getRules()}>
                             </omfx-field-validation>
                         </v-col>
                         <v-col cols="6">
-                            {this.editingShapeGalleryItem.settings.shapeDefinition.shapeTemplate && this.renderShapePreview(h)}
+                            {(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate && this.renderShapePreview(h)}
                         </v-col>
                     </v-row>
 
                     <v-row dense>
                         <v-col cols="4">
                             <v-select item-value="value" item-text="title" items={this.textPositions} label={this.coreLoc.DrawingShapeSettings.TextPosition}
-                                onChange={this.updateDrawedShape} v-model={this.editingShapeGalleryItem.settings.shapeDefinition.textPosition}></v-select>
+                                onChange={this.updateDrawedShape} v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textPosition}></v-select>
                         </v-col>
                         <v-col cols="4">
                             <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.coreLoc.DrawingShapeSettings.TextAlignment}
-                                onChange={this.updateDrawedShape} v-model={this.editingShapeGalleryItem.settings.shapeDefinition.textAlignment}></v-select>
+                                onChange={this.updateDrawedShape} v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textAlignment}></v-select>
                         </v-col>
                         <v-col cols="4">
-                            <v-text-field v-model={this.editingShapeGalleryItem.settings.shapeDefinition.fontSize} label={this.coreLoc.DrawingShapeSettings.FontSize}
+                            <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).fontSize} label={this.coreLoc.DrawingShapeSettings.FontSize}
                                 onChange={this.updateDrawedShape} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field>
                         </v-col>
                         <v-col cols="6">
-                            <v-text-field v-model={this.editingShapeGalleryItem.settings.shapeDefinition.textHorizontalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextHorizontalAdjustment}
-                                onChange={(val) => { this.editingShapeGalleryItem.settings.shapeDefinition.textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
+                            <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextHorizontalAdjustment}
+                                onChange={(val) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
                         </v-col>
                         <v-col cols="6">
-                            <v-text-field v-model={this.editingShapeGalleryItem.settings.shapeDefinition.textVerticalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextVerticalAdjustment}
-                                onChange={(val) => { this.editingShapeGalleryItem.settings.shapeDefinition.textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
+                            <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextVerticalAdjustment}
+                                onChange={(val) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -279,9 +305,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                         required={true}
                                         dark={this.omniaTheming.promoted.body.dark}
                                         label={this.omniaUxLoc.Common.BackgroundColor}
-                                        model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.backgroundColor }}
+                                        model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).backgroundColor }}
                                         allowRgba
-                                        onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.backgroundColor = p.color; this.updateDrawedShape(); }}>
+                                        onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).backgroundColor = p.color; this.updateDrawedShape(); }}>
                                     </omfx-color-picker>
                                 </v-col>
                         }
@@ -290,9 +316,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.omniaUxLoc.Common.BorderColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.borderColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).borderColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.borderColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).borderColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                         <v-col cols={isMediaShape ? "6" : "4"}>
@@ -300,9 +326,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                 required={true}
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.coreLoc.DrawingShapeSettings.TextColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.textColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.textColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                     </v-row>
@@ -315,9 +341,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                     <omfx-color-picker
                                         dark={this.omniaTheming.promoted.body.dark}
                                         label={this.coreLoc.DrawingShapeSettings.HoverBackgroundColor}
-                                        model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.hoverBackgroundColor }}
+                                        model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverBackgroundColor }}
                                         allowRgba
-                                        onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.hoverBackgroundColor = p.color; this.updateDrawedShape(); }}>
+                                        onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverBackgroundColor = p.color; this.updateDrawedShape(); }}>
                                     </omfx-color-picker>
                                 </v-col>
                         }
@@ -325,18 +351,18 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.coreLoc.DrawingShapeSettings.HoverBorderColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.hoverBorderColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverBorderColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.hoverBorderColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverBorderColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                         <v-col cols={isMediaShape ? "6" : "4"}>
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.coreLoc.DrawingShapeSettings.HoverTextColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.hoverTextColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverTextColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.hoverTextColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).hoverTextColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                     </v-row>
@@ -348,9 +374,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                                     <omfx-color-picker
                                         dark={this.omniaTheming.promoted.body.dark}
                                         label={this.coreLoc.DrawingShapeSettings.SelectedBackgroundColor}
-                                        model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.selectedBackgroundColor }}
+                                        model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedBackgroundColor }}
                                         allowRgba
-                                        onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.selectedBackgroundColor = p.color; this.updateDrawedShape(); }}>
+                                        onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedBackgroundColor = p.color; this.updateDrawedShape(); }}>
                                     </omfx-color-picker>
                                 </v-col>
                         }
@@ -358,18 +384,18 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.coreLoc.DrawingShapeSettings.SelectedBorderColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.selectedBorderColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedBorderColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.selectedBorderColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedBorderColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                         <v-col cols={isMediaShape ? "6" : "4"}>
                             <omfx-color-picker
                                 dark={this.omniaTheming.promoted.body.dark}
                                 label={this.coreLoc.DrawingShapeSettings.SelectedTextColor}
-                                model={{ color: this.editingShapeGalleryItem.settings.shapeDefinition.selectedTextColor }}
+                                model={{ color: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedTextColor }}
                                 allowRgba
-                                onChange={(p) => { this.editingShapeGalleryItem.settings.shapeDefinition.selectedTextColor = p.color; this.updateDrawedShape(); }}>
+                                onChange={(p) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).selectedTextColor = p.color; this.updateDrawedShape(); }}>
                             </omfx-color-picker>
                         </v-col>
                     </v-row>

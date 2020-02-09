@@ -1,8 +1,9 @@
-﻿import { GuidValue } from '@omnia/fx-models';
+﻿import { GuidValue, Guid } from '@omnia/fx-models';
 import { ShapeGalleryItemSettings, ShapeGalleryItemType } from './ShapeGalleryItemSettings';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { TextPosition, TextAlignment } from '../enums/Enums';
 import { ShapeTemplatesConstants } from '../../../constants';
+import { DrawingShapeDefinition, ShapeDefinitionTypes, ShapeDefinition } from '../shapedefinitions';
 
 export interface ShapeGalleryItem {
     id: GuidValue,
@@ -22,6 +23,9 @@ export const ShapeGalleryItemFactory = {
         let shapeGalleryItem: ShapeGalleryItem = {
             settings: {
                 shapeDefinition: {
+                    type: ShapeDefinitionTypes.Drawing,
+                    title: { isMultilingualString: true },
+                    id: Guid.newGuid(),
                     shapeTemplate: ShapeTemplatesConstants.Freeform,
                     fontSize: 20,
                     backgroundColor: theming.promoted.header.background.base,
@@ -30,7 +34,7 @@ export const ShapeGalleryItemFactory = {
                     textAlignment: TextAlignment.Center,
                     textHorizontalAdjustment: 0,
                     textVerticalAdjustment: 0,
-                }
+                } as ShapeDefinition
             },
             builtIn: false
         } as ShapeGalleryItem

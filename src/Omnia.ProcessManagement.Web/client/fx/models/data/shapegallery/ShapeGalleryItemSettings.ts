@@ -1,5 +1,5 @@
 ﻿import { MultilingualString } from '@omnia/fx-models';
-import { DrawingShapeDefinition, ShapeTemplate } from '..';
+import { ShapeDefinition } from '..';
 
 export enum ShapeGalleryItemType {
     Freeform = 1,
@@ -8,5 +8,5 @@ export enum ShapeGalleryItemType {
 
 export interface ShapeGalleryItemSettings {
     title: MultilingualString,
-    shapeDefinition?: DrawingShapeDefinition,
+    shapeDefinition?: ShapeDefinition
 }

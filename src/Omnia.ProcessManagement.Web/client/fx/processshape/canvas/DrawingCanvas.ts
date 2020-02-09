@@ -226,7 +226,6 @@ export class DrawingCanvas implements CanvasDefinition {
         processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            debugger;
             if (definition.shapeTemplate) {
                 if (top == 0 || top == null || top == undefined)
                     top = definition.textPosition == TextPosition.Above ? definition.fontSize + TextSpacingWithShape : 0;

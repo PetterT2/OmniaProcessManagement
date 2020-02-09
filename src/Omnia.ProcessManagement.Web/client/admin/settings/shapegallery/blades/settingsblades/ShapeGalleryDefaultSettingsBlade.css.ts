@@ -8,7 +8,7 @@ StyleFlow.define(ShapeGalleryDefaultSettingStyles, {
         alignItems: 'center',
         flexDirection: 'column',
         margin: '0 auto',
-        maxHeight: '200px',
+        maxHeight: '250px',
         height: '100%',
         width: '200px',
     },

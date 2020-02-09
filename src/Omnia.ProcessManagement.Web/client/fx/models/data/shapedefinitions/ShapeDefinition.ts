@@ -15,7 +15,7 @@ export interface ShapeDefinition {
     title: MultilingualString;
 
     //client-side
-    multilingualTitle: string
+    multilingualTitle?: string
 }
 
 /**
