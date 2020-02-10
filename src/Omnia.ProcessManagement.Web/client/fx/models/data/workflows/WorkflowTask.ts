@@ -6,7 +6,7 @@ import { SharePointTask } from '../sharepointtasks';
 export interface WorkflowTask {
     id: GuidValue,
     workflowId: GuidValue,
-    rootProcessId: GuidValue,
+    rootProcessStepId: GuidValue,
     comment: string,
     isCompleted: boolean,
     assignedUser: string,

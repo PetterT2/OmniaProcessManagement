@@ -148,7 +148,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
     private previewProcess(e: MouseEvent) {
         e.preventDefault();
-        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId);
+        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessStepId);
 
         loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
             this.processDesignerStore.actions.setProcessToShow.dispatch(processWithCheckoutInfo.process, processWithCheckoutInfo.process.rootProcessStep).then(() => {

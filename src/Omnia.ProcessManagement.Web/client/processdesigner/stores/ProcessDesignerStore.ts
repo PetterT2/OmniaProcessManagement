@@ -195,10 +195,10 @@ export class ProcessDesignerStore extends Store {
                 resolve();
             });
         }),
-        editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode?: DisplayModes) => {
+        editCurrentProcess: this.action((processDesignerItemFactory: IProcessDesignerItemFactory, displayMode: DisplayModes) => {
             return new Promise<null>((resolve, reject) => {
-                if (displayMode)
-                    this.settings.displayMode.mutate(displayMode);
+
+                this.settings.displayMode.mutate(displayMode);
 
                 //let currentProcess = this.currentProcessStore.getters.referenceData();
                 //if (!currentProcess.current.processData.canvasDefinition) {
