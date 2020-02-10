@@ -42,7 +42,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let textPosition = this.getTextPosition(position);
         let highlightProperties = this.getHighlightProperties();
         if (this.nodes) {
             let polygonNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
@@ -52,6 +52,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(rectShape);
             }
             if (textNode) {
+                textPosition = this.getTextPositionAfterRotate(textPosition);
                 let textShape = new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
                 this.fabricShapes.push(textShape);
             }

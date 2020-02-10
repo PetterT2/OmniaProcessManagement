@@ -197,7 +197,7 @@ export class ShapeExtension implements Shape {
         target.set(attrs);
 
         let position = this.correctPosition(attrs.left, attrs.top);
-        let textPosition = this.getTextPosition(position, Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY), this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let textPosition = this.getTextPosition(position, Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top,
@@ -223,12 +223,26 @@ export class ShapeExtension implements Shape {
         return { left: left, top: top };
     }
 
-    getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment: number, yAdjustMent: number) {
+    protected getTextPositionAfterRotate(textPosition: { left: number, top: number }): { left: number, top: number } {
+        if (this.fabricShapes.length > 0 && this.fabricShapes[0].fabricObject && this.fabricShapes[0].fabricObject.angle != 0) {
+            var bound = this.fabricShapes[0].fabricObject.getBoundingRect();
+            var oCoords = this.fabricShapes[0].fabricObject.oCoords;
+
+            textPosition = this.getTextPosition({
+                left: Math.min(oCoords.ml.x, oCoords.mr.x, oCoords.mt.x, oCoords.mb.x),
+                top: Math.min(oCoords.ml.y, oCoords.mr.y, oCoords.mt.y, oCoords.mb.y)
+            }, Math.abs(oCoords.ml.x - oCoords.mr.x), Math.abs(oCoords.mt.y - oCoords.mb.y));
+        }
+        return textPosition;
+    }
+
+    getTextPosition(position: { left: number, top: number }, width?: number, height?: number) {
         let tleft = position.left;
         let ttop = position.top;
-        xAdjustment = xAdjustment || 0;
-        yAdjustMent = yAdjustMent || 0;
-
+        var xAdjustment = this.definition.textHorizontalAdjustment || 0;
+        var yAdjustMent = this.definition.textVerticalAdjustment || 0;
+        width = width || this.definition.width;
+        height = height || this.definition.height;       
         switch (this.definition.textAlignment) {
             case TextAlignment.Right:
                 tleft = position.left + width;
