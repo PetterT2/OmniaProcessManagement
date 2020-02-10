@@ -48,7 +48,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             if (!this.isDrawing)
                 return;
             this.isMouseDown = true;
-
+            this.snapToGridPath();
             let highlightProperties = this.getHighlightProperties();
 
             if (this.isDrawing && this.polylineShape == null) {
@@ -57,6 +57,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
                     if (!this.isDrawing)
                         return;
                     if (this.isDrawingFree) {
+                        this.snapToGridPath();
                         this.addLine(options, highlightProperties);
                     }
                     this.isDrawingFree = false;
@@ -94,10 +95,24 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         return highlightProperties;
     }
 
+    private snapToGridPath() {
+        this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path';
+        }).forEach((object: fabric.IPathOptions) => {
+            let point1 = this.getSnapToGridPoint(object.path[0][1], object.path[0][2]);
+            let point2 = this.getSnapToGridPoint(object.path[object.path.length - 1][1], object.path[object.path.length - 1][2]);
+            object.path[0][1] = point1.x;
+            object.path[0][2] = point1.y;
+            object.path[object.path.length - 1][1] = point2.x;
+            object.path[object.path.length - 1][2] = point2.y;
+        })
+    }
+
     private addLine(options, highlightProperties) {
         this.canvasObject.selection = false;
         this.setStartingPoint(options);
-        this.points.push(new fabric.Point(this.x, this.y));
+        var point = this.getSnapToGridPoint(this.x, this.y);
+        this.points.push(new fabric.Point(point.x, point.y));
         var points = [this.x, this.y, this.x, this.y];
         var line = new fabric.Line(points, Object.assign({
             strokeWidth: this.strokeWidth,
@@ -107,6 +122,19 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
         this.lines.push(line);
         this.canvasObject.add(this.lines[this.lineCounter]);
         this.lineCounter++;
+    }
+
+    private getSnapToGridPoint(x: number, y: number) {
+        this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path' && object.path.length <= 2;
+        }).forEach((object) => {
+            this.canvasObject.remove(object);
+        });
+        if (this.gridX)
+            x = Math.round(x / this.gridX) * this.gridX;
+        if (this.gridY)
+            y = Math.round(y / this.gridY) * this.gridY;
+        return { x: x, y: y };
     }
 
     private checkFinishDrawing() {
@@ -150,21 +178,29 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
 
     private createFreeFromShape() {
         let freeNodes = this.isGenerateNewNodes();
-
+        let left = this.polylineShape.left;
+        let top = this.polylineShape.top;
+        let pathObjects = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
+            return object.type == 'path';
+        });
+        if (pathObjects.length > 0) {
+            pathObjects.forEach(p => {
+                left = Math.min(p.left, left);
+                top = Math.min(p.top, top);
+            })
+        }
         let drawingShape: DrawingShape = {
             id: Guid.newGuid(),
             type: DrawingShapeTypes.Undefined,
             title: null,
-            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, this.polylineShape.left, this.polylineShape.top, this.darkHightlight)
+            shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, left, top, this.darkHightlight)
         };
         (drawingShape.shape as ShapeExtension).addEventListener(this.canvasObject, this.gridX, this.gridY, this.showGridlines);
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
         });
 
-        this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
-            return object.type == 'path';
-        }).forEach((object) => {
+        pathObjects.forEach((object) => {
             this.canvasObject.remove(object);
         });
         this.canvasObject.remove(this.polylineShape);
@@ -188,6 +224,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             objectJson['stroke'] = this.shapeDefinition.borderColor;
             pathShapes.push(new FabricPathShape(this.shapeDefinition, objectJson));
         })
+
         if (pathsObject.length > 0) {
             let path = pathShapes[0].properties['path'];
             let findNextPolyPoints = this.findNextPolyPoints(path[path.length - 1][1], path[path.length - 1][2], [], pathShapes.map(p => p.properties['path']));
@@ -258,19 +295,19 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
     }
 
     private setStartingPoint(options) {
+        var point = this.getSnapToGridPoint(options.e.offsetX, options.e.offsetY);
+
         if (this.isDrawingFree || this.points.length == 0) {
             let pathsObject: Array<fabric.IPathOptions> = this.canvasObject._objects.filter((object: fabric.IPathOptions) => {
                 return object.type == 'path';
             });
             if (pathsObject.length > 0) {
                 let pathObject = pathsObject[pathsObject.length - 1];
-                this.x = pathObject.path[pathObject.path.length - 1][1];
-                this.y = pathObject.path[pathObject.path.length - 1][2];
-                return;
+                point = this.getSnapToGridPoint(pathObject.path[pathObject.path.length - 1][1], pathObject.path[pathObject.path.length - 1][2]);
             }
         }
-        this.x = options.e.offsetX;
-        this.y = options.e.offsetY;
+        this.x = point.x;
+        this.y = point.y;
     }
 
     private makePolylineShapeCompleted(points) {
