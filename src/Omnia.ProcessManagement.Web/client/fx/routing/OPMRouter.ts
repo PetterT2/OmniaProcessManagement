@@ -179,10 +179,16 @@ OPMRouter.onNavigate.subscribe(ctx => {
     }
 })
 
-//Only handle page load route in omnia app or in iframe
-//In spfx (not iframe), the page load route will be handled in the ProcessLibrary with specific logic
-if (omniaContext.environment.omniaApp || window.self != window.top) {
-    if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
+
+if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) {
+    //We include a process-url in OPM Task email, and it will point to Processes.aspx with Preview-Global mode
+    //Then we need to handle the preview-page settings and do the redirect logic if needed. (ProcessLibrary.tsx will take care of the logic)
+    //Therefore, we only handle page-load-route here when it is in omnia app, or in an iframe, or not in Preview-Global
+
+    if (!omniaContext.environment.omniaApp && window.self == window.top && OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer) {
+        //Let the ProcessLibrary.tsx handle the logic
+    }
+    else {
         let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
             OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
 

@@ -5,9 +5,9 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
+import { Process, Enums, ProcessWorkingStatus, RouteOptions } from '../../../../fx/models';
 import { UnpublishDialog } from './UnpublishDialog';
-import { ProcessStore } from '../../../../fx';
+import { ProcessStore, OPMUtils, OPMRouter } from '../../../../fx';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface PublishedMenuActionsProps {
@@ -53,6 +53,16 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
         })
     }
 
+    private viewProcess() {
+        if (this.viewPageUrl) {
+            var viewUrl = OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, false, false);
+            var win = window.open(viewUrl, '_blank');
+            win.focus();
+        } else {
+            OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer);
+        }
+    }
+
     private refreshContextMenu() {
         this.disableButtonUpdateAction = !this.isAuthor ||
             this.process.processWorkingStatus == ProcessWorkingStatus.SyncingToSharePoint ||
@@ -87,7 +97,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                             <v-list-item-title>{this.loc.ProcessActions.CreateDraft}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }}>
+                        <v-list-item onClick={() => { this.viewProcess() }}>
                             <v-list-item-title>{this.loc.ProcessActions.ViewProcess}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => { }}>
