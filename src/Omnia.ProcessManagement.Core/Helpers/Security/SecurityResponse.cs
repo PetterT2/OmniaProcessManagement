@@ -61,7 +61,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         private IDynamicScopedContextProvider DynamicScopedContextProvider { get; }
         private ISecurityProvider SecurityProvider { get; }
         private IOmniaContext OmniaContext { get; }
-        private bool AuthorOnly { get; }
         public SecurityResponse(
             InternalProcess process,
             IDynamicScopedContextProvider dynamicScopedContextProvider,
@@ -74,6 +73,9 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             OmniaContext = omniaContext;
             Process = process;
             TeamAppId = Process.TeamAppId;
+
+            if (process == null)
+                throw new Exception("Process is required for creating this kind of security response");
         }
 
         public SecurityResponse(
@@ -87,7 +89,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             SecurityProvider = securityProvider;
             OmniaContext = omniaContext;
             TeamAppId = teamAppId;
-            AuthorOnly = true;
         }
 
         IOnlyTeamAppIdSecurityResponseHandler IOnlyTeamAppIdSecurityResponse.RequireTeamAppAdmin(params ProcessVersionType[] versionTypes)
@@ -152,7 +153,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         public ISecurityResponseHandler OrRequireReviewer(params ProcessVersionType[] versionTypes)
         {
-            return RequireApprover(versionTypes);
+            return RequireReviewer(versionTypes);
         }
 
         public ISecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes)
@@ -215,26 +216,26 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
             var isAuthorized = true;
 
-            //if (!AuthorOnly)
-            //{
-            //    if (Process.VersionType == ProcessVersionType.CheckedOut && Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
-            //    {
-            //        throw new ProcessCheckedOutByAnotherUserException(Process.CheckedOutBy);
-            //    }
-            //}
+            if (Process != null)
+            {
+                if (Process.VersionType == ProcessVersionType.CheckedOut && Process.CheckedOutBy.ToLower() != OmniaContext.Identity.LoginName.ToLower())
+                {
+                    throw new ProcessCheckedOutByAnotherUserException(Process.CheckedOutBy);
+                }
+            }
 
-            //if (RequiredRoles.Count > 0)
-            //{
-            //    EnsureContextParamsAsync();
+            if (RequiredRoles.Count > 0)
+            {
+                EnsureContextParamsAsync();
 
-            //    var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
-            //    var identityRoles = identityRolesResult.Values
-            //        .Where(r => r.HasPermission == true)
-            //        .Select(r => r.RoleId)
-            //        .ToList();
-            //    isAuthorized = identityRoles.Any(
-            //        roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
-            //}
+                var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
+                var identityRoles = identityRolesResult.Values
+                    .Where(r => r.HasPermission == true)
+                    .Select(r => r.RoleId)
+                    .ToList();
+                isAuthorized = identityRoles.Any(
+                    roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
+            }
             return isAuthorized;// || true; //TODO - remove true here when finish;
         }
 
@@ -266,7 +267,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
         private void EnsureContextParamsAsync()
         {
-            if (AuthorOnly)
+            if (Process == null)
             {
                 DynamicScopedContextProvider.SetParameter(Omnia.Fx.Constants.Parameters.Apps.AppInstanceId, TeamAppId.ToString());
             }

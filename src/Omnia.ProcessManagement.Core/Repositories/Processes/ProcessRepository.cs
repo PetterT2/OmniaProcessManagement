@@ -864,6 +864,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -899,6 +900,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -923,6 +925,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                  CheckedOutBy = p.CheckedOutBy,
                  OPMProcessId = p.OPMProcessId,
                  ProcessWorkingStatus = p.ProcessWorkingStatus,
+                 SecurityResourceId = p.SecurityResourceId,
                  TeamAppId = p.TeamAppId
              })
              .FirstOrDefaultAsync();
@@ -946,6 +949,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -1168,6 +1172,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            model.SecurityResourceId = processEf.SecurityResourceId;
 
             return model;
         }
