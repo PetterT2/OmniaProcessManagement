@@ -35,6 +35,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
     openUnpublishDialog: boolean = false;
+    openProcessHistoryDialog: boolean = false;
 
     created() {
     }
@@ -75,6 +76,15 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
         )
     }
 
+    private renderProcessHistoryDialog(h) {
+        return (
+            <opm-process-history-dialog
+                closeCallback={() => { this.openProcessHistoryDialog = false; }}
+                opmProcessId={this.process.opmProcessId}>
+            </opm-process-history-dialog>
+        )
+    }
+
     render(h) {
         return (
             <div>
@@ -103,9 +113,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                         <v-list-item onClick={() => { }}>
                             <v-list-item-title>{this.loc.ProcessActions.ExportProcess}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item onClick={() => {
-
-                        }}>
+                        <v-list-item onClick={() => { this.openProcessHistoryDialog = true; }}>
                             <v-list-item-title>{this.loc.ProcessActions.ProcessHistory}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
@@ -120,6 +128,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                 </v-menu>
 
                 {this.openUnpublishDialog && this.renderUnpublishDialog(h)}
+                {this.openProcessHistoryDialog && this.renderProcessHistoryDialog(h)}
             </div>
         );
     }

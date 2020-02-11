@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Omnia.ProcessManagement.Core.Repositories;
 
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    partial class OmniaPMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200211035627_AddPublishByColumnInProcessTable")]
+    partial class AddPublishByColumnInProcessTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,45 +427,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("ShapeGalleryItems");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<Guid>("ShapeGalleryItemId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("Content")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id", "ShapeGalleryItemId");
-
-                    b.HasIndex("ShapeGalleryItemId")
-                        .IsUnique();
-
-                    b.ToTable("ShapeGalleryItemImages");
-                });
-
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>
                 {
                     b.Property<Guid>("Id")
@@ -602,15 +565,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .WithMany("ProcessData")
                         .HasForeignKey("ProcessId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", b =>
-                {
-                    b.HasOne("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItem", "ShapeGalleryItem")
-                        .WithOne()
-                        .HasForeignKey("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", "ShapeGalleryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

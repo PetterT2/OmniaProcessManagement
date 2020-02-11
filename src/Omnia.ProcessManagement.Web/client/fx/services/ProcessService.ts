@@ -308,6 +308,20 @@ export class ProcessService {
         });
     }
 
+    public getProcessHistory = (opmProcessId: GuidValue) => {
+        return new Promise<Array<Process>>((resolve, reject) => {
+
+            this.httpClient.get<IHttpApiOperationResult<Array<Process>>>(`/api/processes/history/${opmProcessId}`).then(response => {
+                if (response.data.success) {
+                    let processes = response.data.data;
+                    this.generateClientSideData(processes);
+                    resolve(processes);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
     private generateClientSideData = (processes: Array<Process>, ) => {
         for (let process of processes) {
             this.setProcessStepMultilingualTitle(process.rootProcessStep);

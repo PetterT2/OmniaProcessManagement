@@ -396,6 +396,9 @@
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\INewProcessDialog.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\IProcessHistoryDialog.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\ProcessHistoryDialog.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\ProcessHistoryDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />

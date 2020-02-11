@@ -236,7 +236,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
 
                 draftProcess.SecurityResourceId = securityResourceId;
-                draftProcess.PublishedAt = DateTime.Now;
+                draftProcess.PublishedAt = DateTime.Now; 
+                draftProcess.PublishedBy = OmniaContext.Identity.LoginName.ToLower();
                 await DbContext.SaveChangesAsync();
 
                 var updateSecurityResourceIdRawSql = GenerateUpdateSecurityResourceIdRawSql(opmProcessId, securityResourceId);
@@ -1031,6 +1032,25 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         }
 
+        public async ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery)
+        {
+            var processes = new List<Process>();
+
+            var sqlQuery = processQuery.GetQuery();
+
+            if (sqlQuery != string.Empty)
+            {
+                var processEfs = await DbContext
+                .AlternativeProcessEFView
+                .FromSqlRaw(sqlQuery)
+                .ToListAsync();
+
+                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
+            }
+
+            return processes;
+        }
+
         private async ValueTask<Entities.Processes.Process> CloneProcessAsync(Entities.Processes.Process process, ProcessVersionType versionType)
         {
             var clonedProcess = new Entities.Processes.Process();
@@ -1199,6 +1219,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.ModifiedAt = processEf.ModifiedAt;
             model.ModifiedBy = processEf.ModifiedBy;
             model.PublishedAt = processEf.PublishedAt;
+            model.PublishedBy = processEf.PublishedBy;
             return model;
         }
 
@@ -1244,6 +1265,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.ModifiedAt = processEf.ModifiedAt;
             model.ModifiedBy = processEf.ModifiedBy;
             model.PublishedAt = processEf.PublishedAt;
+            model.PublishedBy = processEf.PublishedBy;
             return model;
         }
 

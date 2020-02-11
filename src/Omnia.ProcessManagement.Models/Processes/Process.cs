@@ -22,5 +22,6 @@ namespace Omnia.ProcessManagement.Models.Processes
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
         public DateTimeOffset? PublishedAt { get; set; }
+        public string PublishedBy { get; set; }
     }
 }

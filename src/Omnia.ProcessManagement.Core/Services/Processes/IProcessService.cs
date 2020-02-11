@@ -44,5 +44,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         internal ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash);
         internal ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
         ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery, string securityTrimmingQuery, List<string> filterQueries);
+        ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery);
     }
 }
