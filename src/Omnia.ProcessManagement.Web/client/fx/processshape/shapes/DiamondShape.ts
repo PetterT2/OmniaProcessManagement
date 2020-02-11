@@ -31,11 +31,11 @@ export class DiamondShape extends ShapeExtension implements Shape {
             });
         }
         return basicShapeJSON;
-    }
+    }       
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let textPosition = this.getTextPosition(position);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
@@ -46,6 +46,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
             }
 
             if (textNode) {
+                textPosition = this.getTextPositionAfterRotate(textPosition);
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }

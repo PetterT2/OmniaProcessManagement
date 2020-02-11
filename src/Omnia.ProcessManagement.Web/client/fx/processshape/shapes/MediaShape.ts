@@ -34,7 +34,7 @@ export class MediaShape extends ShapeExtension implements Shape {
                             this.definition.width = newWidth;
                             this.definition.height = newHeight;
                             let position = this.correctPosition(this.left, this.top);
-                            let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+                            let textPosition = this.getTextPosition(position);
                             this.fabricShapes[1].fabricObject.top = textPosition.top;
                             this.fabricShapes[1].fabricObject.left = textPosition.left;
                             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
@@ -52,7 +52,7 @@ export class MediaShape extends ShapeExtension implements Shape {
         this.top = top;
 
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
+        let textPosition = this.getTextPosition(position);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
@@ -62,6 +62,7 @@ export class MediaShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({}, imageNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }
             if (textNode) {
+                textPosition = this.getTextPositionAfterRotate(textPosition);
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }

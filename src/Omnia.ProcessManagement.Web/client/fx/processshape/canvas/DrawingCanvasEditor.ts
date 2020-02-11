@@ -70,6 +70,15 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         });
     }
 
+    deleteShape(shape: DrawingShape) {
+        let findIndex = this.drawingShapes.findIndex(s => s.id == shape.id);
+        if (findIndex > -1) {
+            this.drawingShapes.splice(findIndex, 1);
+            (shape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
+            this.editObject = null;
+        }
+    }
+
     private addEditIcon(object: fabric.Object) {
         if (object && object.aCoords) {
             let x = object.aCoords.tr.x;
@@ -148,7 +157,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                         this.canvasObject.setActiveObject(object);
                     }
                     this.editObject = object;
-                }               
+                }
             }
         });
 
@@ -201,6 +210,12 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 this.onDrawingChanged(true);
             }
             this.isScaling = false;
+        });
+
+        this.canvasObject.on('object:rotated', (options) => {
+            if (this.onDrawingChanged) {
+                this.onDrawingChanged(true);
+            }
         });
 
         this.canvasObject.on('after:render', (options) => {

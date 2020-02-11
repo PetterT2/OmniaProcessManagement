@@ -331,14 +331,14 @@ export class DrawingCanvas implements CanvasDefinition {
                 if (oldShapeIndex > -1) {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
                     //If this is not freeform, we keep the old position
+                    let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
                     if (drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
-                        let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
-                        if (nodes && nodes.length > 0)
-                            nodes[0].properties.angle = fabricShapeObject.angle;
                     }
 
+                    if (nodes && nodes.length > 0)
+                        nodes[0].properties.angle = fabricShapeObject.angle;
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;
@@ -372,14 +372,6 @@ export class DrawingCanvas implements CanvasDefinition {
                 resolve(null);
             }
         });
-    }
-
-    deleteShape(shape: DrawingShape) {
-        let findIndex = this.drawingShapes.findIndex(s => s.id == shape.id);
-        if (findIndex > -1) {
-            this.drawingShapes.splice(findIndex, 1);
-            (shape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
-        }
     }
 
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape) {
