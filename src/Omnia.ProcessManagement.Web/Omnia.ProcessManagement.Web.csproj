@@ -80,6 +80,10 @@
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.css.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.manifest.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.tsx" />
+    <TypeScriptCompile Remove="client\components\pointpicker\IPointPicker.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.css.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
@@ -119,9 +123,11 @@
     <TypeScriptCompile Remove="client\fx\messaging\InternalOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\PublicOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\pointpicker\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPicker.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPickerExtension.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\pointpicker\Point.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryData.ts" />
@@ -587,6 +593,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\pointpicker\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\pointpicker\Point.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\mediapicker\index.ts">
