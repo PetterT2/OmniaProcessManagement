@@ -10,3 +10,4 @@ export * from './ProcessStepPickerStyles';
 export * from './MediaPickerStyles';
 export * from './ShapeGalleryDefaultSettingStyles';
 export * from './FreeformPickerStyles';
+export * from './TitleBlockStyles';

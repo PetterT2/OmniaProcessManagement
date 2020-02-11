@@ -167,6 +167,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
@@ -257,6 +261,7 @@
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeGalleryDefaultSettingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\TitleBlockStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
@@ -532,6 +537,13 @@
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\ITitleBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockStyles.css.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 

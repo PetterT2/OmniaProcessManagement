@@ -116,6 +116,10 @@
             Properties: {
                 Title: string,
                 Description: string
+            },
+            Title: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {
