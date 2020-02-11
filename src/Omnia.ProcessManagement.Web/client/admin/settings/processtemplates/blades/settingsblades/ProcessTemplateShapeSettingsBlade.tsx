@@ -199,7 +199,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     </v-col>
                     <v-col cols="6">
                     </v-col>
-                    <v-col cols="4">
+                    <v-col cols="6">
                         <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                             onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
                         <omfx-field-validation
@@ -207,12 +207,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
-                    </v-col>
-                    <v-col cols="4">
                         <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
                             onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textAlignment}></v-select>
-                    </v-col>
-                    <v-col cols="4">
                         <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
                             onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
                         <omfx-field-validation
@@ -221,18 +217,18 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
                     </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextHorizontalAdjustment}
-                            onChange={(val) => { (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateTemplateShape(); }} type="number" suffix="px"></v-text-field>
-                    </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).textVerticalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextVerticalAdjustment}
-                            onChange={(val) => { (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment = val ? parseInt(val) : 0; this.updateTemplateShape(); }} type="number" suffix="px"></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
+                    <v-col cols="6" class="text-center">
+                        <opm-point-picker
+                            label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
+                            model={{ x: (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment, y: (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment }}
+                            onModelChange={(model) => {
+                                (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment = model.x;
+                                (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment = model.y;
+                                this.updateTemplateShape()
+                            }}
+                        ></opm-point-picker>
                     </v-col>
                 </v-row>
-
                 <v-row>
                     {
                         this.needToShowShapeSettings() &&

@@ -11,7 +11,7 @@ StyleFlow.define(ShapeTypeStyles, {
         maxHeight: '350px',
         height: '100%',
         width: '300px',
-       
+
     },
     webkitScrollbar: {
         maxHeight: '300px',
