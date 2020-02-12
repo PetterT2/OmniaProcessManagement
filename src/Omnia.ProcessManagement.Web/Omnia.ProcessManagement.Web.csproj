@@ -255,6 +255,7 @@
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
     <TypeScriptCompile Remove="client\fx\models\shared\IdDict.ts" />
     <TypeScriptCompile Remove="client\fx\models\shared\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\shared\Version.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
@@ -692,6 +693,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\shared\Version.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\shared\IdDict.ts">

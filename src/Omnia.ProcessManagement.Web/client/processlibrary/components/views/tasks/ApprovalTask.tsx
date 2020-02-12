@@ -10,7 +10,7 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, TaskService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome, RouteOptions } from '../../../../fx/models';
+import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';

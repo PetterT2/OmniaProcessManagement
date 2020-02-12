@@ -1,14 +1,15 @@
 ﻿import { TokenBasedRoute, GuidValue } from '@omnia/fx-models';
+import { Version } from '../shared';
 
-export enum RouteOptions {
-    publishedInBlockRenderer = "",
-    publishedInGlobalRenderer = "/g",
-
-    previewInBlockRenderer = "/preview",
-    previewInGlobalRenderer = "/preview/g"
-}
 
 export interface OPMRoute extends TokenBasedRoute {
     processStepId: GuidValue,
-    routeOption: RouteOptions
+    globalRenderer: boolean,
+
+    /***
+     * -NULL    : Preview Version
+     * -0-0     : Latest Published Version
+     * -Others  : Specific Version
+     * */
+    version?: Version  
 }

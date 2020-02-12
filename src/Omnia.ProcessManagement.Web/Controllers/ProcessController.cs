@@ -234,22 +234,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{processStepId:guid}/{hash}/{versionType:int}")]
+        [HttpGet, Route("processdata/{processStepId:guid}/{hash}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid processStepId, string hash)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash, versionType);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
-                    .DoAsync(async () =>
+                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft, ProcessVersionType.Archived)
+                    .OrRequireApprover(ProcessVersionType.Draft, ProcessVersionType.Archived)
+                    .OrRequireReader(ProcessVersionType.Published, ProcessVersionType.Archived)
+                    .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
-                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash, versionType);
+                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
 
                         //For published version, we can cache the value like forever
@@ -311,20 +311,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("byprocessstep/{processStepId:guid}")]
+        [HttpGet, Route("byprocessstep/{processStepId:guid}/{edition:int}/{revision:int}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> GetPublishedProcessByProcessStepIdAsync(Guid processStepId)
+        public async ValueTask<ApiResponse<Process>> GetArchivedOrPublishedProcessByProcessStepIdAsync(Guid processStepId, int edition, int revision)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, ProcessVersionType.Published);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId);
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReader(ProcessVersionType.Published)
-                    .DoAsync(async () =>
+                    .OrRequireReader()
+                    .DoAsync(async (teamAppId, opmProcessId, processVersionType) =>
                     {
-                        var processData = await ProcessService.GetProcessByProcessStepIdAsync(processStepId, ProcessVersionType.Published);
+                        var processData = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
                         return processData.AsApiResponse();
                     });
             }
@@ -544,31 +544,24 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processsite/{processStepId:guid}/{versionType:int}")]
+        [HttpGet, Route("processsite/{teamAppId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessSite>> GetProcessSiteAsync(Guid processStepId, ProcessVersionType versionType)
+        public async ValueTask<ApiResponse<ProcessSite>> GetProcessSiteAsync(Guid teamAppId)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, versionType);
+                var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(teamAppId);
+                PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(webUrl);
+                ctx.Load(ctx.Web, w => w.Title);
+                await ctx.ExecuteQueryAsync();
+                var siteInfo = new ProcessSite
+                {
+                    Id = teamAppId,
+                    Name = ctx.Web.Title,
+                    Url = webUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName
+                };
+                return siteInfo.AsApiResponse();
 
-                return await securityResponse
-                    .RequireAuthor()
-                    .OrRequireReader(versionType)
-                    .DoAsync(async (teamAppId, _) =>
-                    {
-                        var webUrl = await TeamCollaborationAppService.GetSharePointSiteUrlAsync(teamAppId);
-                        PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(webUrl);
-                        ctx.Load(ctx.Web, w => w.Title);
-                        await ctx.ExecuteQueryAsync();
-                        var siteInfo = new ProcessSite
-                        {
-                            Id = processStepId,
-                            Name = ctx.Web.Title,
-                            Url = webUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName
-                        };
-                        return siteInfo.AsApiResponse();
-                    });
 
             }
             catch (Exception ex)

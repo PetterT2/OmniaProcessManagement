@@ -80,15 +80,15 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.Archiving);
         }
 
-        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash)
         {
-            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash, versionType);
+            var processData = await ProcessRepository.GetProcessDataAsync(processStepId, hash);
             return processData;
         }
 
-        public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        public async ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision)
         {
-            var processData = await ProcessRepository.GetProcessByProcessStepIdAsync(processStepId, versionType);
+            var processData = await ProcessRepository.GetProcessByVersionAsync(opmProcessId, edition, revision);
             return processData;
         }
 
@@ -174,13 +174,13 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetInternalProcessByProcessIdAsync(processId);
         }
 
-        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType)
+        async ValueTask<InternalProcess> IProcessService.GetInternalPublishedProcessByProcessStepIdAsync(Guid processStepId)
         {
-            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, versionType);
+            return await ProcessRepository.GetInternalPublishedProcessByProcessStepIdAsync(processStepId);
         }
-        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType)
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash)
         {
-            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash, versionType);
+            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash);
         }
 
         async ValueTask<Dictionary<Guid, ProcessData>> IProcessService.GetAllProcessDataAsync(Guid processId)

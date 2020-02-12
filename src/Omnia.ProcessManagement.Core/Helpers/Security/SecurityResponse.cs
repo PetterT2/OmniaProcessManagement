@@ -49,7 +49,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         ISecurityResponseHandler OrRequireApprover(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
         ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
-        ValueTask<T> DoAsync<T>(Func<Guid, Guid, ValueTask<T>> action);
+        ValueTask<T> DoAsync<T>(Func<Guid, Guid, ProcessVersionType, ValueTask<T>> action);
         internal ValueTask<T> DoAsync<T>(Func<InternalProcess, ValueTask<T>> action);
     }
 
@@ -181,7 +181,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return await action(Process);
         }
 
-        async ValueTask<T> ISecurityResponseHandler.DoAsync<T>(Func<Guid, Guid, ValueTask<T>> action)
+        async ValueTask<T> ISecurityResponseHandler.DoAsync<T>(Func<Guid, Guid, ProcessVersionType, ValueTask<T>> action)
         {
             if (action == null)
                 throw new ArgumentNullException();
@@ -192,7 +192,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 throw new Exception("Forbidden");
             }
 
-            return await action(Process.TeamAppId, Process.OPMProcessId);
+            return await action(Process.TeamAppId, Process.OPMProcessId, Process.VersionType);
         }
 
 

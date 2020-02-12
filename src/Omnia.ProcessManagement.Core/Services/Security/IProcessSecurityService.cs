@@ -25,8 +25,8 @@ namespace Omnia.ProcessManagement.Core.Services.Security
 
         IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);
-        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType);
-        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, ProcessVersionType processVersionType);
+        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash);
+        ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId);
         ValueTask<ISecurityResponse> InitSecurityResponseByProcessIdAsync(Guid processId);
         ValueTask<UserAuthorizedResource> EnsureUserAuthorizedResourcesCacheAsync();
         ValueTask<Microsoft.SharePoint.Client.Group> EnsureLimitedReadAccessSharePointGroupAsync(PortableClientContext ctx, Guid opmProcessId);

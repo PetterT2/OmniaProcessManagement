@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils, ResolvablePromise, SubscriptionHandler } from '@omnia/fx';
@@ -288,7 +288,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                 var win = window.open(viewUrl, '_blank');
                 win.focus();
             } else {
-                OPMRouter.navigate(item, item.rootProcessStep, RouteOptions.publishedInGlobalRenderer);
+                OPMRouter.navigate(item, item.rootProcessStep, true, { edition: 0, revision: 0 });
             }
         }
         else {

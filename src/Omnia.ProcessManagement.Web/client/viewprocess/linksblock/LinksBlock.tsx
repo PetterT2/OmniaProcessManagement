@@ -8,7 +8,7 @@ import { LinksBlockStyles } from '../../models';
 import { LinksBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
-import { LinksBlockData, ProcessReferenceData, Link, Enums, RouteOptions } from '../../fx/models';
+import { LinksBlockData, ProcessReferenceData, Link, Enums } from '../../fx/models';
 import { CurrentProcessStore, OPMRouter } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { classes } from 'typestyle';
@@ -63,8 +63,7 @@ export class LinksBlockComponent extends VueComponentBase implements IWebCompone
             this.initLinks();
         }));
         if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
-            let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-                OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+            let preview = OPMRouter.routeContext.route.version == null ? true : false;
             this.target = preview ? "_parent" : "";
         }
     }

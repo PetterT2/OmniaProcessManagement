@@ -5,7 +5,7 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { Process, Enums, ProcessWorkingStatus, RouteOptions } from '../../../../fx/models';
+import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { UnpublishDialog } from './UnpublishDialog';
 import { ProcessStore, OPMUtils, OPMRouter } from '../../../../fx';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
@@ -59,7 +59,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
             var win = window.open(viewUrl, '_blank');
             win.focus();
         } else {
-            OPMRouter.navigate(this.process, this.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer);
+            OPMRouter.navigate(this.process, this.process.rootProcessStep, true, { edition: 0, revision: 0 });
         }
     }
 

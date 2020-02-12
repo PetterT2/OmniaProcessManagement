@@ -8,7 +8,7 @@ import './ProcessLibrary.css';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../loc/localize';
 import { ProcessLibraryStyles } from '../../models';
-import { ProcessLibraryBlockData, RouteOptions } from '../../fx/models';
+import { ProcessLibraryBlockData } from '../../fx/models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ProcessLibraryConfigurationFactory } from '../factory/ProcessLibraryConfigurationFactory';
 import { OPMRouter, CurrentProcessStore, ProcessStore } from '../../fx';
@@ -104,7 +104,8 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
 
     handlePreviewOnPageLoad() {
         if (window.self == window.top && OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId &&
-            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer) {
+            OPMRouter.routeContext.route.globalRenderer &&
+            OPMRouter.routeContext.route.version == null) {
             let processStepId = OPMRouter.routeContext.route.processStepId;
             OPMRouter.clearRoute();
 

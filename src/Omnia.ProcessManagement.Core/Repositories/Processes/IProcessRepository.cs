@@ -32,8 +32,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
 
         ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> filterQueries);
-        ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType);
-        ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType);
+        ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash);
+        ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
@@ -48,8 +48,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);
-        ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, ProcessVersionType versionType);
-        ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processId, string hash, ProcessVersionType versionType);
+        ValueTask<InternalProcess> GetInternalPublishedProcessByProcessStepIdAsync(Guid processStepId);
+        ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash);
         ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
 
         /// <summary>

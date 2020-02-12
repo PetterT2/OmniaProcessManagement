@@ -1,7 +1,7 @@
 ﻿import { Inject, Injectable, ServiceContainer, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
-import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, RouteOptions } from '../models';
+import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, OPMEnterprisePropertyInternalNames, Version } from '../models';
 import { ProcessStore, CurrentProcessStore } from '../stores';
 import { OPMUtils } from '../utils';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -22,7 +22,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     private currentTitle = '';
     private currentProcessId = '';
     private currentProcessStepId = '';
-    private currentRouteOption = '';
 
     constructor() {
         super('pm')
@@ -35,7 +34,19 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         let contextPath = '';
 
         if (routeContext && routeContext.processStepId) {
-            contextPath = routeContext.processStepId.toString() + routeContext.routeOption.toString();
+            contextPath = routeContext.processStepId.toString();
+
+            if (routeContext.version == null) {
+                contextPath += '/preview';
+            }
+            else if (routeContext.version.edition != 0 || routeContext.version.revision != 0) {
+                contextPath += `/${routeContext.version.edition}/${routeContext.version.revision}`;
+            }
+
+            if (routeContext.globalRenderer) {
+                contextPath += `/g`;
+            }
+
             contextPath = contextPath.toLowerCase();
         }
         return contextPath;
@@ -45,30 +56,41 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     * Implement abstract function
     */
     protected resolveRouteFromPath(path: string): OPMRoute {
-        let context: OPMRoute = null;
-        let routeOption: RouteOptions = RouteOptions.publishedInBlockRenderer;
+        let context: OPMRoute = {} as OPMRoute;
+
         path = path.toLowerCase();
-        path = path.split('&')[0];
 
-        if (path.endsWith(RouteOptions.previewInGlobalRenderer)) {
-            path = path.replace(RouteOptions.previewInGlobalRenderer, '');
-            routeOption = RouteOptions.previewInGlobalRenderer;
+        if (path.endsWith('/preview/g')) {
+            path = path.replace('/preview/g', '');
+            context.version = null;
+            context.globalRenderer = true;
         }
-        else if (path.endsWith(RouteOptions.previewInBlockRenderer)) {
-            path = path.replace(RouteOptions.previewInBlockRenderer, '');
-            routeOption = RouteOptions.previewInBlockRenderer;
+        else if (path.endsWith('/preview')) {
+            path = path.replace('/preview', '');
+            context.version = null;
+            context.globalRenderer = false;
         }
-        else if (path.endsWith(RouteOptions.publishedInGlobalRenderer)) {
-            path = path.replace(RouteOptions.publishedInGlobalRenderer, '');
-            routeOption = RouteOptions.publishedInGlobalRenderer;
+        else if (/^[^\/]+\/\d\/\d(\/g)?$/.test(path)) {
+            let segments = path.split('/');
+            path = segments[0];
+            context.version = { edition: parseInt(segments[1]), revision: parseInt(segments[2]) };
+            context.globalRenderer = segments.length == 4;
         }
-
+        else if (path.endsWith('/g')) {
+            path = path.replace('/g', '');
+            context.version = { edition: 0, revision: 0 };
+            context.globalRenderer = true;
+        }
+        else {
+            context.version = { edition: 0, revision: 0 };
+            context.globalRenderer = false;
+        }
 
         if (path) {
-            context = {
-                processStepId: new Guid(path),
-                routeOption: routeOption
-            }
+            context.processStepId = (new Guid(path)).toString();
+        }
+        else {
+            context = null;
         }
 
         return context;
@@ -88,11 +110,15 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         super.protectedClearRoute();
     }
 
-    public navigate(process: Process, processStep: ProcessStep, routeOption?: RouteOptions): Promise<void> {
+    public navigate(process: Process, processStep: ProcessStep, globalRenderer: boolean = undefined, version: Version = undefined): Promise<void> {
         return new Promise<void>((resolve, reject) => {
 
             let title = this.multilingualStore.getters.stringValue(processStep.title);
-            routeOption = routeOption != null ? routeOption : this.routeContext.route && this.routeContext.route.routeOption || RouteOptions.publishedInBlockRenderer;
+            let routeOption: OPMRoute = {
+                processStepId: processStep.id,
+                globalRenderer: globalRenderer != null ? globalRenderer : (this.routeContext.route ? this.routeContext.route.globalRenderer : true),
+                version: version !== undefined ? version : (this.routeContext.route ? this.routeContext.route.version : null)
+            }
 
             if (this.currentProcessId == process.id.toString().toLowerCase() &&
                 this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
@@ -105,7 +131,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 this.currentProcessStepId = processStep.id.toString().toLowerCase();
                 this.currentTitle = title;
 
-                this.protectedNavigate(title, { routeOption: routeOption, processStepId: processStep.id }, { versionType: process.versionType });
+                this.protectedNavigate(title, routeOption, { versionType: process.versionType });
 
                 let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
                 if (processRefrerence) {
@@ -126,22 +152,24 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         this.currentTitle = '';
         this.currentProcessId = '';
         this.currentProcessStepId = '';
-        this.currentRouteOption = '';
 
         this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
             this.protectedClearRoute();
         })
     }
 
-    public navigateWithCurrentRoute(preview: boolean): Promise<void> {
+    public navigateWithCurrentRoute(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
-
-            let loadProcessPromise: Promise<Process> = preview ?
-                this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => p.process) :
-                this.processStore.actions.loadPublishedProcessByProcessStepId.dispatch(newProcessStepId)
+            let version = this.routeContext.route.version;
 
             if (newProcessStepId) {
+                let loadProcessPromise: Promise<Process> = version ?
+                    this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, version) :
+                    this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => p.process)
+
+
+
                 loadProcessPromise.then((process) => {
 
                     //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
@@ -150,7 +178,15 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
                     this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
-                    let versionLabel = preview ? 'preview' : 'published';
+                    let versionLabel = 'preview';
+                    if (version) {
+                        if (version.edition != 0 && version.revision != 0) {
+                            versionLabel = `edition-${version.edition}-revision-${version.revision}-version`;
+                        }
+                        else
+                            versionLabel = 'latest published';
+                    }
+
                     let reason = `Cannot find valid ${versionLabel}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
                     console.warn(reason);
                     reject(reason);
@@ -168,11 +204,7 @@ const omniaContext: OmniaContext = ServiceContainer.createInstance(OmniaContext)
 
 OPMRouter.onNavigate.subscribe(ctx => {
     if (ctx.route && ctx.stateData) {
-        let preview = ctx.route.routeOption == RouteOptions.previewInBlockRenderer ||
-            ctx.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
-
-        OPMRouter.navigateWithCurrentRoute(preview);
-        //OPMRouter.navigateWithCurrentRoute(ctx.stateData.versionType);
+        OPMRouter.navigateWithCurrentRoute();
     }
     else {
         OPMRouter.clearRoute();
@@ -185,14 +217,13 @@ if (OPMRouter.routeContext.route && OPMRouter.routeContext.route.processStepId) 
     //Then we need to handle the preview-page settings and do the redirect logic if needed. (ProcessLibrary.tsx will take care of the logic)
     //Therefore, we only handle page-load-route here when it is in omnia app, or in an iframe, or not in Preview-Global
 
-    if (!omniaContext.environment.omniaApp && window.self == window.top && OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer) {
+    if (!omniaContext.environment.omniaApp && window.self == window.top &&
+        OPMRouter.routeContext.route.version == null &&
+        OPMRouter.routeContext.route.globalRenderer) {
         //Let the ProcessLibrary.tsx handle the logic
     }
     else {
-        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false
-
-        OPMRouter.navigateWithCurrentRoute(preview);
+        OPMRouter.navigateWithCurrentRoute();
     }
 }
 
