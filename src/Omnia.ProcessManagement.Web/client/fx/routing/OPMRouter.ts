@@ -1,7 +1,7 @@
 ﻿import { Inject, Injectable, ServiceContainer, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
-import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, OPMEnterprisePropertyInternalNames, Enums } from '../models';
+import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, OPMEnterprisePropertyInternalNames, Enums, IdDict } from '../models';
 import { ProcessStore, CurrentProcessStore } from '../stores';
 import { OPMUtils } from '../utils';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -32,6 +32,9 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     private currentTitle = '';
     private currentProcessId = '';
     private currentProcessStepId = '';
+
+    private currentPreviewProcessId: GuidValue = null;
+    private processStepIdsInCurrentPreviewProcess: IdDict<boolean> = {};
 
     constructor() {
         super('pm')
@@ -172,6 +175,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         this.currentTitle = '';
         this.currentProcessId = '';
         this.currentProcessStepId = '';
+        this.currentPreviewProcessId = null;
+        this.processStepIdsInCurrentPreviewProcess = {};
 
         this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
             this.protectedClearRoute();
@@ -182,11 +187,30 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         return new Promise<void>((resolve, reject) => {
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
             let version = this.routeContext.route.version;
+            let isPreview = OPMSpecialRouteVersion.isPreview(version);
 
             if (newProcessStepId) {
-                let loadProcessPromise: Promise<Process> = OPMSpecialRouteVersion.isPreview(version) ?
-                    this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => p.process) :
-                    this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, version)
+                let loadProcessPromise: Promise<Process> = null;
+
+                if (isPreview) {
+                    if (this.currentPreviewProcessId && this.processStepIdsInCurrentPreviewProcess[newProcessStepId.toString().toLowerCase()]) {
+                        let process = this.processStore.getters.process(this.currentPreviewProcessId);
+                        loadProcessPromise = Promise.resolve(process);
+                    }
+                    else {
+                        loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => {
+                            this.currentPreviewProcessId = p.process.id;
+                            let stepIds = OPMUtils.getAllProcessStepIds(p.process.rootProcessStep);
+                            stepIds.forEach(id => { this.processStepIdsInCurrentPreviewProcess[id.toString().toLowerCase()] = true; });
+                            return p.process;
+                        })
+                    }
+                }
+                else {
+                    this.currentPreviewProcessId = null;
+                    this.processStepIdsInCurrentPreviewProcess = {};
+                    loadProcessPromise = this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, version)
+                }
 
                 loadProcessPromise.then((process) => {
 
@@ -196,13 +220,13 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
                     this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
                 }).catch((errMsg) => {
-                    let versionLabel = OPMSpecialRouteVersion.isPreview(version) ? 'preview' :
+                    let versionLabel = isPreview ? 'preview' :
                         OPMSpecialRouteVersion.isPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
 
                     let reason = `Cannot find valid ${versionLabel}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
                     console.warn(reason);
                     reject(reason);
-                })
+                });
             }
             else {
                 reject(`Cannot find valid process match to current route`);

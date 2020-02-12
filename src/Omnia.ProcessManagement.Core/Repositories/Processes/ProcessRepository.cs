@@ -236,7 +236,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
 
                 draftProcess.SecurityResourceId = securityResourceId;
-                draftProcess.PublishedAt = DateTime.Now; 
+                draftProcess.PublishedAt = DateTime.Now;
                 draftProcess.PublishedBy = OmniaContext.Identity.LoginName.ToLower();
                 await DbContext.SaveChangesAsync();
 
@@ -642,7 +642,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var processData = await DbContext.ProcessData
                 .Where(p => p.ProcessStepId == processStepId && p.Hash == hash)
-                .OrderBy(p => p.ClusteredId) //Not OrderByDecending for this case
+                .OrderBy(p => p.ClusteredId) //to prioritize using archived/published version
                 .FirstOrDefaultAsync();
 
             if (processData == null)
@@ -662,7 +662,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
                 process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
             }
-            else {
+            else
+            {
                 process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
             }
 
@@ -802,7 +803,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         throw new ProcessDraftVersionNotFoundException(opmProcessId);
                     }
 
-
                     //This should be re-visit the logic when implement the send for review feature
                     EnsureNoActiveWorkflow(existingDraftProcess);
 
@@ -857,14 +857,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         }
         public async ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)
         {
-            //Since there is multiple published version in dbs, and the GroupBy+SelectFirst cannot be translated and query on BD-server (ef 3.0)
-
             if (versionType == ProcessVersionType.Archived)
-                throw new Exception("This function is not supported to get archived version");
+                throw new Exception("This method is not supported to get archived version");
 
             var internalProcess = await DbContext.Processes
                .Where(p => p.VersionType == versionType && p.OPMProcessId == opmProcessId)
-               .OrderByDescending(p => p.ClusteredId)
                .Select(p => new InternalProcess
                {
                    Id = p.Id,
@@ -900,7 +897,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var internalProcess = await DbContext.Processes
                .Where(p => p.Id == processId)
-               .OrderByDescending(p => p.ClusteredId)
                .Select(p => new InternalProcess
                {
                    Id = p.Id,
@@ -925,7 +921,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var internalProcess = await DbContext.Processes
              .Where(p => p.VersionType == ProcessVersionType.Published && p.ProcessData.Any(pd => pd.ProcessStepId == processStepId))
-             .OrderByDescending(p => p.ClusteredId)
              .Select(p => new InternalProcess
              {
                  Id = p.Id,
@@ -950,7 +945,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var internalProcesses = await DbContext.Processes
                .Where(p => p.ProcessData.Any(pd => pd.Hash == hash && pd.ProcessStepId == processStepId))
-               .OrderBy(p => p.ClusteredId) //Not OrderByDecending for this case
+               .OrderBy(p => p.ClusteredId) //to prioritize using archived/published version
                .Select(p => new InternalProcess
                {
                    Id = p.Id,
@@ -1087,10 +1082,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
 
+            if (versionType == ProcessVersionType.Archived)
+                throw new Exception("This method is not supported to get archived version");
+
             var process = await processes
-                       .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType)
-                       .OrderByDescending(p => p.ClusteredId)
-                       .FirstOrDefaultAsync();
+                   .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType)
+                   .FirstOrDefaultAsync();
 
             return process;
         }
@@ -1099,9 +1096,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
 
+            if (versionType == ProcessVersionType.Archived)
+                throw new Exception("This method is not supported to get archived version");
+
             var processWithProcessDataIdHash = await processes
                        .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == versionType)
-                       .OrderByDescending(p => p.ClusteredId)
                        .Select(p => new ProcessWithProcessDataIdHash
                        {
                            Process = p,
@@ -1210,7 +1209,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.OPMProcessId = processEf.OPMProcessId;
             model.Id = processEf.Id;
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
-            model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.CheckedOutBy = processEf.CheckedOutBy;
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
@@ -1255,7 +1254,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.OPMProcessId = processEf.OPMProcessId;
             model.Id = processEf.Id;
             model.RootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
-            model.CheckedOutBy = processEf.VersionType == ProcessVersionType.CheckedOut ? processEf.CreatedBy : "";
+            model.CheckedOutBy = processEf.CheckedOutBy;
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
             model.SecurityResourceId = processEf.SecurityResourceId;
