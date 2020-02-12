@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Omnia.Fx.Models.Extensions;
 using Omnia.ProcessManagement.Models.ShapeGalleryItems;
+using Omnia.ProcessManagement.Models.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,29 +11,32 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems
 {
-    internal class ShapeGalleryItemRepository : RepositoryBase<Entities.ShapeGalleryItems.ShapeGalleryItem>, IShapeGalleryItemRepository
+    internal class ShapeGalleryItemRepository : IShapeGalleryItemRepository
     {
-        public ShapeGalleryItemRepository(OmniaPMDbContext databaseContext) : base(databaseContext)
+        OmniaPMDbContext DBContext { get; }
+
+        public ShapeGalleryItemRepository(OmniaPMDbContext databaseContext)
         {
+            DBContext = databaseContext;
         }
 
         public async ValueTask<List<ShapeGalleryItem>> GetAllAsync()
         {
-            var entities = await _dbSet.Where(d => d.DeletedAt == null).ToListAsync();
+            var entities = await DBContext.ShapeGalleryItems.Where(d => d.DeletedAt == null).ToListAsync();
             var models = ParseEntitiesToModels(entities);
             return models;
         }
 
         public async ValueTask<ShapeGalleryItem> GetByIdAsync(Guid id)
         {
-            var entity = await _dbSet.Where(d => d.Id == id && d.DeletedAt == null).FirstOrDefaultAsync();
+            var entity = await DBContext.ShapeGalleryItems.Where(d => d.Id == id && d.DeletedAt == null).FirstOrDefaultAsync();
             return ParseEntityToModel(entity);
         }
 
         public async ValueTask<ShapeGalleryItem> AddOrUpdateAsync(ShapeGalleryItem shapeDeclaration)
         {
             var entity = ParseModelToEntity(shapeDeclaration);
-            var existingShapeDeclaration = shapeDeclaration.Id != Guid.Empty ? await _dbSet.AsTracking().FirstOrDefaultAsync(d => d.Id == shapeDeclaration.Id && d.DeletedAt == null) : null;
+            var existingShapeDeclaration = shapeDeclaration.Id != Guid.Empty ? await DBContext.ShapeGalleryItems.AsTracking().FirstOrDefaultAsync(d => d.Id == shapeDeclaration.Id && d.DeletedAt == null) : null;
             if (existingShapeDeclaration == null)
             {
                 existingShapeDeclaration = new Entities.ShapeGalleryItems.ShapeGalleryItem
@@ -39,26 +44,60 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems
                     Id = shapeDeclaration.Id != Guid.Empty ? shapeDeclaration.Id : Guid.NewGuid(),
                     JsonValue = entity.JsonValue
                 };
-                _dbSet.Add(existingShapeDeclaration);
+                DBContext.ShapeGalleryItems.Add(existingShapeDeclaration);
             }
             else
             {
                 existingShapeDeclaration.JsonValue = entity.JsonValue;
             }
 
-            await _dataContext.SaveChangesAsync();
+            await DBContext.SaveChangesAsync();
 
             return ParseEntityToModel(existingShapeDeclaration);
         }
 
+        public async ValueTask<bool> AddImageAsync(Guid shapeGalleryItemId, string fileName, byte[] bytes)
+        {
+            var galleryItemImage = new Entities.ShapeGalleryItems.ShapeGalleryItemImage()
+            {
+                Content = bytes,
+                ShapeGalleryItemId = shapeGalleryItemId,
+                FileName = fileName
+            };
+
+            DBContext.ShapeGalleryItemImages.Add(galleryItemImage);
+
+            await DBContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async ValueTask<(byte[], string)> GetImageAsync(Guid shapeGalleryItemId)
+        {
+            var imageData = await DBContext.ShapeGalleryItemImages.FirstOrDefaultAsync(i => i.ShapeGalleryItemId == shapeGalleryItemId);
+            if (imageData != null)
+            {
+                return (imageData.Content, imageData.FileName);
+            }
+            else return (null, String.Empty);
+        }
 
         public async ValueTask DeleteAsync(Guid id)
         {
-            var exstingEntity = await _dbSet.AsTracking().FirstOrDefaultAsync(d => d.DeletedAt == null && d.Id == id);
+            var exstingEntity = await DBContext.ShapeGalleryItems.AsTracking().FirstOrDefaultAsync(d => d.DeletedAt == null && d.Id == id);
             if (exstingEntity != null)
             {
+                var shapeGalleryItemModel = ParseEntityToModel(exstingEntity);
+                if(shapeGalleryItemModel.Settings.ShapeDefinition.ShapeTemplate.Id == OPMConstants.Features.OPMDefaultShapeGalleryItems.Media.Id)
+                {
+                    var existingImageEntity = await DBContext.ShapeGalleryItemImages.AsTracking().FirstOrDefaultAsync(i => i.ShapeGalleryItemId == exstingEntity.Id);
+                    if(existingImageEntity != null)
+                    {
+                        existingImageEntity.DeletedAt = DateTimeOffset.UtcNow;
+                    }
+                }
                 exstingEntity.DeletedAt = DateTimeOffset.UtcNow;
-                await _dataContext.SaveChangesAsync();
+                await DBContext.SaveChangesAsync();
             }
         }
 

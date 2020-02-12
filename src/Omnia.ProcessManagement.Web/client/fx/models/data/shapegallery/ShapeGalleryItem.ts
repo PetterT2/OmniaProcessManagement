@@ -1,5 +1,5 @@
 ﻿import { GuidValue, Guid } from '@omnia/fx-models';
-import { ShapeGalleryItemSettings, ShapeGalleryItemType } from './ShapeGalleryItemSettings';
+import { ShapeGalleryItemSettings } from './ShapeGalleryItemSettings';
 import { OmniaTheming } from '@omnia/fx/ux';
 import { TextPosition, TextAlignment } from '../enums/Enums';
 import { ShapeTemplatesConstants } from '../../../constants';
@@ -21,6 +21,7 @@ export interface ShapeGalleryItem {
 export const ShapeGalleryItemFactory = {
     createDefaultShapeGalleryItem(theming: OmniaTheming): ShapeGalleryItem {
         let shapeGalleryItem: ShapeGalleryItem = {
+            id: Guid.newGuid(),
             settings: {
                 shapeDefinition: {
                     type: ShapeDefinitionTypes.Drawing,
@@ -34,7 +35,9 @@ export const ShapeGalleryItemFactory = {
                     textAlignment: TextAlignment.Center,
                     textHorizontalAdjustment: 0,
                     textVerticalAdjustment: 0,
-                } as ShapeDefinition
+                    width: 200,
+                    height: 200
+                }
             },
             builtIn: false
         } as ShapeGalleryItem

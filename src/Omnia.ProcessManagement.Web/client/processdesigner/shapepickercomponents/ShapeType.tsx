@@ -102,10 +102,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        //if (newValue.id !== oldValue.id) {
         this.init();
         this.startToDrawShape();
-        //}
     }
     created() {
         if (this.formValidator) {
@@ -213,7 +211,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, 0, this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, 0,
+                this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -301,11 +300,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            this.$nextTick(() => {
+            setTimeout(() => {
                 this.initDrawingCanvas();
-                //if (!this.isNewMedia())
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
-            });
+            }, 20);
         }
     }
 

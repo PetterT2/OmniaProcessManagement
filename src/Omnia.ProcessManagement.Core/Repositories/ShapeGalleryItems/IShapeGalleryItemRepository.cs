@@ -11,6 +11,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems
         ValueTask<List<ShapeGalleryItem>> GetAllAsync();
         ValueTask<ShapeGalleryItem> GetByIdAsync(Guid id);
         ValueTask<ShapeGalleryItem> AddOrUpdateAsync(ShapeGalleryItem shapeDeclaration);
+        ValueTask<bool> AddImageAsync(Guid shapeGalleryItemId, string fileName, byte[] bytes);
+        ValueTask<(byte[], string)> GetImageAsync(Guid shapeGalleryItemId);
         ValueTask DeleteAsync(Guid id);
     }
 }

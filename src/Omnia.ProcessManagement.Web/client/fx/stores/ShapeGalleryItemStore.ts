@@ -86,7 +86,12 @@ export class ShapeGalleryItemStore extends Store {
         addOrUpdateShapeGalleryItem: this.action((shapeDeclaration: ShapeGalleryItem) => {
             return this.shapeGalleryItemService.addOrUpdateShapeGalleryItem(shapeDeclaration).then((result) => {
                 this.privateMutations.addOrUpdateShapeGalleryItems.commit([result]);
-                return null;
+                return result;
+            })
+        }),
+        addImage: this.action((shapeGalleryItemId: string, fileName: string, image64: string) => {
+            return this.shapeGalleryItemService.addImage(shapeGalleryItemId, fileName, image64).then((result) => {
+                return result;
             })
         }),
         deleteShapeGalleryItem: this.action((shapeDeclaration: ShapeGalleryItem) => {

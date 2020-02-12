@@ -51,6 +51,24 @@ export class ShapeGalleryItemService {
         });
     }
 
+    public addImage = (shapeGalleryItemId: string, fileName: string, image64: string) => {
+        return new Promise<string>((resolve, reject) => {
+            var params = JSON.stringify(image64);
+            this.httpClient.post<IHttpApiOperationResult<string>>(`/api/shapegalleryitem/${shapeGalleryItemId}/${fileName}`, params)
+                .then(response => {
+                    if (response.data.success) {
+                        resolve(response.data.data);
+                    }
+                    else {
+                        reject(response.data.errorMessage);
+                    }
+                })
+                .catch(() => {
+                    reject();
+                });
+        })
+    }
+
     public deleteShapeGalleryItem = (id: GuidValue) => {
         return new Promise<void>((resolve, reject) => {
             this.httpClient.delete<IHttpApiOperationResult<void>>('/api/shapegalleryitem/' + id).then(response => {
