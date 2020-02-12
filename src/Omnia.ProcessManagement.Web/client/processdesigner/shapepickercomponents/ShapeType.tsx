@@ -269,7 +269,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private getCanvasSize(): { width: number, height: number } {
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-        if ((this.drawingOptions.shape as ShapeExtension).shapeObject
+        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
             && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
             var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
             canvasWidth = bound.width + 10;
@@ -312,7 +312,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private getLeftTop() {
         let left = 0;
         let top = 0;
-        if ((this.drawingOptions.shape as ShapeExtension).shapeObject
+        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
             && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
             var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
             var aCoords = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].aCoords;

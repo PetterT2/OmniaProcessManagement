@@ -79,6 +79,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     private renderProcessHistoryDialog(h) {
         return (
             <opm-process-history-dialog
+                viewPageUrl={this.viewPageUrl}
                 closeCallback={() => { this.openProcessHistoryDialog = false; }}
                 opmProcessId={this.process.opmProcessId}>
             </opm-process-history-dialog>

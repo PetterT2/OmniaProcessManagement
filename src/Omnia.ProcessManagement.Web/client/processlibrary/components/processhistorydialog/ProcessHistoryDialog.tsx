@@ -11,7 +11,7 @@ import { ProcessData, Process } from '../../../fx/models';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessLibraryFields, DefaultDateFormat } from '../../Constants';
 import { TenantRegionalSettings, GuidValue, User } from '@omnia/fx-models';
-import { ProcessService } from '../../../fx';
+import { ProcessService, OPMRouter, OPMUtils, ProcessRendererOptions } from '../../../fx';
 import { UserService } from '@omnia/fx/services';
 declare var moment;
 
@@ -20,6 +20,7 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
     @Prop() styles: typeof ProcessLibraryStyles | any;
     @Prop() opmProcessId: GuidValue;
     @Prop() closeCallback: () => void;
+    @Prop() viewPageUrl: string;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(OmniaContext) omniaContext: OmniaContext;
@@ -97,6 +98,17 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
         })
     }
 
+    private viewProcess(process: Process) {
+        if (this.viewPageUrl) {
+            var viewUrl = OPMUtils.createProcessNavigationUrl(process, process.rootProcessStep, this.viewPageUrl, false);
+            var win = window.open(viewUrl, '_blank');
+            win.focus();
+        } else {
+            this.closeCallback();
+            OPMRouter.navigate(process, process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
+        }
+    }
+
     renderItems(h, item: Process) {
         let enterpriseProperties = item.rootProcessStep.enterpriseProperties;
         return (
@@ -119,7 +131,7 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
                             case this.coreLoc.Columns.Title:
                                 return (
                                     <td>
-                                        <a onClick={() => { }}>{item.rootProcessStep.multilingualTitle}</a>
+                                        <a onClick={() => { this.viewProcess(item); }}>{item.rootProcessStep.multilingualTitle}</a>
                                     </td>
                                 );
 
@@ -144,12 +156,6 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
                                         }
                                     </td>
                                 );
-                            default:
-                                return (
-                                    <td>
-                                        <a onClick={() => { }}></a>
-                                    </td>
-                                )
                         }
                     })
                 }

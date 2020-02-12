@@ -2,7 +2,7 @@
 import { GuidValue } from '@omnia/fx-models';
 
 export interface IProcessHistoryDialogAttributes {
-
+    viewPageUrl: string;
 }
 
 /*@WebComponentInterface("opm-process-history-dialog")*/
