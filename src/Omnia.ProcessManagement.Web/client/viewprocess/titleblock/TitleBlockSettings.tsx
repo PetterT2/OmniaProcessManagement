@@ -48,7 +48,7 @@ export class TitleBlockSettingsComponent extends Vue implements IWebComponentIns
                 data: {} as TitleBlockDataData,
                 settings: {
                     title: { isMultilingualString: true },
-                    formatting: Enums.ProcessViewEnums.HeadingFormatting.Normal
+                    formatting: Enums.ProcessViewEnums.HeadingFormatting.Heading1
                 }
             } as TitleBlockData);
         });

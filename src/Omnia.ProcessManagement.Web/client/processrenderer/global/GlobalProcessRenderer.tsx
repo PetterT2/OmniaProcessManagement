@@ -23,6 +23,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
     @Localize(OPMCoreLocalization.namespace) private loc: OPMCoreLocalization.locInterface;
     private styles = StyleFlow.use(GlobalProcessRendererStyles);
 
+    titleBlockSettingsKey = '4E97BB9D-52C7-4ED4-8B81-EA378445180F'
     navigationBlockSettingsKey = '8B1D86EE-7994-4694-9BF1-982BCC47A6C3';
     drawingBlockSettingsKey = '1A0DA029-68D5-48AC-91B9-E4B939A09D79';
     contentBlockSettingsKey = 'A4AD7AA5-2050-406B-BC0A-949E29276B61';
@@ -69,7 +70,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
                     <v-col cols="8">
                         <v-container fluid class={this.styles.background}>
                             <v-row>
-                                <v-col><h2>{title}</h2></v-col>
+                                <v-col><opm-title-block settingsKey={this.titleBlockSettingsKey}></opm-title-block></v-col>
                             </v-row>
                             <v-row>
                                 <v-col>
