@@ -205,6 +205,16 @@ export class ShapeExtension implements Shape {
         });
     }
 
+    private onRotated(object: fabric.Object) {
+        let position = this.correctPosition(object.left, object.top);
+        let textPosition = this.getTextPositionAfterRotate(this.getTextPosition(position, object.width, object.height));
+        this.fabricShapes[1].fabricObject.set({
+            left: textPosition.left,
+            top: textPosition.top,
+            originX: this.definition.textAlignment == TextAlignment.Left ? 'left' : this.definition.textAlignment == TextAlignment.Right ? 'right' : 'center'
+        });
+    }
+
     protected getHighlightProperties() {
         let properties = {};
         if (this.darkHighlight == true) {
@@ -242,7 +252,7 @@ export class ShapeExtension implements Shape {
         var xAdjustment = this.definition.textHorizontalAdjustment || 0;
         var yAdjustMent = this.definition.textVerticalAdjustment || 0;
         width = width || this.definition.width;
-        height = height || this.definition.height;       
+        height = height || this.definition.height;
         switch (this.definition.textAlignment) {
             case TextAlignment.Right:
                 tleft = position.left + width;
@@ -351,6 +361,9 @@ export class ShapeExtension implements Shape {
             },
             "scaling": (e) => {
                 this.onScaling(e.target, enableGrid);
+            },
+            "rotated": (e) => {
+                this.onRotated(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {

@@ -15,7 +15,6 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     private isMoving: boolean = false;
     private isScaling: boolean = false;
     private editIconPosition: { tl: fabric.Point, width: number };
-    private isSelectedEditIcon: boolean = false;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
         onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
@@ -76,37 +75,44 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
             this.drawingShapes.splice(findIndex, 1);
             (shape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
             this.editObject = null;
+            this.editIconPosition = null;
         }
     }
 
-    private addEditIcon(object: fabric.Object) {
-        if (object && object.aCoords) {
-            let x = object.aCoords.tr.x;
-            let y = object.aCoords.tr.y;
-            if (object.angle < 315 && object.angle > 225) {
-                x = object.aCoords.br.x;
-                y = object.aCoords.br.y;
+    private addEditIcon(isHover?: boolean) {
+        if (this.editObject && this.editObject.aCoords) {
+            let x = this.editObject.aCoords.tr.x;
+            let y = this.editObject.aCoords.tr.y;
+            if (this.editObject.angle < 315 && this.editObject.angle > 225) {
+                x = this.editObject.aCoords.br.x;
+                y = this.editObject.aCoords.br.y;
             }
-            if (object.angle <= 225 && object.angle > 115) {
-                x = object.aCoords.bl.x;
-                y = object.aCoords.bl.y;
+            if (this.editObject.angle <= 225 && this.editObject.angle > 115) {
+                x = this.editObject.aCoords.bl.x;
+                y = this.editObject.aCoords.bl.y;
             }
-            if (object.angle <= 115 && object.angle > 45) {
-                x = object.aCoords.tl.x;
-                y = object.aCoords.tl.y;
+            if (this.editObject.angle <= 115 && this.editObject.angle > 45) {
+                x = this.editObject.aCoords.tl.x;
+                y = this.editObject.aCoords.tl.y;
             }
             this.editIconPosition = {
                 tl: new fabric.Point(x - 30, y + 28), width: 30
             };
             let ctx = this.canvasObject.getContext();
             ctx.font = '900 30px "Font Awesome 5 Pro"';
-            ctx.fillStyle = "grey";
+            ctx.fillStyle = isHover ? "darkgrey" : "grey";
             ctx.fillText("\uF111", this.editIconPosition.tl.x, this.editIconPosition.tl.y);
             ctx.font = '900 14px "Font Awesome 5 Pro"';
             ctx.fillStyle = "white";
             ctx.fillText("\uF040", this.editIconPosition.tl.x + 9, this.editIconPosition.tl.y - 8);
         }
 
+    }
+
+    private clearEditIcon() {
+        if (this.editIconPosition) {
+            this.canvasObject.renderAll();
+        }
     }
 
     protected onMovingListener() {
@@ -139,6 +145,15 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
     }
 
+    private isInEditZoneIcon(options: fabric.IEvent) {
+        if (options && options.e) {
+            var currPos = this.canvasObject.getPointer(options.e);
+            return this.editIconPosition && currPos.x > this.editIconPosition.tl.x && currPos.x < (this.editIconPosition.tl.x + this.editIconPosition.width)
+                && currPos.y < this.editIconPosition.tl.y && currPos.y > (this.editIconPosition.tl.y - this.editIconPosition.width);
+        }
+        return false;
+    }
+
     protected addEventListener() {
         if (this.canvasObject == null)
             return;
@@ -162,8 +177,6 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         });
 
         this.canvasObject.on('mouse:up', (options) => {
-            this.isSelectedEditIcon = false;
-
             if (options.target) {
                 let object = options.target;
                 let drawingShape = this.findDrawingShape(object);
@@ -175,15 +188,16 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     }
                     this.editObject = object;
                 }
+            } else if (!this.isInEditZoneIcon(options)) {
+                this.editObject = null;
+                this.editIconPosition = null;
+                this.clearEditIcon();
             }
             if (this.editObject && !this.isScaling && this.editIconPosition) {
-                var currPos = this.canvasObject.getPointer(options.e);
-                if (currPos.x > this.editIconPosition.tl.x && currPos.x < (this.editIconPosition.tl.x + this.editIconPosition.width)
-                    && currPos.y < this.editIconPosition.tl.y && currPos.y > (this.editIconPosition.tl.y - this.editIconPosition.width)) {
+                if (this.isInEditZoneIcon(options)) {
                     if (this.onClickEditShapeSettings) {
                         this.onClickEditShapeSettings(this.findDrawingShape(this.editObject));
                     }
-                    this.isSelectedEditIcon = true;
                     this.canvasObject.setActiveObject(this.editObject);
                     this.canvasObject.renderAll();
                 }
@@ -219,10 +233,19 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         });
 
         this.canvasObject.on('after:render', (options) => {
-            if (this.editObject && (this.isSelectedEditIcon || this.canvasObject.getActiveObject()) && !this.isMoving && !this.isScaling) {
-                this.addEditIcon(this.editObject);
-                this.canvasObject.setActiveObject(this.editObject);
+            if (this.editObject && (this.isInEditZoneIcon(options) || this.canvasObject.getActiveObject()) && !this.isMoving && !this.isScaling) {
+                this.addEditIcon();
+                if (!this.canvasObject.getActiveObject())
+                    this.canvasObject.setActiveObject(this.editObject);
             }
+        });
+
+        this.canvasObject.on('mouse:move', (options) => {
+            if (!this.editIconPosition)
+                return;
+            if (this.isInEditZoneIcon(options)) {
+                this.addEditIcon(true);
+            } 
         });
         //this.canvasObject.on('object:selected', (options) => {
         //    if (options.target && this.onSelectingShape) {
