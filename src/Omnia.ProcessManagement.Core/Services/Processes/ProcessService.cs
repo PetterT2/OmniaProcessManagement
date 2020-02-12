@@ -104,6 +104,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
+        public async ValueTask<List<Process>> GetProcessesByOPMProcessIdAsync(Guid opmProcessId, params ProcessVersionType[] versionTypes)
+        {
+            var processes = await ProcessRepository.GetProcessesByOPMProcessIdAsync(opmProcessId, versionTypes);
+            return processes;
+        }
+
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
         {
             await ProcessRepository.DeleteDraftProcessAsync(opmProcessId);
@@ -162,12 +168,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             var queryHelper = new ItemQueryHelper(itemQuery);
             return await ProcessRepository.QueryProcesses(queryHelper, securityTrimmingQuery, filterQueries);
-        }
-
-        public async ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery)
-        {
-            var processHistory= await ProcessRepository.GetProcessHistoryAsync(processQuery);
-            return processHistory;
         }
 
         async ValueTask<InternalProcess> IProcessService.GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)

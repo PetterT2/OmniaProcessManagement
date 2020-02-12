@@ -102,13 +102,6 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return authorizedProcessQuery;
         }
 
-        public async ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessHistoryByOPMProcessIdQueryAsync(Guid opmProcessId)
-        {
-            var authorizedResource = await EnsureUserAuthorizedResourcesCacheAsync();
-            var authorizedProcessQuery = new AuthorizedProcessHistoryByOPMProcessIdQuery(opmProcessId, authorizedResource, OmniaContext);
-            return authorizedProcessQuery;
-        }
-
         public IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId)
         {
             return new SecurityResponse(teamAppId, DynamicScopedContextProvider, SecurityProvider, OmniaContext);

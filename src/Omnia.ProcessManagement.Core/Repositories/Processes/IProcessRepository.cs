@@ -36,6 +36,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);
         ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType);
+        ValueTask<List<Process>> GetProcessesByOPMProcessIdAsync(Guid opmProcessId, params ProcessVersionType[] versionTypes);
+
         ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
         ValueTask DeleteDraftProcessAsync(Guid opmProcessId);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType);
@@ -59,7 +61,5 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         /// <param name="imageReferences"></param>
         /// <returns></returns>
         ValueTask DeleteUnusedImageReferencesAsync(List<ImageReference> imageReferences, Guid opmProcessId);
-        
-        ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery);
     }
 }

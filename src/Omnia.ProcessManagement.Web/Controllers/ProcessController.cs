@@ -577,9 +577,18 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessHistoryByOPMProcessIdQueryAsync(opmProcessId);
-                var processes = await ProcessService.GetProcessHistoryAsync(authorizedProcessQuery);
-                return ApiUtils.CreateSuccessResponse(processes);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireApprover()
+                   .OrRequireReviewer()
+                   .OrRequireReader()
+                   .DoAsync(async () =>
+                   {
+                       var processes = await ProcessService.GetProcessesByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published, ProcessVersionType.Archived);
+                       return ApiUtils.CreateSuccessResponse(processes);
+                   });
             }
             catch (Exception ex)
             {

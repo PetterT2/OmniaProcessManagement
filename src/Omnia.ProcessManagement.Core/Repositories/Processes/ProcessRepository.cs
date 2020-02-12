@@ -1027,21 +1027,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         }
 
-        public async ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery)
+        public async ValueTask<List<Process>> GetProcessesByOPMProcessIdAsync(Guid opmProcessId, params ProcessVersionType[] versionTypes)
         {
             var processes = new List<Process>();
 
-            var sqlQuery = processQuery.GetQuery();
+            var processEfs = versionTypes.Any() ?
+                await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && versionTypes.Contains(p.VersionType)).ToListAsync() :
+                await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId).ToListAsync();
 
-            if (sqlQuery != string.Empty)
-            {
-                var processEfs = await DbContext
-                .AlternativeProcessEFView
-                .FromSqlRaw(sqlQuery)
-                .ToListAsync();
-
-                processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
-            }
+            processEfs.ForEach(p => processes.Add(MapEfToModel(p)));
 
             return processes;
         }
