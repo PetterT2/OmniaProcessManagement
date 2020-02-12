@@ -64,7 +64,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
                 <v-row justify="start">
                     <v-col cols="4">
                         <v-container fluid class={[this.styles.background, 'pa-0']}>
-                            <opm-processnavigation-block inGlobalView settingsKey={this.navigationBlockSettingsKey}></opm-processnavigation-block>
+                            <opm-processnavigation-block mobileView settingsKey={this.navigationBlockSettingsKey}></opm-processnavigation-block>
                         </v-container>
                     </v-col>
                     <v-col cols="8">
