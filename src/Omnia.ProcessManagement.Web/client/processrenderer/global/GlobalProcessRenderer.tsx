@@ -3,7 +3,6 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, OmniaContext, ServiceContainer } from "@omnia/fx";
 import { IOmniaContext } from '@omnia/fx-models';
 import { CurrentProcessStore, OPMRouter } from '../../fx';
-import { RouteOptions } from '../../fx/models';
 import './GlobalProcessRenderer.css';
 import { GlobalProcessRendererStyles } from '../../models';
 import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
@@ -43,8 +42,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
     get hidden(): boolean {
         return !this.currentProcessStore.getters.referenceData() ||
             !OPMRouter.routeContext.route ||
-            (OPMRouter.routeContext.route.routeOption != RouteOptions.publishedInGlobalRenderer &&
-                OPMRouter.routeContext.route.routeOption != RouteOptions.previewInGlobalRenderer) ? true : false
+            !OPMRouter.routeContext.route.globalRenderer ? true : false
     }
 
     renderProcess(h) {

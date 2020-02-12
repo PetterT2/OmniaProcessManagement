@@ -8,7 +8,7 @@ import { DrawingBlockStyles } from '../../models';
 import { DrawingBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessVersionType, RouteOptions, ProcessReferenceData, ProcessData, ProcessStep } from '../../fx/models';
+import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessData, ProcessStep } from '../../fx/models';
 import { CurrentProcessStore, DrawingCanvas, OPMRouter, OPMUtils, ProcessStore, Shape } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 
@@ -146,8 +146,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                 if (link) {
                     let target = "";
                     if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
-                        let preview = OPMRouter.routeContext.route.routeOption == RouteOptions.previewInBlockRenderer ||
-                            OPMRouter.routeContext.route.routeOption == RouteOptions.previewInGlobalRenderer ? true : false;
+                        let preview = OPMRouter.routeContext.route.version === null ? true : false;
                         target = preview ? '_parent' : '';
                     }
                     window.open(link.url, link.openNewWindow ? '_blank' : target);

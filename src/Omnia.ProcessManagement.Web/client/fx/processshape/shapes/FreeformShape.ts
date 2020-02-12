@@ -30,7 +30,7 @@ export class FreeformShape extends ShapeExtension implements Shape {
             });
         }
         return basicShapeJSON;
-    }
+    }    
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.fabricShapes = [];
@@ -43,9 +43,9 @@ export class FreeformShape extends ShapeExtension implements Shape {
             if (pathNode) {
 
                 this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({}, pathNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties), false));
-                
-                let textPosition = this.getTextPosition(position, this.definition.width, this.definition.height, this.definition.textHorizontalAdjustment, this.definition.textVerticalAdjustment);
-                
+
+                let textPosition = this.getTextPositionAfterRotate(this.getTextPosition(position));
+
                 this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', selectable: selectable, left: textPosition.left, top: textPosition.top }, title));
             }
         }

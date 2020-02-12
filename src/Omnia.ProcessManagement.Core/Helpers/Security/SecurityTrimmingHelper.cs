@@ -36,11 +36,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         {
             var securityTrimming = "";
 
-
             if (resources != null)
             {
-                var draftVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Draft)}";
                 var publishedVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Published)}";
+                var archivedVersionTrimming = $"{GenerateVersionTrimming((int)ProcessVersionType.Archived)}";
                 var checkedOutVersionTrimming = includeCheckedOutByOther ? $"{GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)}" :
                     $"({GenerateVersionTrimming((int)ProcessVersionType.CheckedOut)} AND {GenerateCheckedOutByTrimming(omniaContext.Identity.LoginName)})";
                 var notCheckedOutVersionTrimming = $"{ProcessTableAlias}.[{nameof(Process.VersionType)}] <> {(int)ProcessVersionType.CheckedOut}";
@@ -57,11 +56,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     TrimByLimitedIds(resources.ReviewerOPMProcessIds, new List<Guid> { opmProcessId.Value }) :
                     resources.ReviewerOPMProcessIds.Distinct().ToList();
 
-                var approverAndReviewerOPMProcessIds = new List<Guid>();
-                approverAndReviewerOPMProcessIds.AddRange(approverOPMProcessIds);
-                approverAndReviewerOPMProcessIds.AddRange(reviewerOPMProcessIds);
-                approverAndReviewerOPMProcessIds = approverAndReviewerOPMProcessIds.Distinct().ToList();
-
 
                 var opmProcessIdTrimming = opmProcessId.HasValue ?
                     $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId.Value })}" : "";
@@ -73,11 +67,11 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     securityTrimming = $"{securityTrimming}{connectPart}{authorTrimmingCombineWithVersion }";
                     connectPart = " OR ";
                 }
-                if (approverAndReviewerOPMProcessIds.Any())
+                if (approverOPMProcessIds.Any())
                 {
-                    var approverAndReviewerTrimming = $"{GeneratePermissionForOPMProcessIds(approverAndReviewerOPMProcessIds)}";
-                    var approverAndReviewerTrimmingCombineWithDraftVersion = $"({approverAndReviewerTrimming} AND {draftVersionTrimming})";
-                    securityTrimming = $"{securityTrimming}{connectPart}{approverAndReviewerTrimmingCombineWithDraftVersion}";
+                    var approverTrimming = $"{GeneratePermissionForOPMProcessIds(approverOPMProcessIds)}";
+                    var approverTrimmingCombineWithVersion = $"({approverTrimming} AND {notCheckedOutVersionTrimming})";
+                    securityTrimming = $"{securityTrimming}{connectPart}{approverTrimmingCombineWithVersion}";
                     connectPart = " OR ";
                 }
                 if (reviewerOPMProcessIds.Any())
@@ -90,7 +84,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 if (readerSecurityResourceIds.Any())
                 {
                     var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds)}";
-                    var readerTrimmingCombineWithPublishedVersion = $"({readerTrimming} AND {publishedVersionTrimming})";
+                    var readerTrimmingCombineWithPublishedVersion = $"({readerTrimming} AND ({publishedVersionTrimming} OR {archivedVersionTrimming}))";
                     securityTrimming = $"{securityTrimming}{connectPart}{readerTrimmingCombineWithPublishedVersion}";
                     connectPart = " OR ";
                 }
@@ -161,38 +155,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return securityTrimming;
         }
 
-        public static string GenerateRollupSecurityTrimming(UserAuthorizedResource resources, ProcessVersionType versionType)
-        {
-            var securityTrimming = "";
 
-            if (resources != null)
-            {
-                var connectPart = "";
-
-                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
-                var authorTeamAppIds = resources.AuthorTeamAppIds.Distinct().ToList();
-
-                if (authorTeamAppIds.Any())
-                {
-                    var authorTrimming = $"{GeneratePermissionForTeamAppIds(authorTeamAppIds, false)}";
-                    securityTrimming = $"{securityTrimming}{connectPart}{authorTrimming}";
-                    connectPart = " OR ";
-                }
-
-                if (readerSecurityResourceIds.Any() && versionType == ProcessVersionType.Published)
-                {
-                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds, false)}";
-                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
-                }
-
-                if (securityTrimming != "")
-                {
-                    securityTrimming = $"({securityTrimming})";
-                }
-            }
-
-            return securityTrimming;
-        }
 
         private static string GenerateCheckedOutByTrimming(string loginName)
         {

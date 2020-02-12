@@ -2,14 +2,14 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { ProcessLibraryDisplaySettings, Enums, Process, RouteOptions, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
+import { ProcessLibraryDisplaySettings, Enums, Process, ProcessVersionType, ProcessListViewComponentKey, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils, ResolvablePromise, SubscriptionHandler } from '@omnia/fx';
 import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding, Guid } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
-import { ProcessService, OPMUtils, OPMRouter } from '../../../fx';
+import { ProcessService, OPMUtils, OPMRouter, ProcessStore } from '../../../fx';
 import { LibrarySystemFieldsConstants, DefaultDateFormat, ProcessLibraryFields, ProcessLibraryListViewTabs } from '../../Constants';
 import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
@@ -17,6 +17,10 @@ import { FilterDialog } from './dialogs/FilterDialog';
 import { OPMContext } from '../../../fx/contexts';
 import { SecurityService } from '@omnia/fx/services';
 import { InternalOPMTopics } from '../../../fx/messaging/InternalOPMTopics';
+import { ProcessDesignerStore } from '../../../processdesigner/stores';
+import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
+import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
+import { DisplayModes } from '../../../models/processdesigner';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -51,6 +55,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Inject(SecurityService) securityService: SecurityService;
     @Inject(SubscriptionHandler) subcriptionHandler: SubscriptionHandler;
+    @Inject(ProcessStore) processStore: ProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
@@ -276,13 +282,24 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private openProcess(item: Process) {
-        let preview = this.versionType == ProcessVersionType.Draft;
-        if (this.previewPageUrl) {
-            var viewUrl = OPMUtils.createProcessNavigationUrl(item.rootProcessStep.id, this.previewPageUrl, preview, false);
-            var win = window.open(viewUrl, '_blank');
-            win.focus();
-        } else {
-            OPMRouter.navigate(item, item.rootProcessStep, preview ? RouteOptions.previewInGlobalRenderer : RouteOptions.publishedInGlobalRenderer);
+        if (this.versionType === ProcessVersionType.Published) {
+            if (this.previewPageUrl) {
+                var viewUrl = OPMUtils.createProcessNavigationUrl(item.rootProcessStep.id, this.previewPageUrl, false, false);
+                var win = window.open(viewUrl, '_blank');
+                win.focus();
+            } else {
+                OPMRouter.navigate(item, item.rootProcessStep, true, { edition: 0, revision: 0 });
+            }
+        }
+        else {
+            let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(item.rootProcessStep.id);
+
+            loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
+                this.processDesignerStore.actions.setProcessToShow.dispatch(processWithCheckoutInfo.process, processWithCheckoutInfo.process.rootProcessStep).then(() => {
+                    ProcessDesignerUtils.openProcessDesigner();
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentPreview);
+                })
+            })
         }
     }
 

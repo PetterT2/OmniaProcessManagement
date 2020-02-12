@@ -82,6 +82,10 @@
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.css.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.manifest.ts" />
     <TypeScriptCompile Remove="client\components\mediapicker\MediaPicker.tsx" />
+    <TypeScriptCompile Remove="client\components\pointpicker\IPointPicker.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.css.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
@@ -121,9 +125,11 @@
     <TypeScriptCompile Remove="client\fx\messaging\InternalOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\messaging\PublicOPMTopics.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\pointpicker\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPicker.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\mediapicker\MediaPickerExtension.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\pointpicker\Point.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processlibrary\ProcessLibraryData.ts" />
@@ -169,6 +175,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\tasksblock\TasksBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\titleblock\TitleBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\contexts\OPMContext.ts" />
@@ -253,6 +263,7 @@
     <TypeScriptCompile Remove="client\fx\models\route\OPMRouteStateData.ts" />
     <TypeScriptCompile Remove="client\fx\models\shared\IdDict.ts" />
     <TypeScriptCompile Remove="client\fx\models\shared\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\shared\Version.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
@@ -261,6 +272,7 @@
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeGalleryDefaultSettingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\TitleBlockStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
@@ -536,6 +548,13 @@
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\ITitleBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockStyles.css.ts" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
@@ -579,6 +598,12 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\pointpicker\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\pointpicker\Point.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\mediapicker\index.ts">
@@ -684,6 +709,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\processes\ProcessPropertyInfo.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\shared\Version.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\shared\IdDict.ts">

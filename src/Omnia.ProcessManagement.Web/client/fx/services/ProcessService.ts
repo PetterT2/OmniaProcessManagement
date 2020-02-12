@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessSite } from '../../models';
 
@@ -140,9 +140,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessData = (processStepId: GuidValue, hash: string, versionType: ProcessVersionType) => {
+    public getProcessData = (processStepId: GuidValue, hash: string) => {
         return new Promise<ProcessData>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessData>>(`/api/processes/processdata/${processStepId}/${hash}/${versionType}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessData>>(`/api/processes/processdata/${processStepId}/${hash}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -166,9 +166,9 @@ export class ProcessService {
         })
     }
 
-    public getPublishedProcessByProcessStepId = (processStepId: GuidValue) => {
+    public getArchivedOrPublishedProcessByProcessStepId = (processStepId: GuidValue, version: Version) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/byprocessstep/${processStepId}/${version.edition}/${version.revision}`).then((response) => {
                 if (response.data.success) {
                     this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
@@ -296,10 +296,10 @@ export class ProcessService {
         })
     }
 
-    public getProcessSiteById = (processStepId: GuidValue, versionType: ProcessVersionType): Promise<ProcessSite> => {
+    public getProcessSiteByAppId = (teamAppId: GuidValue): Promise<ProcessSite> => {
         return new Promise<ProcessSite>((resolve, reject) => {
 
-            this.httpClient.get<IHttpApiOperationResult<ProcessSite>>(`/api/processes/processsite/${processStepId}/${versionType}`).then(response => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessSite>>(`/api/processes/processsite/${teamAppId}`).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

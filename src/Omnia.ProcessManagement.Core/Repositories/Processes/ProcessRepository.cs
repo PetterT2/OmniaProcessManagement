@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -238,6 +239,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.PublishedAt = DateTime.Now;
                 await DbContext.SaveChangesAsync();
 
+                var updateSecurityResourceIdRawSql = GenerateUpdateSecurityResourceIdRawSql(opmProcessId, securityResourceId);
+                await DbContext.ExecuteSqlCommandAsync(updateSecurityResourceIdRawSql);
+
                 var rawSql = GenerateUpdateRelatedWorkflowEditionRawSql(opmProcessId, edition);
                 await DbContext.ExecuteSqlCommandAsync(rawSql);
 
@@ -430,7 +434,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         .CountAsync();
                 }
             }
-            var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted:false, alias: "P");
+            var (query, parameters) = itemQuery.GetQuery(OPMConstants.Database.Tables.Processes, excludeDeleted: false, alias: "P");
             query = AttachAditionalFilterQueries(query, securityTrimmingQuery, titleFilters);
             if (!string.IsNullOrWhiteSpace((string)query))
             {
@@ -448,7 +452,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
 
-            foreach(var filter in titleFilters)
+            foreach (var filter in titleFilters)
             {
                 originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, filter + " AND ");
             }
@@ -633,11 +637,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.ProcessData.Remove(processDataEf);
         }
 
-        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash)
         {
             var processData = await DbContext.ProcessData
-                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash && p.Process.VersionType == versionType)
-                .OrderByDescending(p => p.ClusteredId)
+                .Where(p => p.ProcessStepId == processStepId && p.Hash == hash)
+                .OrderBy(p => p.ClusteredId) //Not OrderByDecending for this case
                 .FirstOrDefaultAsync();
 
             if (processData == null)
@@ -649,18 +653,21 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        public async ValueTask<Process> GetProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        public async ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision)
         {
-            if (versionType == ProcessVersionType.Archived)
-                throw new Exception("Not supported get published version");
-
-            var process = await DbContext.Processes
-                    .Where(p => p.ProcessData.Any(p => p.ProcessStepId == processStepId) && p.VersionType == versionType)
-                    .FirstOrDefaultAsync();
+            Entities.Processes.Process process = null;
+            if (edition != 0 || revision != 0)
+            {
+                var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
+                process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
+            }
+            else {
+                process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
+            }
 
             if (process == null)
             {
-                throw new ProcessDataNotFoundException(processStepId);
+                throw new ProcessVersionNotFoundException(opmProcessId, edition, revision);
             }
 
             var model = MapEfToModel(process);
@@ -864,6 +871,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -899,6 +907,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -911,10 +920,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return internalProcess;
         }
 
-        public async ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, ProcessVersionType versionType)
+        public async ValueTask<InternalProcess> GetInternalPublishedProcessByProcessStepIdAsync(Guid processStepId)
         {
             var internalProcess = await DbContext.Processes
-             .Where(p => p.VersionType == versionType && p.ProcessData.Any(pd => pd.ProcessStepId == processStepId))
+             .Where(p => p.VersionType == ProcessVersionType.Published && p.ProcessData.Any(pd => pd.ProcessStepId == processStepId))
              .OrderByDescending(p => p.ClusteredId)
              .Select(p => new InternalProcess
              {
@@ -923,6 +932,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                  CheckedOutBy = p.CheckedOutBy,
                  OPMProcessId = p.OPMProcessId,
                  ProcessWorkingStatus = p.ProcessWorkingStatus,
+                 SecurityResourceId = p.SecurityResourceId,
                  TeamAppId = p.TeamAppId
              })
              .FirstOrDefaultAsync();
@@ -935,10 +945,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return internalProcess;
         }
 
-        public async ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash, ProcessVersionType versionType)
+        public async ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash)
         {
             var internalProcesses = await DbContext.Processes
-                .Where(p => p.ProcessData.Any(pd => pd.Hash == hash && pd.ProcessStepId == processStepId) && p.VersionType == versionType)
+               .Where(p => p.ProcessData.Any(pd => pd.Hash == hash && pd.ProcessStepId == processStepId))
+               .OrderBy(p => p.ClusteredId) //Not OrderByDecending for this case
                .Select(p => new InternalProcess
                {
                    Id = p.Id,
@@ -946,6 +957,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                    CheckedOutBy = p.CheckedOutBy,
                    OPMProcessId = p.OPMProcessId,
                    ProcessWorkingStatus = p.ProcessWorkingStatus,
+                   SecurityResourceId = p.SecurityResourceId,
                    TeamAppId = p.TeamAppId
                })
                .FirstOrDefaultAsync();
@@ -1140,6 +1152,38 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             #endregion
         }
 
+        private string GenerateUpdateSecurityResourceIdRawSql(Guid opmProcessId, Guid securityResourceId)
+        {
+            #region Names
+            var tableName = nameof(DbContext.Processes);
+            var securityResourceIdColumnName = nameof(Entities.Processes.Process.SecurityResourceId);
+            var opmProcessIdColumnName = nameof(Entities.Processes.Process.OPMProcessId);
+            #endregion
+
+            #region SQL
+            return @$"UPDATE {tableName} SET {securityResourceIdColumnName} = '{securityResourceId}' WHERE {opmProcessIdColumnName} = '{opmProcessId}'";
+            #endregion
+        }
+
+        private string GenerateQueryProcessByVersionRawSql(Guid opmProcessId, int edition, int revision)
+        {
+            #region Names
+            var processTableName = nameof(DbContext.Processes);
+            var editionColumnName = $"Prop{ OPMConstants.Features.OPMDefaultProperties.Edition.InternalName}";
+            var revisionColumnName = $"Prop{ OPMConstants.Features.OPMDefaultProperties.Revision.InternalName}";
+            var versionTypeColumnName = $"{nameof(Entities.Processes.Process.VersionType)}";
+            #endregion
+
+            #region SQL
+            var selectStatement = "SELECT " + string.Join(", ", typeof(Entities.Processes.Process).GetProperties()
+                .Where(p => p.PropertyType == typeof(string) || !typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
+                .Select(p => $"P.{p.Name}"));
+            var versionQueryStatement = $"P.{editionColumnName} = {edition} AND P.{revisionColumnName} = {revision} AND P.{versionTypeColumnName} IN ({(int)ProcessVersionType.Archived}, {(int)ProcessVersionType.Published})";
+
+            return @$"{selectStatement} FROM {processTableName} P WHERE P.{nameof(Entities.Processes.Process.OPMProcessId)} = '{opmProcessId}' AND {versionQueryStatement}";
+            #endregion
+        }
+
         private Process MapEfToModel(Entities.Processes.AlternativeProcessEF processEf)
         {
             var model = new Process();
@@ -1168,6 +1212,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.VersionType = processEf.VersionType;
             model.TeamAppId = processEf.TeamAppId;
             model.ProcessWorkingStatus = processEf.ProcessWorkingStatus;
+            model.SecurityResourceId = processEf.SecurityResourceId;
 
             return model;
         }

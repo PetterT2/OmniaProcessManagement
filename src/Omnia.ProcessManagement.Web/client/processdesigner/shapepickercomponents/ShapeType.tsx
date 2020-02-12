@@ -457,28 +457,27 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private renderShapeSettings(h) {
         let isMediaShape = this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id;
-        return <v-container fluid class="px-0">
-            <v-row dense>
-                <v-col cols="4">
+        return <v-container fluid class="px-0 pt-0">
+            <v-row dense align="center">
+                <v-col cols="6">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textPosition}></v-select>
-                </v-col>
-                <v-col cols="4">
                     <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
                         onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textAlignment}></v-select>
-                </v-col>
-                <v-col cols="4">
                     <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
                         onChange={this.updateDrawedShape} type="number" suffix="px"
                         rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field>
                 </v-col>
-                <v-col cols="6">
-                    <v-text-field v-model={this.internalShapeDefinition.textHorizontalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextHorizontalAdjustment}
-                        onChange={(val) => { this.internalShapeDefinition.textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                    <v-text-field v-model={this.internalShapeDefinition.textVerticalAdjustment} label={this.opmCoreloc.DrawingShapeSettings.TextVerticalAdjustment}
-                        onChange={(val) => { this.internalShapeDefinition.textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
+                <v-col cols="6" class="text-center">
+                    <opm-point-picker
+                        label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
+                        model={{ x: this.internalShapeDefinition.textHorizontalAdjustment, y: this.internalShapeDefinition.textVerticalAdjustment }}
+                        onModelChange={(model) => {
+                            this.internalShapeDefinition.textHorizontalAdjustment = model.x;
+                            this.internalShapeDefinition.textVerticalAdjustment = model.y;
+                            this.updateDrawedShape()
+                        }}
+                    ></opm-point-picker>
                 </v-col>
             </v-row>
 

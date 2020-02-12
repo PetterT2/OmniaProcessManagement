@@ -13,7 +13,7 @@ import {
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
 import { DefaultDateFormat, ProcessRollupConstants, OPMRouter, OPMUtils } from '../../../../fx';
-import { RollupProcess, Enums, RouteOptions } from '../../../../fx/models';
+import { RollupProcess, Enums } from '../../../../fx/models';
 import './List.css';
 import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
 
@@ -102,7 +102,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
             win.focus();
         }
         else {
-            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, RouteOptions.publishedInGlobalRenderer);
+            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, true, { edition: 0, revision: 0 });
         }
     }
 
@@ -186,7 +186,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
             termIds = value;
         }
 
-        
+
         let property = this.taxonomyProperties[internalName];
         if (!termIds || termIds.length == 0)
             return null;

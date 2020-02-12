@@ -120,6 +120,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Properties: {
                 Title: "Process Properties",
                 Description: ""
+            },
+            Title: {
+                Title: "Process Title",
+                Description: ""
             }
         },
         BlockCategories: {
@@ -162,8 +166,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Height: "Height",
             TextPosition: "Text Position",
             TextAlignment: "Text Alignment",
-            TextVerticalAdjustment: "Text Vertical Adjustment",
-            TextHorizontalAdjustment:"Text Horizontal Adjustment",
+            TextAdjustment: "Text Adjustment",
             FontSize: "Font Size",
             Above: "Above Shape",
             On: "On Shape",

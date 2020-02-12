@@ -8,7 +8,7 @@ import { ProcessLibraryStyles } from '../../../models';
 import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, PropertyInternalNamesConstants, ProcessDefaultData } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
-import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, RouteOptions } from '../../../fx/models';
+import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';

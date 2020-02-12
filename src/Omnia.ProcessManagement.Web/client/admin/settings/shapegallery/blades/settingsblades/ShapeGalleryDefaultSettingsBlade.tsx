@@ -305,30 +305,28 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                         </v-col>
                     </v-row>
 
-                    <v-row dense>
-                        <v-col cols="4">
+                    <v-row dense align="center">
+                        <v-col cols="6">
                             <v-select item-value="value" item-text="title" items={this.textPositions} label={this.coreLoc.DrawingShapeSettings.TextPosition}
                                 onChange={this.updateDrawedShape} v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textPosition}></v-select>
-                        </v-col>
-                        <v-col cols="4">
                             <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.coreLoc.DrawingShapeSettings.TextAlignment}
                                 onChange={this.updateDrawedShape} v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textAlignment}></v-select>
-                        </v-col>
-                        <v-col cols="4">
                             <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).fontSize} label={this.coreLoc.DrawingShapeSettings.FontSize}
                                 onChange={this.updateDrawedShape} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field>
                         </v-col>
-                        <v-col cols="6">
-                            <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextHorizontalAdjustment}
-                                onChange={(val) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
-                        </v-col>
-                        <v-col cols="6">
-                            <v-text-field v-model={(this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment} label={this.coreLoc.DrawingShapeSettings.TextVerticalAdjustment}
-                                onChange={(val) => { (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment = val ? parseInt(val) : 0; this.updateDrawedShape(); }} type="number" suffix="px"></v-text-field>
+                        <v-col cols="6" class="text-center">
+                            <opm-point-picker
+                                label={this.coreLoc.DrawingShapeSettings.TextAdjustment}
+                                model={{ x: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment, y: (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment }}
+                                onModelChange={(model) => {
+                                    (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textHorizontalAdjustment = model.x;
+                                    (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textVerticalAdjustment= model.y;
+                                    this.updateDrawedShape()
+                                }}
+                            ></opm-point-picker>
                         </v-col>
                     </v-row>
-
                     <v-row>
                         {
                             isMediaShape ? null

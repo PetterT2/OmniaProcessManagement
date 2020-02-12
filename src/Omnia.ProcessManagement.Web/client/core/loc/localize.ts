@@ -116,6 +116,10 @@
             Properties: {
                 Title: string,
                 Description: string
+            },
+            Title: {
+                Title: string,
+                Description: string
             }
         },
         BlockCategories: {
@@ -157,8 +161,7 @@
             Height: string,
             TextPosition: string,
             TextAlignment: string,
-            TextVerticalAdjustment: string,
-            TextHorizontalAdjustment: string,
+            TextAdjustment: string,
             FontSize: string,
             Above: string,
             On: string,

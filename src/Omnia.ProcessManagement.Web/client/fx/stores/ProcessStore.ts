@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames } from '../models';
 import { OPMUtils } from '../utils';
 import { ProcessSite } from '../../models';
 
@@ -20,7 +20,7 @@ interface ProcessDataDict {
 }
 
 interface ProcessStepIdAndProcessIdDict {
-    [processStepId: string]: string
+    [processStepIdWithVersion: string]: string
 }
 
 interface ProcessCheckoutInfoDict {
@@ -33,7 +33,6 @@ interface ProcessCheckoutInfoDict {
 })
 export class ProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
-    @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     //states
     private processDict = this.state<ProcessDict>({});
@@ -94,7 +93,7 @@ export class ProcessStore extends Store {
 
                 if (shortcutProcessStepRef.desiredProcessStep == null)
                     throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.shortcutProcessStepId}`;
-             
+
                 processReferenceData = {
                     process: process,
                     current: {
@@ -202,7 +201,7 @@ export class ProcessStore extends Store {
                             if (processReference.shortcutProcessStepId) {
                                 promises.push(this.ensureProcessData(process, processReference.shortcutProcessStepId));
                             }
-                            promises.push(this.ensureProcessSite(process.rootProcessStep.id, process.versionType));
+                            promises.push(this.ensureProcessSite(process.teamAppId));
                             Promise.all(promises).then(() => { resolve() }).catch(reject);
                         })
                     });
@@ -216,19 +215,19 @@ export class ProcessStore extends Store {
 
             });
         }),
-        loadPublishedProcessByProcessStepId: this.action((processStepId: GuidValue) => {
+        loadProcessByProcessStepId: this.action((processStepId: GuidValue, version: Version) => {
             return new Promise<Process>((resolve, reject) => {
-
-                let processId = this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()];
+                let dictKey = `${processStepId.toString()}-${version.edition}-${version.revision}`.toLowerCase();
+                let processId = this.processStepIdAndProcessIdDict[dictKey];
                 if (processId) {
                     this.ensureProcess(processId).then(() => {
                         let processCacheKey = this.getProcessCacheKey(processId);
                         let process = this.processDict.state[processCacheKey];
-                        if (process.versionType === ProcessVersionType.Published) {
+                        if (process.versionType === ProcessVersionType.Published || process.versionType === ProcessVersionType.Archived) {
                             resolve(process);
                         }
                         else {
-                            this.processService.getPublishedProcessByProcessStepId(processStepId).then(process => {
+                            this.processService.getArchivedOrPublishedProcessByProcessStepId(processStepId, version).then(process => {
                                 this.internalMutations.addOrUpdateProcess(process);
                                 resolve(process);
                             }).catch(reject);
@@ -236,7 +235,7 @@ export class ProcessStore extends Store {
                     }).catch(reject)
                 }
                 else {
-                    this.processService.getPublishedProcessByProcessStepId(processStepId).then(process => {
+                    this.processService.getArchivedOrPublishedProcessByProcessStepId(processStepId, version).then(process => {
                         this.internalMutations.addOrUpdateProcess(process);
                         resolve(process);
                     }).catch(reject);
@@ -271,7 +270,11 @@ export class ProcessStore extends Store {
 
             let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
             for (let stepId of stepIds) {
-                this.processStepIdAndProcessIdDict[stepId.toString().toLowerCase()] = process.id.toString().toLowerCase()
+                let edition = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
+                let revision = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision];
+                let dictKey = `${stepId.toString()}-${edition}-${revision}`.toLowerCase();
+
+                this.processStepIdAndProcessIdDict[dictKey] = process.id.toString().toLowerCase()
             }
 
             let resolvablePromise = this.getProcessLoadResolvablePromise(process.id);
@@ -283,7 +286,7 @@ export class ProcessStore extends Store {
             let currentState = this.processSiteDict.state;
             let key = this.getProcessSiteCacheKey(processSite.id);
             let newState = Object.assign({}, currentState, { [key]: processSite });
-            this.processSiteDict.mutate(newState);            
+            this.processSiteDict.mutate(newState);
 
             let resolvablePromise = this.getProcessSiteLoadResolvablePromise(processSite.id);
             if (!resolvablePromise.resolved) {
@@ -344,13 +347,13 @@ export class ProcessStore extends Store {
         return resolvablePromise.promise;
     }
 
-    private ensureProcessSite = (processStepId: GuidValue, versionType: ProcessVersionType): Promise<null> => {
-        let resolvablePromise = this.getProcessSiteLoadResolvablePromise(processStepId);
+    private ensureProcessSite = (teamAppId: GuidValue): Promise<null> => {
+        let resolvablePromise = this.getProcessSiteLoadResolvablePromise(teamAppId);
 
         if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
             resolvablePromise.resolving = true;
 
-            this.processService.getProcessSiteById(processStepId, versionType).then((processSite) => {
+            this.processService.getProcessSiteByAppId(teamAppId).then((processSite) => {
                 this.internalMutations.addOrUpdateProcessSite(processSite);
             }).catch((reason) => {
                 resolvablePromise.reject(reason);
@@ -370,7 +373,7 @@ export class ProcessStore extends Store {
 
             if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
                 resolvablePromise.resolving = true;
-                this.processService.getProcessData(processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash, process.versionType).then((processData) => {
+                this.processService.getProcessData(processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash).then((processData) => {
                     this.internalMutations.addOrUpdateProcessData(process.id, processStepRef.desiredProcessStep, processData);
                 }).catch((reason) => {
                     resolvablePromise.reject(reason);
@@ -386,7 +389,6 @@ export class ProcessStore extends Store {
     }
 
     private getProcessLoadResolvablePromise = (processId: GuidValue): ResolvablePromise<null> => {
-
         let key = `${processId.toString()}`.toLowerCase();
 
         let existingPromise = this.processLoadPromises[key];
@@ -401,9 +403,9 @@ export class ProcessStore extends Store {
         return this.processLoadPromises[key];
     }
 
-    private getProcessSiteLoadResolvablePromise = (processStepId: GuidValue): ResolvablePromise<null> => {
+    private getProcessSiteLoadResolvablePromise = (teamAppId: GuidValue): ResolvablePromise<null> => {
 
-        let key = this.getProcessSiteCacheKey(processStepId);
+        let key = `${teamAppId.toString()}`.toLowerCase();
 
         let existingPromise = this.processSiteLoadPromises[key];
 
@@ -440,8 +442,8 @@ export class ProcessStore extends Store {
         return `${processId.toString()}`.toLowerCase();
     }
 
-    private getProcessSiteCacheKey = (processStepId: GuidValue) => {
-        return `${processStepId.toString()}-site`.toLowerCase();
+    private getProcessSiteCacheKey = (teamAppId: GuidValue) => {
+        return `${teamAppId.toString()}`.toLowerCase();
     }
 
     private getProcessDataCacheKey = (processId: GuidValue, processStepId: GuidValue) => {

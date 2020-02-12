@@ -10,7 +10,7 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, TaskService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome, RouteOptions } from '../../../../fx/models';
+import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { UserService } from '@omnia/fx/services';
 import { OPMContext } from '../../../../fx/contexts';
@@ -148,7 +148,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
     private previewProcess(e: MouseEvent) {
         e.preventDefault();
-        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessId);
+        let loadPreviewProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(this.task.rootProcessStepId);
 
         loadPreviewProcessPromise.then((processWithCheckoutInfo) => {
             this.processDesignerStore.actions.setProcessToShow.dispatch(processWithCheckoutInfo.process, processWithCheckoutInfo.process.rootProcessStep).then(() => {

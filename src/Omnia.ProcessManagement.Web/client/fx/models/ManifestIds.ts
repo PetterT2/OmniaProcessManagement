@@ -42,6 +42,8 @@ export class OPMWebComponentManifests {
 
     public static get GlobalProcessRenderer(): Guid { return new Guid('a7b2e5ed-a754-41ca-afae-f32325abb91e'); }
 
+    public static get PointPicker(): Guid { return new Guid('601b298e-7d64-4faf-91fd-1daac7b80267'); }
+
     public static get PermissionDialog(): Guid { return new Guid('5b7169cd-7003-4cf6-a86e-4a7a38250ec3'); }
     public static get ProcessStepPicker(): Guid { return new Guid('5a0c11c9-9691-47a1-9f7d-2aedfc8dbce7'); }
 
@@ -73,5 +75,9 @@ export class OPMWebComponentManifests {
     public static get PropertiesBlockCore(): Guid { return new Guid('f743fa95-eb45-465f-8788-9cb91a7ef18c'); }
     public static get PropertiesBlock(): Guid { return new Guid('6fbb96f3-40e7-45ee-b99e-68533a993bd4'); }
     public static get PropertiesBlockSettings(): Guid { return new Guid('bdab3f12-f9b8-4891-847f-a7a84ff8e27e'); }
+
+    public static get TitleBlockCore(): Guid { return new Guid('b9087ca1-aee3-4274-b762-9b41bd2d1fd0'); }
+    public static get TitleBlock(): Guid { return new Guid('3d5e86a2-8f75-4928-85a0-8a7d1e7414b4'); }
+    public static get TitleBlockSettings(): Guid { return new Guid('87c0e638-1418-4388-acff-91747fb81f00'); }
 }
 
