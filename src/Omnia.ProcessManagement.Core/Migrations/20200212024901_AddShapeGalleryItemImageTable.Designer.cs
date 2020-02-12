@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Omnia.ProcessManagement.Core.Repositories;
 
 namespace Omnia.ProcessManagement.Core.Migrations
 {
     [DbContext(typeof(OmniaPMDbContext))]
-    partial class OmniaPMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200212024901_AddShapeGalleryItemImageTable")]
+    partial class AddShapeGalleryItemImageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,9 +248,6 @@ namespace Omnia.ProcessManagement.Core.Migrations
 
                     b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("PublishedBy")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SecurityResourceId")
                         .HasColumnType("uniqueidentifier");

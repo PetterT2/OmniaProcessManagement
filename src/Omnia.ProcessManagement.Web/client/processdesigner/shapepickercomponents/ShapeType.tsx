@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape, ShapeExtension } from '../../fx';
 import './ShapeType.css';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
@@ -102,10 +102,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     //Support to change selected shape in Drawing
     @Watch('drawingOptions', { deep: false })
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        //if (newValue.id !== oldValue.id) {
         this.init();
         this.startToDrawShape();
-        //}
     }
     created() {
         if (this.formValidator) {
@@ -126,7 +124,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
         this.shapeTitle = this.drawingOptions.title;
-        this.setAngle();
     }
 
     beforeDestroy() {
@@ -205,21 +202,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.onDrawingShapeOptionChanged();
     }
 
-    private setAngle() {
-        if (this.drawingOptions && this.drawingOptions.shape && this.drawingOptions.shape.nodes)
-            this.drawingOptions.shape.nodes.forEach(n => n.properties.angle = 0);
-    }
-
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, 0, this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
+            let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.getLeftTop().left, top)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
         }
         else {
-            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0)
+            let position = this.getLeftTop();
+            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -275,6 +269,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private getCanvasSize(): { width: number, height: number } {
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
+        if ((this.drawingOptions.shape as ShapeExtension).shapeObject
+            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
+            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
+            canvasWidth = bound.width + 10;
+            canvasHeight = bound.height + 10;
+        }
         if (this.internalShapeDefinition.textPosition != TextPosition.On)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
         if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
@@ -301,12 +301,25 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            this.$nextTick(() => {
+            setTimeout(() => {
                 this.initDrawingCanvas();
-                //if (!this.isNewMedia())
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
-            });
+                let position = this.getLeftTop();
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
+            }, 20);
         }
+    }
+
+    private getLeftTop() {
+        let left = 0;
+        let top = 0;
+        if ((this.drawingOptions.shape as ShapeExtension).shapeObject
+            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
+            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
+            var aCoords = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].aCoords;
+            left = aCoords.tl.x - bound.left;
+            top = aCoords.tl.y - bound.top;
+        }
+        return { left: left, top: top };
     }
 
     private isNewMedia() {

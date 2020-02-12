@@ -168,6 +168,7 @@
         },
         TaskTitle: {
             ApprovalTaskPrefix: string
-        }
+        },
+        ProcessHistory: string
     }
 }

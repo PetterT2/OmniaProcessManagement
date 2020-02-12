@@ -65,6 +65,8 @@
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\blades\settingsblades\ShapeGalleryDefaultSettingsBlade.css.ts" />
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\blades\settingsblades\ShapeGalleryDefaultSettingsBlade.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\IShapeGalleryJourney.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\shapegallery\mediapicker\ShapeGalleryMediaPicker.css.ts" />
+    <TypeScriptCompile Remove="client\admin\settings\shapegallery\mediapicker\ShapeGalleryMediaPicker.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\ShapeGalleryJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\ShapeGalleryJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\settings\shapegallery\ShapeGalleryJourneyConstants.ts" />
@@ -222,6 +224,8 @@
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapegallery\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItem.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemFreeformSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemMediaSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\CSOMSharePointTaskResponse.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\GraphSharePointTaskResponse.ts" />
@@ -392,6 +396,9 @@
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\INewProcessDialog.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\newprocessdialog\NewProcessDialog.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\IProcessHistoryDialog.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\ProcessHistoryDialog.manifest.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\processhistorydialog\ProcessHistoryDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.css.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\ProcessLibrary.tsx" />

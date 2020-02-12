@@ -164,6 +164,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.QueryProcesses(queryHelper, securityTrimmingQuery, filterQueries);
         }
 
+        public async ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery)
+        {
+            var processHistory= await ProcessRepository.GetProcessHistoryAsync(processQuery);
+            return processHistory;
+        }
+
         async ValueTask<InternalProcess> IProcessService.GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType)
         {
             return await ProcessRepository.GetInternalProcessByOPMProcessIdAsync(opmProcessId, versionType);

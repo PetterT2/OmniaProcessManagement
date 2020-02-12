@@ -138,7 +138,9 @@
             Comment: string,
             Edition: string,
             Revision: string,
-            Published: string
+            Published: string,
+            ApprovedBy: string,
+            WorkflowHistory: string
         },
         Process: {
             Drawing: string,

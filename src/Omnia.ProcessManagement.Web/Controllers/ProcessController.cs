@@ -571,6 +571,23 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpGet, Route("history/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessHistory(Guid opmProcessId)
+        {
+            try
+            {
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessHistoryByOPMProcessIdQueryAsync(opmProcessId);
+                var processes = await ProcessService.GetProcessHistoryAsync(authorizedProcessQuery);
+                return ApiUtils.CreateSuccessResponse(processes);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+            }
+        }
+
         private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
         {
             var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";

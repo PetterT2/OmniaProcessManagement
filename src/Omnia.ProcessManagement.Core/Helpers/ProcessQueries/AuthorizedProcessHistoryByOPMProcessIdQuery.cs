@@ -9,22 +9,21 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
 {
-    internal class AuthorizedProcessByProcessStepIdQuery : IAuthorizedProcessQuery
+    internal class AuthorizedProcessHistoryByOPMProcessIdQuery : IAuthorizedProcessQuery
     {
-        private Guid ProcessStepId { get; }
+        private Guid OPMProcessId { get; }
         private UserAuthorizedResource AuthorizedResource { get; }
         private IOmniaContext OmniaContext { get; }
-        private bool IncludeCheckedOutByOther { get; }
-        public AuthorizedProcessByProcessStepIdQuery(Guid processStepId, UserAuthorizedResource authorizedResource, IOmniaContext omniaContext, bool includeCheckedOutByOther = false)
+
+        public AuthorizedProcessHistoryByOPMProcessIdQuery(Guid opmProcessId, UserAuthorizedResource authorizedResource, IOmniaContext omniaContext)
         {
-            ProcessStepId = processStepId;
+            OPMProcessId = opmProcessId;
             AuthorizedResource = authorizedResource;
             OmniaContext = omniaContext;
-            IncludeCheckedOutByOther = includeCheckedOutByOther;
         }
         public string GetQuery()
         {
-            var securityTrimming = SecurityTrimmingHelper.GenerateSecurityTrimming(AuthorizedResource, OmniaContext, null, IncludeCheckedOutByOther);
+            var securityTrimming = SecurityTrimmingHelper.GenerateHistorySecurityTrimming(AuthorizedResource, OPMProcessId);
 
             if (securityTrimming == string.Empty)
             {
@@ -41,7 +40,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.ProcessQueries
             var nameStr = string.Join(", ", SelectColumns.Select(column => $"{processTableAlias}.[{column}]"));
 
             query.Append($"SELECT {nameStr} FROM [{processTableName}] as {processTableAlias} LEFT JOIN [{processDataTableName}] as {processDataTableAlias} ON {processTableAlias}.{nameof(Process.Id)} = {processDataTableAlias}.{nameof(ProcessData.ProcessId)} ");
-            query.Append($"WHERE {processDataTableAlias}.{nameof(ProcessData.ProcessStepId)} = '{ProcessStepId}' AND ({securityTrimming})");
+            query.Append($"WHERE {securityTrimming}");
             return query.ToString(); ;
         }
 

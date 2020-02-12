@@ -60,6 +60,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<Image> Images { get; set; }
         public DbSet<ImageReference> ImageReferences { get; set; }
         public DbSet<ShapeGalleryItem> ShapeGalleryItems { get; set; }
+        public DbSet<ShapeGalleryItemImage> ShapeGalleryItemImages { get; set; }
 
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
@@ -113,6 +114,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
                 .WithMany(p => p.ImageReferences)
                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<ShapeGalleryItemImage>().HasKey(i => new { i.Id, i.ShapeGalleryItemId });
+            modelBuilder.Entity<ShapeGalleryItemImage>()
+                .HasOne(s => s.ShapeGalleryItem)
+                .WithOne().IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
             modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();

@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
+using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
 using Omnia.ProcessManagement.Models.ShapeGalleryItems;
+using Omnia.ProcessManagement.Models.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +21,12 @@ namespace Omnia.ProcessManagement.Web.Controllers
     public class ShapeGalleryItemController : ControllerBase
     {
         ILogger<ShapeGalleryItemController> Logger { get; }
-        IShapeGalleryItemService ShapeDeclarationService { get; }
-        public ShapeGalleryItemController(IShapeGalleryItemService shapeDeclarationService, ILogger<ShapeGalleryItemController> logger)
+        IShapeGalleryItemService ShapeGalleryItemService { get; }
+        FileExtensionContentTypeProvider ContentTypeProvider { get; }
+        public ShapeGalleryItemController(IShapeGalleryItemService shapeGalleryItemService, ILogger<ShapeGalleryItemController> logger)
         {
-            ShapeDeclarationService = shapeDeclarationService;
+            ShapeGalleryItemService = shapeGalleryItemService;
+            ContentTypeProvider = new FileExtensionContentTypeProvider();
             Logger = logger;
         }
 
@@ -30,7 +36,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var categories = await ShapeDeclarationService.GetAllAsync();
+                var categories = await ShapeGalleryItemService.GetAllAsync();
                 return categories.AsApiResponse();
             }
             catch (Exception ex)
@@ -46,7 +52,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var shapeDeclaration = await ShapeDeclarationService.GetByIdAsync(id);
+                var shapeDeclaration = await ShapeGalleryItemService.GetByIdAsync(id);
                 return shapeDeclaration.AsApiResponse();
             }
             catch (Exception ex)
@@ -58,11 +64,15 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("addorupdate")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
-        public async ValueTask<ApiResponse<ShapeGalleryItem>> AddOrUpdateAsync(ShapeGalleryItem shapeDeclaration)
+        public async ValueTask<ApiResponse<ShapeGalleryItem>> AddOrUpdateAsync(ShapeGalleryItem shapeGalleryItem)
         {
             try
             {
-                var result = await ShapeDeclarationService.AddOrUpdateAsync(shapeDeclaration);
+                if(shapeGalleryItem.Settings.ShapeDefinition.ShapeTemplate.Id == OPMConstants.Features.OPMDefaultShapeGalleryItems.Media.Id)
+                {
+                    shapeGalleryItem.Settings.ShapeDefinition.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapegalleryitem/getimage/{shapeGalleryItem.Id}";
+                }
+                var result = await ShapeGalleryItemService.AddOrUpdateAsync(shapeGalleryItem);
                 return result.AsApiResponse();
             }
             catch (Exception ex)
@@ -72,13 +82,52 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpPost, Route("{shapeGalleryItemId:guid}/{fileName}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<bool>> AddImageAsync([FromBody] string imageBase64, Guid shapeGalleryItemId, string fileName)
+        {
+            try
+            {
+                bool result = await ShapeGalleryItemService.AddImageAsync(shapeGalleryItemId, fileName, imageBase64);
+                return ApiUtils.CreateSuccessResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<bool>(ex);
+            }
+        }
+
+        [HttpGet, Route("getimage/{shapeGalleryItemId:guid}")]
+        [Authorize]
+        public async ValueTask<IActionResult> GetImageAsync(Guid shapeGalleryItemId)
+        {
+            try
+            {
+                var (fileStream, fileName) = await ShapeGalleryItemService.GetImageAsync(shapeGalleryItemId);
+                fileStream.Seek(0, System.IO.SeekOrigin.Begin);
+                Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                {
+                    Public = true,
+                    MaxAge = TimeSpan.FromDays(365)
+                };
+
+                return File(fileStream, GetFileContentType(fileName), fileName);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return new NotFoundResult();
+            }
+        }
+
         [HttpDelete, Route("{id:guid}")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
         public async ValueTask<ApiResponse> DeleteAsync(Guid id)
         {
             try
             {
-                await ShapeDeclarationService.DeleteAsync(id);
+                await ShapeGalleryItemService.DeleteAsync(id);
                 return ApiUtils.CreateSuccessResponse();
             }
             catch (Exception ex)
@@ -86,6 +135,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<List<ShapeGalleryItem>>(ex);
             }
+        }
+
+        private string GetFileContentType(string fileName)
+        {
+            if (!ContentTypeProvider.TryGetContentType(fileName, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return contentType;
         }
     }
 }

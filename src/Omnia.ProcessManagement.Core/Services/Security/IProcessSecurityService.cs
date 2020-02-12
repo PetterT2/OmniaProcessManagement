@@ -22,6 +22,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
         ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByProcessStepIdQueryAsync(Guid processStepId, bool includeCheckedOutByOther = false);
         ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessByOPMProcessIdQueryAsync(Guid opmProcessId, bool includeCheckedOutByOther = false);
         ValueTask<IAuthorizedImageReferenceQuery> InitAuthorizedImageReferenceQueryAsync(ImageReference imageRef, Guid opmProcessId);
+        ValueTask<IAuthorizedProcessQuery> InitAuthorizedProcessHistoryByOPMProcessIdQueryAsync(Guid opmProcessId);
 
         IOnlyTeamAppIdSecurityResponse InitSecurityResponseByTeamAppId(Guid teamAppId);
         ValueTask<ISecurityResponse> InitSecurityResponseByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType processVersionType);

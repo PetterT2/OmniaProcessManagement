@@ -37,11 +37,11 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
 
     validator: FormValidator = null;
 
-    private classes = StyleFlow.use(ProcessLibraryStyles, this.styles);
+    private classes = StyleFlow.use(ProcessLibraryStyles);
     private isLoading: boolean = false;
     private isSaving: boolean = false;
     private errMessage: string = "";
-    private processTypes: Array<ProcessType> = [{ id: Guid.empty, multilingualTitle: "test 1" } as ProcessType];
+    private processTypes: Array<ProcessType> = [];
     private processTemplates: Array<ProcessTemplate> = [];
     private process: Process;
     private selectedTemplate: ProcessTemplate = null;
@@ -69,6 +69,9 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     }
 
     private init() {
+        if (this.styles) {
+            this.classes = StyleFlow.use(ProcessLibraryStyles, this.styles);
+        }
         this.isLoading = true;
         let promises: Array<Promise<any>> = [
             this.processTypeStore.actions.ensureLoadProcessTypes.dispatch(),

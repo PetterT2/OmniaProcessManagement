@@ -3,14 +3,18 @@ import { GuidValue, Guid } from '@omnia/fx-models';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
-import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
+import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation, MediaPickerImageTransformerProviderResult } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
 import { ShapeGalleryItemStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
-import { ShapeGalleryItem, ShapeGalleryItemType, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape, DrawingShapeDefinition } from '../../../../../fx/models';
+import {
+    ShapeGalleryItem, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape,
+    DrawingShapeDefinition, ShapeGalleryItemFreeformSettings
+} from '../../../../../fx/models';
 import { OPMCoreLocalization } from '../../../../../core/loc/localize';
 import './ShapeGalleryDefaultSettingsBlade.css';
 import { MultilingualStore } from '@omnia/fx/store';
+import { ShapeGalleryMediaPickerComponent } from '../../mediapicker/ShapeGalleryMediaPicker';
 
 interface ShapeGalleryDefaultSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -67,7 +71,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     styles = StyleFlow.use(ShapeGalleryDefaultSettingStyles);
     editingShapeGalleryItem: ShapeGalleryItem = null;
     drawingCanvas: DrawingCanvas = null;
-    shape: IShape = null;
+    selectedImage: MediaPickerImageTransformerProviderResult = null;
     internalValidator: FormValidator = new FormValidator(this);
     previewCanvasId: GuidValue = Guid.newGuid();
     isOpenMediaPicker: boolean = false;
@@ -78,20 +82,31 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.shapeGalleryItemTypes.forEach((shapeTemplateSelection) => {
             shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
         })
+
+        this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
+        this.startToDrawShape();
+    }
+
+    destroyCanvas() {
+        if (this.drawingCanvas) {
+            this.drawingCanvas.destroy();
+            this.drawingCanvas = null;
+        }  
     }
 
     onShapeGalleryItemTypeChanged() {
-        if (this.drawingCanvas)
-            this.drawingCanvas.destroy();
-        this.shape = null;
+        this.destroyCanvas(); 
+        (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl = null;
+        (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes = null;
     }
 
     drawFreeShape() {
         this.isOpenFreeformPicker = true;
     }
 
-    onImageSaved(imageUrl: string) {
-        (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
+    onImageSaved(image: MediaPickerImageTransformerProviderResult) {
+        this.selectedImage = image;
+        (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingImageShapeDefinition).imageUrl = this.buildDataBlob(image.base64, image.format);
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition),
                 this.editingShapeGalleryItem.settings.title, false, 0,
@@ -101,11 +116,19 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                 });
         }
         else {
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition), this.editingShapeGalleryItem.settings.title, 0, 0)
-                .then((readyDrawingShape: DrawingShape) => {
-                    this.updateAfterRenderImage(readyDrawingShape);
-                });
+            this.startToDrawShape();
         }
+    }
+
+    buildDataBlob(base64: string, imgformat: string): string {
+        let mime: string = "image/" + imgformat;
+        let binary: string = atob(base64);
+        let array: any = [];
+        for (let i: number = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+        let blob: Blob = new Blob([new Uint8Array(array)], { type: mime });
+        return window.URL.createObjectURL(blob);
     }
 
     updateAfterRenderImage(readyDrawingShape: DrawingShape) {
@@ -117,10 +140,10 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
             let top = (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition), this.editingShapeGalleryItem.settings.title, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.shape = this.drawingCanvas.drawingShapes[0].shape;
-
                     if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
                         this.updateAfterRenderImage(readyDrawingShape);
+                    if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Freeform.name)
+                        (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes = this.drawingCanvas.drawingShapes[0].shape.nodes;
                 });
         }
     }
@@ -128,28 +151,29 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     addFreefromShape(shape: IShape) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
-            this.shape = shape;
-            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).width = this.shape.nodes[0].properties['width'];
-            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).height = this.shape.nodes[0].properties['height'];
+            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).width = shape.nodes[0].properties['width'];
+            (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).height = shape.nodes[0].properties['height'];
+            (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes = shape.nodes;
             this.startToDrawShape();
         }
     }
 
     startToDrawShape() {
         if (this.editingShapeGalleryItem.settings.shapeDefinition) {
-            this.$nextTick(() => {
+            setTimeout(() => {
                 this.initDrawingCanvas();
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition),
-                    this.editingShapeGalleryItem.settings.title, 0, 0, null, null, this.shape ? this.shape.nodes : null);
-                this.$forceUpdate();
-            });
+                    this.editingShapeGalleryItem.settings.title, 0, 0, null, null,
+                    (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes ? (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes : null)
+                    .then((readyDrawingShape: DrawingShape) => {
+                        this.updateAfterRenderImage(readyDrawingShape);
+                    });
+            }, 20);
         }
     }
 
     initDrawingCanvas() {
-        if (this.drawingCanvas)
-            this.drawingCanvas.destroy();
-
+        this.destroyCanvas();
         this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
             {
                 drawingShapes: [],
@@ -162,8 +186,16 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         if (this.internalValidator.validateAll()) {
             this.isSaving = true;
             this.shapeGalleryStore.actions.addOrUpdateShapeGalleryItem.dispatch(this.editingShapeGalleryItem).then(() => {
-                this.isSaving = false;
-                this.journey().travelBackToFirstBlade();
+                if ((this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Media.id.toString()) {
+                    this.shapeGalleryStore.actions.addImage.dispatch(this.editingShapeGalleryItem.id.toString(), (this.selectedImage as any).name + '.' + this.selectedImage.format, this.selectedImage.base64).then(() => {
+                        this.isSaving = false;
+                        this.journey().travelBackToFirstBlade();
+                    })
+                }
+                else {
+                    this.isSaving = false;
+                    this.journey().travelBackToFirstBlade();
+                }
             })
         }
     }
@@ -174,7 +206,8 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     }
 
     isNewFreeForm() {
-        return (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString() && (!this.shape || this.shape.nodes.length == 0) ? true : false;
+        return (this.editingShapeGalleryItem.settings.shapeDefinition as DrawingShapeDefinition).shapeTemplate.id.toString() == ShapeTemplatesConstants.Freeform.id.toString() &&
+            (!(this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes || (this.editingShapeGalleryItem.settings as ShapeGalleryItemFreeformSettings).nodes.length == 0) ? true : false;
     }
 
     renderFreefromPicker(h) {
@@ -402,7 +435,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                         <v-btn dark={this.omniaTheming.promoted.body.dark} text loading={this.isSaving} onClick={() => { this.save() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
                     </div>
                 </v-container>
-                {this.isOpenMediaPicker && <opm-media-picker onImageSaved={this.onImageSaved} onClosed={() => { this.isOpenMediaPicker = false; }}></opm-media-picker>}
+                <div></div>
+                {this.isOpenMediaPicker && <div><ShapeGalleryMediaPickerComponent imageSaved={this.onImageSaved}
+                    closed={() => { this.isOpenMediaPicker = false; }}></ShapeGalleryMediaPickerComponent></div>}
                 {this.isOpenFreeformPicker && this.renderFreefromPicker(h)}
             </div>
         );

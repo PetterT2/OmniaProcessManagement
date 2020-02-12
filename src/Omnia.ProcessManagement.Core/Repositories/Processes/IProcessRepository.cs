@@ -59,5 +59,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         /// <param name="imageReferences"></param>
         /// <returns></returns>
         ValueTask DeleteUnusedImageReferencesAsync(List<ImageReference> imageReferences, Guid opmProcessId);
+        
+        ValueTask<List<Process>> GetProcessHistoryAsync(IAuthorizedProcessQuery processQuery);
     }
 }

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Omnia.ProcessManagement.Models.ShapeGalleryItems
 {
-    public class ShapeGalleryItemSettings
+    public class ShapeGalleryItemSettings : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
     {
         public MultilingualString Title { get; set; }
-        public ShapeDefinition ShapeDefinition { get; set; }
+        public DrawingShapeDefinition ShapeDefinition { get; set; }
     }
 }

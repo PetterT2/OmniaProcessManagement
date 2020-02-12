@@ -40,7 +40,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static IList<ShapeGalleryItem> ShapeGalleryItems => new List<ShapeGalleryItem>()
                     {
-                        Circle, Pentagon, Diamond
+                        Circle, Pentagon, Diamond, Freeform, Media
                     };
 
                 public static ShapeGalleryItem Circle 
@@ -50,7 +50,7 @@ namespace Omnia.ProcessManagement.Core
                         return new ShapeGalleryItem()
                         {
                             Id = new Guid("b98c7edb-4739-4f88-b14b-55e2fc5d5a55"),
-                            BuiltIn = false,
+                            BuiltIn = true,
                             Settings = new ShapeGalleryItemSettings() 
                             {
                                 Title = new MultilingualString()
@@ -69,7 +69,7 @@ namespace Omnia.ProcessManagement.Core
                         return new ShapeGalleryItem()
                         {
                             Id = new Guid("b226d2e8-264c-45b8-832d-905e55a74b13"),
-                            BuiltIn = false,
+                            BuiltIn = true,
                             Settings = new ShapeGalleryItemSettings()
                             {
                                 Title = new MultilingualString()
@@ -88,12 +88,50 @@ namespace Omnia.ProcessManagement.Core
                         return new ShapeGalleryItem()
                         {
                             Id = new Guid("16b5dd18-8de2-4bbd-9aaa-27b4cb155b37"),
-                            BuiltIn = false,
+                            BuiltIn = true,
                             Settings = new ShapeGalleryItemSettings()
                             {
                                 Title = new MultilingualString()
                                 {
                                     [LanguageTag.EnUs] = "Diamond"
+                                }
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeGalleryItem Freeform
+                {
+                    get
+                    {
+                        return new ShapeGalleryItem()
+                        {
+                            Id = new Guid("d7b2fee0-0435-46aa-8606-c7144d128d53"),
+                            BuiltIn = true,
+                            Settings = new ShapeGalleryItemSettings()
+                            {
+                                Title = new MultilingualString()
+                                {
+                                    [LanguageTag.EnUs] = "Freeform"
+                                }
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeGalleryItem Media
+                {
+                    get
+                    {
+                        return new ShapeGalleryItem()
+                        {
+                            Id = new Guid("b4d016f4-2bee-47f1-aa1f-0a5747c7b0b1"),
+                            BuiltIn = true,
+                            Settings = new ShapeGalleryItemSettings()
+                            {
+                                Title = new MultilingualString()
+                                {
+                                    [LanguageTag.EnUs] = "Media"
                                 }
                             }
                         };
