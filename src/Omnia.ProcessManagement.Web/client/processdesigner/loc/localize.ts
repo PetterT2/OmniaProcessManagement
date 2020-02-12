@@ -65,5 +65,7 @@
         DeleteShapeConfirmMessage: string;
         DrawFreeform: string;
         CheckedOutTo: string;
+        ChangeProcessType: string;
+        ProcessType: string;
     }
 }
