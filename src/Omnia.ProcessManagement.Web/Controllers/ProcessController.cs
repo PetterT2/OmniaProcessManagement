@@ -244,9 +244,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft, ProcessVersionType.Archived)
-                    .OrRequireApprover(ProcessVersionType.Draft, ProcessVersionType.Archived)
-                    .OrRequireReader(ProcessVersionType.Published, ProcessVersionType.Archived)
+                    .OrRequireReviewer()
+                    .OrRequireApprover()
+                    .OrRequireReader()
                     .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
                         var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
@@ -397,9 +397,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReviewer()
+                    .OrRequireApprover()
+                    .OrRequireReader()
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);
@@ -460,7 +460,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
 
                 return await securityResponse
-                   .RequireAuthor()
+                   .RequireAuthor(ProcessVersionType.CheckedOut)
                    .OrRequireReviewer(ProcessVersionType.CheckedOut)
                    .DoAsync(async () =>
                    {

@@ -1,4 +1,5 @@
 ﻿import { ShapeTemplate, CanvasDefinition } from './models/data/drawingdefinitions';
+import { Version } from './models';
 
 export const TextSpacingWithShape = 5;
 
@@ -75,7 +76,7 @@ export const ShapeHighlightProperties = {
 
 export const ProcessDefaultData = {
     get canvasDefinition(): CanvasDefinition {
-        return{
+        return {
             drawingShapes: [],
             width: 700,
             height: 500,
@@ -92,5 +93,23 @@ export const SystemProcessProperties = {
     },
     get LinkToProcessLibrary() {
         return "8bf649a0-4c3e-40a0-9932-4dd2f0f32942";
+    }
+}
+
+export const OPMSpecialRouteVersion = {
+    get Preview(): Version {
+        return null
+    },
+    get Published(): Version {
+        return { edition: 0, revision: 0 }
+    },
+    isPreview: (version: Version) => {
+        return version === null;
+    },
+    isPublished: (version: Version) => {
+        return version && version.edition === 0 && version.revision === 0;
+    },
+    generateVersion: (edition: number | string, revision: number | string): Version => {
+        return { edition: parseInt(edition as string), revision: parseInt(revision as string) }
     }
 }

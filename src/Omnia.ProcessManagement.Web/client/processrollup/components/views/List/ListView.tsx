@@ -12,7 +12,7 @@ import {
 } from '../../../../models';
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
-import { DefaultDateFormat, ProcessRollupConstants, OPMRouter, OPMUtils } from '../../../../fx';
+import { DefaultDateFormat, ProcessRollupConstants, OPMRouter, OPMUtils, ProcessRendererOptions } from '../../../../fx';
 import { RollupProcess, Enums } from '../../../../fx/models';
 import './List.css';
 import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
@@ -98,11 +98,11 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     openProcess(rollupProcess: RollupProcess) {
         if (this.viewPageUrl) {
-            var win = window.open(OPMUtils.createProcessNavigationUrl(rollupProcess.process.rootProcessStep.id, this.viewPageUrl, false, true), this.openInNewWindow ? '_blank' : '_self');
+            var win = window.open(OPMUtils.createProcessNavigationUrl(rollupProcess.process, rollupProcess.process.rootProcessStep, this.viewPageUrl, true), this.openInNewWindow ? '_blank' : '_self');
             win.focus();
         }
         else {
-            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, true, { edition: 0, revision: 0 });
+            OPMRouter.navigate(rollupProcess.process, rollupProcess.process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
         }
     }
 

@@ -7,7 +7,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { UnpublishDialog } from './UnpublishDialog';
-import { ProcessStore, OPMUtils, OPMRouter } from '../../../../fx';
+import { ProcessStore, OPMUtils, OPMRouter, ProcessRendererOptions } from '../../../../fx';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface PublishedMenuActionsProps {
@@ -55,11 +55,11 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     private viewProcess() {
         if (this.viewPageUrl) {
-            var viewUrl = OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, false, false);
+            var viewUrl = OPMUtils.createProcessNavigationUrl(this.process, this.process.rootProcessStep, this.viewPageUrl, false);
             var win = window.open(viewUrl, '_blank');
             win.focus();
         } else {
-            OPMRouter.navigate(this.process, this.process.rootProcessStep, true, { edition: 0, revision: 0 });
+            OPMRouter.navigate(this.process, this.process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
         }
     }
 

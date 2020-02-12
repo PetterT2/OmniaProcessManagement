@@ -104,5 +104,4 @@
         AssignedByMe = 2,
         CompletedTasks = 3
     }
-
 }
