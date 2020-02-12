@@ -4,3 +4,4 @@ export * from './tasksblock';
 export * from './linksblock';
 export * from './processnavigation';
 export * from './propertiesblock';
+export * from './titleblock';

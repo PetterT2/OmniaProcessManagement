@@ -67,6 +67,14 @@
             Normal = 1,
             Social = 2
         }
+
+        export enum HeadingFormatting {
+            Normal = 0,
+            Heading1 = 1,
+            Heading2 = 2,
+            Heading3 = 3
+        }
+
     }
     export enum ShapeTypes {
         None = 0,

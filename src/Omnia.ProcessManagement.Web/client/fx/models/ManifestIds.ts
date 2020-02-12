@@ -75,5 +75,9 @@ export class OPMWebComponentManifests {
     public static get PropertiesBlockCore(): Guid { return new Guid('f743fa95-eb45-465f-8788-9cb91a7ef18c'); }
     public static get PropertiesBlock(): Guid { return new Guid('6fbb96f3-40e7-45ee-b99e-68533a993bd4'); }
     public static get PropertiesBlockSettings(): Guid { return new Guid('bdab3f12-f9b8-4891-847f-a7a84ff8e27e'); }
+
+    public static get TitleBlockCore(): Guid { return new Guid('b9087ca1-aee3-4274-b762-9b41bd2d1fd0'); }
+    public static get TitleBlock(): Guid { return new Guid('3d5e86a2-8f75-4928-85a0-8a7d1e7414b4'); }
+    public static get TitleBlockSettings(): Guid { return new Guid('87c0e638-1418-4388-acff-91747fb81f00'); }
 }
 
