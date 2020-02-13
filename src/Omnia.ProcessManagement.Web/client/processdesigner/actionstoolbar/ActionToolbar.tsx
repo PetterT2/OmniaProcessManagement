@@ -127,13 +127,13 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
                                     <v-btn
                                         {...toSpread}
                                         icon
-                                        dark={this.omniaTheming.chrome.dark}>
+                                        dark={this.omniaTheming.chrome.background.dark}>
                                         <v-icon >more_vert</v-icon>
                                     </v-btn>
                                 ]
                             }
                         })}>
-                        <v-list dark={this.omniaTheming.chrome.dark} min-width={200}>
+                        <v-list dark={this.omniaTheming.chrome.background.dark} min-width={200}>
                             {extendedButtons}
                         </v-list>
                     </v-menu>
