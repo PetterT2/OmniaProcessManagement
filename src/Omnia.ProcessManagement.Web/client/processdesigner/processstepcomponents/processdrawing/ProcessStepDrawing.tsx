@@ -8,7 +8,7 @@ import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDial
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import { ProcessStepDrawingStyles } from '../../../fx/models';
-import { ProcessDesignerStore, ProcessDesignerPanelStore } from '../../stores';
+import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { ProcessDesignerLocalization } from '../../loc/localize';
@@ -28,7 +28,6 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
-    @Inject(ProcessDesignerPanelStore) processDesignerPanelStore: ProcessDesignerPanelStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
@@ -212,7 +211,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private deleteShape() {
-        this.processDesignerPanelStore.mutations.hideAllPanels.commit();
+        this.processDesignerStore.panels.mutations.hideAllPanels.commit();
         this.$confirm.open({ message: this.pdLoc.DeleteShapeConfirmMessage }).then((response) => {
             if (response === ConfirmDialogResponse.Ok) {
                 this.processDesignerStore.mutations.deleteSelectingDrawingShape.commit();
@@ -253,6 +252,24 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         );
         components.push(this.renderAddShapePanel(h));
         components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
+
+        components.push(
+            <v-navigation-drawer
+                app
+                float
+                right
+                clipped
+                dark={this.omniaTheming.promoted.body.dark}
+                width="340"
+                temporary={false}
+                disable-resize-watcher
+                hide-overlay
+                class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+                v-model={this.processDesignerStore.panels.changeProcessTypePanel.state.show}>
+                {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
+            </v-navigation-drawer >
+        );
+
         return components;
     }
 

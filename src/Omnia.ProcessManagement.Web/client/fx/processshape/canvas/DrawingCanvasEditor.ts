@@ -14,7 +14,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     private editObject: fabric.Object;
     private isMoving: boolean = false;
     private isScaling: boolean = false;
-    private editIconPosition: { tl: fabric.Point, width: number };
+    private editIconPosition: { tl: fabric.Point, width: number, isHover: boolean };
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean,
         onClickEditShapeSettings?: (drawingShape: DrawingShape) => void,
@@ -96,7 +96,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 y = this.editObject.aCoords.tl.y;
             }
             this.editIconPosition = {
-                tl: new fabric.Point(x - 30, y + 28), width: 30
+                tl: new fabric.Point(x - 30, y + 28), width: 30, isHover: isHover
             };
             let ctx = this.canvasObject.getContext();
             ctx.font = '900 30px "Font Awesome 5 Pro"';
@@ -245,7 +245,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                 return;
             if (this.isInEditZoneIcon(options)) {
                 this.addEditIcon(true);
-            } 
+            } else {
+                this.addEditIcon();
+            }
         });
         //this.canvasObject.on('object:selected', (options) => {
         //    if (options.target && this.onSelectingShape) {

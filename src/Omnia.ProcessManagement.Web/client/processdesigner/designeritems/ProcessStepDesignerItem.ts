@@ -32,6 +32,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            checkedOutExtendedActionButtons: []
         }
     };
 
@@ -44,6 +45,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            checkedOutExtendedActionButtons: []
         }
     };
     protected documentsTab: TabRegistration = {
@@ -55,6 +57,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            checkedOutExtendedActionButtons: []
         }
     };
     protected linksTab: TabRegistration = {
@@ -66,6 +69,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            checkedOutExtendedActionButtons: []
         }
     };
     protected tasksTab: TabRegistration = {
@@ -77,6 +81,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
+            checkedOutExtendedActionButtons: []
         }
     };
 

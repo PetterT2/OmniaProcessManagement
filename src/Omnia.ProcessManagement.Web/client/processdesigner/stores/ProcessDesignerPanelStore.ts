@@ -63,6 +63,7 @@ export class ProcessDesignerPanelStore extends Store {
             });
 
             this.editShapeSettingsPanel.mutate({ show: false });
+            this.changeProcessTypePanel.mutate({ show: false });
         }),
         toggleAddShapePanel: this.mutation((show: boolean) => {
             this.addShapePanel.mutate({
@@ -76,12 +77,14 @@ export class ProcessDesignerPanelStore extends Store {
                 show: show
             });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
+            this.changeProcessTypePanel.mutate({ show: false });
         }),
         toggleChangeProcessTypePanel: this.mutation((show: boolean) => {
             this.changeProcessTypePanel.mutate({
                 show: show
             });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
+            this.editShapeSettingsPanel.mutate({ show: false });
         })
     }
 }
