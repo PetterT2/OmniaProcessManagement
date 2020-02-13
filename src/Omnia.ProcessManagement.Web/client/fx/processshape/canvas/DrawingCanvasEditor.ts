@@ -6,7 +6,7 @@ import { Utils } from '@omnia/fx';
 import { DrawingShapeDefinition } from '../../models';
 import { GuidValue, MultilingualString } from '@omnia/fx-models';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
-import { IFabricShape } from '../fabricshape';
+import { FabricShapeData } from '../fabricshape';
 
 export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefinition {
     private onClickEditShapeSettings: (drawingShape: DrawingShape) => void;
@@ -60,7 +60,7 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
         title: MultilingualString, left?: number, top?: number,
-        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
+        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             super.addShape(id, type, definition, title, left, top, processStepId, customLinkId, nodes).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);

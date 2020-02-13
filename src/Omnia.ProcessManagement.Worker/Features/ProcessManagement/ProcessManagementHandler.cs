@@ -66,7 +66,7 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
             }
 
             var allShapeGalleryItems = await ShapeGalleryItemService.GetAllAsync();
-            foreach(var galleryItem in OPMConstants.Features.OPMDefaultShapeGalleryItems.ShapeGalleryItems)
+            foreach(var galleryItem in OPMConstants.Features.DefaultShapeTemplates.ShapeTemplates)
             {
                 var currentItem = allShapeGalleryItems.FirstOrDefault(i => i.Id == galleryItem.Id);
                 if(currentItem == null)

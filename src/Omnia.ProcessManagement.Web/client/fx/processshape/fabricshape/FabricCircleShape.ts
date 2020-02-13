@@ -1,4 +1,4 @@
-﻿import { FabricShapeTypes } from './IFabricShape';
+﻿import { FabricShapeDataTypes } from './FabricShapeData';
 import { fabric } from 'fabric';
 import { FabricShapeExtension } from './FabricShapeExtention';
 import { FabricShape } from './FabricShape';
@@ -31,7 +31,7 @@ export class FabricCircleShape extends FabricShapeExtension implements FabricSha
         this.fabricObject = new fabric.Circle(this.properties);
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.circle;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.circle;
     }
 }

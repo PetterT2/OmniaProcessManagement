@@ -1,13 +1,13 @@
 ﻿import { Store, StoreState } from '@omnia/fx/store';
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
-import { ShapeGalleryItem } from '../../../../fx/models';
+import { ShapeTemplate } from '../../../../fx/models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
 })
 export class ShapeGalleryJourneyStore extends Store {
-    private editingShapeGalleryItem = this.state<ShapeGalleryItem>(null);
+    private editingShapeGalleryItem = this.state<ShapeTemplate>(null);
     private editingShapeGalleryItemTitle = this.state<string>("");
 
     constructor() {
@@ -22,7 +22,7 @@ export class ShapeGalleryJourneyStore extends Store {
     }
 
     mutations = {
-        setEditingShapeGalleryItem: this.mutation((processTemplate: ShapeGalleryItem) => {
+        setEditingShapeGalleryItem: this.mutation((processTemplate: ShapeTemplate) => {
             this.editingShapeGalleryItem.mutate(processTemplate);
             this.editingShapeGalleryItemTitle.mutate(processTemplate ? processTemplate.multilingualTitle : '');
         })

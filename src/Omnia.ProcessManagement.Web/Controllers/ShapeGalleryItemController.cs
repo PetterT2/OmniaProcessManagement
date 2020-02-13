@@ -7,12 +7,13 @@ using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
-using Omnia.ProcessManagement.Models.ShapeGalleryItems;
+using Omnia.ProcessManagement.Models.ShapeTemplates;
 using Omnia.ProcessManagement.Models.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Omnia.ProcessManagement.Models.Enums;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -32,7 +33,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpGet, Route("all")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<ShapeGalleryItem>>> GetAllAsync()
+        public async ValueTask<ApiResponse<List<ShapeTemplate>>> GetAllAsync()
         {
             try
             {
@@ -42,13 +43,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<ShapeGalleryItem>>(ex);
+                return ApiUtils.CreateErrorResponse<List<ShapeTemplate>>(ex);
             }
         }
 
         [HttpGet, Route("{id:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ShapeGalleryItem>> GetAllAsync(Guid id)
+        public async ValueTask<ApiResponse<ShapeTemplate>> GetAllAsync(Guid id)
         {
             try
             {
@@ -58,19 +59,19 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<ShapeGalleryItem>(ex);
+                return ApiUtils.CreateErrorResponse<ShapeTemplate>(ex);
             }
         }
 
         [HttpPost, Route("addorupdate")]
         [Authorize(Fx.Constants.Security.Roles.TenantAdmin)]
-        public async ValueTask<ApiResponse<ShapeGalleryItem>> AddOrUpdateAsync(ShapeGalleryItem shapeGalleryItem)
+        public async ValueTask<ApiResponse<ShapeTemplate>> AddOrUpdateAsync(ShapeTemplate shapeGalleryItem)
         {
             try
             {
-                if(shapeGalleryItem.Settings.ShapeDefinition.ShapeTemplate.Id == OPMConstants.Features.OPMDefaultShapeGalleryItems.Media.Id)
+                if(shapeGalleryItem.Settings.Type == ShapeTemplateType.MediaShape)
                 {
-                    shapeGalleryItem.Settings.ShapeDefinition.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapegalleryitem/getimage/{shapeGalleryItem.Id}";
+                    shapeGalleryItem.Settings.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapegalleryitem/getimage/{shapeGalleryItem.Id}";
                 }
                 var result = await ShapeGalleryItemService.AddOrUpdateAsync(shapeGalleryItem);
                 return result.AsApiResponse();
@@ -78,7 +79,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<ShapeGalleryItem>(ex);
+                return ApiUtils.CreateErrorResponse<ShapeTemplate>(ex);
             }
         }
 
@@ -133,7 +134,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<ShapeGalleryItem>>(ex);
+                return ApiUtils.CreateErrorResponse<List<ShapeTemplate>>(ex);
             }
         }
 

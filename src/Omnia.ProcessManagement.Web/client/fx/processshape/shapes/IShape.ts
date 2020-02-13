@@ -1,9 +1,9 @@
-﻿import { IFabricShape } from '../fabricshape';
+﻿import { FabricShapeData } from '../fabricshape';
 import { DrawingShapeDefinition } from '../../models';
 
 export interface IShape {
-    name: string;
-    nodes: IFabricShape[];
+    shapeTemplateTypeName: string;
+    nodes: FabricShapeData[];
     definition: DrawingShapeDefinition;
     left: number;
     top: number;

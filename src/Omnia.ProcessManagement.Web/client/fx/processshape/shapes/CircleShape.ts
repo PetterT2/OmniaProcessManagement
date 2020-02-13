@@ -1,16 +1,15 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShapeTypes, FabricShape, FabricCircleShape, IFabricShape } from '../fabricshape';
-import { FabricEllipseShape } from '../fabricshape/FabricEllipseShape';
+import { FabricShapeDataTypes, FabricCircleShape, FabricShapeData } from '../fabricshape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
-import { DrawingShapeDefinition, TextPosition } from '../../models';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { DrawingShapeDefinition, ShapeTemplateType } from '../../models';
+import { ShapeTemplatesConstants } from '../../constants';
 import { IShape } from '.';
 
 export class CircleShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean) {
         super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
@@ -20,7 +19,7 @@ export class CircleShape extends ShapeExtension implements Shape {
 
         if (basicShapeJSON.nodes) {
             basicShapeJSON.nodes.forEach((nodeItem) => {
-                if (nodeItem.shapeNodeType != FabricShapeTypes.text) {
+                if (nodeItem.fabricShapeDataType != FabricShapeDataTypes.text) {
                     nodeItem.properties['radius'] = this.shapeObject[0]['radius'];
                     nodeItem.properties['endAngle'] = this.shapeObject[0]['endAngle'];
                     nodeItem.properties['startAngle'] = this.shapeObject[0]['startAngle'];
@@ -34,8 +33,8 @@ export class CircleShape extends ShapeExtension implements Shape {
         return basicShapeJSON;
     }
 
-    get name() {
-        return ShapeTemplatesConstants.Circle.name;
+    get shapeTemplateTypeName() {
+        return ShapeTemplateType[ShapeTemplatesConstants.Circle.settings.type];
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
@@ -44,8 +43,8 @@ export class CircleShape extends ShapeExtension implements Shape {
         let textPosition = this.getTextPosition(position);
 
         if (this.nodes) {
-            let circleNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.circle);
-            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
+            let circleNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.circle);
+            let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
             if (circleNode) {
                 this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({}, circleNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }

@@ -27,7 +27,7 @@ export default class ProcessTemplatSettingsShapesTab extends VueComponentBase<Pr
 
 
     created() {
-        var editingProcessTemplate = this.processTemplateJournayStore.getters.editingProcessTemplate();
+
     }
 
     openShapeSettingBlade(shape?: ShapeDefinition, index: number = -1) {

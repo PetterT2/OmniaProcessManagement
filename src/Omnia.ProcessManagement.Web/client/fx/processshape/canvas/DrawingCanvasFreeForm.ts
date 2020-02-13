@@ -4,7 +4,7 @@ import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/
 import { DrawingCanvasEditor } from './DrawingCanvasEditor';
 import { DrawingShapeDefinition } from '../../models';
 import { Guid, MultilingualString, GuidValue } from '@omnia/fx-models';
-import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape, IFabricShape, FabricShape } from '../fabricshape';
+import { FabricPathShape, FabricShapeExtension, FabricPolylineShape, FabricLineShape, FabricShapeData, FabricShape } from '../fabricshape';
 import { ShapeHighlightProperties } from '../../constants';
 
 export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements CanvasDefinition {

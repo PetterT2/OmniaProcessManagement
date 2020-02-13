@@ -8,7 +8,7 @@ using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
 using Omnia.ProcessManagement.Core.Repositories.Settings;
-using Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Repositories.ShapeTemplates;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Core.Services.Features;
@@ -83,7 +83,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
             services.AddScopedWithSingeltonRef<IImageRepository, ImageRepository>();
-            services.AddScopedWithSingeltonRef<IShapeGalleryItemRepository, ShapeGalleryItemRepository>();
+            services.AddScopedWithSingeltonRef<IShapeTemplateRepository, ShapeTemplateRepository>();
 
             services.AddAutoMapper();
             return services;

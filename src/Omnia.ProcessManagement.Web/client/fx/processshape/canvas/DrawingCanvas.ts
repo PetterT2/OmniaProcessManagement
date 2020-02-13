@@ -2,10 +2,10 @@
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, IShape, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
-import { DrawingShapeDefinition, TextPosition } from '../../models';
+import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
-import { IFabricShape } from '../fabricshape';
+import { FabricShapeData } from '../fabricshape';
 import { setTimeout } from 'timers';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
 
@@ -197,7 +197,7 @@ export class DrawingCanvas implements CanvasDefinition {
         if (drawingShapes) {
             let promises: Array<Promise<DrawingShape>> = [];
             drawingShapes.forEach(s => {
-                if (ShapeTemplatesDictionary[s.shape.name]) {
+                if (ShapeTemplatesDictionary[s.shape.shapeTemplateTypeName]) {
                     promises.push(this.addShapeFromTemplateClassName(s));
                 }
             })
@@ -221,22 +221,21 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
-        title: MultilingualString, left?: number, top?: number,
-        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: IFabricShape[]) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, left?: number, top?: number,
+        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            if (definition.shapeTemplate) {
+            if (definition.shapeTemplateType) {
                 if (top == 0 || top == null || top == undefined)
                     top = definition.textPosition == TextPosition.Above ? definition.fontSize + TextSpacingWithShape : 0;
 
                 let position = this.correctDefinition(definition, left, top);
-                if (this.canvasObject && ShapeTemplatesDictionary[definition.shapeTemplate.name]) {
+                if (this.canvasObject && ShapeTemplatesDictionary[ShapeTemplateType[definition.shapeTemplateType]]) {
                     let drawingShape: DrawingShape = {
                         id: id,
                         type: type,
                         shape: {
-                            name: definition.shapeTemplate.name,
+                            shapeTemplateTypeName: ShapeTemplateType[definition.shapeTemplateType],
                             nodes: nodes,
                             definition: definition,
                             left: position.left,
@@ -284,7 +283,7 @@ export class DrawingCanvas implements CanvasDefinition {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
-            if (definition.shapeTemplate) {
+            if (definition.shapeTemplateType) {
                 let fontSizeSpace = definition.textPosition == TextPosition.On ? 0 : definition.fontSize;
                 this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + fontSizeSpace)
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
@@ -295,7 +294,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     let position = this.correctDefinition(definition, left, top);
                     currentDrawingShape.title = title;
                     currentDrawingShape.shape = {
-                        name: definition.shapeTemplate.name,
+                        shapeTemplateTypeName: ShapeTemplateType[definition.shapeTemplateType],
                         nodes: isGenerateNewNodes ? null : currentDrawingShape.shape.nodes,
                         definition: definition,
                         left: position.left,
@@ -317,9 +316,9 @@ export class DrawingCanvas implements CanvasDefinition {
     updateShape(drawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            if (drawingOptions.shapeDefinition.shapeTemplate) {
+            if (drawingOptions.shapeDefinition.shapeTemplateType) {
                 let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
-                let nodes: IFabricShape[] = null;
+                let nodes: FabricShapeData[] = null;
                 if (drawingOptions.shape) {
                     if (drawingOptions.shape.left != 0) {
                         currentLeft = drawingOptions.shape.left;
@@ -332,7 +331,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
                     //If this is not freeform, we keep the old position
                     let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    if (drawingOptions.shapeDefinition.shapeTemplate.id != ShapeTemplatesConstants.Freeform.id) {
+                    if (drawingOptions.shapeDefinition.shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type) {
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
                     }
@@ -352,7 +351,7 @@ export class DrawingCanvas implements CanvasDefinition {
                         (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
                     }
                     currentDrawingShape.shape = {
-                        name: drawingOptions.shapeDefinition.shapeTemplate.name,
+                        shapeTemplateTypeName: ShapeTemplateType[drawingOptions.shapeDefinition.shapeTemplateType],
                         nodes: nodes,
                         definition: drawingOptions.shapeDefinition,
                         left: currentLeft,
@@ -377,7 +376,7 @@ export class DrawingCanvas implements CanvasDefinition {
     protected addShapeFromTemplateClassName(drawingShape: DrawingShape) {
         let readyDrawingShape: DrawingShape = Utils.clone(drawingShape);
 
-        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[readyDrawingShape.shape.definition.shapeTemplate.name], readyDrawingShape.shape.definition,
+        let newShape = ShapeFactory.createService(ShapeTemplatesDictionary[ShapeTemplateType[readyDrawingShape.shape.definition.shapeTemplateType]], readyDrawingShape.shape.definition,
             readyDrawingShape.shape.nodes, readyDrawingShape.title, this.selectable, readyDrawingShape.shape.left, readyDrawingShape.shape.top, this.darkHightlight);
 
         return new Promise<DrawingShape>((resolve, reject) => {

@@ -9,7 +9,7 @@ using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
 using Omnia.ProcessManagement.Core.Entities.Settings;
-using Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Entities.ShapeTemplates;
 using Omnia.ProcessManagement.Core.Entities.Workflows;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
@@ -59,8 +59,8 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<WorkflowTask> WorkflowTasks { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<ImageReference> ImageReferences { get; set; }
-        public DbSet<ShapeGalleryItem> ShapeGalleryItems { get; set; }
-        public DbSet<ShapeGalleryItemImage> ShapeGalleryItemImages { get; set; }
+        public DbSet<ShapeTemplate> ShapeTemplates { get; set; }
+        public DbSet<ShapeTemplateImage> ShapeTemplateImages { get; set; }
 
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
@@ -88,7 +88,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
 
             SetClusteredIndex<ProcessTemplate>(modelBuilder, d => new { d.Id });
             SetClusteredIndex<ProcessType>(modelBuilder, d => new { d.Id });
-            SetClusteredIndex<ShapeGalleryItem>(modelBuilder, d => new { d.Id });
+            SetClusteredIndex<ShapeTemplate>(modelBuilder, d => new { d.Id });
             modelBuilder.Entity<ProcessType>()
                 .HasIndex(c => new { c.RootId })
                 .IsUnique()
@@ -114,9 +114,9 @@ namespace Omnia.ProcessManagement.Core.Repositories
                 .WithMany(p => p.ImageReferences)
                 .IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ShapeGalleryItemImage>().HasKey(i => new { i.Id, i.ShapeGalleryItemId });
-            modelBuilder.Entity<ShapeGalleryItemImage>()
-                .HasOne(s => s.ShapeGalleryItem)
+            modelBuilder.Entity<ShapeTemplateImage>().HasKey(i => new { i.Id, i.ShapeTemplateId });
+            modelBuilder.Entity<ShapeTemplateImage>()
+                .HasOne(s => s.ShapeTemplate)
                 .WithOne().IsRequired(true).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();

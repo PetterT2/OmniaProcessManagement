@@ -208,8 +208,8 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         };
         this.isShowChangeShape = false;
 
-        if (selectedShapeDefinition.shapeTemplate.id !== ShapeTemplatesConstants.Media.id &&
-            selectedShapeDefinition.shapeTemplate.id !== ShapeTemplatesConstants.Freeform.id) {
+        if (selectedShapeDefinition.shapeTemplateType !== ShapeTemplatesConstants.Media.settings.type &&
+            selectedShapeDefinition.shapeTemplateType !== ShapeTemplatesConstants.Freeform.settings.type) {
             this.onChangedDrawingOptions(this.drawingShapeOptions);
         }
     }

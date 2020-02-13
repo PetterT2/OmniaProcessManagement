@@ -1,6 +1,6 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
@@ -10,7 +10,7 @@ export class FabricRectShape extends FabricShapeExtension implements FabricShape
         this.fabricObject = new fabric.Rect(this.properties);
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.rect;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.rect;
     }
 }

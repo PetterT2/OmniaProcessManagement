@@ -1,5 +1,5 @@
-﻿using Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems;
-using Omnia.ProcessManagement.Models.ShapeGalleryItems;
+﻿using Omnia.ProcessManagement.Core.Repositories.ShapeTemplates;
+using Omnia.ProcessManagement.Models.ShapeTemplates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,22 +10,22 @@ namespace Omnia.ProcessManagement.Core.Services.ShapeGalleryItems
 {
     internal class ShapeGalleryItemService : IShapeGalleryItemService
     {
-        IShapeGalleryItemRepository ShapeGalleryItemRepository { get; }
-        public ShapeGalleryItemService(IShapeGalleryItemRepository shapeGalleryItemRepository)
+        IShapeTemplateRepository ShapeGalleryItemRepository { get; }
+        public ShapeGalleryItemService(IShapeTemplateRepository shapeGalleryItemRepository)
         {
             ShapeGalleryItemRepository = shapeGalleryItemRepository;
         }
 
-        public async ValueTask<List<ShapeGalleryItem>> GetAllAsync()
+        public async ValueTask<List<ShapeTemplate>> GetAllAsync()
         {
             return await ShapeGalleryItemRepository.GetAllAsync();
         }
-        public async ValueTask<ShapeGalleryItem> GetByIdAsync(Guid id)
+        public async ValueTask<ShapeTemplate> GetByIdAsync(Guid id)
         {
             return await ShapeGalleryItemRepository.GetByIdAsync(id);
         }
 
-        public async ValueTask<ShapeGalleryItem> AddOrUpdateAsync(ShapeGalleryItem shapeDeclaration)
+        public async ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeDeclaration)
         {
             return await ShapeGalleryItemRepository.AddOrUpdateAsync(shapeDeclaration);
         }

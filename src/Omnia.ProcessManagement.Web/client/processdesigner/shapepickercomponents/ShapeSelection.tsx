@@ -226,7 +226,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (shapeDefinition.type == ShapeDefinitionTypes.Heading)
             return;
         let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-        if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id || drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id) {            
+        if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type || drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {            
             return;
         }
 
@@ -338,7 +338,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         else {
 
             let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-            if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id) {
+            if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type) {
                 isIcon = true;
 
                 shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>
@@ -360,7 +360,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 </div>;
             }
             else
-                if (drawingShapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id) {
+                if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {
                     isIcon = true;
 
                     shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>

@@ -2,7 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ShapeGalleryItemService } from '../services';
-import { ShapeGalleryItem } from '../models';
+import { ShapeTemplate } from '../models';
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -11,7 +11,7 @@ export class ShapeGalleryItemStore extends Store {
 
     @Inject(ShapeGalleryItemService) private shapeGalleryItemService: ShapeGalleryItemService;
 
-    private shapeGalleryItems = this.state<Array<ShapeGalleryItem>>([]);
+    private shapeGalleryItems = this.state<Array<ShapeTemplate>>([]);
 
     private ensureLoadShapeGalleryItemsPromise: Promise<null> = null;
 
@@ -26,7 +26,7 @@ export class ShapeGalleryItemStore extends Store {
     }
 
     private privateMutations = {
-        addOrUpdateShapeGalleryItems: this.mutation((templates: Array<ShapeGalleryItem>, remove?: boolean) => {
+        addOrUpdateShapeGalleryItems: this.mutation((templates: Array<ShapeTemplate>, remove?: boolean) => {
             this.shapeGalleryItems.mutate(state => {
                 let ids = templates.map(t => t.id);
 
@@ -41,7 +41,7 @@ export class ShapeGalleryItemStore extends Store {
                 }
             })
         }),
-        addOrUpdateShapeGalleryItem: this.mutation((shapeDeclaration: ShapeGalleryItem) => {
+        addOrUpdateShapeGalleryItem: this.mutation((shapeDeclaration: ShapeTemplate) => {
             var existedTemplateIndex = this.shapeGalleryItems.state.findIndex((item) =>
                 item.id == shapeDeclaration.id);
             if (existedTemplateIndex >= 0) {
@@ -65,8 +65,8 @@ export class ShapeGalleryItemStore extends Store {
             return this.ensureLoadShapeGalleryItemsPromise;
         }),
         ensureLoadShapeGalleryItem: this.action((shapeDeclarationId: GuidValue, alwaysGetLatest: boolean = false) => {
-            return new Promise<ShapeGalleryItem>((resolve, reject) => {
-                let result: ShapeGalleryItem = null;
+            return new Promise<ShapeTemplate>((resolve, reject) => {
+                let result: ShapeTemplate = null;
                 if (!alwaysGetLatest) {
                     if (this.shapeGalleryItems.state) {
                         result = this.shapeGalleryItems.state.find(item => item.id == shapeDeclarationId);
@@ -83,7 +83,7 @@ export class ShapeGalleryItemStore extends Store {
                 }
             });
         }),
-        addOrUpdateShapeGalleryItem: this.action((shapeDeclaration: ShapeGalleryItem) => {
+        addOrUpdateShapeGalleryItem: this.action((shapeDeclaration: ShapeTemplate) => {
             return this.shapeGalleryItemService.addOrUpdateShapeGalleryItem(shapeDeclaration).then((result) => {
                 this.privateMutations.addOrUpdateShapeGalleryItems.commit([result]);
                 return result;
@@ -94,7 +94,7 @@ export class ShapeGalleryItemStore extends Store {
                 return result;
             })
         }),
-        deleteShapeGalleryItem: this.action((shapeDeclaration: ShapeGalleryItem) => {
+        deleteShapeGalleryItem: this.action((shapeDeclaration: ShapeTemplate) => {
             return this.shapeGalleryItemService.deleteShapeGalleryItem(shapeDeclaration.id).then(() => {
                 this.privateMutations.addOrUpdateShapeGalleryItems.commit([shapeDeclaration], true);
                 return null;

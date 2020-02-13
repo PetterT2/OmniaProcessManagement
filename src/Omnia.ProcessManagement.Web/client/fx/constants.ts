@@ -1,31 +1,63 @@
-﻿import { ShapeTemplate, CanvasDefinition } from './models/data/drawingdefinitions';
+﻿import { CanvasDefinition } from './models/data/drawingdefinitions';
+import { ShapeTemplate } from './models/data/shapetemplates/ShapeTemplate';
+import { ShapeTemplateType } from './models/data/enums/Enums';
 
 export const TextSpacingWithShape = 5;
 
 export const ShapeTemplatesConstants = {
     get Circle(): ShapeTemplate {
         return {
-            id: "b98c7edb-4739-4f88-b14b-55e2fc5d5a55", name: "CircleShape", title: { isMultilingualString: true, "en-us": "Circle", "sv-se": "Circle" }
+            id: "b98c7edb-4739-4f88-b14b-55e2fc5d5a55",
+            title: { isMultilingualString: true, "en-us": "Circle" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.CircleShape
+            },
+            multilingualTitle: ""
         }
     },
     get Pentagon(): ShapeTemplate {
         return {
-            id: "b226d2e8-264c-45b8-832d-905e55a74b13", name: "PentagonShape", title: { isMultilingualString: true, "en-us": "Pentagon", "sv-se": "Pentagon" }
+            id: "b226d2e8-264c-45b8-832d-905e55a74b13",
+            title: { isMultilingualString: true, "en-us": "Pentagon" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.PentagonShape
+            },
+            multilingualTitle: ""
         }
     },
     get Diamond(): ShapeTemplate {
         return {
-            id: "16b5dd18-8de2-4bbd-9aaa-27b4cb155b37", name: "DiamondShape", title: { isMultilingualString: true, "en-us": "Diamond", "sv-se": "Diamond" }
+            id: "16b5dd18-8de2-4bbd-9aaa-27b4cb155b37",
+            title: { isMultilingualString: true, "en-us": "Diamond" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.DiamondShape
+            },
+            multilingualTitle: ""
         }
     },
     get Freeform(): ShapeTemplate {
         return {
-            id: "d7b2fee0-0435-46aa-8606-c7144d128d53", name: "FreeformShape", title: { isMultilingualString: true, "en-us": "Freeform", "sv-se": "Freeform" }
+            id: "d7b2fee0-0435-46aa-8606-c7144d128d53",
+            title: { isMultilingualString: true, "en-us": "Freeform" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.FreeformShape
+            },
+            multilingualTitle: ""
         }
     },
     get Media(): ShapeTemplate {
         return {
-            id: "b4d016f4-2bee-47f1-aa1f-0a5747c7b0b1", name: "MediaShape", title: { isMultilingualString: true, "en-us": "Media", "sv-se": "Media" }
+            id: "b4d016f4-2bee-47f1-aa1f-0a5747c7b0b1",
+            title: { isMultilingualString: true, "en-us": "Media" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.MediaShape
+            },
+            multilingualTitle: ""
         }
     }
 }

@@ -222,11 +222,11 @@
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\index.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItem.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemFreeformSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemMediaSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\shapegallery\ShapeGalleryItemSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapetemplates\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapetemplates\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapetemplates\ShapeTemplateFreeformSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapetemplates\ShapeTemplateMediaSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapetemplates\ShapeTemplateSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\CSOMSharePointTaskResponse.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\GraphSharePointTaskResponse.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\sharepointtasks\index.ts" />
@@ -276,6 +276,7 @@
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShapeData.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\SimplifyPath.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\DrawingCanvasSettingsStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\IColor.ts" />
@@ -310,7 +311,6 @@
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasEditor.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\index.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShape.ts" />
-    <TypeScriptCompile Remove="client\fx\processshape\fabricshape\IFabricShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\DiamondShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\FreeformShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\MediaShape.ts" />
@@ -873,9 +873,6 @@
     <None Update="client\fx\processshape\fabricshape\FabricShapeExtention.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\fx\processshape\fabricshape\IFabricShape.ts">
-      <SubType>Code</SubType>
-    </None>
     <None Update="client\fx\models\index.ts">
       <SubType>Code</SubType>
     </None>
@@ -883,9 +880,6 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\processshape\index.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="client\fx\models\data\drawingdefinitions\ShapeTemplate.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\data\drawingdefinitions\DrawingShape.ts">

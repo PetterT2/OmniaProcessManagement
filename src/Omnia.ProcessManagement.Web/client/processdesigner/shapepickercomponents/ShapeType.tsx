@@ -5,9 +5,9 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -226,8 +226,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     renderShapePreview(h) {
-        let isFreeform = this.drawingOptions.shapeDefinition.shapeTemplate.id === ShapeTemplatesConstants.Freeform.id;
-        let isMedia = this.drawingOptions.shapeDefinition.shapeTemplate.id === ShapeTemplatesConstants.Media.id;
+        let isFreeform = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Freeform.settings.type;
+        let isMedia = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Media.settings.type;
         let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
         return [
 
@@ -308,12 +308,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private isNewMedia() {
-        return this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id &&
+        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type &&
             !(this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
     }
 
     private isNewFreeForm() {
-        return this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Freeform.id &&
+        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type &&
             (!this.drawingOptions.shape || this.drawingOptions.shape.nodes.length == 0) ? true : false;
     }
 
@@ -330,7 +330,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 .then((readyDrawingShape: DrawingShape) => {
                     this.shape = this.drawingCanvas.drawingShapes[0].shape;
 
-                    if (readyDrawingShape && readyDrawingShape.shape.name == ShapeTemplatesConstants.Media.name)
+                    if (readyDrawingShape && readyDrawingShape.shape.shapeTemplateTypeName == ShapeTemplateType[ShapeTemplatesConstants.Media.settings.type])
                         this.updateAfterRenderImage(readyDrawingShape);
                     else {
                         this.onDrawingShapeOptionChanged();
@@ -456,7 +456,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderShapeSettings(h) {
-        let isMediaShape = this.drawingOptions.shapeDefinition.shapeTemplate.id == ShapeTemplatesConstants.Media.id;
+        let isMediaShape = this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type;
         return <v-container fluid class="px-0 pt-0">
             <v-row dense align="center">
                 <v-col cols="6">

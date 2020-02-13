@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { FabricShapeTypes } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 import { FabricShapeExtension } from './FabricShapeExtention';
@@ -18,7 +18,7 @@ export class FabricEllipseShape extends FabricShapeExtension implements FabricSh
         this.fabricObject = new fabric.Ellipse(this.properties);
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.ellipse;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.ellipse;
     }
 }

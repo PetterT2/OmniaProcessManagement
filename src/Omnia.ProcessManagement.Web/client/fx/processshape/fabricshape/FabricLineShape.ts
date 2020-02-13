@@ -1,6 +1,6 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes, IFabricShape } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
@@ -19,8 +19,8 @@ export class FabricLineShape extends FabricShapeExtension implements FabricShape
         return prop;
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.line;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.line;
     }
 
     calculateScalePointsToDefinition(scaleX: number, scaleY: number) {

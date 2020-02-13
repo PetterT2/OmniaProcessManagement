@@ -1,6 +1,6 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes, IFabricShape } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingImageShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
@@ -16,7 +16,12 @@ export class FabricImageShape extends FabricShapeExtension implements FabricShap
             if (this.imageUrl && this.imageUrl != '') {
                 fabric.Image.fromURL(this.imageUrl, (image) => {
                     if (image.width != this.properties['width'] || image.height != this.properties['height']) {
-                        image.scaleToWidth(this.properties['width']);
+                        if (image.width >= image.height) {
+                            image.scaleToWidth(this.properties['width']);
+                        }
+                        else {
+                            image.scaleToHeight(this.properties['height']);
+                        }
                         this.properties.scaleX = image.scaleX;
                         this.properties.scaleY = image.scaleY;
                     }
@@ -29,7 +34,7 @@ export class FabricImageShape extends FabricShapeExtension implements FabricShap
         })
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.image;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.image;
     }
 }

@@ -1,6 +1,6 @@
 ﻿import { DrawingShapeDefinition, DrawingShapeTypes, CanvasDefinition } from '../../fx/models';
 import { MultilingualString, GuidValue } from '@omnia/fx-models';
-import { IFabricShape, IShape } from '../../fx';
+import { FabricShapeData, IShape } from '../../fx';
 
 export interface DrawingShapeOptions {
     id?: GuidValue;

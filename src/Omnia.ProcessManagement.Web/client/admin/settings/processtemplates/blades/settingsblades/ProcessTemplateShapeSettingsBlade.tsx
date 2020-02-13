@@ -4,18 +4,19 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment, ShapeTemplate } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx/constants';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
 import { MultilingualStore } from '@omnia/fx/store';
-import { DrawingShapeTypes, ShapeTemplate } from '../../../../../fx/models/data/drawingdefinitions';
+import { DrawingShapeTypes } from '../../../../../fx/models/data/drawingdefinitions';
 import { Guid } from '@omnia/fx-models';
 import './ProcessTemplateShapeSettingsBlade.css';
 import { ProcessTemplateShapeSettingsBladeStyles } from '../../../../../models';
 import { classes } from 'typestyle';
 import { DrawingCanvas } from '../../../../../fx/processshape';
 import { OPMCoreLocalization } from '../../../../../core/loc/localize';
+import { ShapeGalleryItemStore } from '../../../../../fx';
 
 interface ProcessTemplateShapeSettingsBladeProps {
     journey: () => JourneyInstance;
@@ -28,6 +29,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ShapeGalleryItemStore) shapeGalleryStore: ShapeGalleryItemStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) opmCoreloc: OPMCoreLocalization.locInterface;
@@ -84,23 +86,27 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
         })
 
-        setTimeout(() => {
-            this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
-            if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
-                var canvasWidth = this.getCanvasContainerWidth();
-                this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
-                    width: canvasWidth,
-                    height: 230,
-                    drawingShapes: []
-                }, false);
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
-            }
-        }, 500)
-    }
+        this.shapeGalleryStore.actions.ensureLoadShapeGalleryItems.dispatch().then(() => {
+            setTimeout(() => {
+                this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
+                if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
+                    var canvasWidth = this.getCanvasContainerWidth();
+                    this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
+                        width: canvasWidth,
+                        height: 230,
+                        drawingShapes: []
+                    }, false);
+                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
+                }
+            }, 20)
+        })    }
 
     onShapeTemplateChanged() {
-        this.editingShape.title = Utils.clone((this.editingShape as DrawingShapeDefinition).shapeTemplate.title);
-        this.updateTemplateShape();
+        var foundTemplate = this.shapeGalleryStore.getters.shapeGalleryItems().find(i => i.settings.type == (this.editingShape as DrawingShapeDefinition).shapeTemplateType)
+        if (foundTemplate) {
+            this.editingShape.title = Utils.clone(foundTemplate.title);
+            this.updateTemplateShape();
+        }
     }
 
     updateTemplateShape() {
@@ -155,8 +161,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     }
 
     needToShowShapeSettings(): boolean {
-        return !(this.editingShape as DrawingShapeDefinition).shapeTemplate || ((this.editingShape as DrawingShapeDefinition).shapeTemplate &&
-            (this.editingShape as DrawingShapeDefinition).shapeTemplate.name != ShapeTemplatesConstants.Media.name);
+        return !(this.editingShape as DrawingShapeDefinition).shapeTemplateType || ((this.editingShape as DrawingShapeDefinition).shapeTemplateType &&
+            (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type);
     }
 
     renderDrawingSettings(h) {
@@ -164,11 +170,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             <v-container fluid class="px-0">
                 <div class={this.classes.flexDisplay}>
                     <v-flex lg6>
-                        <v-select item-value="id" item-text="multilingualTitle" return-object items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
+                        <v-select item-value="id" item-text="multilingualTitle" items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplateType}
                             onChange={this.onShapeTemplateChanged}></v-select>
                         <omfx-field-validation
                             useValidator={this.internalValidator}
-                            checkValue={(this.editingShape as DrawingShapeDefinition).shapeTemplate}
+                            checkValue={(this.editingShape as DrawingShapeDefinition).shapeTemplateType}
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
                         {this.renderTitle(h)}
