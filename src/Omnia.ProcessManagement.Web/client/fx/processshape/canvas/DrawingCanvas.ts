@@ -44,8 +44,10 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     destroy() {
-        if (this.canvasObject)
-            this.canvasObject.dispose();
+        try {
+            if (this.canvasObject)
+                this.canvasObject.dispose();
+        } catch (err) { }
     }
 
     setSelectingShapeCallback(onSelectingShape: (shape: DrawingShape) => void) {

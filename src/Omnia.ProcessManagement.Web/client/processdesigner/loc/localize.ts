@@ -67,5 +67,6 @@
         CheckedOutTo: string;
         ChangeProcessType: string;
         ProcessType: string;
+        ProcessTemplate: string;
     }
 }
