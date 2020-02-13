@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape, ShapeExtension } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, IFabricShape, DrawingCanvasFreeForm, Shape, MediaShape, ShapeExtension, OPMUtils } from '../../fx';
 import './ShapeType.css';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
@@ -98,12 +98,17 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private isShowAddLinkDialog: boolean = false;
     private isOpenMediaPicker: boolean = false;
     private isOpenFreeformPicker: boolean = false;
-
+    private renderUniqueKey = Utils.generateGuid();
     //Support to change selected shape in Drawing
-    @Watch('drawingOptions', { deep: false })
+    @Watch('drawingOptions')
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        this.init();
-        this.startToDrawShape();
+        if (this.drawingOptions.id && this.drawingOptions.id.toString() != this.internalShapeDefinition.id.toString()) {
+            this.renderUniqueKey = Utils.generateGuid();
+            this.init();
+            this.$nextTick(() => {
+                this.startToDrawShape();
+            })
+        }
     }
     created() {
         if (this.formValidator) {
@@ -301,11 +306,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            setTimeout(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
                 this.initDrawingCanvas();
                 let position = this.getLeftTop();
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
-            }, 20);
+            });
         }
     }
 
@@ -617,7 +622,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderDrawingShapeDefinition(h) {
-        return <div>
+        return <div key={this.renderUniqueKey}>
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
         </div>

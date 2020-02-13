@@ -125,5 +125,41 @@ export module OPMUtils {
 
         return url;
     }
+
+    export function waitForElementAvailable(el: Element, elementId: string) {
+        let msToReject = 5000; //5s for wait
+        let msToCheck = 200; //200ms for each check
+        let numberOfTimes = msToReject / msToCheck;
+
+        return new Promise((resolve, reject) => {
+            let intervalHandler = setInterval(() => {
+                let componentStillAlive = document.body.contains(el);
+                let canvasAvailable = false;
+
+                //If this component is not destroyed yet
+                if (componentStillAlive) {
+                    canvasAvailable = document.getElementById(elementId) && true;
+                }
+
+                if (numberOfTimes == 1) {
+                    clearInterval(intervalHandler);
+
+                    reject(`5s timeout reached for waiting an element with id ${elementId}`);
+                }
+                else if (!componentStillAlive) {
+                    clearInterval(intervalHandler);
+
+                    reject(`The current component has been destroyed while its waiting for an element with id ${elementId}`);
+                }
+                else if (canvasAvailable ) {
+                    clearInterval(intervalHandler);
+
+                    resolve();
+                }
+
+                numberOfTimes--;
+            })
+        })
+    }
 }
 
