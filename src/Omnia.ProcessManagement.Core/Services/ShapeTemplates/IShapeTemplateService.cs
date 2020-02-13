@@ -5,9 +5,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Omnia.ProcessManagement.Core.Services.ShapeGalleryItems
+namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
 {
-    public interface IShapeGalleryItemService
+    public interface IShapeTemplateService
     {
         ValueTask<List<ShapeTemplate>> GetAllAsync();
         ValueTask<ShapeTemplate> GetByIdAsync(Guid id);

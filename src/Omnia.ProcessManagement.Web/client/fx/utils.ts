@@ -1,4 +1,4 @@
-﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames, ShapeTemplateType, ShapeTemplate } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 import { Utils } from '@omnia/fx';
 declare var moment: any;

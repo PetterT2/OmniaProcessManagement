@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core;
-using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
 using Omnia.ProcessManagement.Models.ShapeTemplates;
 using Omnia.ProcessManagement.Models.Shapes;
 using System;
@@ -17,16 +17,16 @@ using Omnia.ProcessManagement.Models.Enums;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
-    [Route("api/shapegalleryitem")]
+    [Route("api/shapetemplate")]
     [ApiController]
-    public class ShapeGalleryItemController : ControllerBase
+    public class ShapeTemplateController : ControllerBase
     {
-        ILogger<ShapeGalleryItemController> Logger { get; }
-        IShapeGalleryItemService ShapeGalleryItemService { get; }
+        ILogger<ShapeTemplateController> Logger { get; }
+        IShapeTemplateService ShapeTemplateService { get; }
         FileExtensionContentTypeProvider ContentTypeProvider { get; }
-        public ShapeGalleryItemController(IShapeGalleryItemService shapeGalleryItemService, ILogger<ShapeGalleryItemController> logger)
+        public ShapeTemplateController(IShapeTemplateService shapeTemplateService, ILogger<ShapeTemplateController> logger)
         {
-            ShapeGalleryItemService = shapeGalleryItemService;
+            ShapeTemplateService = shapeTemplateService;
             ContentTypeProvider = new FileExtensionContentTypeProvider();
             Logger = logger;
         }
@@ -37,7 +37,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var categories = await ShapeGalleryItemService.GetAllAsync();
+                var categories = await ShapeTemplateService.GetAllAsync();
                 return categories.AsApiResponse();
             }
             catch (Exception ex)
@@ -53,7 +53,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var shapeDeclaration = await ShapeGalleryItemService.GetByIdAsync(id);
+                var shapeDeclaration = await ShapeTemplateService.GetByIdAsync(id);
                 return shapeDeclaration.AsApiResponse();
             }
             catch (Exception ex)
@@ -71,9 +71,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 if(shapeGalleryItem.Settings.Type == ShapeTemplateType.MediaShape)
                 {
-                    shapeGalleryItem.Settings.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapegalleryitem/getimage/{shapeGalleryItem.Id}";
+                    shapeGalleryItem.Settings.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapetemplate/getimage/{shapeGalleryItem.Id}";
                 }
-                var result = await ShapeGalleryItemService.AddOrUpdateAsync(shapeGalleryItem);
+                var result = await ShapeTemplateService.AddOrUpdateAsync(shapeGalleryItem);
                 return result.AsApiResponse();
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                bool result = await ShapeGalleryItemService.AddImageAsync(shapeGalleryItemId, fileName, imageBase64);
+                bool result = await ShapeTemplateService.AddImageAsync(shapeGalleryItemId, fileName, imageBase64);
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var (fileStream, fileName) = await ShapeGalleryItemService.GetImageAsync(shapeGalleryItemId);
+                var (fileStream, fileName) = await ShapeTemplateService.GetImageAsync(shapeGalleryItemId);
                 fileStream.Seek(0, System.IO.SeekOrigin.Begin);
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {
@@ -128,7 +128,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                await ShapeGalleryItemService.DeleteAsync(id);
+                await ShapeTemplateService.DeleteAsync(id);
                 return ApiUtils.CreateSuccessResponse();
             }
             catch (Exception ex)

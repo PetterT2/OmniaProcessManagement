@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core;
-using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
 
 namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
 {
@@ -17,11 +17,11 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
     {
         ILogger<ProcessManagementHandler> Logger { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
-        IShapeGalleryItemService ShapeGalleryItemService { get; }
+        IShapeTemplateService ShapeGalleryItemService { get; }
 
         public ProcessManagementHandler(ILogger<ProcessManagementHandler> logger,
             IEnterprisePropertyService enterprisePropertyService,
-            IShapeGalleryItemService shapeGalleryItemService) : base()
+            IShapeTemplateService shapeGalleryItemService) : base()
         {
             Logger = logger;
             EnterprisePropertyService = enterprisePropertyService;

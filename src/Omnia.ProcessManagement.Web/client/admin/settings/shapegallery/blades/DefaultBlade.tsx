@@ -7,7 +7,7 @@ import { OPMAdminLocalization } from '../../../loc/localize';
 import { ShapeGalleryJourneyStore } from '../store';
 import { ShapeGalleryJourneyBladeIds } from '../ShapeGalleryJourneyConstants';
 import { ShapeTemplate, ShapeTemplateFactory } from '../../../../fx/models';
-import { ShapeGalleryItemStore } from '../../../../fx';
+import { ShapeTemplateStore } from '../../../../fx';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -20,7 +20,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ShapeGalleryJourneyStore) shapeGalleryJournayStore: ShapeGalleryJourneyStore;
-    @Inject(ShapeGalleryItemStore) shapeGalleryItemStore: ShapeGalleryItemStore;
+    @Inject(ShapeTemplateStore) shapeGalleryItemStore: ShapeTemplateStore;
 
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
@@ -32,7 +32,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     created() {
         this.isLoading = true;
         Promise.all([
-            this.shapeGalleryItemStore.actions.ensureLoadShapeGalleryItems.dispatch()
+            this.shapeGalleryItemStore.actions.ensureLoadShapeTemplates.dispatch()
         ]
         ).then(() => {
             this.isLoading = false;
@@ -122,7 +122,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     }
 
     render(h) {
-        let shapeGalleryItems = this.shapeGalleryItemStore.getters.shapeGalleryItems();
+        let shapeGalleryItems = this.shapeGalleryItemStore.getters.shapeTemplates();
 
         return (
             <div>

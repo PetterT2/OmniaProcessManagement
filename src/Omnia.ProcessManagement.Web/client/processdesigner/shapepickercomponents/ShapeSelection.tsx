@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore } from '../../fx';
+import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils } from '../../fx';
 import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles } from '../../fx/models';
 import { ShapeDefinitionSelection } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
@@ -226,7 +226,8 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (shapeDefinition.type == ShapeDefinitionTypes.Heading)
             return;
         let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-        if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type || drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {            
+        if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type ||
+            drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {            
             return;
         }
 

@@ -1,4 +1,4 @@
-﻿import { DrawingShapeDefinition, DrawingShapeTypes, CanvasDefinition } from '../../fx/models';
+﻿import { DrawingShapeDefinition, DrawingShapeTypes, CanvasDefinition, ShapeTemplateType } from '../../fx/models';
 import { MultilingualString, GuidValue } from '@omnia/fx-models';
 import { FabricShapeData, IShape } from '../../fx';
 

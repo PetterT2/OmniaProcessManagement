@@ -5,7 +5,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation, MediaPickerImageTransformerProviderResult } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ShapeGalleryItemStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData } from '../../../../../fx';
+import { ShapeTemplateStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
 import {
     ShapeTemplate, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape,
@@ -30,7 +30,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ShapeGalleryJourneyStore) shapeGalleryJournayStore: ShapeGalleryJourneyStore;
-    @Inject(ShapeGalleryItemStore) shapeGalleryStore: ShapeGalleryItemStore;
+    @Inject(ShapeTemplateStore) shapeGalleryStore: ShapeTemplateStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
 
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
@@ -200,7 +200,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     save() {
         if (this.internalValidator.validateAll()) {
             this.isSaving = true;
-            this.shapeGalleryStore.actions.addOrUpdateShapeGalleryItem.dispatch(this.editingShapeGalleryItem).then(() => {
+            this.shapeGalleryStore.actions.addOrUpdateShapeTemplate.dispatch(this.editingShapeGalleryItem).then(() => {
                 if (this.editingShapeGalleryItem.settings.type == ShapeTemplatesConstants.Media.settings.type) {
                     this.shapeGalleryStore.actions.addImage.dispatch(this.editingShapeGalleryItem.id.toString(), (this.selectedImage as any).name + '.' + this.selectedImage.format, this.selectedImage.base64).then(() => {
                         this.isSaving = false;

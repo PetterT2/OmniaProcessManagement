@@ -8,6 +8,7 @@ import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { FabricShapeData } from '../fabricshape';
 import { setTimeout } from 'timers';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
+import { defineLocale } from 'moment';
 
 export class DrawingCanvas implements CanvasDefinition {
 
@@ -221,11 +222,11 @@ export class DrawingCanvas implements CanvasDefinition {
         return { left: left, top: top };
     }
 
-    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString, left?: number, top?: number,
-        processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
+    addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            if (definition.shapeTemplateType) {
+            if (definition.shapeTemplateId) {
                 if (top == 0 || top == null || top == undefined)
                     top = definition.textPosition == TextPosition.Above ? definition.fontSize + TextSpacingWithShape : 0;
 
@@ -273,17 +274,12 @@ export class DrawingCanvas implements CanvasDefinition {
         this.canvasObject.setWidth(canvasWidth);
     }
 
-    addDrawingShape(drawingShape: DrawingShape) {
-        if (this.canvasObject) {
-            this.addShapeFromTemplateClassName(drawingShape);
-        }
-    }
-
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean, left?: number, top?: number) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean,
+        left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
-            if (definition.shapeTemplateType) {
+            if (definition.shapeTemplateId) {
                 let fontSizeSpace = definition.textPosition == TextPosition.On ? 0 : definition.fontSize;
                 this.canvasObject.setHeight(parseFloat(definition.height.toString()) + TextSpacingWithShape + fontSizeSpace)
                 let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == id);
@@ -316,7 +312,7 @@ export class DrawingCanvas implements CanvasDefinition {
     updateShape(drawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            if (drawingOptions.shapeDefinition.shapeTemplateType) {
+            if (drawingOptions.shapeDefinition.shapeTemplateId) {
                 let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
                 let nodes: FabricShapeData[] = null;
                 if (drawingOptions.shape) {
@@ -331,7 +327,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     let currentDrawingShape = this.drawingShapes[oldShapeIndex];
                     //If this is not freeform, we keep the old position
                     let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    if (drawingOptions.shapeDefinition.shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type) {
+                    if (drawingOptions.shapeDefinition.shapeTemplateId != ShapeTemplatesConstants.Freeform.settings.type) {
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
                     }

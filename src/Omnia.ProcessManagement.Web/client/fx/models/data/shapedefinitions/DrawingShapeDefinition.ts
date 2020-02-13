@@ -6,7 +6,8 @@ import { GuidValue } from '@omnia/fx-models';
 export interface DrawingShapeDefinition extends ShapeDefinition {
     type: ShapeDefinitionTypes.Drawing;
 
-    shapeTemplateType: ShapeTemplateType;
+    shapeTemplateId: GuidValue;
+    shapeTemplateType: ShapeTemplateType; // To quickly get shapeTemplateName
     backgroundColor: string;
     borderColor: string;
     textColor: string;

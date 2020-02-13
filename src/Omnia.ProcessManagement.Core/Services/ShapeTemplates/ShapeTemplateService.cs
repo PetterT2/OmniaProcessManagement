@@ -6,12 +6,12 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Omnia.ProcessManagement.Core.Services.ShapeGalleryItems
+namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
 {
-    internal class ShapeGalleryItemService : IShapeGalleryItemService
+    internal class ShapeTemplateService : IShapeTemplateService
     {
         IShapeTemplateRepository ShapeGalleryItemRepository { get; }
-        public ShapeGalleryItemService(IShapeTemplateRepository shapeGalleryItemRepository)
+        public ShapeTemplateService(IShapeTemplateRepository shapeGalleryItemRepository)
         {
             ShapeGalleryItemRepository = shapeGalleryItemRepository;
         }

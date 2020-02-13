@@ -9,6 +9,7 @@ namespace Omnia.ProcessManagement.Models.Shapes
     public class DrawingShapeDefinition : ShapeDefinition
     {
         public override ShapeDefinitionTypes Type => ShapeDefinitionTypes.Drawing;
+        public Guid ShapeTemplateId { get; set; }
         public ShapeTemplateType ShapeTemplateType { get; set; }
         public string BackgroundColor { get; set; }
         public string BorderColor { get; set; }

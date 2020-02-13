@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, OPMUtils, ShapeExtension } from '../../fx';
 import './ShapeType.css';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
@@ -43,7 +43,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    shapeTypeStepStyles = StyleFlow.use(ShapeTypeStyles);
+    private shapeTypeStepStyles = StyleFlow.use(ShapeTypeStyles);
     private drawingCanvas: DrawingCanvas = null;
     private internalShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
     private selectedShapeType: DrawingShapeTypes = null;

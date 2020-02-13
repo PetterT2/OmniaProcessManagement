@@ -288,7 +288,7 @@
     <TypeScriptCompile Remove="client\fx\services\PermissionService.ts" />
     <TypeScriptCompile Remove="client\fx\services\ProcessRollupService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
-    <TypeScriptCompile Remove="client\fx\services\ShapeGalleryItemService.ts" />
+    <TypeScriptCompile Remove="client\fx\services\ShapeTemplateService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SharePointTaskService.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />
@@ -296,7 +296,7 @@
     <TypeScriptCompile Remove="client\fx\stores\ProcessTemplateStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessTypeStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\SettingsStore.ts" />
-    <TypeScriptCompile Remove="client\fx\stores\ShapeGalleryItemStore.ts" />
+    <TypeScriptCompile Remove="client\fx\stores\ShapeTemplateStore.ts" />
     <TypeScriptCompile Remove="client\models\filters\DisplayProcess.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterAndSortInfo.ts" />
     <TypeScriptCompile Remove="client\models\filters\FilterAndSortResponse.ts" />

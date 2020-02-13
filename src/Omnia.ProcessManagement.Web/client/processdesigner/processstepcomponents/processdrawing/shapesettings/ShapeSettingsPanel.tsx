@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
-import { CurrentProcessStore, ShapeTemplatesConstants } from '../../../../fx';
+import { CurrentProcessStore, ShapeTemplatesConstants, OPMUtils } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
 import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingImageShapeDefinition } from '../../../../fx/models';
