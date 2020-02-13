@@ -247,8 +247,11 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("datetimeoffset");
 
-                b.Property<Guid>("SecurityResourceId")
-                    .HasColumnType("uniqueidentifier");
+                    b.Property<string>("PublishedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SecurityResourceId")
+                        .HasColumnType("uniqueidentifier");
 
                 b.Property<Guid>("TeamAppId")
                     .HasColumnType("uniqueidentifier");

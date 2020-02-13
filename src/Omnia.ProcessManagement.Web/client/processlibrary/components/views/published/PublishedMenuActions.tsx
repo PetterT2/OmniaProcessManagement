@@ -7,7 +7,7 @@ import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { UnpublishDialog } from './UnpublishDialog';
-import { ProcessStore, OPMUtils, OPMRouter } from '../../../../fx';
+import { ProcessStore, OPMUtils, OPMRouter, ProcessRendererOptions } from '../../../../fx';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
 
 interface PublishedMenuActionsProps {
@@ -35,6 +35,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
     openUnpublishDialog: boolean = false;
+    openProcessHistoryDialog: boolean = false;
 
     created() {
     }
@@ -55,11 +56,11 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     private viewProcess() {
         if (this.viewPageUrl) {
-            var viewUrl = OPMUtils.createProcessNavigationUrl(this.process.rootProcessStep.id, this.viewPageUrl, false, false);
+            var viewUrl = OPMUtils.createProcessNavigationUrl(this.process, this.process.rootProcessStep, this.viewPageUrl, false);
             var win = window.open(viewUrl, '_blank');
             win.focus();
         } else {
-            OPMRouter.navigate(this.process, this.process.rootProcessStep, true, { edition: 0, revision: 0 });
+            OPMRouter.navigate(this.process, this.process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
         }
     }
 
@@ -72,6 +73,16 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     private renderUnpublishDialog(h) {
         return (
             <UnpublishDialog closeCallback={() => { this.openUnpublishDialog = false; }} process={this.process}></UnpublishDialog>
+        )
+    }
+
+    private renderProcessHistoryDialog(h) {
+        return (
+            <opm-process-history-dialog
+                viewPageUrl={this.viewPageUrl}
+                closeCallback={() => { this.openProcessHistoryDialog = false; }}
+                opmProcessId={this.process.opmProcessId}>
+            </opm-process-history-dialog>
         )
     }
 
@@ -103,9 +114,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                         <v-list-item onClick={() => { }}>
                             <v-list-item-title>{this.loc.ProcessActions.ExportProcess}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item onClick={() => {
-
-                        }}>
+                        <v-list-item onClick={() => { this.openProcessHistoryDialog = true; }}>
                             <v-list-item-title>{this.loc.ProcessActions.ProcessHistory}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
@@ -120,6 +129,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                 </v-menu>
 
                 {this.openUnpublishDialog && this.renderUnpublishDialog(h)}
+                {this.openProcessHistoryDialog && this.renderProcessHistoryDialog(h)}
             </div>
         );
     }

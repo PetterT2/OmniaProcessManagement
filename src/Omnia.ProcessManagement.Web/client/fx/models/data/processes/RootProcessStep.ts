@@ -5,4 +5,5 @@ import { Enums } from '../../Enums';
 export interface RootProcessStep extends ProcessStep {
     enterpriseProperties: { [internalName: string]: any };
     processTemplateId: GuidValue;
+    comment: string;
 }

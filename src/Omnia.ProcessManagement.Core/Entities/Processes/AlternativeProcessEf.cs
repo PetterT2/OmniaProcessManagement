@@ -20,6 +20,7 @@ namespace Omnia.ProcessManagement.Core.Entities.Processes
         public ProcessVersionType VersionType { get; set; }
         public string JsonValue { get; set; }
         public DateTimeOffset? PublishedAt { get; set; }
+        public string PublishedBy { get; set; }
     }
 
     internal class AlternativeProcessEFWithoutData

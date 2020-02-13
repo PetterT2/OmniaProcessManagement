@@ -15,5 +15,6 @@ export interface Process {
     modifiedBy: string;
     createAt: Date;
     modifiedAt: Date;
-    publishedAt: Date;
+    publishedAt?: Date;
+    publishedBy?: string;
 }

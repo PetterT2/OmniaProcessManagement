@@ -244,9 +244,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft, ProcessVersionType.Archived)
-                    .OrRequireApprover(ProcessVersionType.Draft, ProcessVersionType.Archived)
-                    .OrRequireReader(ProcessVersionType.Published, ProcessVersionType.Archived)
+                    .OrRequireReviewer()
+                    .OrRequireApprover()
+                    .OrRequireReader()
                     .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
                         var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
@@ -397,9 +397,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 return await securityResponse
                     .RequireAuthor()
-                    .OrRequireReviewer(ProcessVersionType.CheckedOut, ProcessVersionType.Draft)
-                    .OrRequireApprover(ProcessVersionType.Draft)
-                    .OrRequireReader(ProcessVersionType.Published)
+                    .OrRequireReviewer()
+                    .OrRequireApprover()
+                    .OrRequireReader()
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);
@@ -460,7 +460,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
 
                 return await securityResponse
-                   .RequireAuthor()
+                   .RequireAuthor(ProcessVersionType.CheckedOut)
                    .OrRequireReviewer(ProcessVersionType.CheckedOut)
                    .DoAsync(async () =>
                    {
@@ -568,6 +568,32 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<ProcessSite>(ex);
+            }
+        }
+
+        [HttpGet, Route("history/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<Process>>> GetProcessHistory(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireApprover()
+                   .OrRequireReviewer()
+                   .OrRequireReader()
+                   .DoAsync(async () =>
+                   {
+                       var processes = await ProcessService.GetProcessesByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published, ProcessVersionType.Archived);
+                       return ApiUtils.CreateSuccessResponse(processes);
+                   });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<List<Process>>(ex);
             }
         }
 

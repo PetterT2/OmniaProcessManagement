@@ -126,6 +126,9 @@ export class ProcessStore extends Store {
         },
         processCheckoutInfo: (opmProcessId: GuidValue) => {
             return this.processCheckoutInfoDict.state[opmProcessId.toString()];
+        },
+        process: (processId: GuidValue) => {
+            return this.processDict.state[processId.toString()];
         }
     }
 

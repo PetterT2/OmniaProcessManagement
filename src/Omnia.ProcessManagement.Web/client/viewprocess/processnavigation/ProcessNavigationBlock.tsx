@@ -18,7 +18,6 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
     @Prop() settingsKey: string;
     @Prop() styles: typeof ProcessNavigationBlockStyles | any;
     @Prop() mobileView: boolean;
-    @Prop() inGlobalView: boolean;
 
     @Localize(ProcessNavigationBlockLocalization.namespace) loc: ProcessNavigationBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
@@ -107,13 +106,12 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
     }
 
     renderProcessNavigation(h) {
-        let level = this.inGlobalView ? 2 : 1; //temp make the component in globalview has the intenation for the first level
         let rootNavigationNode = this.currentProcessStore.getters.referenceData().process.rootProcessStep;
         return (
             <ProcessNavigationNodeComponent
                 indentation={this.indentation}
                 spacingSetting={this.spacingSetting}
-                level={level}
+                level={1}
                 processStep={rootNavigationNode}
                 expandState={this.expandState}
             >

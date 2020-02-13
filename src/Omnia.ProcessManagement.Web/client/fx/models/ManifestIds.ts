@@ -20,7 +20,7 @@ export class OPMResourceManifests {
     public static get ProcessDesignerShapeSettingsPanel(): Guid { return new Guid("686ddca5-8634-43fb-bd09-9f00fae47a39"); }
     public static get ProcessDesignerShapePickerCore(): Guid { return new Guid("a7258ae7-67fb-4dec-a487-de66102ae3aa"); }
     public static get ProcessDesignerCreateTask(): Guid { return new Guid("292697b2-1b4b-472d-bf18-460212cd7ea8"); }
-
+    
     public static get ProcessRollupCore(): Guid { return new Guid("ac33e4e6-3c32-491e-93ca-e41906a75b3c"); }
     public static get ProcessRollupViewRegistration(): Guid { return new Guid("92fde160-9517-40a7-8d70-60628dad42f0"); }
 }
@@ -36,6 +36,7 @@ export class OPMWebComponentManifests {
     public static get DraftProcessingStatus(): Guid { return new Guid('cde5a81e-7ca7-4a30-9d2d-9084499ec68e'); }
     public static get PublishedMenuActions(): Guid { return new Guid('54023b5d-2ce5-4e68-89cf-defc4ff6a327'); }
     public static get PublishedProcessingStatus(): Guid { return new Guid('bdfb6a67-ca86-481c-a7a0-a3caaf9f685e'); }
+    public static get ProcessHistoryDialog(): Guid { return new Guid('eda1224e-d141-4937-bd05-c67318598c37'); }
 
     public static get MediaPicker(): Guid { return new Guid('7bb3613d-baac-408a-8ada-c195632a6be1') }
     public static get FreeformPicker(): Guid { return new Guid('544b9ae0-3fa7-440d-b62b-d2cbc36d6fe3') }
@@ -79,5 +80,8 @@ export class OPMWebComponentManifests {
     public static get TitleBlockCore(): Guid { return new Guid('b9087ca1-aee3-4274-b762-9b41bd2d1fd0'); }
     public static get TitleBlock(): Guid { return new Guid('3d5e86a2-8f75-4928-85a0-8a7d1e7414b4'); }
     public static get TitleBlockSettings(): Guid { return new Guid('87c0e638-1418-4388-acff-91747fb81f00'); }
+
+    public static get ChangeProcessType(): Guid { return new Guid("620a862b-bc33-46c0-b5c8-2896be4d902f"); }
+
 }
 

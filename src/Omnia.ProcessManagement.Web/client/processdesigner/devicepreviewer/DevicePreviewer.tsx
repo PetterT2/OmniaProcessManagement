@@ -43,7 +43,7 @@ export default class DevicePreviewerComponent extends tsx.Component<DevicePrevie
     private createIframeUrl() {
         let currentProcess = this.currentProcessStore.getters.referenceData();
         let previewPageUrl = this.processDesignerStore.getters.previewPageUrl();
-        return OPMUtils.createProcessNavigationUrl(currentProcess.current.processStep.id, previewPageUrl, true, false);
+        return OPMUtils.createProcessNavigationUrl(currentProcess.process, currentProcess.current.processStep, previewPageUrl, false);
     }
 
     private onSetDevice(displayBreakPoint: DisplayBreakPoint) {

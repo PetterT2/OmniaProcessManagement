@@ -143,7 +143,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Edition: "Edition",
             Revision: "Revision",
             Published: "Published",
-
+            ApprovedBy: "Approved By",
+            WorkflowHistory: "Workflow History"
         },
         Process: {
             Content: "Content",

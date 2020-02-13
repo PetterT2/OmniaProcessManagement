@@ -98,12 +98,17 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private isShowAddLinkDialog: boolean = false;
     private isOpenMediaPicker: boolean = false;
     private isOpenFreeformPicker: boolean = false;
-
+    private renderUniqueKey = Utils.generateGuid();
     //Support to change selected shape in Drawing
-    @Watch('drawingOptions', { deep: false })
+    @Watch('drawingOptions')
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        this.init();
-        this.startToDrawShape();
+        if (this.drawingOptions.id && this.drawingOptions.id.toString() != this.internalShapeDefinition.id.toString()) {
+            this.renderUniqueKey = Utils.generateGuid();
+            this.init();
+            this.$nextTick(() => {
+                this.startToDrawShape();
+            })
+        }
     }
     created() {
         if (this.formValidator) {
@@ -124,7 +129,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
         this.shapeTitle = this.drawingOptions.title;
-        this.setAngle();
     }
 
     beforeDestroy() {
@@ -203,22 +207,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.onDrawingShapeOptionChanged();
     }
 
-    private setAngle() {
-        if (this.drawingOptions && this.drawingOptions.shape && this.drawingOptions.shape.nodes)
-            this.drawingOptions.shape.nodes.forEach(n => n.properties.angle = 0);
-    }
-
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, 0,
-                this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0)
+            let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.getLeftTop().left, top)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
         }
         else {
-            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0)
+            let position = this.getLeftTop();
+            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -274,6 +274,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private getCanvasSize(): { width: number, height: number } {
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
+        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
+            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
+            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
+            canvasWidth = bound.width + 10;
+            canvasHeight = bound.height + 10;
+        }
         if (this.internalShapeDefinition.textPosition != TextPosition.On)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
         if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
@@ -300,11 +306,25 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            setTimeout(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, 0, 0, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
-            }, 20);
+                let position = this.getLeftTop();
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
+            });
         }
+    }
+
+    private getLeftTop() {
+        let left = 0;
+        let top = 0;
+        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
+            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
+            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
+            var aCoords = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].aCoords;
+            left = aCoords.tl.x - bound.left;
+            top = aCoords.tl.y - bound.top;
+        }
+        return { left: left, top: top };
     }
 
     private isNewMedia() {
@@ -602,7 +622,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderDrawingShapeDefinition(h) {
-        return <div>
+        return <div key={this.renderUniqueKey}>
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
         </div>

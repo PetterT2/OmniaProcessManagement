@@ -55,7 +55,7 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
                 data: {},
                 settings: {
                     title: { isMultilingualString: true },
-                    formatting: Enums.ProcessViewEnums.HeadingFormatting.Normal
+                    formatting: Enums.ProcessViewEnums.HeadingFormatting.Heading1
                 }
             });
         });

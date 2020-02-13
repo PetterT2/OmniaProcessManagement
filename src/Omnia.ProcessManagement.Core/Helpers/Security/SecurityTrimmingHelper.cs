@@ -157,6 +157,33 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
 
 
+        public static string GenerateHistorySecurityTrimming(UserAuthorizedResource resources, Guid opmProcessId)
+        {
+            var securityTrimming = "";
+
+            if (resources != null)
+            {
+                var connectPart = "";
+
+                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();                
+
+                if (readerSecurityResourceIds.Any())
+                {
+                    var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds, false)}";
+                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimming}";
+                }
+
+                var opmProcessIdTrimming = $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId })}";
+               
+                if (securityTrimming != "")
+                {
+                    securityTrimming = $"({securityTrimming}){opmProcessIdTrimming}";
+                }
+            }
+
+            return securityTrimming;
+        }
+
         private static string GenerateCheckedOutByTrimming(string loginName)
         {
             return $"{ProcessTableAlias}.[{nameof(Process.CheckedOutBy)}] = '{loginName}'";

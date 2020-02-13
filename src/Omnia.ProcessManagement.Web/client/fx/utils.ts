@@ -1,4 +1,4 @@
-﻿import { ProcessStep, Process, ProcessReference, RootProcessStep } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 import { Utils } from '@omnia/fx';
 declare var moment: any;
@@ -101,19 +101,65 @@ export module OPMUtils {
         return arr.length > 1 ? arr[arr.length - 1] : loginName;
     }
 
-    export function createProcessNavigationUrl(processId: GuidValue, previewPageUrl: string, preview: boolean, omniaApp: boolean) {
+    export function createProcessNavigationUrl(process: Process, desiredProcessStep: ProcessStep, previewPageUrl: string, omniaApp: boolean) {
         let url = "";
 
-        let previewSegment = preview ? "/preview" : "";
+        let version = "";
         let hash = omniaApp ? '' : '#';
+        let processStepId = desiredProcessStep.id.toString().toLowerCase();
+
+        if (process.versionType == ProcessVersionType.Draft || process.versionType == ProcessVersionType.CheckedOut) {
+            version = "/preview";
+        } else if (process.versionType == ProcessVersionType.Archived) {
+            let edition = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
+            let revision = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision];
+            version = `/${edition}/${revision}`
+        }
 
         if (previewPageUrl) {
-            url = previewPageUrl + `/@pm/${processId}${previewSegment}`;
+            url = previewPageUrl + `/@pm/${processStepId}${version}`;
         }
         else {
-            url = location.protocol + '//' + location.host + location.pathname + `${hash}/@pm/${processId}${previewSegment}/g`;
+            url = location.protocol + '//' + location.host + location.pathname + `${hash}/@pm/${processStepId}${version}/g`;
         }
 
         return url;
     }
+
+    export function waitForElementAvailable(el: Element, elementId: string) {
+        let msToReject = 5000; //5s for wait
+        let msToCheck = 200; //200ms for each check
+        let numberOfTimes = msToReject / msToCheck;
+
+        return new Promise((resolve, reject) => {
+            let intervalHandler = setInterval(() => {
+                let componentStillAlive = document.body.contains(el);
+                let canvasAvailable = false;
+
+                //If this component is not destroyed yet
+                if (componentStillAlive) {
+                    canvasAvailable = document.getElementById(elementId) && true;
+                }
+
+                if (numberOfTimes == 1) {
+                    clearInterval(intervalHandler);
+
+                    reject(`5s timeout reached for waiting an element with id ${elementId}`);
+                }
+                else if (!componentStillAlive) {
+                    clearInterval(intervalHandler);
+
+                    reject(`The current component has been destroyed while its waiting for an element with id ${elementId}`);
+                }
+                else if (canvasAvailable ) {
+                    clearInterval(intervalHandler);
+
+                    resolve();
+                }
+
+                numberOfTimes--;
+            })
+        })
+    }
 }
+
