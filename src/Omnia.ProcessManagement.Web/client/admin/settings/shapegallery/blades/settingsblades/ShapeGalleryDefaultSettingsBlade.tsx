@@ -106,15 +106,13 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     isSaving: boolean = false;
 
     created() {
-        
-    }
-
-    mounted() {
         this.shapeGalleryItemTypes.forEach((shapeTemplateSelection) => {
             shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
             shapeTemplateSelection.type = shapeTemplateSelection.settings.type;
         })
+    }
 
+    mounted() {
         this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
         this.startToDrawShape();
     }

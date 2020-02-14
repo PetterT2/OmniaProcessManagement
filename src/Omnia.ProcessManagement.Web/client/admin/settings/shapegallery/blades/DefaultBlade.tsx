@@ -69,39 +69,42 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         return (
             <tr>
                 <td>{shapeGalleryItem.multilingualTitle}</td>
-                {
-                    !shapeGalleryItem.builtIn &&
-                    <td class={"text-right px-0"}>
-                        {
-                            this.isProcessing[shapeGalleryItem.id.toString()] ? <v-btn icon loading></v-btn> : [
-                                <v-btn icon class="mr-0" onClick={() => { this.travelToEdit(shapeGalleryItem) }}>
-                                    <v-icon size='18'>fal fa-pencil-alt</v-icon>
-                                </v-btn>,
-                                this.errMsg[shapeGalleryItem.id.toString()] ?
-                                    <v-tooltip top {
-                                        ...this.transformVSlot({
-                                            activator: (ref) => {
-                                                const toSpread = {
-                                                    on: ref.on
+                <td class={"text-right px-0"}>
+                    {
+                        !shapeGalleryItem.builtIn &&
+                        <div>
+                            {
+                                this.isProcessing[shapeGalleryItem.id.toString()] ? <v-btn icon loading></v-btn> : [
+                                    <v-btn icon class="mr-0" onClick={() => { this.travelToEdit(shapeGalleryItem) }}>
+                                        <v-icon size='18'>fal fa-pencil-alt</v-icon>
+                                    </v-btn>,
+                                    this.errMsg[shapeGalleryItem.id.toString()] ?
+                                        <v-tooltip top {
+                                            ...this.transformVSlot({
+                                                activator: (ref) => {
+                                                    const toSpread = {
+                                                        on: ref.on
+                                                    }
+                                                    return [
+                                                        <v-btn class='ma-0' disabled icon {...toSpread}><v-icon size='18'>fal fa-exclamation-circle</v-icon></v-btn>
+                                                    ]
                                                 }
-                                                return [
-                                                    <v-btn class='ma-0' disabled icon {...toSpread}><v-icon size='18'>fal fa-exclamation-circle</v-icon></v-btn>
-                                                ]
-                                            }
-                                        })}>
-                                        <span>{this.errMsg[shapeGalleryItem.id.toString()]}</span>
-                                    </v-tooltip> :
-                                    <omfx-confirm-dialog
-                                        icon="fal fa-trash-alt"
-                                        styles={{ icon: { fontSize: "18px !important" }, button: { marginLeft: "0px !important" } }}
-                                        type={ConfirmDialogDisplay.Icon}
-                                        onClose={(res) => { res == ConfirmDialogResponse.Ok && this.removeShapeGalleryItem(shapeGalleryItem) }}>
-                                    </omfx-confirm-dialog>
+                                            })}>
+                                            <span>{this.errMsg[shapeGalleryItem.id.toString()]}</span>
+                                        </v-tooltip> :
+                                        <omfx-confirm-dialog
+                                            icon="fal fa-trash-alt"
+                                            styles={{ icon: { fontSize: "18px !important" }, button: { marginLeft: "0px !important" } }}
+                                            type={ConfirmDialogDisplay.Icon}
+                                            onClose={(res) => { res == ConfirmDialogResponse.Ok && this.removeShapeGalleryItem(shapeGalleryItem) }}>
+                                        </omfx-confirm-dialog>
 
-                            ]
-                        }
-                    </td>
-                }
+                                ]
+                            }
+                        </div>
+                    }
+
+                </td>
             </tr>
         )
     }

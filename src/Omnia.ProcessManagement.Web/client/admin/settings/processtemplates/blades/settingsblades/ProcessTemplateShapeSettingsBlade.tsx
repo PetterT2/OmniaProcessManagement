@@ -83,13 +83,17 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     ];
 
     created() {
-        this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
-            shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
-        })
+        
+    }
 
+    mounted() {
         this.isLoading = true;
         this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
             this.isLoading = false;
+            this.shapeTemplateSelections = this.shapeTemplateStore.getters.shapeTemplates();
+            this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
+                shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
+            })
             OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
                 this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
                 if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
@@ -108,6 +112,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     onShapeTemplateChanged() {
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString())
         if (foundTemplate) {
+            (this.editingShape as DrawingShapeDefinition).shapeTemplateId = foundTemplate.id;
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType = foundTemplate.settings.type;
             this.editingShape.title = Utils.clone(foundTemplate.title);
             this.updateTemplateShape();
@@ -115,7 +120,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     }
 
     updateTemplateShape() {
-        if (!this.drawingCanvas) {
+        if (!this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
             var canvasWidth = this.getCanvasContainerWidth();
             this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
                 width: canvasWidth,
