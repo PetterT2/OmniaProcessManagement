@@ -57,7 +57,7 @@ namespace Omnia.ProcessManagement.Core
                             },
                             Settings = new ShapeTemplateSettings() 
                             {
-                                
+                                Type = ShapeTemplateType.CircleShape
                             }
                         };
                     }
@@ -77,7 +77,7 @@ namespace Omnia.ProcessManagement.Core
                             },
                             Settings = new ShapeTemplateSettings()
                             {
-
+                                Type = ShapeTemplateType.PentagonShape
                             }
                         };
                     }
@@ -97,7 +97,7 @@ namespace Omnia.ProcessManagement.Core
                             },
                             Settings = new ShapeTemplateSettings()
                             {
-                                
+                                Type = ShapeTemplateType.DiamondShape
                             }
                         };
                     }
@@ -117,7 +117,7 @@ namespace Omnia.ProcessManagement.Core
                             },
                             Settings = new ShapeTemplateSettings()
                             {
-                                
+                                Type = ShapeTemplateType.FreeformShape
                             }
                         };
                     }
@@ -137,7 +137,7 @@ namespace Omnia.ProcessManagement.Core
                             },
                             Settings = new ShapeTemplateSettings()
                             {
-                                
+                                Type = ShapeTemplateType.MediaShape
                             }
                         };
                     }

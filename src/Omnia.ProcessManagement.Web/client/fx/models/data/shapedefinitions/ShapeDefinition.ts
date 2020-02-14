@@ -32,6 +32,7 @@ export const ShapeDefinitionFactory = {
 
         if (shapeDefinition.type == ShapeDefinitionTypes.Drawing) {
             (shapeDefinition as DrawingShapeDefinition).shapeTemplateId = ShapeTemplatesConstants.Diamond.id;
+            (shapeDefinition as DrawingShapeDefinition).shapeTemplateType = ShapeTemplatesConstants.Diamond.settings.type;
             shapeDefinition.title = ShapeTemplatesConstants.Diamond.title;
             (shapeDefinition as DrawingShapeDefinition).fontSize = 20;
             (shapeDefinition as DrawingShapeDefinition).backgroundColor = theming.promoted.header.background.base;

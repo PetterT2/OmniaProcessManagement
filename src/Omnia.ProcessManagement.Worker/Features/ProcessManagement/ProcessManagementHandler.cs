@@ -66,22 +66,12 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
             }
 
             var allShapeGalleryItems = await ShapeGalleryItemService.GetAllAsync();
-            foreach(var galleryItem in OPMConstants.Features.DefaultShapeTemplates.ShapeTemplates)
+            foreach(var shapeTemplate in OPMConstants.Features.DefaultShapeTemplates.ShapeTemplates)
             {
-                var currentItem = allShapeGalleryItems.FirstOrDefault(i => i.Id == galleryItem.Id);
+                var currentItem = allShapeGalleryItems.FirstOrDefault(i => i.Id == shapeTemplate.Id);
                 if(currentItem == null)
                 {
-                    EnsureBuiltInDataTask.Add(Task.Run(() =>
-                    {
-                        try
-                        {
-                            ShapeGalleryItemService.AddOrUpdateAsync(galleryItem).GetAwaiter().GetResult();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"ProcessManagement - Add built-in shape gallery item {galleryItem.Id} ERROR: {ex.Message}", ex);
-                        }
-                    }));
+                    await ShapeGalleryItemService.AddOrUpdateAsync(shapeTemplate);
                 }
             }
 

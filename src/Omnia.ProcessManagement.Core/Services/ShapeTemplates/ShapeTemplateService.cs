@@ -25,9 +25,9 @@ namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
             return await ShapeGalleryItemRepository.GetByIdAsync(id);
         }
 
-        public async ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeDeclaration)
+        public async ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeTemplate)
         {
-            return await ShapeGalleryItemRepository.AddOrUpdateAsync(shapeDeclaration);
+            return await ShapeGalleryItemRepository.AddOrUpdateAsync(shapeTemplate);
         }
 
         public async ValueTask DeleteAsync(Guid id)
@@ -35,15 +35,15 @@ namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
             await ShapeGalleryItemRepository.DeleteAsync(id);
         }
 
-        public async ValueTask<bool> AddImageAsync(Guid shapeGalleryItemId, string fileName, string imageBase64)
+        public async ValueTask<bool> AddImageAsync(Guid shapeTemplateId, string fileName, string imageBase64)
         {
             var bytes = Convert.FromBase64String(imageBase64);
-            return await ShapeGalleryItemRepository.AddImageAsync(shapeGalleryItemId, fileName, bytes);
+            return await ShapeGalleryItemRepository.AddImageAsync(shapeTemplateId, fileName, bytes);
         }
 
-        public async ValueTask<(MemoryStream, string)> GetImageAsync(Guid shapeGalleryItemId)
+        public async ValueTask<(MemoryStream, string)> GetImageAsync(Guid shapeTemplateId)
         {
-            var (bytes, fileName) = await ShapeGalleryItemRepository.GetImageAsync(shapeGalleryItemId);
+            var (bytes, fileName) = await ShapeGalleryItemRepository.GetImageAsync(shapeTemplateId);
             return (new MemoryStream(bytes), fileName);
         }
     }

@@ -9,8 +9,7 @@ StyleFlow.define(ShapeGalleryDefaultSettingStyles, {
             alignItems: 'center',
             flexDirection: 'column' as any,
             margin: '0 auto',
-            maxHeight: canvasSize + 50 + 'px',
-            height: '100%',
+            height: canvasSize + 30 + 'px',
             width: canvasSize + 'px'
         }
         

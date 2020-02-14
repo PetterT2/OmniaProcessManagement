@@ -90,7 +90,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         this.isLoading = true;
         this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
             this.isLoading = false;
-            setTimeout(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
                 this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
                 if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
                     var canvasWidth = this.getCanvasContainerWidth();
@@ -101,7 +101,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     }, false);
                     this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
                 }
-            }, 20)
+            });
         })
     }
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Omnia.Fx.Models.Language;
 
 namespace Omnia.ProcessManagement.Core.Repositories.ShapeTemplates
 {
@@ -33,15 +34,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeTemplates
             return ParseEntityToModel(entity);
         }
 
-        public async ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeDeclaration)
+        public async ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeTemplate)
         {
-            var entity = ParseModelToEntity(shapeDeclaration);
-            var existingShapeTemplate = shapeDeclaration.Id != Guid.Empty ? await DBContext.ShapeTemplates.AsTracking().FirstOrDefaultAsync(d => d.Id == shapeDeclaration.Id && d.DeletedAt == null) : null;
+            var entity = ParseModelToEntity(shapeTemplate);
+            var existingShapeTemplate = shapeTemplate.Id != Guid.Empty ? await DBContext.ShapeTemplates.AsTracking().FirstOrDefaultAsync(d => d.Id == shapeTemplate.Id && d.DeletedAt == null) : null;
             if (existingShapeTemplate == null)
             {
                 existingShapeTemplate = new Entities.ShapeTemplates.ShapeTemplate
                 {
-                    Id = shapeDeclaration.Id != Guid.Empty ? shapeDeclaration.Id : Guid.NewGuid(),
+                    Id = shapeTemplate.Id != Guid.Empty ? shapeTemplate.Id : Guid.NewGuid(),
+                    BuiltIn = shapeTemplate.BuiltIn,
+                    Title = entity.Title,
                     JsonValue = entity.JsonValue
                 };
                 DBContext.ShapeTemplates.Add(existingShapeTemplate);
@@ -114,6 +117,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeTemplates
             {
                 model = new ShapeTemplate();
                 model.Id = entity.Id;
+                model.BuiltIn = entity.BuiltIn;
+                model. Title = string.IsNullOrWhiteSpace(entity.Title) ? new MultilingualString() : JsonConvert.DeserializeObject<MultilingualString>(entity.Title);
                 model.Settings = string.IsNullOrWhiteSpace(entity.JsonValue) ? new ShapeTemplateSettings() : JsonConvert.DeserializeObject<ShapeTemplateSettings>(entity.JsonValue);
             }
 
@@ -124,6 +129,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeTemplates
         {
             var entity = new Entities.ShapeTemplates.ShapeTemplate();
             entity.Id = model.Id;
+            entity.BuiltIn = model.BuiltIn;
+            entity.Title = model.Title != null ? JsonConvert.SerializeObject(model.Title) : "";
             entity.JsonValue = model.Settings != null ? JsonConvert.SerializeObject(model.Settings) : "";
 
             return entity;
