@@ -101,6 +101,17 @@ StyleFlow.define(ProcessNavigationBlockStyles,
         contentHide: {
             maxHeight: "0px",
             display: "none"
+        },
+        clickProtectionOverlay: {
+            position: "relative",
+            pointerEvents: 'none',
+            backgroundColor: "#e9e9e9",
+            opacity: 0.46,
+            $nest: {
+                '&:hover': {
+                    cursor: "pointer",
+                },
+            },
         }
     }
 )

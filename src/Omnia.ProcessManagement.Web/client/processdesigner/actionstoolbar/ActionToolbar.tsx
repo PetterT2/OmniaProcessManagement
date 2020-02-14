@@ -84,12 +84,62 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
             </v-btn>);
     }
 
-    private createActionButtons(h, defaultActionButtons: ActionItem[]) {
+    private createActionButtons(h, defaultActionButtons: ActionItem[], extendedActionButtons?: ActionItem[]) {
         let actionButtons = new Array<JSX.Element>();
 
         defaultActionButtons.forEach((button) => {
             actionButtons.push(this.createButton(h, button));
         });
+
+        if (extendedActionButtons && extendedActionButtons.length > 0) {
+            let extendedButtons = new Array<JSX.Element>();
+            extendedActionButtons.forEach((button) => {
+                let tempbutton: ActionButton = button as ActionButton;
+                let showButton = true;
+                if (tempbutton.visibilityCallBack) {
+                    showButton = tempbutton.visibilityCallBack();
+                }
+                if (showButton) {
+                    extendedButtons.push(
+                        <v-list-item onClick={() => this.onActionButtonClick(tempbutton.actionCallback, tempbutton.confirmationOptions)}>
+                            <v-list-item-avatar>
+                                <v-icon>{tempbutton.icon}</v-icon>
+                            </v-list-item-avatar>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title class={[ActionToolbarStyles.extendedButtonText]}>
+                                    {tempbutton.title}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>)
+                }
+            });
+
+            if (extendedButtons.length > 0)
+                actionButtons.push(
+                    <v-menu bottom left
+                        {
+                        ...this.transformVSlot({
+                            activator: (ref) => {
+                                const toSpread = {
+                                    on: ref.on
+                                }
+                                return [
+                                    <v-btn
+                                        {...toSpread}
+                                        icon
+                                        dark={this.omniaTheming.chrome.background.dark}>
+                                        <v-icon >more_vert</v-icon>
+                                    </v-btn>
+                                ]
+                            }
+                        })}>
+                        <v-list dark={this.omniaTheming.chrome.background.dark} min-width={200}>
+                            {extendedButtons}
+                        </v-list>
+                    </v-menu>
+                );
+        }
+
         return actionButtons;
     }
 
@@ -103,7 +153,8 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
         if (this.processDesignerStore.tabs.selectedTab.state && currentProcessReferenceData && currentProcessReferenceData.process) {
             if (currentProcessReferenceData.process.versionType == ProcessVersionType.CheckedOut) {
                 actionButtons = this.createActionButtons(h,
-                    this.processDesignerStore.tabs.selectedTab.state.actionToolbar.checkedOutButtons)
+                    this.processDesignerStore.tabs.selectedTab.state.actionToolbar.checkedOutButtons,
+                    this.processDesignerStore.tabs.selectedTab.state.actionToolbar.checkedOutExtendedActionButtons)
             }
             else {
                 actionButtons = this.createActionButtons(h,

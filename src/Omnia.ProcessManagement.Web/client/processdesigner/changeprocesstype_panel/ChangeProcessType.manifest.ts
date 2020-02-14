@@ -7,7 +7,5 @@ Composer
     .registerManifest(OPMWebComponentManifests.ChangeProcessType, 'opm.processdesigner.changeprocesstype')
     .registerWebComponent({
         elementName: 'opm-process-changeprocesstype',
-        entryPoint: './ChangeprocessType.jsx'
+        entryPoint: './ChangeProcessType.jsx'
     });
-
-

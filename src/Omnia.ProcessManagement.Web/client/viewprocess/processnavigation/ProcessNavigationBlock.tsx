@@ -1,6 +1,6 @@
 ﻿import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
+import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, Topics } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
 import { IMessageBusSubscriptionHandler, SpacingSetting, GuidValue } from '@omnia/fx/models';
 import './ProcessNavigationBlock.css';
@@ -14,7 +14,7 @@ import { ProcessNavigationBlockData, RootProcessStep, ProcessStep } from '../../
 import { ProcessNavigationNodeComponent } from './navigationtree/ProcessNavigationNode';
 
 @Component
-export class ProcessNavigationBlockComponent extends VueComponentBase implements IWebComponentInstance {
+export class ProcessNavigationBlockComponent extends Vue implements IWebComponentInstance {
     @Prop() settingsKey: string;
     @Prop() styles: typeof ProcessNavigationBlockStyles | any;
     @Prop() mobileView: boolean;
@@ -31,6 +31,7 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
     blockData: ProcessNavigationBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     processnavigationClasses = StyleFlow.use(ProcessNavigationBlockStyles, this.styles);
+    isPageEditMode: boolean = false;
 
     currentProcessId: GuidValue = '';
     indentation: number = 0;
@@ -54,6 +55,8 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
         this.subscriptionHandler = this.settingsService
             .onKeyValueUpdated(this.settingsKey)
             .subscribe(this.setBlockData);
+
+        this.subscriptionHandler.add(Topics.onPageEditModeChanged.subscribe((obj) => this.isPageEditMode = obj && obj.editMode ? true : false));
 
         this.subscriptionHandler.add(
             this.currentProcessStore.getters.onCurrentProcessReferenceDataMutated()(() => {
@@ -129,19 +132,17 @@ export class ProcessNavigationBlockComponent extends VueComponentBase implements
 
         if (isEmpty) {
             return (
-                <aside>
+                <nav>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
                     <wcm-empty-block-view dark={false} icon={"fas fa-bars"} text={this.corLoc.Blocks.ProcessNavigation.Title}></wcm-empty-block-view>
-                </aside>
+                </nav>
             )
         }
         return (
-            <aside>
+            <nav class={this.isPageEditMode ? this.processnavigationClasses.clickProtectionOverlay : ""}>
                 <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                <div class={this.processnavigationClasses.blockPadding(this.blockData.settings.spacing)}>
-                    <div key={this.componentUniqueKey}>{this.renderProcessNavigation(h)}</div>
-                </div>
-            </aside>
+                {this.renderProcessNavigation(h)}
+            </nav>
         );
     }
 }

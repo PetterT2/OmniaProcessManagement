@@ -10,6 +10,7 @@ export interface TabRegistration {
     actionToolbar?: {
         editorDisplayActionButtons: Array<DisplayActionButton>;
         checkedOutButtons: Array<ActionItem>;
+        checkedOutExtendedActionButtons: Array<ActionItem>;
         notCheckedOutActionButtons: Array<ActionItem>;
     }
 }
