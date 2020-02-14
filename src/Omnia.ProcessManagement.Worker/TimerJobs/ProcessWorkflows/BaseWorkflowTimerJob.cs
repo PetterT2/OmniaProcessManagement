@@ -89,18 +89,25 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
                         var processes = await processService.GetProcessesByWorkingStatusAsync(ProcessWorkingStatus, VersionType);
 
                         var failed = false;
+                        List<(Guid, ValueTask)> tasks = new List<(Guid, ValueTask)>();
+
                         foreach (var process in processes)
                         {
+                            tasks.Add((process.OPMProcessId, HandleAsync(ServiceScopeFactory, process)));
+                        }
 
+                        //We ensure all tasks are completed even if there is any failed. So we do not use Task.WhenAll 
+                        foreach (var (opmProcessId, task) in tasks)
+                        {
                             try
                             {
-                                await HandleAsync(ServiceScopeFactory, process);
+                                await task;
                             }
                             catch (Exception ex)
                             {
                                 //Inner each HandleAsync implemetation should have its own try/catch. then update the working status to failed if error happen
                                 //This catch is only used for ensuring unexpected issue happen, then the _lastTimeRunSync will not be updated to let it retry the process again next time
-                                Logger.LogError($"Unexpected exception in handling workflow '{ProcessWorkingStatus.ToString()}' for process with OPMProcessId '{process.OPMProcessId}': {ex.Message} - {ex.StackTrace}");
+                                Logger.LogError($"Unexpected exception in handling workflow '{ProcessWorkingStatus.ToString()}' for process with OPMProcessId '{opmProcessId}': {ex.Message} - {ex.StackTrace}");
                                 failed = true;
                             }
                         }

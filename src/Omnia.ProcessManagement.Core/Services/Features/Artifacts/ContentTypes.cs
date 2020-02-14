@@ -23,7 +23,26 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
         [FieldRef(typeof(RelatedItems))]
         [FieldRef(typeof(OPMComment))]
         [FieldRef(typeof(OPMTaskOutcome))]
+        [FieldRef(typeof(OPMProcessId))]
         public IList<string> Fields { get; set; }
     }
-   
+
+    [ContentType(id: "07984fc3-c56a-4021-bbec-2ef964035dbd", name: "$Localize:OPM.Core.Features.ContentTypes.OPMReviewReminderTask.Name;",
+       Group = "$Localize:OPM.Core.Features.ContentTypes.GroupName;", Description = "$Localize:OPM.Core.Features.ContentTypes.OPMReviewReminderTask.Description;")]
+    public class OPMReviewReminderTask : BuiltInContentTypes.Item
+    {
+        [FieldRef(typeof(StartDate))]
+        [FieldRef(typeof(TaskDueDate))]
+        [FieldRef(typeof(AssignedTo))]
+        [FieldRef(typeof(PercentComplete))]
+        [FieldRef(typeof(Body))]
+        [FieldRef(typeof(Predecessors))]
+        [FieldRef(typeof(Priority))]
+        [FieldRef(typeof(TaskStatus))]
+        [FieldRef(typeof(RelatedItems))]
+        [FieldRef(typeof(OPMComment))]
+        [FieldRef(typeof(OPMTaskOutcome))]
+        [FieldRef(typeof(OPMProcessId))]
+        public IList<string> Fields { get; set; }
+    }
 }

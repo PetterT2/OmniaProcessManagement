@@ -164,10 +164,15 @@
                 ApproveBodyNoCommentTemplate: string,
                 RejectSubjectTemplate: string,
                 RejectBodyTemplate: string
+            },
+            ReviewReminder: {
+                SubjectTemplate: string,
+                BodyTemplate: string
             }
         },
         TaskTitle: {
-            ApprovalTaskPrefix: string
+            ApprovalTaskPrefix: string,
+            ReviewReminderTaskPrefix: string
         },
         ProcessHistory: string
     }

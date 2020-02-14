@@ -51,6 +51,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         IOmniaContext OmniaContext { get; }
         OmniaPMDbContext DbContext { get; }
+
         public ProcessRepository(OmniaPMDbContext databaseContext, IOmniaContext omniaContext) :
             base(databaseContext, nameof(OmniaPMDbContext.Processes), nameof(Entities.Processes.Process.EnterpriseProperties))
         {
@@ -105,12 +106,24 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                     EnsureNoActiveWorkflow(publishedProcess);
 
+
+                    await InvalidatePendingReviewReminderQueueAsync(opmProcessId);
                     draftProcess = await CloneProcessAsync(publishedProcess, ProcessVersionType.Draft);
                 }
 
                 var model = MapEfToModel(draftProcess);
                 return model;
             });
+        }
+
+        private async ValueTask InvalidatePendingReviewReminderQueueAsync(Guid opmProcessId)
+        {
+            var pendingQueue = await DbContext.ReviewReminderQueues.AsTracking().FirstOrDefaultAsync(r => r.OPMProcessId == opmProcessId && r.Pending);
+            if (pendingQueue != null)
+            {
+                pendingQueue.Pending = false;
+                pendingQueue.Log = "Invalidated this queue because of creating a new draft";
+            }
         }
 
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
@@ -209,8 +222,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
 
-
-
                 draftProcess.CheckedOutBy = "";
                 draftProcess.VersionType = ProcessVersionType.Published;
                 draftProcess.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
@@ -236,8 +247,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
 
                 draftProcess.SecurityResourceId = securityResourceId;
-                draftProcess.PublishedAt = DateTime.Now;
+                draftProcess.PublishedAt = DateTime.UtcNow;
                 draftProcess.PublishedBy = OmniaContext.Identity.LoginName.ToLower();
+
                 await DbContext.SaveChangesAsync();
 
                 var updateSecurityResourceIdRawSql = GenerateUpdateSecurityResourceIdRawSql(opmProcessId, securityResourceId);
@@ -717,29 +729,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             if (process == null)
             {
                 throw new ProcessNotFoundException(processId);
-            }
-
-            var model = MapEfToModel(process);
-            return model;
-        }
-
-        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType)
-        {
-            var processVersionType = (ProcessVersionType)versionType;
-            var process = await DbContext.Processes
-                    .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == processVersionType)
-                    .FirstOrDefaultAsync();
-
-            if (process == null)
-            {
-                if (versionType == DraftOrPublishedVersionType.Draft)
-                {
-                    throw new ProcessDraftVersionNotFoundException(opmProcessId);
-                }
-                else
-                {
-                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
-                }
             }
 
             var model = MapEfToModel(process);

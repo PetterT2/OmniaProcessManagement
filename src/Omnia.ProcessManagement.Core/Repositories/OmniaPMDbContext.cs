@@ -8,6 +8,7 @@ using Omnia.ProcessManagement.Core.Entities.Images;
 using Omnia.ProcessManagement.Core.Entities.Processes;
 using Omnia.ProcessManagement.Core.Entities.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Entities.ProcessTypes;
+using Omnia.ProcessManagement.Core.Entities.ReviewReminders;
 using Omnia.ProcessManagement.Core.Entities.Settings;
 using Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems;
 using Omnia.ProcessManagement.Core.Entities.Workflows;
@@ -61,6 +62,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ImageReference> ImageReferences { get; set; }
         public DbSet<ShapeGalleryItem> ShapeGalleryItems { get; set; }
         public DbSet<ShapeGalleryItemImage> ShapeGalleryItemImages { get; set; }
+        public DbSet<ReviewReminderQueue> ReviewReminderQueues { get; set; }
 
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
@@ -118,6 +120,11 @@ namespace Omnia.ProcessManagement.Core.Repositories
             modelBuilder.Entity<ShapeGalleryItemImage>()
                 .HasOne(s => s.ShapeGalleryItem)
                 .WithOne().IsRequired(true).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ReviewReminderQueue>()
+              .HasIndex(r => new { r.OPMProcessId, r.Pending  })
+              .IsUnique()
+              .HasFilter($"[Pending] = 1");
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
             modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();

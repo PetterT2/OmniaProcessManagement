@@ -93,10 +93,10 @@ namespace Omnia.ProcessManagement.Core.Services.Features
 
         private void EnsureContentTypes(ISharePointEntityContext context, string contentTypeGroupName)
         {
-            context.EnsureContentType<OPMApprovalTask>().Configure((option) =>
-            {
-                option.Group = contentTypeGroupName;
-            });
+            //context.EnsureContentType<OPMApprovalTask>().Configure((option) =>
+            //{
+            //    option.Group = contentTypeGroupName;
+            //});
         }
     }
 }

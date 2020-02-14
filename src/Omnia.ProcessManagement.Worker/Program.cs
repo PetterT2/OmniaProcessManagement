@@ -58,6 +58,8 @@ namespace Omnia.ProcessManagement.Worker
                         services.AddHostedService<SyncingToSharePointWorkflowTimerJob>();
                         services.AddHostedService<ArchivingProcessWorkflowTimerJob>();
 
+                        services.AddHostedService<ReviewReminderTimerJob>();
+
                         services.AddHostedService<ImageCleanerTimerJob>();
                         services.AddOmniaPMSqlDB();
                     });

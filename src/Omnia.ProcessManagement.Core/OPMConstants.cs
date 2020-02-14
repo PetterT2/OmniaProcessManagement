@@ -43,7 +43,7 @@ namespace Omnia.ProcessManagement.Core
                         Circle, Pentagon, Diamond, Freeform, Media
                     };
 
-                public static ShapeGalleryItem Circle 
+                public static ShapeGalleryItem Circle
                 {
                     get
                     {
@@ -51,7 +51,7 @@ namespace Omnia.ProcessManagement.Core
                         {
                             Id = new Guid("b98c7edb-4739-4f88-b14b-55e2fc5d5a55"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings() 
+                            Settings = new ShapeGalleryItemSettings()
                             {
                                 Title = new MultilingualString()
                                 {
@@ -343,11 +343,13 @@ namespace Omnia.ProcessManagement.Core
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
             public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");
+            public static readonly string ReviewReminderTaskTitle = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ReviewReminderTaskPrefix");
         }
 
         public static class OPMContentTypeId
         {
             public const string CTApprovalTaskStringId = "0x010048629609AA6E4577B841268AA6AFDA0F";
+            public const string CTReviewReminderTaskStringId = "0x010007984FC3C56A4021BBEC2EF964035DBD";
         }
 
         public static class EmailTemplates
@@ -399,6 +401,23 @@ namespace Omnia.ProcessManagement.Core
                 {
                     public static readonly string ApproverName = "ApproverName";
                     public static readonly string ProcessTitle = "ProcessTitle";
+                }
+            }
+
+            public static class ReviewReminder
+            {
+                public static readonly string SubjectLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.ReviewReminder.SubjectTemplate");
+                public static readonly string BodyLocalizedKey = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.EmailTemplates.ReviewReminder.BodyTemplate");
+
+                public static class Tokens
+                {
+                    public static readonly string Recipient = "Recipient";
+                    public static readonly string ProcessTitle = "ProcessTitle";
+                    public static readonly string ProcessLink = "ProcessLink";
+                    public static readonly string SiteUrl = "SiteUrl";
+                    public static readonly string SiteTitle = "SiteTitle";
+                    public static readonly string PublishDate= "PublishDate";
+                    public static readonly string ReviewDate = "ReviewDate";
                 }
             }
 
