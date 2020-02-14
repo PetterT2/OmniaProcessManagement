@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.ShapeGalleryItems;
+using Omnia.ProcessManagement.Models.ShapeTemplates;
 
 namespace Omnia.ProcessManagement.Core
 {
@@ -36,103 +36,108 @@ namespace Omnia.ProcessManagement.Core
 
         public static class Features
         {
-            public static class OPMDefaultShapeGalleryItems
+            public static class DefaultShapeTemplates
             {
-                public static IList<ShapeGalleryItem> ShapeGalleryItems => new List<ShapeGalleryItem>()
+                public static IList<ShapeTemplate> ShapeTemplates => new List<ShapeTemplate>()
                     {
                         Circle, Pentagon, Diamond, Freeform, Media
                     };
 
-                public static ShapeGalleryItem Circle
+                public static ShapeTemplate Circle 
                 {
                     get
                     {
-                        return new ShapeGalleryItem()
+                        return new ShapeTemplate()
                         {
                             Id = new Guid("b98c7edb-4739-4f88-b14b-55e2fc5d5a55"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings()
+                            Title = new MultilingualString()
                             {
-                                Title = new MultilingualString()
-                                {
-                                    [LanguageTag.EnUs] = "Circle"
-                                }
+                                [LanguageTag.EnUs] = "Circle"
+                            },
+                            Settings = new ShapeTemplateSettings() 
+                            {
+                                Type = ShapeTemplateType.CircleShape
                             }
                         };
                     }
                 }
 
-                public static ShapeGalleryItem Pentagon
+                public static ShapeTemplate Pentagon
                 {
                     get
                     {
-                        return new ShapeGalleryItem()
+                        return new ShapeTemplate()
                         {
                             Id = new Guid("b226d2e8-264c-45b8-832d-905e55a74b13"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings()
+                            Title = new MultilingualString()
                             {
-                                Title = new MultilingualString()
-                                {
-                                    [LanguageTag.EnUs] = "Pentagon"
-                                }
+                                [LanguageTag.EnUs] = "Pentagon"
+                            },
+                            Settings = new ShapeTemplateSettings()
+                            {
+                                Type = ShapeTemplateType.PentagonShape
                             }
                         };
                     }
                 }
 
-                public static ShapeGalleryItem Diamond
+                public static ShapeTemplate Diamond
                 {
                     get
                     {
-                        return new ShapeGalleryItem()
+                        return new ShapeTemplate()
                         {
                             Id = new Guid("16b5dd18-8de2-4bbd-9aaa-27b4cb155b37"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings()
+                            Title = new MultilingualString()
                             {
-                                Title = new MultilingualString()
-                                {
-                                    [LanguageTag.EnUs] = "Diamond"
-                                }
+                                [LanguageTag.EnUs] = "Diamond"
+                            },
+                            Settings = new ShapeTemplateSettings()
+                            {
+                                Type = ShapeTemplateType.DiamondShape
                             }
                         };
                     }
                 }
 
-                public static ShapeGalleryItem Freeform
+                public static ShapeTemplate Freeform
                 {
                     get
                     {
-                        return new ShapeGalleryItem()
+                        return new ShapeTemplate()
                         {
                             Id = new Guid("d7b2fee0-0435-46aa-8606-c7144d128d53"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings()
+                            Title = new MultilingualString()
                             {
-                                Title = new MultilingualString()
-                                {
-                                    [LanguageTag.EnUs] = "Freeform"
-                                }
+                                [LanguageTag.EnUs] = "Freeform"
+                            },
+                            Settings = new ShapeTemplateSettings()
+                            {
+                                Type = ShapeTemplateType.FreeformShape
                             }
                         };
                     }
                 }
 
-                public static ShapeGalleryItem Media
+                public static ShapeTemplate Media
                 {
                     get
                     {
-                        return new ShapeGalleryItem()
+                        return new ShapeTemplate()
                         {
                             Id = new Guid("b4d016f4-2bee-47f1-aa1f-0a5747c7b0b1"),
                             BuiltIn = true,
-                            Settings = new ShapeGalleryItemSettings()
+                            Title = new MultilingualString()
                             {
-                                Title = new MultilingualString()
-                                {
-                                    [LanguageTag.EnUs] = "Media"
-                                }
+                                [LanguageTag.EnUs] = "Media"
+                            },
+                            Settings = new ShapeTemplateSettings()
+                            {
+                                Type = ShapeTemplateType.MediaShape
                             }
                         };
                     }

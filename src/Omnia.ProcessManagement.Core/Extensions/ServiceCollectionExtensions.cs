@@ -9,7 +9,7 @@ using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
 using Omnia.ProcessManagement.Core.Repositories.ReviewReminders;
 using Omnia.ProcessManagement.Core.Repositories.Settings;
-using Omnia.ProcessManagement.Core.Repositories.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Repositories.ShapeTemplates;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Repositories.Workflows;
 using Omnia.ProcessManagement.Core.Services.Features;
@@ -25,7 +25,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
 using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
-using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
 using Omnia.ProcessManagement.Core.Services.Workflows;
@@ -73,7 +73,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IImageService, ImageService>();
             services.AddScopedWithSingeltonRef<IProcessRollupService, ProcessRollupService>();
             services.AddScopedWithSingeltonRef<IProcessHandleService, ProcessHandleService>();
-            services.AddScopedWithSingeltonRef<IShapeGalleryItemService, ShapeGalleryItemService>();
+            services.AddScopedWithSingeltonRef<IShapeTemplateService, ShapeTemplateService>();
             services.AddScopedWithSingeltonRef<IReviewReminderService, ReviewReminderService>();
 
             //Repositories
@@ -86,7 +86,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IWorkflowRepository, WorkflowRepository>();
             services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
             services.AddScopedWithSingeltonRef<IImageRepository, ImageRepository>();
-            services.AddScopedWithSingeltonRef<IShapeGalleryItemRepository, ShapeGalleryItemRepository>();
+            services.AddScopedWithSingeltonRef<IShapeTemplateRepository, ShapeTemplateRepository>();
             services.AddScopedWithSingeltonRef<IReviewReminderRepository, ReviewReminderRepository>();
 
             services.AddAutoMapper();

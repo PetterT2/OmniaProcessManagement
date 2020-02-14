@@ -2,7 +2,7 @@
 import { Inject, ServiceContainer } from '@omnia/fx';
 import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { FabricShape } from './FabricShape';
 import { MultilingualString, MultilingualScopes } from '@omnia/fx-models';
 import { DrawingShapeDefinition, TextAlignment } from '../../models';
@@ -49,7 +49,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
         }
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.text;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.text;
     }
 }

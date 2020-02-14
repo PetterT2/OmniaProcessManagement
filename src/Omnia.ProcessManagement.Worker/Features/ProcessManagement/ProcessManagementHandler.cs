@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core;
-using Omnia.ProcessManagement.Core.Services.ShapeGalleryItems;
+using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
 
 namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
 {
@@ -17,11 +17,11 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
     {
         ILogger<ProcessManagementHandler> Logger { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
-        IShapeGalleryItemService ShapeGalleryItemService { get; }
+        IShapeTemplateService ShapeGalleryItemService { get; }
 
         public ProcessManagementHandler(ILogger<ProcessManagementHandler> logger,
             IEnterprisePropertyService enterprisePropertyService,
-            IShapeGalleryItemService shapeGalleryItemService) : base()
+            IShapeTemplateService shapeGalleryItemService) : base()
         {
             Logger = logger;
             EnterprisePropertyService = enterprisePropertyService;
@@ -66,22 +66,12 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
             }
 
             var allShapeGalleryItems = await ShapeGalleryItemService.GetAllAsync();
-            foreach(var galleryItem in OPMConstants.Features.OPMDefaultShapeGalleryItems.ShapeGalleryItems)
+            foreach(var shapeTemplate in OPMConstants.Features.DefaultShapeTemplates.ShapeTemplates)
             {
-                var currentItem = allShapeGalleryItems.FirstOrDefault(i => i.Id == galleryItem.Id);
+                var currentItem = allShapeGalleryItems.FirstOrDefault(i => i.Id == shapeTemplate.Id);
                 if(currentItem == null)
                 {
-                    EnsureBuiltInDataTask.Add(Task.Run(() =>
-                    {
-                        try
-                        {
-                            ShapeGalleryItemService.AddOrUpdateAsync(galleryItem).GetAwaiter().GetResult();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"ProcessManagement - Add built-in shape gallery item {galleryItem.Id} ERROR: {ex.Message}", ex);
-                        }
-                    }));
+                    await ShapeGalleryItemService.AddOrUpdateAsync(shapeTemplate);
                 }
             }
 

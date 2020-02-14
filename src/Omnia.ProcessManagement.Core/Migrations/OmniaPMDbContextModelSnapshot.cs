@@ -429,7 +429,7 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItem", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeTemplates.ShapeTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -461,6 +461,9 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
@@ -468,17 +471,17 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .IsUnique()
                         .HasAnnotation("SqlServer:Clustered", true);
 
-                    b.ToTable("ShapeGalleryItems");
+                    b.ToTable("ShapeTemplates");
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeTemplates.ShapeTemplateImage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("ShapeGalleryItemId")
+                    b.Property<Guid>("ShapeTemplateId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<byte[]>("Content")
@@ -502,12 +505,12 @@ namespace Omnia.ProcessManagement.Core.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id", "ShapeGalleryItemId");
+                    b.HasKey("Id", "ShapeTemplateId");
 
-                    b.HasIndex("ShapeGalleryItemId")
+                    b.HasIndex("ShapeTemplateId")
                         .IsUnique();
 
-                    b.ToTable("ShapeGalleryItemImages");
+                    b.ToTable("ShapeTemplateImages");
                 });
 
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Workflows.Workflow", b =>
@@ -651,11 +654,11 @@ namespace Omnia.ProcessManagement.Core.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", b =>
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ShapeTemplates.ShapeTemplateImage", b =>
                 {
-                    b.HasOne("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItem", "ShapeGalleryItem")
+                    b.HasOne("Omnia.ProcessManagement.Core.Entities.ShapeTemplates.ShapeTemplate", "ShapeTemplate")
                         .WithOne()
-                        .HasForeignKey("Omnia.ProcessManagement.Core.Entities.ShapeGalleryItems.ShapeGalleryItemImage", "ShapeGalleryItemId")
+                        .HasForeignKey("Omnia.ProcessManagement.Core.Entities.ShapeTemplates.ShapeTemplateImage", "ShapeTemplateId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

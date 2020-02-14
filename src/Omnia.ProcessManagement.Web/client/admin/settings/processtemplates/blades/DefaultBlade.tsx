@@ -7,7 +7,7 @@ import { OPMAdminLocalization } from '../../../loc/localize';
 import { ProcessTemplateJourneyStore } from '../store';
 import { ProcessTemplatesJourneyBladeIds } from '../ProcessTemplatesJourneyConstants';
 import { ProcessTemplate, ProcessTemplateFactory } from '../../../../fx/models';
-import { ProcessTemplateStore } from '../../../../fx';
+import { ProcessTemplateStore, ShapeTemplateStore } from '../../../../fx';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -21,6 +21,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
     @Inject(ProcessTemplateJourneyStore) processTemplateJournayStore: ProcessTemplateJourneyStore;
+    @Inject(ShapeTemplateStore) shapeGalleryItemStore: ShapeTemplateStore;
 
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
@@ -32,7 +33,8 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     created() {
         this.isLoading = true;
         Promise.all([
-            this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch()]
+            this.processTemplateStore.actions.ensureLoadProcessTemplates.dispatch(),
+            this.shapeGalleryItemStore.actions.ensureLoadShapeTemplates.dispatch()]
         ).then(() => {
             this.isLoading = false;
         })

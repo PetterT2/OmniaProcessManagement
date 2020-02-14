@@ -71,7 +71,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
             process.OPMProcessId = Guid.NewGuid();
-            process.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(actionModel.Process.RootProcessStep.EnterpriseProperties));
+            process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
             process.CreatedBy = OmniaContext.Identity.LoginName;
             process.ModifiedBy = OmniaContext.Identity.LoginName;
@@ -244,7 +244,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 rootProcessStep.Comment = comment;
                 draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
-                draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(rootProcessStep.EnterpriseProperties));
+                draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
 
                 draftProcess.SecurityResourceId = securityResourceId;
                 draftProcess.PublishedAt = DateTime.UtcNow;
@@ -312,7 +312,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             RemoveOldProcessData(actionModel.Process.Id, existingProcessDataDict, usingProcessDataIdHashSet);
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
-            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(ModifyTitleProp(actionModel.Process.RootProcessStep.EnterpriseProperties));
+            checkedOutProcessWithProcessDataIdHash.Process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedAt = DateTimeOffset.UtcNow;
             checkedOutProcessWithProcessDataIdHash.Process.ModifiedBy = OmniaContext.Identity.LoginName;
 
@@ -628,19 +628,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
             }
 
-        }
-
-        private Dictionary<string, JToken> ModifyTitleProp(Dictionary<string, JToken> enterpriseProperties)
-        {
-            var titleProp = enterpriseProperties[Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName];
-            var titlePropDic = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(titleProp.ToString());
-            var languageKeysList = titlePropDic.Keys.ToList();
-            foreach (var key in languageKeysList)
-            {
-                titlePropDic.RenameKey(key, key.Replace("-", ""));
-            }
-            enterpriseProperties[Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName] = JsonConvert.SerializeObject(titlePropDic);
-            return enterpriseProperties;
         }
 
         private void RemoveProcessData(Guid id, Guid processId)

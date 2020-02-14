@@ -1,5 +1,4 @@
-﻿export * from "./IFabricShape";
-export * from "./FabricShape";
+﻿export * from "./FabricShape";
 export * from "./FabricShapeExtention";
 export * from "./FabricCircleShape";
 export * from "./FabricEllipseShape";
@@ -11,3 +10,4 @@ export * from "./FabricTextShape";
 export * from "./FabricTriangleShape";
 export * from "./FabricPolylineShape";
 export * from "./FabricLineShape";
+export * from "./FabricShapeData";

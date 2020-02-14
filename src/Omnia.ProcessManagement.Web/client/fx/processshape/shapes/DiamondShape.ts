@@ -1,20 +1,20 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShapeTypes, FabricTextShape, IFabricShape, FabricPolygonShape, FabricPolylineShape } from '../fabricshape';
-import { DrawingShapeDefinition, TextPosition } from '../../models';
+import { FabricShapeDataTypes, FabricTextShape, FabricShapeData, FabricPolygonShape } from '../fabricshape';
+import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { ShapeTemplatesConstants } from '../../constants';
 import { IShape } from '.';
 
 export class DiamondShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean) {
         super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 
-    get name() {
-        return ShapeTemplatesConstants.Diamond.name;
+    get shapeTemplateTypeName() {
+        return ShapeTemplateType[ShapeTemplatesConstants.Diamond.settings.type];
     }
 
     getShapeJson(): IShape {
@@ -22,7 +22,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
 
         if (basicShapeJSON.nodes) {
             basicShapeJSON.nodes.forEach((nodeItem) => {
-                if (nodeItem.shapeNodeType != FabricShapeTypes.text && nodeItem.properties.points) {
+                if (nodeItem.fabricShapeDataType != FabricShapeDataTypes.text && nodeItem.properties.points) {
                     let points = this.shapeObject[0].get('points' as any);
                     let scaleX = this.shapeObject[0].scaleX;
                     let scaleY = this.shapeObject[0].scaleY;
@@ -39,8 +39,8 @@ export class DiamondShape extends ShapeExtension implements Shape {
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
-            let polygontNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.polygon);
-            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
+            let polygontNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.polygon);
+            let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
             if (polygontNode) {
                 this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({}, polygontNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }

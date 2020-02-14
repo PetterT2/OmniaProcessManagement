@@ -1,6 +1,6 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
@@ -19,7 +19,7 @@ export class FabricTriangleShape extends FabricShapeExtension implements FabricS
         return prop;
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.triangle;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.triangle;
     }
 }

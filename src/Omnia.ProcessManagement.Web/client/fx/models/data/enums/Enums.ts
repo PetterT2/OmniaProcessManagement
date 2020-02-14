@@ -59,3 +59,11 @@ export enum TaskOutcome {
     Approved = 1,
     Rejected = 2
 } 
+
+export enum ShapeTemplateType {
+    CircleShape = 1,
+    PentagonShape = 2,
+    DiamondShape = 3,
+    FreeformShape = 4,
+    MediaShape = 5
+}

@@ -45,7 +45,7 @@ export default class ShapeGalleryJourney extends Vue implements IWebComponentIns
         let h = this.$createElement;
         let blade: Blade = {
             id: ShapeGalleryJourneyBladeIds.shapeGallerySettingsDefault,
-            size: BladeSizes.large,
+            size: BladeSizes.medium,
             content: <ShapeGalleryDefaultSettingsBlade journey={this.getJourneyInstance}></ShapeGalleryDefaultSettingsBlade>
         }
 

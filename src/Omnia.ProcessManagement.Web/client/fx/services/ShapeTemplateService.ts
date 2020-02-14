@@ -1,11 +1,11 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator } from '@omnia/fx';
 import { IHttpApiOperationResult, InstanceLifetimes, GuidValue, MultilingualScopes, MultilingualString } from '@omnia/fx/models';
-import { OPMService, ShapeGalleryItem } from '../models';
+import { OPMService, ShapeTemplate } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { AxiosRequestConfig } from 'axios';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
-export class ShapeGalleryItemService {
+export class ShapeTemplateService {
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
     @Inject<HttpClientConstructor>(HttpClient, {
@@ -15,9 +15,9 @@ export class ShapeGalleryItemService {
     constructor() {
     }
 
-    public getAllShapeGalleryItems = () => {
-        return new Promise<Array<ShapeGalleryItem>>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<Array<any>>>('/api/shapegalleryitem/all').then(response => {
+    public getAllShapeTemplates = () => {
+        return new Promise<Array<ShapeTemplate>>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<Array<ShapeTemplate>>>('/api/shapetemplate/all').then(response => {
                 if (response.data.success) {
                     this.generateDocumentTemplatesMultilingualText(response.data.data);
                     resolve(response.data.data);
@@ -27,9 +27,9 @@ export class ShapeGalleryItemService {
         });
     }
 
-    public getShapeGalleryItemById = (id: GuidValue) => {
-        return new Promise<ShapeGalleryItem>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ShapeGalleryItem>>('/api/shapegalleryitem/' + id).then(response => {
+    public getShapeTemplateById = (id: GuidValue) => {
+        return new Promise<ShapeTemplate>((resolve, reject) => {
+            this.httpClient.get<IHttpApiOperationResult<ShapeTemplate>>('/api/shapetemplate/' + id).then(response => {
                 if (response.data.success) {
                     this.generateDocumentTemplatesMultilingualText([response.data.data]);
                     resolve(response.data.data);
@@ -39,9 +39,9 @@ export class ShapeGalleryItemService {
         });
     }
 
-    public addOrUpdateShapeGalleryItem = (processTemplate: ShapeGalleryItem) => {
-        return new Promise<ShapeGalleryItem>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<ShapeGalleryItem>>('/api/shapegalleryitem/addorupdate', processTemplate).then(response => {
+    public addOrUpdateShapeTemplateItem = (shapeTemplate: ShapeTemplate) => {
+        return new Promise<ShapeTemplate>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<ShapeTemplate>>('/api/shapetemplate/addorupdate', shapeTemplate).then(response => {
                 if (response.data.success) {
                     this.generateDocumentTemplatesMultilingualText([response.data.data]);
                     resolve(response.data.data);
@@ -51,10 +51,10 @@ export class ShapeGalleryItemService {
         });
     }
 
-    public addImage = (shapeGalleryItemId: string, fileName: string, image64: string) => {
+    public addImage = (shapeTemplateId: string, fileName: string, image64: string) => {
         return new Promise<string>((resolve, reject) => {
             var params = JSON.stringify(image64);
-            this.httpClient.post<IHttpApiOperationResult<string>>(`/api/shapegalleryitem/${shapeGalleryItemId}/${fileName}`, params)
+            this.httpClient.post<IHttpApiOperationResult<string>>(`/api/shapetemplate/${shapeTemplateId}/${fileName}`, params)
                 .then(response => {
                     if (response.data.success) {
                         resolve(response.data.data);
@@ -69,9 +69,9 @@ export class ShapeGalleryItemService {
         })
     }
 
-    public deleteShapeGalleryItem = (id: GuidValue) => {
+    public deleteShapeTemplate = (id: GuidValue) => {
         return new Promise<void>((resolve, reject) => {
-            this.httpClient.delete<IHttpApiOperationResult<void>>('/api/shapegalleryitem/' + id).then(response => {
+            this.httpClient.delete<IHttpApiOperationResult<void>>('/api/shapetemplate/' + id).then(response => {
                 if (response.data.success) {
                     resolve();
                 }
@@ -80,20 +80,20 @@ export class ShapeGalleryItemService {
         });
     }
 
-    private generateDocumentTemplatesMultilingualText = (items: Array<ShapeGalleryItem>) => {
+    private generateDocumentTemplatesMultilingualText = (items: Array<ShapeTemplate>) => {
         let languageSetting = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
 
         if (languageSetting) {
             items.forEach(item => {
                 let multilingualString: MultilingualString = {} as MultilingualString;
-                let languages = Object.keys(item.settings.title);
+                let languages = Object.keys(item.title);
                 languages.forEach(language => {
                     let foundLanguage = languageSetting.availableLanguages.find(l => l.name == language);
                     if (foundLanguage) {
-                        let content = item.settings.title[foundLanguage.name];
+                        let content = item.title[foundLanguage.name];
                         multilingualString[foundLanguage.name] = content;
                     } else {
-                        delete item.settings.title[language]
+                        delete item.title[language]
                     }
                 })
 

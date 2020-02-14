@@ -2,7 +2,7 @@
 import { Shape } from './Shape';
 import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
 import { IShape } from './IShape';
-import { IFabricShape, FabricShape, FabricShapeTypes } from '../fabricshape';
+import { FabricShapeData, FabricShape, FabricShapeDataTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape, ShapeHighlightProperties } from '../../constants';
 import { Utils, ServiceContainer } from '@omnia/fx';
@@ -10,7 +10,7 @@ import { CurrentProcessStore } from '../../stores';
 
 export class ShapeExtension implements Shape {
     definition: DrawingShapeDefinition;
-    nodes: IFabricShape[];
+    nodes: FabricShapeData[];
     left: number;
     top: number;
     protected fabricShapes: Array<FabricShape> = [];
@@ -24,7 +24,7 @@ export class ShapeExtension implements Shape {
     private currentProcessStore: CurrentProcessStore = null;
     private darkHighlight?: boolean;
 
-    constructor(definition: DrawingShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString | string, selectable?: boolean,
+    constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean) {
         this.left = left;
         this.top = top;
@@ -42,7 +42,7 @@ export class ShapeExtension implements Shape {
         this.initNodes(title, selectable, left, top);
     }
 
-    get name() {
+    get shapeTemplateTypeName() {
         return "";
     }
 
@@ -67,7 +67,7 @@ export class ShapeExtension implements Shape {
         return this.fabricShapes.map(f => f.fabricObject);
     }
 
-    protected getShapes(): IFabricShape[] {
+    protected getShapes(): FabricShapeData[] {
         return this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
     }
 
@@ -75,7 +75,7 @@ export class ShapeExtension implements Shape {
         let nodes = this.getShapes();
         this.definition = this.ensureDefinition(nodes);
         return {
-            name: this.name,
+            shapeTemplateTypeName: this.shapeTemplateTypeName,
             nodes: nodes,
             definition: this.definition,
             left: this.fabricShapes[0].fabricObject.left,
@@ -83,9 +83,9 @@ export class ShapeExtension implements Shape {
         }
     }
 
-    private ensureDefinition(jsonNodes: Array<IFabricShape>) {
+    private ensureDefinition(jsonNodes: Array<FabricShapeData>) {
         if (jsonNodes) {
-            let drawingNode = jsonNodes.find((item) => item.shapeNodeType != FabricShapeTypes.text);
+            let drawingNode = jsonNodes.find((item) => item.fabricShapeDataType != FabricShapeDataTypes.text);
             if (drawingNode) {
                 this.definition.width = drawingNode.properties.width;
                 this.definition.height = drawingNode.properties.height;

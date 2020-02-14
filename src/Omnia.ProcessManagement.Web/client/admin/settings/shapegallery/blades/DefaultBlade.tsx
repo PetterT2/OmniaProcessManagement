@@ -6,8 +6,8 @@ import { JourneyInstance, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLoc
 import { OPMAdminLocalization } from '../../../loc/localize';
 import { ShapeGalleryJourneyStore } from '../store';
 import { ShapeGalleryJourneyBladeIds } from '../ShapeGalleryJourneyConstants';
-import { ShapeGalleryItem, ShapeGalleryItemFactory } from '../../../../fx/models';
-import { ShapeGalleryItemStore } from '../../../../fx';
+import { ShapeTemplate, ShapeTemplateFactory } from '../../../../fx/models';
+import { ShapeTemplateStore } from '../../../../fx';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -20,7 +20,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ShapeGalleryJourneyStore) shapeGalleryJournayStore: ShapeGalleryJourneyStore;
-    @Inject(ShapeGalleryItemStore) shapeGalleryItemStore: ShapeGalleryItemStore;
+    @Inject(ShapeTemplateStore) shapeGalleryItemStore: ShapeTemplateStore;
 
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
@@ -32,14 +32,14 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     created() {
         this.isLoading = true;
         Promise.all([
-            this.shapeGalleryItemStore.actions.ensureLoadShapeGalleryItems.dispatch()
+            this.shapeGalleryItemStore.actions.ensureLoadShapeTemplates.dispatch()
         ]
         ).then(() => {
             this.isLoading = false;
         })
     }
 
-    removeShapeGalleryItem(shapeGalleryItem: ShapeGalleryItem) {
+    removeShapeGalleryItem(shapeGalleryItem: ShapeTemplate) {
         this.journey().travelBackToFirstBlade();
         this.$set(this.isProcessing, shapeGalleryItem.id.toString(), true);
         this.shapeGalleryItemStore.actions.deleteShapeGalleryItem.dispatch(shapeGalleryItem).then(() => {
@@ -52,20 +52,20 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         })
     }
 
-    travelToEdit(shapeGalleryItem: ShapeGalleryItem) {
+    travelToEdit(shapeGalleryItem: ShapeTemplate) {
         this.openSettingBlade(Utils.clone(shapeGalleryItem));
     }
 
-    openSettingBlade(declaration?: ShapeGalleryItem) {
+    openSettingBlade(declaration?: ShapeTemplate) {
         this.journey().travelBackToFirstBlade();
         this.$nextTick(() => {
-            let shapeGalleryItem = declaration || ShapeGalleryItemFactory.createDefaultShapeGalleryItem(this.omniaTheming);
+            let shapeGalleryItem = declaration || ShapeTemplateFactory.createDefaultShapeTemplate();
             this.shapeGalleryJournayStore.mutations.setEditingShapeGalleryItem.commit(shapeGalleryItem);
             this.journey().travelToNext(ShapeGalleryJourneyBladeIds.shapeGallerySettingsDefault);
         });
     }
 
-    private renderTableRow(h, shapeGalleryItem: ShapeGalleryItem) {
+    private renderTableRow(h, shapeGalleryItem: ShapeTemplate) {
         return (
             <tr>
                 <td>{shapeGalleryItem.multilingualTitle}</td>
@@ -122,7 +122,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     }
 
     render(h) {
-        let shapeGalleryItems = this.shapeGalleryItemStore.getters.shapeGalleryItems();
+        let shapeGalleryItems = this.shapeGalleryItemStore.getters.shapeTemplates();
 
         return (
             <div>

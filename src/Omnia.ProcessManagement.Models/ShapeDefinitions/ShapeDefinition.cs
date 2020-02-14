@@ -11,7 +11,7 @@ namespace Omnia.ProcessManagement.Models.Shapes
         {
             Undefined = 0,
             Heading = 1,
-            Drawing = 2,
+            Drawing = 2
         }
 
         public virtual ShapeDefinitionTypes Type { get; set; } = ShapeDefinitionTypes.Undefined;

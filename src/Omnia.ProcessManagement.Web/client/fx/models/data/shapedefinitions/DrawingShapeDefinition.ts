@@ -1,13 +1,13 @@
 ﻿import { ShapeDefinition, ShapeDefinitionTypes } from './ShapeDefinition';
 import { TextPosition } from '..';
-import { ShapeTemplate } from '../drawingdefinitions';
-import { TextAlignment } from '../enums';
-import { SpacingSetting } from '@omnia/fx-models';
+import { TextAlignment, ShapeTemplateType } from '../enums';
+import { GuidValue } from '@omnia/fx-models';
 
 export interface DrawingShapeDefinition extends ShapeDefinition {
     type: ShapeDefinitionTypes.Drawing;
 
-    shapeTemplate: ShapeTemplate;
+    shapeTemplateId: GuidValue;
+    shapeTemplateType: ShapeTemplateType; // To quickly get shapeTemplateName
     backgroundColor: string;
     borderColor: string;
     textColor: string;

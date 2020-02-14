@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { IFabricShape, FabricShapeTypes } from './IFabricShape';
+import { FabricShapeData, FabricShapeDataTypes } from './FabricShapeData';
 import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
 
@@ -35,7 +35,7 @@ export class FabricShapeExtension implements FabricShape {
         }
     }
 
-    get shapeNodeType() {
+    get fabricShapeDataType() {
         return null;
     }
 
@@ -59,9 +59,9 @@ export class FabricShapeExtension implements FabricShape {
         return prop;
     }    
 
-    getShapeNodeJson(): IFabricShape {
+    getShapeNodeJson(): FabricShapeData {
         return {
-            shapeNodeType: this.shapeNodeType,
+            fabricShapeDataType: this.fabricShapeDataType,
             properties: Object.assign(this.getRequiredProperties(), this.getSpecificProperties())
         };
     }

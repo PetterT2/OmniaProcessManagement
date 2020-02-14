@@ -13,6 +13,7 @@ using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 {
     internal class ProcessHandleService : IProcessHandleService
     {
+        private static Dictionary<LanguageTag, string> _enumStringValues = new Dictionary<LanguageTag, string>();
         IProcessService ProcessService { get; }
         IEnterprisePropertyService EnterprisePropertyService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
@@ -37,8 +39,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
         private ProcessVersionType VersionType;
         private List<RollupFilter> TitleFilters;
 
-        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService, 
-            IProcessService processService, 
+        public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService,
+            IProcessService processService,
             IProcessSecurityService processSecurityService,
             IUserService userService,
             ITenantService tenantService)
@@ -66,20 +68,22 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
             return await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery, titleFilters);
         }
 
-        private async ValueTask<List<string>> GetTitleFilterQuery() 
+        private async ValueTask<List<string>> GetTitleFilterQuery()
         {
             List<string> queries = new List<string>();
-            if(TitleFilters != null && TitleFilters.Count > 0)
+            if (TitleFilters != null && TitleFilters.Count > 0)
             {
                 Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
-                string currentUserPreferredLanguage = currentUser.PreferredLanguage.ToString().ToLower().Replace("-", "");
                 string tenantDefaultLanguage = await GetTenantDefaultLanguage();
+
+                string currentUserPreferredLanguage = currentUser.PreferredLanguage.HasValue ?
+                    GetLanguageTagString(currentUser.PreferredLanguage.Value) : tenantDefaultLanguage;
 
                 var titleColumnName = "P.[Proptitle]";
                 foreach (var filter in TitleFilters)
                 {
                     string searchText = filter.ValueObj.AdditionalProperties["searchValue"].ToString();
-                    string query = @$"(ISJSON({titleColumnName}) > 0 AND (JSON_VALUE({titleColumnName}, '$.{currentUserPreferredLanguage}') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.{tenantDefaultLanguage}') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.{tenantDefaultLanguage}') LIKE '%:""{searchText}""%'))";
+                    string query = @$"(ISJSON({titleColumnName}) > 0 AND (JSON_VALUE({titleColumnName}, '$.""{currentUserPreferredLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%:""{searchText}%'))";
                     queries.Add(query);
                 }
             }
@@ -98,14 +102,27 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
                 if (tenantLanguageSettings.Languages != null)
                 {
                     var defaultLanguage = tenantLanguageSettings.Languages.FirstOrDefault(l => l.Default);
-                    if(defaultLanguage != null)
+                    if (defaultLanguage != null)
                     {
-                        tenantDefaultLanguage = defaultLanguage.Name.ToString().ToLower().Replace("-", "");
+                        tenantDefaultLanguage = GetLanguageTagString(defaultLanguage.Name);
                     }
                 }
             }
 
             return tenantDefaultLanguage;
+        }
+
+        private string GetLanguageTagString(LanguageTag type)
+        {
+            if (!_enumStringValues.ContainsKey(type))
+            {
+                var enumType = typeof(LanguageTag);
+                var name = Enum.GetName(enumType, type);
+                var enumMemberAttribute = ((EnumMemberAttribute[])enumType.GetField(name).GetCustomAttributes(typeof(EnumMemberAttribute), true)).Single();
+                var stringValue = enumMemberAttribute.Value;
+                _enumStringValues[type] = stringValue;
+            }
+            return _enumStringValues[type];
         }
     }
 }

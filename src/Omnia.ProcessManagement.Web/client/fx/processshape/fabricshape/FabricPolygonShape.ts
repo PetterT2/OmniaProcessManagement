@@ -1,6 +1,6 @@
 ﻿import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
-import { FabricShapeTypes, IFabricShape } from './IFabricShape';
+import { FabricShapeDataTypes } from './FabricShapeData';
 import { DrawingShapeDefinition } from '../../models';
 import { FabricShape } from './FabricShape';
 
@@ -19,7 +19,7 @@ export class FabricPolygonShape extends FabricShapeExtension implements FabricSh
         return prop;
     }
 
-    get shapeNodeType() {
-        return FabricShapeTypes.polygon;
+    get fabricShapeDataType() {
+        return FabricShapeDataTypes.polygon;
     }
 }

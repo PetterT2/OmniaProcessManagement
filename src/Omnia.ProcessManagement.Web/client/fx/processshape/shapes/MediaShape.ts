@@ -1,29 +1,28 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShapeTypes, FabricShape, FabricCircleShape, IFabricShape, FabricImageShape } from '../fabricshape';
-import { IShape } from './IShape';
+import { FabricShapeDataTypes, FabricShapeData, FabricImageShape } from '../fabricshape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
-import { DrawingImageShapeDefinition, TextPosition, DrawingShapeDefinition } from '../../models';
+import { DrawingImageShapeDefinition, ShapeTemplateType } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
-import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
+import { ShapeTemplatesConstants } from '../../constants';
 
 export class MediaShape extends ShapeExtension implements Shape {
     left: number;
     top: number;
 
-    constructor(definition: DrawingImageShapeDefinition, nodes?: IFabricShape[], title?: MultilingualString, selectable?: boolean,
+    constructor(definition: DrawingImageShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean) {
         super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 
-    get name() {
-        return ShapeTemplatesConstants.Media.name;
+    get shapeTemplateTypeName() {
+        return ShapeTemplateType[ShapeTemplatesConstants.Media.settings.type];
     }
 
     ready(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            let fabricImageObj = this.fabricShapes.find(f => f.shapeNodeType == FabricShapeTypes.image);
+            let fabricImageObj = this.fabricShapes.find(f => f.fabricShapeDataType == FabricShapeDataTypes.image);
             if (fabricImageObj) {
                 (fabricImageObj as FabricImageShape).ready()
                     .then((result) => {
@@ -56,8 +55,8 @@ export class MediaShape extends ShapeExtension implements Shape {
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
-            let imageNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.image);
-            let textNode = this.nodes.find(n => n.shapeNodeType == FabricShapeTypes.text);
+            let imageNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.image);
+            let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
             if (imageNode) {
                 this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({}, imageNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }
