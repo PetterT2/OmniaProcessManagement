@@ -188,7 +188,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             this.drawingParentCanvas.destroy();
             this.drawingParentCanvas = null;
         }
-            
+
         this.initDrawingCanvas();
     }
 
@@ -337,18 +337,22 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             <div>
                 <v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
                     <v-card-text>
-                        <div class="mb-3">
-                            <v-btn text onClick={() => {
-                                this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
-                            }}>{this.pdLoc.AddShape}</v-btn>
-                            {
-                                this.processDesignerStore.getters.shapeToEditSettings() ?
+                        {
+                            this.canvasDefinition ?
+                                <div class="mb-3">
                                     <v-btn text onClick={() => {
-                                        this.deleteShape();
-                                    }}>{this.pdLoc.DeleteShape}</v-btn>
-                                    : null
-                            }
-                        </div>
+                                        this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
+                                    }}>{this.pdLoc.AddShape}</v-btn>
+                                    {
+                                        this.processDesignerStore.getters.shapeToEditSettings() ?
+                                            <v-btn text onClick={() => {
+                                                this.deleteShape();
+                                            }}>{this.pdLoc.DeleteShape}</v-btn>
+                                            : null
+                                    }
+                                </div>
+                                : null
+                        }
                         <div class={this.processStepDrawingStyles.canvasWrapper(this.omniaTheming)} style={{ width: widthStr }}>
                             <div class={this.processStepDrawingStyles.canvasOverflowWrapper}>
                                 {
