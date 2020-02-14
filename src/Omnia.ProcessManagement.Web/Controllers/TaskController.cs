@@ -53,7 +53,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var workflowTask = await WorkflowTaskService.GetAsync(spItemId, teamAppId, true);
                 if (!workflowTask.IsCompleted)
                 {
-                    var process = await ProcessService.GetProcessByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, DraftOrPublishedVersionType.Draft);
+                    var process = (await ProcessService.GetProcessesByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, ProcessVersionType.Draft)).FirstOrDefault();
                     if (process != null)
                         workflowTask.RootProcessStepId = process.RootProcessStep.Id;
                 }

@@ -345,6 +345,52 @@ namespace Omnia.ProcessManagement.Core.Migrations
                 b.ToTable("ProcessData");
             });
 
+            modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.ReviewReminders.ReviewReminderQueue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Log")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OPMProcessId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Pending")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("ReviewDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ReviewReminderDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OPMProcessId", "Pending")
+                        .IsUnique()
+                        .HasFilter("[Pending] = 1");
+
+                    b.ToTable("ReviewReminderQueues");
+                });
+
             modelBuilder.Entity("Omnia.ProcessManagement.Core.Entities.Settings.Setting", b =>
             {
                 b.Property<string>("Key")

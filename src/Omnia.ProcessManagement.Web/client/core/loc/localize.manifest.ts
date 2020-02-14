@@ -47,6 +47,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 OPMApprovalTask: {
                     Name: "Process - Approval Task",
                     Description: "System content type created by Omnia to handle approval tasks of process"
+                },
+                OPMReviewReminderTask: {
+                    Name: "Process - Review Reminder Task",
+                    Description: "System content type created by Omnia to handle review reminder tasks of process"
                 }
             },
             SharePointGroups: {

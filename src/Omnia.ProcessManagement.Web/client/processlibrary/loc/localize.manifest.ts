@@ -168,10 +168,15 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
 
                 RejectSubjectTemplate: "The process {{ProcessTitle}} has been rejected for publishing",
                 RejectBodyTemplate: "Dear {{AuthorName}},<br/><br/>The process {{ProcessTitle}} has been rejected for publishing by {{ApproverName}} with the following comment:<br/><br/> &quot;{{ApproverComment}}&quot;",
+            },
+            ReviewReminder: {
+                SubjectTemplate: "Review Reminder: {{ProcessTitle}}",
+                BodyTemplate: "Dear {{Recipient}}, <br/><br/>This is a review reminder e-mail sent from the process management system.<br/><br/>Process: <a href='{{ProcessLink}}' style='color:#ff0000;' target='_blank'>{{ProcessTitle}}</a><br/>Team Site: <a href='{{SiteUrl}}' style='color:#ff0000;' target='_blank'>{{SiteTitle}}</a><br/>Publish Date: {{PublishDate}}<br/>Review Date: {{ReviewDate}}"
             }
         },
         TaskTitle: {
             ApprovalTaskPrefix: "Approval of process",
+            ReviewReminderTaskPrefix: "Review"
         },
         ProcessHistory: "Process History"
     });

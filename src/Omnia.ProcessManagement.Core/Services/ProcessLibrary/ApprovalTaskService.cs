@@ -126,6 +126,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Assigned_To, approverSPUser.Id);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.ContentTypeId, OPMConstants.OPMContentTypeId.CTApprovalTaskStringId);
             keyValuePairs.Add(OPMConstants.SharePoint.SharePointFields.Fields_Author, authorSPUser.Id);
+            keyValuePairs.Add(OPMConstants.SharePoint.OPMFields.Fields_ProcessId, process.OPMProcessId);
 
             List taskList = await SharePointListService.GetListByUrlAsync(appCtx, OPMConstants.SharePoint.ListUrl.TaskList);
             ListItem taskListItem = await SharePointListService.AddListItemAsync(appCtx, taskList, keyValuePairs);

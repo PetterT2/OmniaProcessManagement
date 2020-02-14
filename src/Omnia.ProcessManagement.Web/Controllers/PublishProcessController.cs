@@ -16,6 +16,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessLibrary;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Workflows;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessLibrary;
 using Omnia.ProcessManagement.Models.Workflows;
@@ -184,9 +185,14 @@ namespace Omnia.ProcessManagement.Web.Controllers
                             throw new Exception("This task is not belong to current user");
                         }
 
-                        var process = await ProcessService.GetProcessByOPMProcessIdAsync(dbWorkflowTask.Workflow.OPMProcessId, DraftOrPublishedVersionType.Draft);
+                        var draftProcess = (await ProcessService.GetProcessesByOPMProcessIdAsync(dbWorkflowTask.Workflow.OPMProcessId, ProcessVersionType.Draft)).FirstOrDefault();
+                        
+                        if(draftProcess == null)
+                        {
+                            throw new ProcessDraftVersionNotFoundException(dbWorkflowTask.Workflow.OPMProcessId);
+                        }
 
-                        await PublishProcessService.CompleteWorkflowAsync(approvalTask, process);
+                        await PublishProcessService.CompleteWorkflowAsync(approvalTask, draftProcess);
 
                         return ApiUtils.CreateSuccessResponse();
                     });

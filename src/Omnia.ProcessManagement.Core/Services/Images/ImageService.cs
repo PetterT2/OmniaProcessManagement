@@ -6,6 +6,7 @@ using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Images;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -16,7 +17,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
     internal class ImageService : IImageService
     {
         private static object _lock = new object();
-        private static readonly Dictionary<string, SemaphoreSlim> _lockDict = new Dictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _lockDict = new ConcurrentDictionary<string, SemaphoreSlim>();
         IImageRepository ImageRepository { get; }
         IProcessSecurityService ProcessSecurityService { get; }
         IProcessRepository ProcessRepository { get; }
@@ -145,7 +146,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                 {
                     if (!_lockDict.ContainsKey(key))
                     {
-                        _lockDict.Add(key, new SemaphoreSlim(1, 1));
+                        _lockDict.TryAdd(key, new SemaphoreSlim(1, 1));
                     }
                 }
             }

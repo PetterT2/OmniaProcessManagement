@@ -7,6 +7,7 @@ using Omnia.ProcessManagement.Core.Repositories.Images;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Repositories.ProcessTypes;
+using Omnia.ProcessManagement.Core.Repositories.ReviewReminders;
 using Omnia.ProcessManagement.Core.Repositories.Settings;
 using Omnia.ProcessManagement.Core.Repositories.ShapeTemplates;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
@@ -21,6 +22,7 @@ using Omnia.ProcessManagement.Core.Services.ProcessRollup;
 using Omnia.ProcessManagement.Core.Services.ProcessTemplates;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
@@ -72,6 +74,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IProcessRollupService, ProcessRollupService>();
             services.AddScopedWithSingeltonRef<IProcessHandleService, ProcessHandleService>();
             services.AddScopedWithSingeltonRef<IShapeTemplateService, ShapeTemplateService>();
+            services.AddScopedWithSingeltonRef<IReviewReminderService, ReviewReminderService>();
 
             //Repositories
             services.AddScopedWithSingeltonRef<ITransactionRepository, TransactionRepositiory>();
@@ -84,6 +87,7 @@ namespace Omnia.ProcessManagement.Core.Extensions
             services.AddScopedWithSingeltonRef<IWorkflowTaskRepository, WorkflowTaskRepository>();
             services.AddScopedWithSingeltonRef<IImageRepository, ImageRepository>();
             services.AddScopedWithSingeltonRef<IShapeTemplateRepository, ShapeTemplateRepository>();
+            services.AddScopedWithSingeltonRef<IReviewReminderRepository, ReviewReminderRepository>();
 
             services.AddAutoMapper();
             return services;

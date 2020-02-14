@@ -189,6 +189,11 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             {
                 option.Group = contentTypeGroupName;
             });
+
+            context.EnsureContentType<OPMReviewReminderTask>().Configure((option) =>
+            {
+                option.Group = contentTypeGroupName;
+            });
         }
 
         private void EnsureFields(ISharePointEntityContext context, string fieldGroupName)

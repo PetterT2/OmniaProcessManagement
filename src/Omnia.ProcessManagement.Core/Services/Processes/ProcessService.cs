@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Omnia.Fx.EnterpriseProperties;
 using Omnia.Fx.Messaging;
+using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
+using Omnia.ProcessManagement.Core.Services.ProcessTypes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -20,7 +25,8 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
     {
         IProcessRepository ProcessRepository { get; }
         ITransactionRepository TransactionRepository { get; }
-        public ProcessService(IProcessRepository processRepository, ITransactionRepository transactionRepository)
+        public ProcessService(IProcessRepository processRepository, ITransactionRepository transactionRepository, IProcessTypeService processTypeService,
+            IEnterprisePropertyService enterprisePropertyService)
         {
             ProcessRepository = processRepository;
             TransactionRepository = transactionRepository;
@@ -95,12 +101,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         public async ValueTask<Process> GetProcessByIdAsync(Guid processId)
         {
             var process = await ProcessRepository.GetProcessByIdAsync(processId);
-            return process;
-        }
-
-        public async ValueTask<Process> GetProcessByOPMProcessIdAsync(Guid opmProcessId, DraftOrPublishedVersionType versionType)
-        {
-            var process = await ProcessRepository.GetProcessByOPMProcessIdAsync(opmProcessId, versionType);
             return process;
         }
 

@@ -12,7 +12,7 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
     internal class TeamCollaborationAppsService : ITeamCollaborationAppsService
     {
         private static object _lock = new object();
-        private static readonly Dictionary<string, SemaphoreSlim> _lockDict = new Dictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _lockDict = new ConcurrentDictionary<string, SemaphoreSlim>();
         private static ConcurrentDictionary<Guid, string> _appIdAndUrlDict = null;
         private static ConcurrentDictionary<string, Guid> _urlAndAppIdDict = null;
 
@@ -159,7 +159,7 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
                 {
                     if (!_lockDict.ContainsKey(key))
                     {
-                        _lockDict.Add(key, new SemaphoreSlim(1, 1));
+                        _lockDict.TryAdd(key, new SemaphoreSlim(1, 1));
                     }
                 }
             }

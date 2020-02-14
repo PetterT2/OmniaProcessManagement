@@ -9,9 +9,9 @@ using Omnia.Fx.Models.Users;
 using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.PermissionBindingResourceHelpers;
-using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.Processes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
@@ -30,7 +30,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         IWorkflowService WorkflowService { get; }
         IWorkflowTaskService WorkflowTaskService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
-        IProcessRepository ProcessRepository { get; }
+        IReviewReminderService ReviewReminderService { get; }
         ITransactionRepository TransactionRepositiory { get; }
         ITeamCollaborationAppsService TeamCollaborationAppsService { get; }
 
@@ -40,7 +40,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             IWorkflowTaskService workflowTaskService,
             IProcessSecurityService processSecurityService,
             ITransactionRepository transactionRepositiory,
-            ITeamCollaborationAppsService teamCollaborationAppsService)
+            ITeamCollaborationAppsService teamCollaborationAppsService,
+            IReviewReminderService reviewReminderService)
         {
             ProcessService = processService;
             ApprovalTaskService = approvalTaskService;
@@ -49,6 +50,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             ProcessSecurityService = processSecurityService;
             TransactionRepositiory = transactionRepositiory;
             TeamCollaborationAppsService = teamCollaborationAppsService;
+            ReviewReminderService = reviewReminderService;
         }
 
         public async ValueTask PublishProcessAsync(Guid teamAppId, PublishProcessWithoutApprovalRequest request)
@@ -57,7 +59,8 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(teamAppId, request.OPMProcessId, request.IsLimitedAccess);
 
-                await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
+                var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
+                await ReviewReminderService.EnsureReviewReminderAsync(process);
 
                 await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(teamAppId, request.OPMProcessId, GetLimitedUsers(request.IsLimitedAccess, request.LimitedUsers));
             });
@@ -148,7 +151,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
                 {
                     await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
-                    await ProcessService.PublishProcessAsync(process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
+                    
+                    var publishedProcess = await ProcessService.PublishProcessAsync(process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
+                    await ReviewReminderService.EnsureReviewReminderAsync(publishedProcess);
                 }
                 else
                 {

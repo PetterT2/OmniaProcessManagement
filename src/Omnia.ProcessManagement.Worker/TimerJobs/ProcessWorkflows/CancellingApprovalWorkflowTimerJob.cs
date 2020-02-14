@@ -15,7 +15,7 @@ namespace Omnia.ProcessManagement.Worker.TimerJobs
         public CancellingApprovalWorkflowTimerJob(IHostApplicationLifetime appLifetime,
             IServiceScopeFactory serviceScopeFactory,
             IMessageBus messageBus,
-            ILogger<SendingForApprovalWorkflowTimerJob> logger) : base(appLifetime,
+            ILogger<CancellingApprovalWorkflowTimerJob> logger) : base(appLifetime,
                 serviceScopeFactory,
                 messageBus,
                 logger,

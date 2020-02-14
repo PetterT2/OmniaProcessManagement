@@ -13,4 +13,5 @@ export const ProcessNavigationBlockStyles = {} as {
     textOverflow: types.NestedCSSProperties;
     content: types.NestedCSSProperties;
     contentHide: types.NestedCSSProperties;
+    clickProtectionOverlay: types.NestedCSSProperties;
 }

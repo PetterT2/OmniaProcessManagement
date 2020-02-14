@@ -43,6 +43,10 @@
                 OPMApprovalTask: {
                     Name: string,
                     Description: string
+                },
+                OPMReviewReminderTask: {
+                    Name: string,
+                    Description: string
                 }
             },
             SharePointGroups: {
