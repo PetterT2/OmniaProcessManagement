@@ -7,7 +7,8 @@ namespace Omnia.ProcessManagement.Models.Enums
     public enum TaskContentType
     {
         Undefined = 0,
-        ApprovalTask = 1
+        ApprovalTask = 1,
+        ReviewReminderTask = 2
     }
 
 }

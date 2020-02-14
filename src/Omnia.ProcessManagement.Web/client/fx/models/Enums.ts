@@ -97,6 +97,7 @@
     export enum TaskContentType {
         Undefined = 0,
         ApprovalTask = 1,
+        ReviewReminderTask = 2
     }
 
     export enum TaskViewType {

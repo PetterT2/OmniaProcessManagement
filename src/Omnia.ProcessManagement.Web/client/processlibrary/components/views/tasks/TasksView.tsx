@@ -13,6 +13,7 @@ import { PropertyIndexedType, TenantRegionalSettings } from '@omnia/fx-models';
 import { SharePointFieldsConstants, SharePointTaskService, OPMUtils } from '../../../../fx';
 import { UrlParameters } from '../../../Constants';
 import Vue from 'vue';
+import { ReviewReminderTask } from './ReviewReminderTask';
 declare var moment;
 
 interface TasksViewProps {
@@ -269,9 +270,7 @@ export class TasksView extends VueComponentBase<TasksViewProps>
 
     openTaskItem(taskItem: SharePointTask) {
         this.selectingTaskId = taskItem.id.toString();
-        if (taskItem.contentType == Enums.TaskContentType.ApprovalTask) {
-            this.selectingTaskType = Enums.TaskContentType.ApprovalTask;
-        }
+        this.selectingTaskType = taskItem.contentType;
 
         let url = '?' + UrlParameters.DisplayTab + "=" + UrlParameters.Tasks + "&" +
             UrlParameters.TaskId + "=" + this.selectingTaskId + "&" +
@@ -285,6 +284,8 @@ export class TasksView extends VueComponentBase<TasksViewProps>
         switch (this.selectingTaskType) {
             case Enums.TaskContentType.ApprovalTask:
                 return (<ApprovalTask closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ApprovalTask>)
+            case Enums.TaskContentType.ReviewReminderTask:
+                return (<ReviewReminderTask closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ReviewReminderTask>)
 
             default:
                 return null
