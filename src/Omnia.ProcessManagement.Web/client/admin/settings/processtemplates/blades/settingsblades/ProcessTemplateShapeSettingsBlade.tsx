@@ -121,13 +121,17 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     updateTemplateShape() {
         if (!this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
-            var canvasWidth = this.getCanvasContainerWidth();
-            this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
-                width: canvasWidth,
-                height: 230,
-                drawingShapes: []
-            });
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, 0, 0);
+            this.drawingCanvas.destroy();
+            OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
+                var canvasWidth = this.getCanvasContainerWidth();
+                this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
+                    width: canvasWidth,
+                    height: 230,
+                    drawingShapes: []
+                }, false);
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
+            })
+            
         }
         else {
             let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
