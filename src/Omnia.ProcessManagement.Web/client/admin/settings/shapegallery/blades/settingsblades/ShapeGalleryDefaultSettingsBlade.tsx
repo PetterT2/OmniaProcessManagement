@@ -5,7 +5,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation, MediaPickerImageTransformerProviderResult } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ShapeTemplateStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData, OPMUtils } from '../../../../../fx';
+import { ShapeTemplateStore, ShapeObject, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData, OPMUtils } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
 import {
     ShapeTemplate, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape,
@@ -184,7 +184,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.drawingCanvas.updateCanvasSize(readyDrawingShape);
     }
 
-    addFreefromShape(shape: IShape) {
+    addFreefromShape(shape: ShapeObject) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
             (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes = shape.nodes;
@@ -254,7 +254,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         return <opm-freeform-picker
             canvasDefinition={canvasDefinition}
             shapeDefinition={this.defaultShapeDefinition}
-            save={(shape: IShape) => { this.addFreefromShape(shape); }}
+            save={(shape: ShapeObject) => { this.addFreefromShape(shape); }}
             closed={() => { this.isOpenFreeformPicker = false; }}
         ></opm-freeform-picker>
     }

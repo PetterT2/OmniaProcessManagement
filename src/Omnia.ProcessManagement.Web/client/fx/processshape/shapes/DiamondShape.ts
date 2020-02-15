@@ -5,7 +5,7 @@ import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../m
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants } from '../../constants';
-import { IShape } from '.';
+import { ShapeObject } from '.';
 
 export class DiamondShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString, selectable?: boolean,
@@ -17,7 +17,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
         return ShapeTemplateType[ShapeTemplatesConstants.Diamond.settings.type];
     }
 
-    getShapeJson(): IShape {
+    getShapeJson(): ShapeObject {
         let basicShapeJSON = super.getShapeJson();
 
         if (basicShapeJSON.nodes) {

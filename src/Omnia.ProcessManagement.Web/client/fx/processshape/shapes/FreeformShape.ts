@@ -5,7 +5,7 @@ import { DrawingShapeDefinition, ShapeTemplateType } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants } from '../../constants';
-import { IShape } from '.';
+import { ShapeObject } from '.';
 
 export class FreeformShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
@@ -17,7 +17,7 @@ export class FreeformShape extends ShapeExtension implements Shape {
         return ShapeTemplateType[ShapeTemplatesConstants.Freeform.settings.type];
     }
 
-    getShapeJson(): IShape {
+    getShapeJson(): ShapeObject {
         let basicShapeJSON = super.getShapeJson();
 
         if (basicShapeJSON.nodes) {

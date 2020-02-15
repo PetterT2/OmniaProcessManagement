@@ -6,7 +6,7 @@ import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { DrawingShapeDefinition, ShapeTemplateType } from '../../models';
 import { ShapeTemplatesConstants } from '../../constants';
-import { IShape } from '.';
+import { ShapeObject } from '.';
 
 export class CircleShape extends ShapeExtension implements Shape {
     constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
@@ -14,7 +14,7 @@ export class CircleShape extends ShapeExtension implements Shape {
         super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
 
-    getShapeJson(): IShape {
+    getShapeJson(): ShapeObject {
         let basicShapeJSON = super.getShapeJson();
 
         if (basicShapeJSON.nodes) {

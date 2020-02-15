@@ -1,4 +1,5 @@
 ﻿using Omnia.ProcessManagement.Models.FabricShape;
+using Omnia.ProcessManagement.Models.Shapes;
 using System;
 
 namespace Omnia.ProcessManagement.Models.CanvasDefinitions
@@ -17,6 +18,6 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
 
         public virtual DrawingShapeTypes Type { get; set; }
 
-        public FabricShapeData Shape { get; set; } //TODO - Do we need to have server-side model for this data ?!
+        public ShapeObject Shape { get; set; } //TODO - Do we need to have server-side model for this data ?!
     }
 }

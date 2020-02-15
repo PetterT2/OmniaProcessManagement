@@ -4,7 +4,7 @@ import { Prop, Watch, Emit } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { Guid } from '@omnia/fx-models';
 import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
-import { CurrentProcessStore, IShape, DrawingCanvasFreeForm, Shape } from '../../fx';
+import { CurrentProcessStore, ShapeObject, DrawingCanvasFreeForm, Shape } from '../../fx';
 import { DrawingShapeDefinition, CanvasDefinition, FreeformPickerStyles } from '../../fx/models';
 import { ProcessDesignerStore } from '../../processdesigner/stores';
 import { OPMCoreLocalization } from '../../core/loc/localize';
@@ -14,7 +14,7 @@ import './FreeformPicker.css';
 export class FreeformPickerComponent extends VueComponentBase implements IWebComponentInstance {
     @Prop() shapeDefinition: DrawingShapeDefinition;
     @Prop() closed: () => void;
-    @Prop() save: (shape: IShape) => void;
+    @Prop() save: (shape: ShapeObject) => void;
     @Prop() canvasDefinition: CanvasDefinition;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;

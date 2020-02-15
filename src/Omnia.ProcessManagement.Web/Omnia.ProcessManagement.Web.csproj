@@ -277,6 +277,7 @@
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShapeData.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeObject.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\SimplifyPath.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\DrawingCanvasSettingsStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\IColor.ts" />

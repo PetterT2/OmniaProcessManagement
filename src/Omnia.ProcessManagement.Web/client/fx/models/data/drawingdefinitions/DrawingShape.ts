@@ -1,5 +1,5 @@
 ﻿import { GuidValue, MultilingualString } from '@omnia/fx-models';
-import { IShape } from '../../../processshape';
+import { ShapeObject } from '../../../processshape';
 
 export enum DrawingShapeTypes {
     Undefined = 0,
@@ -11,7 +11,7 @@ export enum DrawingShapeTypes {
 export interface DrawingShape {
     id: GuidValue,
     type: DrawingShapeTypes,
-    shape: IShape;
+    shape: ShapeObject;
     title: MultilingualString;
     processStepId?: GuidValue;
 }

@@ -5,7 +5,7 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, IShape, TextSpacingWithShape, OPMUtils, ShapeExtension } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension } from '../../fx';
 import './ShapeType.css';
 import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
@@ -51,7 +51,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
     private shapeTitle: MultilingualString = null;
-    private shape: IShape = null;
+    private shape: ShapeObject = null;
     private textPositions = [
         {
             value: TextPosition.Above,
@@ -209,6 +209,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
+        this.$forceUpdate();
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.getLeftTop().left, top)
@@ -218,10 +219,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         else {
             let position = this.getLeftTop();
-            this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
-                .then((readyDrawingShape: DrawingShape) => {
-                    this.updateAfterRenderImage(readyDrawingShape);
-                });
+            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
+                this.initDrawingCanvas();
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
+                    .then((readyDrawingShape: DrawingShape) => {
+                        this.updateAfterRenderImage(readyDrawingShape);
+                    });
+            })
         }
     }
 
@@ -362,7 +366,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
 
-    private addFreefromShape(shape: IShape) {
+    private addFreefromShape(shape: ShapeObject) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
             this.shape = shape;
@@ -616,7 +620,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         return <opm-freeform-picker
             canvasDefinition={canvasDefinition}
             shapeDefinition={this.drawingOptions.shapeDefinition}
-            save={(shape: IShape) => { this.addFreefromShape(shape); }}
+            save={(shape: ShapeObject) => { this.addFreefromShape(shape); }}
             closed={() => { this.isOpenFreeformPicker = false; }}
         ></opm-freeform-picker>
     }

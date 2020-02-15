@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData } from '../../../fx';
+import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData, OPMUtils } from '../../../fx';
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
@@ -105,14 +105,14 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private initDrawingCanvas() {
         if (this.canvasDefinition) {
-            setTimeout(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
                 this.drawingCanvasEditor = new DrawingCanvasEditor(this.canvasId, {}, this.canvasDefinition, false,
                     this.onClickEditShape, this.onShapeChange, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
                 this.drawingCanvasEditor.setSelectingShapeCallback(this.onSelectingShape);
-            }, 20);
+            });
         }
         else if (this.parentProcessData && this.parentProcessData.canvasDefinition) {
-            setTimeout(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.parentCanvasId.toString()).then(() => {
                 var cloneParentCavasDefinition: CanvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
                 var selectedShape: DrawingShape = cloneParentCavasDefinition.drawingShapes && cloneParentCavasDefinition.drawingShapes.length > 0 ?
                     cloneParentCavasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
@@ -125,7 +125,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                         this.drawingParentCanvas.setSelectedShapeItemId(selectedShape.processStepId)
                     }, 20)
                 }
-            }, 20);
+            })
         }
         //note: need to render the canvas div element before init this DrawingCanvasEditor
     }
