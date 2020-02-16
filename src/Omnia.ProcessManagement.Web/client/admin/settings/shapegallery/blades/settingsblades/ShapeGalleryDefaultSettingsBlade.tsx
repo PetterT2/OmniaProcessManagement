@@ -130,7 +130,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         }  
     }
 
-    onShapeGalleryItemTypeChanged() {
+    onShapeTemplateTypeChanged() {
         this.destroyCanvas(); 
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = null;
         (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes = null;
@@ -159,7 +159,8 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.selectedImage = image;
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = this.buildDataBlob(image.base64, image.format);
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.defaultShapeDefinition, null, false, 0, 0)
+            var shapeDefinition = this.getShapeDefinitionToDraw();
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false, 0, 0)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -322,7 +323,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                         onModelChange={(title) => { this.editingShapeGalleryItem.title = title; }}
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
                     <v-select item-value="type" item-text="multilingualTitle" items={this.shapeGalleryItemTypes} value={this.editingShapeGalleryItem.settings.type}
-                        v-model={this.editingShapeGalleryItem.settings.type} onChange={this.onShapeGalleryItemTypeChanged}></v-select>
+                        v-model={this.editingShapeGalleryItem.settings.type} onChange={this.onShapeTemplateTypeChanged}></v-select>
                     <omfx-field-validation
                         useValidator={this.internalValidator}
                         checkValue={this.editingShapeGalleryItem.settings.type}
