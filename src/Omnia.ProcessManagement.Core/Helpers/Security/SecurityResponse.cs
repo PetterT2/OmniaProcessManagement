@@ -28,7 +28,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     {
         IOnlyTeamAppIdSecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
         IOnlyTeamAppIdSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
-        ValueTask<bool> IsAuthorizedAsync();
         ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
     }
 
@@ -39,6 +38,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         ISecurityResponseHandler RequireReviewer(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireApprover(params ProcessVersionType[] versionTypes);
         ISecurityResponseHandler RequireReader(params ProcessVersionType[] versionTypes);
+        ValueTask<List<Guid>> GetAuthorizedRolesAsync();
 
     }
 
@@ -51,7 +51,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
         ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
         ValueTask<T> DoAsync<T>(Func<Guid, Guid, ProcessVersionType, ValueTask<T>> action);
-        ValueTask<bool> IsAuthorizedAsync();
         internal ValueTask<T> DoAsync<T>(Func<InternalProcess, ValueTask<T>> action);
     }
 
@@ -197,18 +196,6 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return await action(Process.TeamAppId, Process.OPMProcessId, Process.VersionType);
         }
 
-        async ValueTask<bool> ISecurityResponseHandler.IsAuthorizedAsync()
-        {
-            var isAuthorized = await ValidateAuthorized();
-            return isAuthorized;
-        }
-
-        public async ValueTask<bool> IsAuthorizedAsync()
-        {
-            var isAuthorized = await ValidateAuthorized();
-            return isAuthorized;
-        }
-
         public async ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action)
         {
             if (action == null)
@@ -239,7 +226,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
 
             if (RequiredRoles.Count > 0)
             {
-                EnsureContextParamsAsync();
+                EnsureContextParams();
 
                 var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
                 var identityRoles = identityRolesResult.Values
@@ -250,6 +237,24 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                     roleId => roleId == Omnia.Fx.Constants.Security.RoleDefinitions.ApiFullControl.Id || RequiredRoles.Contains(roleId));
             }
             return isAuthorized;// || true; //TODO - remove true here when finish;
+        }
+
+        public async ValueTask<List<Guid>> GetAuthorizedRolesAsync()
+        {
+            var authroziedRoles = new List<Guid>();
+
+            EnsureContextParams();
+
+            var identityRolesResult = await SecurityProvider.GetIdentityRolesForCurrentServiceAsync(OmniaContext.Identity.LoginName);
+            authroziedRoles = identityRolesResult.Values
+                .Where(r => r.HasPermission == true)
+                .Select(r => r.RoleId)
+                .ToList();
+
+            //trim only opm roles
+            authroziedRoles = authroziedRoles.Where(id => SecurityTrimmingHelper.Roles.Contains(id)).ToList();
+
+            return authroziedRoles;
         }
 
         private void EnsureRole(string roleIdString, params ProcessVersionType[] versionTypes)
@@ -278,7 +283,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         }
 
 
-        private void EnsureContextParamsAsync()
+        private void EnsureContextParams()
         {
             if (Process == null)
             {

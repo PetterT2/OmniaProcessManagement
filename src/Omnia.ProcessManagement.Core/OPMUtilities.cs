@@ -2,6 +2,7 @@
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.SharePointTasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,6 +66,33 @@ namespace Omnia.ProcessManagement.Core
                 status == ProcessWorkingStatus.Archiving;
 
             return isActive;
+        }
+
+        public static void ValidateReviewReminderSharePointTask(SharePointTask task)
+        {
+            if (task.PercentComplete == 1)
+            {
+                throw new Exception("Task has been completed");
+            }
+            else if (task.ContentType != TaskContentType.ReviewReminderTask)
+            {
+                throw new Exception("This is not review reminder task");
+            }
+        }
+
+        public static void ValidateReviewReminderSharePointTask(ListItem task)
+        {
+            if (task[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] != null &&
+                int.TryParse(task[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete].ToString(), out var percentComplete) &&
+                percentComplete == 1)
+            {
+                throw new Exception("Task has been completed");
+            }
+            else if (task[OPMConstants.SharePoint.SharePointFields.ContentTypeId] == null ||
+                !task[OPMConstants.SharePoint.SharePointFields.ContentTypeId].ToString().StartsWith(OPMConstants.OPMContentTypeId.CTReviewReminderTaskStringId))
+            {
+                throw new Exception("This is not review reminder task");
+            }
         }
     }
 }

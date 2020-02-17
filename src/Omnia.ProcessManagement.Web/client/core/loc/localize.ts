@@ -209,8 +209,10 @@
             MessageTaskCancelledBySystem: string,
             MessageApprovalTaskEditingDescription: string,
             MessageDraftExistCannotBeArchived: string,
+            MessageDraftExist: string,
             SyncToSharePointFailed: string,
-            ArchiveProcessFailed: string
+            ArchiveProcessFailed: string,
+            UnauthorizedOrProcessNotFound: string,
         },
         ProcessActions: {
             Edit: string,

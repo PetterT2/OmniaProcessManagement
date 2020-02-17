@@ -4,7 +4,7 @@ import { OPMWebComponentManifests } from '../../fx/models';
 Composer
     .registerManifest(OPMWebComponentManifests.UnpublishProcessDialog, "opm.unpublishprocess.dialog")
     .registerWebComponent({
-        elementName: "opm-unpublishprocess-dialog",
+        elementName: "opm-unpublish-process-dialog",
         entryPoint: "./UnpublishProcessDialog.jsx",
         typings: ["./IUnpublishProcessDialog.ts"]
     })

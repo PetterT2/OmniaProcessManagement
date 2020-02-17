@@ -17,6 +17,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     public class OPMTasks : ListBase, IListBase
     {
         [ContentTypeRef(typeof(OPMApprovalTask))]
+        [ContentTypeRef(typeof(OPMReviewReminderTask))]
         public IEnumerable<ContentTypeBase> ContentTypes
         {
             get;

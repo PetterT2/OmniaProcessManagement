@@ -204,7 +204,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     needToShowCanvas(): boolean {
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
-        return (this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
+        return (this.editingShape as DrawingShapeDefinition).shapeTemplateId && foundTemplate && 
             (!foundTemplate.builtIn || ((this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type &&
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
     }

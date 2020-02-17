@@ -213,8 +213,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             MessageTaskCancelledBySystem: "Task was cancelled by the system",
             MessageApprovalTaskEditingDescription: "Open the process and review the contents. When you are done, please write a comment in the text field below and select Approve or Reject",
             MessageDraftExistCannotBeArchived: "This published process has a draft version and cannot be archived.",
+            MessageDraftExist: "this process has a draft version.",
             SyncToSharePointFailed: "This process was synced to SharePoint failed.",
-            ArchiveProcessFailed: "This process has been archived unsuccessfully."
+            ArchiveProcessFailed: "This process has been archived unsuccessfully.",
+            UnauthorizedOrProcessNotFound: "Unauthrozied or Not Found."
 
         },
         ProcessActions: {
