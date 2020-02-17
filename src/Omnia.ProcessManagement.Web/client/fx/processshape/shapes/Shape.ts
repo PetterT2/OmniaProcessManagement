@@ -1,10 +1,10 @@
 ﻿import fabric from 'fabric/fabric-impl';
 import { FabricShape, FabricShapeData } from '../fabricshape';
-import { IShape } from './IShape';
+import { ShapeObject } from './ShapeObject';
 import { DrawingShapeDefinition } from '../../models';
 import { MultilingualString } from '@omnia/fx-models';
 
-export declare abstract class Shape implements IShape {
+export declare abstract class Shape implements ShapeObject {
     definition: DrawingShapeDefinition;
     shapeTemplateTypeName: string;
     nodes: FabricShapeData[];
@@ -18,7 +18,7 @@ export declare abstract class Shape implements IShape {
     setSelectedShape(isSelected: boolean);
     isHover(): boolean;
     abstract ready(): Promise<boolean>;
-    abstract getShapeJson(): IShape;
+    abstract getShapeJson(): ShapeObject;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number, enableGrid?: boolean);
     abstract getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment?: number, yAdjustment?: number): { left: number, top: number };
 }

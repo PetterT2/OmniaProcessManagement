@@ -217,8 +217,10 @@
     <TypeScriptCompile Remove="client\fx\models\data\settings\GlobalSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\Setting.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingFreeformShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingImageShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinition.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\DrawingShapeDefinitionProperties.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\HeadingShapeDefinition.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\shapedefinitions\ShapeDefinition.ts" />
@@ -277,6 +279,7 @@
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricShapeData.ts" />
+    <TypeScriptCompile Remove="client\fx\processshape\shapes\ShapeObject.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\shapes\SimplifyPath.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\DrawingCanvasSettingsStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\IColor.ts" />

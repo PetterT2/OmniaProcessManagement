@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
 import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
-import { IShape } from './IShape';
+import { ShapeObject } from './ShapeObject';
 import { FabricShapeData, FabricShape, FabricShapeDataTypes } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape, ShapeHighlightProperties } from '../../constants';
@@ -71,7 +71,7 @@ export class ShapeExtension implements Shape {
         return this.fabricShapes ? this.fabricShapes.map(n => n.getShapeNodeJson()) : [];
     }
 
-    getShapeJson(): IShape {
+    getShapeJson(): ShapeObject {
         let nodes = this.getShapes();
         this.definition = this.ensureDefinition(nodes);
         return {
@@ -293,11 +293,11 @@ export class ShapeExtension implements Shape {
         objects.forEach((object) => {
             if (object.type == 'text') {
                 object.set({
-                    fill: this.isSelected ? this.definition.selectedTextColor : this.definition.textColor
+                    fill: this.isSelected && this.definition.selectedTextColor ? this.definition.selectedTextColor : this.definition.textColor
                 });
             }
             else {
-                let stroke: string = this.isSelected ? this.definition.selectedBorderColor : this.definition.borderColor;
+                let stroke: string = this.isSelected && this.definition.selectedBorderColor ? this.definition.selectedBorderColor : this.definition.borderColor;
 
                 let strokeProperties = {};
                 if (!this.isSelected || !stroke) {
@@ -305,7 +305,7 @@ export class ShapeExtension implements Shape {
                 }
 
                 object.set(Object.assign({
-                    fill: this.isSelected ? this.definition.selectedBackgroundColor : this.definition.backgroundColor,
+                    fill: this.isSelected && this.definition.selectedBackgroundColor ? this.definition.selectedBackgroundColor : this.definition.backgroundColor,
                     stroke: stroke
                 }, strokeProperties));
             }

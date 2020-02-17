@@ -1,6 +1,6 @@
 ﻿import { TsxAllowUnknowProperties } from '@omnia/fx/ux';
 import { DrawingShapeDefinition, CanvasDefinition } from '../../fx/models';
-import { IShape } from '../../fx';
+import { ShapeObject } from '../../fx';
 
 
 /*@WebComponentInterface("opm-freeform-picker")*/
@@ -15,7 +15,7 @@ export interface IFreeformPickerComponent {
     closed: () => void;
 
     /*@DomProperty*/
-    save: (shape: IShape) => void;
+    save: (shape: ShapeObject) => void;
 }
 
 declare global {

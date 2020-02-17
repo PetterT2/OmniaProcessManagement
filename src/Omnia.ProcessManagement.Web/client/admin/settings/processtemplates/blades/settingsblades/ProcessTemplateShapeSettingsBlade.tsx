@@ -4,7 +4,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment, ShapeTemplate } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment, ShapeTemplate, ShapeTemplateType, DrawingImageShapeDefinition, ShapeTemplateMediaSettings, DrawingFreeformShapeDefinition, ShapeTemplateFreeformSettings } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx/constants';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
@@ -83,46 +83,78 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     ];
 
     created() {
-        this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
-            shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
-        })
+        
+    }
 
+    mounted() {
         this.isLoading = true;
         this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
             this.isLoading = false;
-            OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
-                this.editingShape = this.processTemplateJournayStore.getters.editingShapeDefinition();
-                if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
-                    var canvasWidth = this.getCanvasContainerWidth();
-                    this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
-                        width: canvasWidth,
-                        height: 230,
-                        drawingShapes: []
-                    }, false);
-                    this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null);
-                }
-            });
+            this.shapeTemplateSelections = this.shapeTemplateStore.getters.shapeTemplates();
+            this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
+                shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
+            })
+            this.editingShape = JSON.parse(JSON.stringify(this.processTemplateJournayStore.getters.editingShapeDefinition()));
+            this.startToDrawShape();
         })
     }
 
+    destroyCanvas() {
+        if (this.drawingCanvas) {
+            this.drawingCanvas.destroy();
+            this.drawingCanvas = null;
+        }
+    }
+
+    startToDrawShape() {
+        OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
+            if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
+                this.initDrawingCanvas();
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, null, null, null, null,
+                    (this.editingShape as DrawingFreeformShapeDefinition).nodes ? (this.editingShape as DrawingFreeformShapeDefinition).nodes : null)
+            }
+        });
+    }
+
+    initDrawingCanvas() {
+        this.destroyCanvas();
+        var canvasWidth = this.getCanvasContainerWidth();
+        this.drawingCanvas = new DrawingCanvas(this.canvasId.toString(), {},
+            {
+                drawingShapes: [],
+                width: canvasWidth,
+                height: 230,
+            }, false);
+    }
+
     onShapeTemplateChanged() {
-        var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString())
+        var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
         if (foundTemplate) {
+            this.destroyCanvas(); 
+            (this.editingShape as DrawingShapeDefinition).shapeTemplateId = foundTemplate.id;
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType = foundTemplate.settings.type;
             this.editingShape.title = Utils.clone(foundTemplate.title);
+            if (!foundTemplate.builtIn) {
+                if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.MediaShape) {
+                    (this.editingShape as DrawingImageShapeDefinition).imageUrl = (foundTemplate.settings as ShapeTemplateMediaSettings).imageUrl;
+                    delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
+                }
+                else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.FreeformShape) {
+                    (this.editingShape as DrawingFreeformShapeDefinition).nodes = (foundTemplate.settings as ShapeTemplateFreeformSettings).nodes;
+                    delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
+                }
+            }
+            else {
+                if ((this.editingShape as DrawingImageShapeDefinition).imageUrl) delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
+                if ((this.editingShape as DrawingFreeformShapeDefinition).nodes) delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
+            }
             this.updateTemplateShape();
         }
     }
 
     updateTemplateShape() {
-        if (!this.drawingCanvas) {
-            var canvasWidth = this.getCanvasContainerWidth();
-            this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, {
-                width: canvasWidth,
-                height: 230,
-                drawingShapes: []
-            });
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, 0, 0);
+        if (!this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
+            this.startToDrawShape();
         }
         else {
             let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
@@ -170,6 +202,13 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type);
     }
 
+    needToShowCanvas(): boolean {
+        var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
+        return (this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
+            (!foundTemplate.builtIn || ((this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type &&
+            (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
+    }
+
     renderDrawingSettings(h) {
         return (
             <v-container fluid class="px-0">
@@ -184,8 +223,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         </omfx-field-validation>
                         {this.renderTitle(h)}
                     </v-flex>
-                    <v-flex lg6 id={this.canvasContainerId} class={classes(this.needToShowShapeSettings() ? this.classes.shapePreviewContainer : this.classes.hidePreviewContainer, this.classes.contentPadding)}>
-                        <canvas id={this.canvasId} width="100%" height="100%"></canvas>
+                    <v-flex lg6 id={this.canvasContainerId} class={classes(this.needToShowCanvas() ? this.classes.shapePreviewContainer : this.classes.hidePreviewContainer, this.classes.contentPadding)}>
+                        <canvas id={this.canvasId} width="100%" height="100%" class={this.classes.canvas}></canvas>
                     </v-flex>
                 </div>
 

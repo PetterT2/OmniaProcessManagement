@@ -5,7 +5,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, ImageSource, IconSize, VueComponentBase, FormValidator, FieldValueValidation, MediaPickerImageTransformerProviderResult } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ShapeTemplateStore, IShape, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData, OPMUtils } from '../../../../../fx';
+import { ShapeTemplateStore, ShapeObject, DrawingCanvas, ShapeTemplatesConstants, TextSpacingWithShape, FabricShapeData, OPMUtils } from '../../../../../fx';
 import { ShapeGalleryJourneyStore } from '../../store';
 import {
     ShapeTemplate, ShapeGalleryDefaultSettingStyles, CanvasDefinition, TextPosition, TextAlignment, DrawingShapeTypes, DrawingImageShapeDefinition, DrawingShape,
@@ -106,15 +106,13 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     isSaving: boolean = false;
 
     created() {
-        
-    }
-
-    mounted() {
         this.shapeGalleryItemTypes.forEach((shapeTemplateSelection) => {
             shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
             shapeTemplateSelection.type = shapeTemplateSelection.settings.type;
         })
+    }
 
+    mounted() {
         this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
         this.startToDrawShape();
     }
@@ -132,7 +130,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         }  
     }
 
-    onShapeGalleryItemTypeChanged() {
+    onShapeTemplateTypeChanged() {
         this.destroyCanvas(); 
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = null;
         (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes = null;
@@ -161,7 +159,8 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.selectedImage = image;
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = this.buildDataBlob(image.base64, image.format);
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.defaultShapeDefinition, null, false, 0, 0)
+            var shapeDefinition = this.getShapeDefinitionToDraw();
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false, 0, 0)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);
                 });
@@ -186,7 +185,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         this.drawingCanvas.updateCanvasSize(readyDrawingShape);
     }
 
-    addFreefromShape(shape: IShape) {
+    addFreefromShape(shape: ShapeObject) {
         this.isOpenFreeformPicker = false;
         if (shape != null) {
             (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes = shape.nodes;
@@ -256,7 +255,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         return <opm-freeform-picker
             canvasDefinition={canvasDefinition}
             shapeDefinition={this.defaultShapeDefinition}
-            save={(shape: IShape) => { this.addFreefromShape(shape); }}
+            save={(shape: ShapeObject) => { this.addFreefromShape(shape); }}
             closed={() => { this.isOpenFreeformPicker = false; }}
         ></opm-freeform-picker>
     }
@@ -324,7 +323,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                         onModelChange={(title) => { this.editingShapeGalleryItem.title = title; }}
                         forceTenantLanguages label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
                     <v-select item-value="type" item-text="multilingualTitle" items={this.shapeGalleryItemTypes} value={this.editingShapeGalleryItem.settings.type}
-                        v-model={this.editingShapeGalleryItem.settings.type} onChange={this.onShapeGalleryItemTypeChanged}></v-select>
+                        v-model={this.editingShapeGalleryItem.settings.type} onChange={this.onShapeTemplateTypeChanged}></v-select>
                     <omfx-field-validation
                         useValidator={this.internalValidator}
                         checkValue={this.editingShapeGalleryItem.settings.type}

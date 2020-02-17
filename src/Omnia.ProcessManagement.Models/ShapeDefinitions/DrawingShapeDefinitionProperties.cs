@@ -1,15 +1,14 @@
 ﻿using Omnia.ProcessManagement.Models.Enums;
-using Omnia.ProcessManagement.Models.ShapeDefinitions;
-using Omnia.ProcessManagement.Models.ShapeTemplates;
+using Omnia.ProcessManagement.Models.FabricShape;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Omnia.ProcessManagement.Models.Shapes
+namespace Omnia.ProcessManagement.Models.ShapeDefinitions
 {
-    public class DrawingShapeDefinition : ShapeDefinition
+    // 
+    public class DrawingShapeDefinitionProperties
     {
-        public override ShapeDefinitionTypes Type => ShapeDefinitionTypes.Drawing;
         public Guid ShapeTemplateId { get; set; }
         public ShapeTemplateType ShapeTemplateType { get; set; }
         public string BackgroundColor { get; set; }
@@ -25,5 +24,7 @@ namespace Omnia.ProcessManagement.Models.Shapes
         public int Height { get; set; }
         public TextPosition TextPosition { get; set; }
         public int FontSize { get; set; }
+        public string ImageUrl { get; set; }
+        public List<FabricShapeData> Nodes { get; set; }
     }
 }

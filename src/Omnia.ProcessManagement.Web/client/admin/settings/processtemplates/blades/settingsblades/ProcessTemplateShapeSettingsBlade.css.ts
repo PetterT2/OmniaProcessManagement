@@ -13,6 +13,9 @@ StyleFlow.define(ProcessTemplateShapeSettingsBladeStyles,
         shapePreviewContainer: {
             height: "230px"
         },
+        canvas: {
+            position: 'unset !important' as any
+        },
         hidePreviewContainer: {
             display: "none"
         },

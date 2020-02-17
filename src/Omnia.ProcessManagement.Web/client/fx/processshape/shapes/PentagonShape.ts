@@ -2,7 +2,7 @@
 import { Shape } from './Shape';
 import { FabricShapeDataTypes, FabricTextShape, FabricShapeData, FabricPolygonShape } from '../fabricshape';
 import { DrawingShapeDefinition, ShapeTemplateType } from '../../models';
-import { IShape } from './IShape';
+import { ShapeObject } from './ShapeObject';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants, } from '../../constants';
@@ -24,7 +24,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         })
     }
 
-    getShapeJson(): IShape {
+    getShapeJson(): ShapeObject {
         let basicShapeJSON = super.getShapeJson();
 
         if (basicShapeJSON.nodes) {

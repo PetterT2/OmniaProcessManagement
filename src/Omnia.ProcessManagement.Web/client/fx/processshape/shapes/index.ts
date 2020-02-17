@@ -1,4 +1,4 @@
-﻿export * from "./IShape";
+﻿export * from "./ShapeObject";
 export * from "./Shape";
 export * from "./CircleShape";
 export * from "./DiamondShape";

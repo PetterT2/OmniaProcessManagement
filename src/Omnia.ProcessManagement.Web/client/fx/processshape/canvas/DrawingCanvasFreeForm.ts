@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { FreeformShape, ShapeExtension, IShape } from '../shapes';
+import { FreeformShape, ShapeExtension, ShapeObject } from '../shapes';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
 import { DrawingCanvasEditor } from './DrawingCanvasEditor';
 import { DrawingShapeDefinition } from '../../models';
