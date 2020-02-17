@@ -17,5 +17,5 @@ StyleFlow.define(UnpublishProcessDialogStyles,
             height: "60px",
             padding: '8px',
             boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.26)'
-        },
+        }
     });

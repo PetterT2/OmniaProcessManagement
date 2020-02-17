@@ -97,7 +97,8 @@ export class TasksView extends VueComponentBase<TasksViewProps>
         if (viewTaskType != null)
             this.selectingTaskType = parseInt(viewTaskType) as Enums.TaskContentType;
         this.selectingTaskId = WebUtils.getQs(UrlParameters.TaskId);
-        if (this.selectingTaskType != undefined && this.selectingTaskId != undefined && !isNaN(parseInt(this.selectingTaskId)) && this.selectingTaskType == Enums.TaskContentType.ApprovalTask) {
+        if (this.selectingTaskType != undefined && this.selectingTaskId != undefined && !isNaN(parseInt(this.selectingTaskId)) &&
+            (this.selectingTaskType == Enums.TaskContentType.ApprovalTask || this.selectingTaskType == Enums.TaskContentType.ReviewReminderTask)) {
             this.displayEditTaskForm = true;
         }
         else {

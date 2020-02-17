@@ -15,6 +15,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
 
     @Prop() process: Process;
     @Prop() closeCallback: (unpublished: boolean) => void;
+    @Prop() unpublishHandler: () => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
@@ -22,7 +23,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
     @Inject(ProcessService) processService: ProcessService;
     @Inject(UnpublishProcessService) unpublishProcessService: UnpublishProcessService;
 
-    
+
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMCoreLocalization.namespace) loc: OPMCoreLocalization.locInterface;
     private styleClasses = StyleFlow.use(UnpublishProcessDialogStyles);
@@ -73,10 +74,17 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
     }
 
     private unpublishProcess() {
-        this.isUnpublishing = true;
-        this.unpublishProcessService.unpublishProcess(this.process.opmProcessId.toString()).then((data) => {
-            this.unpublishDialogClose(true);
-        })
+        if (this.unpublishHandler) {
+            this.unpublishHandler()
+        }
+        else {
+            this.isUnpublishing = true;
+            this.unpublishProcessService.unpublishProcess(this.process.opmProcessId.toString()).then((data) => {
+                this.unpublishDialogClose(true);
+            }).catch(errorMsg => {
+                this.errorMsg = errorMsg;
+            })
+        }
     }
 
     renderHeader(h) {
@@ -120,7 +128,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
                     disabled={this.isUnpublishing}
                     light={!this.omniaTheming.promoted.body.dark}
                     text
-                    onClick={this.unpublishDialogClose}>{this.omniaUxLoc.Common.Buttons.Cancel}
+                    onClick={() => { this.unpublishDialogClose() }}>{this.omniaUxLoc.Common.Buttons.Cancel}
                 </v-btn>
             </v-card-actions>
         )
@@ -130,7 +138,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
         return (
             <div>
                 <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    onClose={this.unpublishDialogClose}
+                    onClose={() => { this.unpublishDialogClose() }}
                     hideCloseButton
                     model={this.dialogModel}
                     contentClass={this.omniaTheming.promoted.body.class}

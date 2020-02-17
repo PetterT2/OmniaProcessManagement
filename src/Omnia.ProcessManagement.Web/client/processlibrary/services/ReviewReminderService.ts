@@ -22,11 +22,11 @@ export class ReviewReminderService {
                     resolve(response.data.data);
                 }
                 else reject(response.data.errorMessage)
-            });
+            }).catch(reject);
         });
     }
 
-    public closeReviewReminderTask = (spItemId: number, teamAppId: GuidValue): Promise<void> => {
+    public closeTask = (spItemId: number, teamAppId: GuidValue): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
 
             this.httpClient.post<IHttpApiOperationResult<void>>(`/api/reviewreminder/${teamAppId}/${spItemId}/closetask`).then(response => {
@@ -34,14 +34,38 @@ export class ReviewReminderService {
                     resolve(response.data.data);
                 }
                 else reject(response.data.errorMessage)
-            });
+            }).catch(reject);
         });
     }
 
     public setNewReviewDate = (spItemId: number, teamAppId: GuidValue, newReviewDate: string): Promise<void> => {
         return new Promise<void>((resolve, reject) => {
 
-            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/reviewreminder/${teamAppId}/${spItemId}/newreviewdate`, newReviewDate).then(response => {
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/reviewreminder/${teamAppId}/${spItemId}/setnewreviewdate`, JSON.stringify(newReviewDate)).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            }).catch(reject);
+        });
+    }
+
+    public createDraft = (spItemId: number, teamAppId: GuidValue): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/reviewreminder/${teamAppId}/${spItemId}/createDraft`).then(response => {
+                if (response.data.success) {
+                    resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            }).catch(reject);
+        });
+    }
+
+    public unpublish = (spItemId: number, teamAppId: GuidValue): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+
+            this.httpClient.post<IHttpApiOperationResult<void>>(`/api/reviewreminder/${teamAppId}/${spItemId}/unpublish`).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

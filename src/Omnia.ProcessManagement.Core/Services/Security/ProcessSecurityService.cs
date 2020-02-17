@@ -137,7 +137,7 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             var cacheKey = CacheHelper.CreateKey(UserAuthorizedResources, identity.ToLower());
             var result = await CacheHelper.Instance.GetOrSetDependencyCacheAsync(cacheKey, async (cacheEntry) =>
             {
-                var permissionBindingsCache = await SecurityProvider.EnsurePermissionBindingsByRolesCacheAsync(identity, SecurityTrimmingHelper.Roles());
+                var permissionBindingsCache = await SecurityProvider.EnsurePermissionBindingsByRolesCacheAsync(identity, SecurityTrimmingHelper.Roles);
 
                 cacheEntry.Dependencies.Add(permissionBindingsCache);
 

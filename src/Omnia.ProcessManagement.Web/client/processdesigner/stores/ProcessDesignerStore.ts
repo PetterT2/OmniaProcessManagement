@@ -131,7 +131,7 @@ export class ProcessDesignerStore extends Store {
             if (this.formValidator != null) {
                 this.formValidator.clearValidation();
             }
-            this.formValidator = new FormValidator(el);
+            this.formValidator = new FormValidator();
         }),
         addShapeToDrawing: this.mutation((drawingShapeOption: DrawingShapeOptions) => {
 

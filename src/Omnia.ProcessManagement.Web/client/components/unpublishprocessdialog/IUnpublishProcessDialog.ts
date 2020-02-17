@@ -9,6 +9,9 @@ export interface IUnpublishProcessDialog {
     process: Process;
 
     /*@DomProperty*/
+    unpublishHandler?: () => void;
+
+    /*@DomProperty*/
     closeCallback: (unpublished: boolean) => void;
 }
 

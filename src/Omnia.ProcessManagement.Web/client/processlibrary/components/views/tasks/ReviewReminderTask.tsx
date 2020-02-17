@@ -51,6 +51,7 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
     openSetNewReviewDateDialog: boolean = false;
     openUnpublishDialog: boolean = false;
     newReviewDate: string = '';
+    processing: boolean = false;
 
 
     private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
@@ -84,21 +85,29 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
 
 
     closeTask() {
-        this.reviewReminderService.closeReviewReminderTask(parseInt(this.taskId), this.opmContext.teamAppId)
+        this.processing = true;
+        this.reviewReminderService.closeTask(parseInt(this.taskId), this.opmContext.teamAppId)
             .then(() => {
+                this.processing = false;
                 this.task.sharePointTask.percentComplete = 1;
             })
             .catch((errorMessage: string) => {
+                this.processing = false;
                 this.errorMessage = errorMessage;
             });
     }
 
     setNewReviewDate() {
+        this.openSetNewReviewDateDialog = false;
+        this.processing = true;
         this.reviewReminderService.setNewReviewDate(parseInt(this.taskId), this.opmContext.teamAppId, this.newReviewDate)
             .then(() => {
+                
+                this.processing = false;
                 this.task.sharePointTask.percentComplete = 1;
             })
             .catch((errorMessage: string) => {
+                this.processing = false;
                 this.errorMessage = errorMessage;
             });
     }
@@ -106,25 +115,44 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
     createDraft() {
         this.$confirm.open({}).then(res => {
             if (res == ConfirmDialogResponse.Ok) {
-                this.processStore.actions.createDraftFromPublished.dispatch(this.task.sharePointTask.opmProcessId).then(() => {
-                    this.closeTask();
+                this.processing = true;
+                this.reviewReminderService.createDraft(parseInt(this.taskId), this.opmContext.teamAppId).then(() => {
+                    this.processing = false;
+                    this.task.sharePointTask.percentComplete = 1;
+                }).catch((errorMessage) => {
+                    this.processing = false;
+                    this.errorMessage = errorMessage;
                 })
             }
         })
     }
 
+    unpublish() {
+        this.openUnpublishDialog = false;
+        this.processing = true;
+        this.reviewReminderService.unpublish(parseInt(this.taskId), this.opmContext.teamAppId).then(() => {
+            this.processing = false;
+            this.task.sharePointTask.percentComplete = 1;
+        }).catch((errorMessage) => {
+            this.processing = false;
+            this.errorMessage = errorMessage;
+        })
+    }
+
     viewProcess(e: MouseEvent) {
         let process = this.task.publishedProcess;
-        if (this.previewPageUrl) {
-            var viewUrl = OPMUtils.createProcessNavigationUrl(process, process .rootProcessStep, this.previewPageUrl, false);
-            var win = window.open(viewUrl, '_blank');
-            win.focus();
-        } else {
-            OPMRouter.navigate(process, process .rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
+        if (process) {
+            if (this.previewPageUrl) {
+                var viewUrl = OPMUtils.createProcessNavigationUrl(process, process.rootProcessStep, this.previewPageUrl, false);
+                var win = window.open(viewUrl, '_blank');
+                win.focus();
+            } else {
+                OPMRouter.navigate(process, process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
+            }
         }
     }
 
-    renderActions(h, taskCompleted: boolean, authorized: boolean = false) {
+    renderActions(h, taskCompleted: boolean, allowCloseTask: boolean) {
         return [
             <v-layout class='mt-4'>
                 <v-flex>
@@ -132,17 +160,17 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
                 </v-flex>
 
                 {
-                    authorized && !taskCompleted &&
+                    !allowCloseTask && !taskCompleted &&
                     <v-flex class="text-right">
-                        <v-btn onClick={() => { this.openSetNewReviewDateDialog = true; }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.SetNewReviewDate}</v-btn>
-                        <v-btn onClick={() => { this.openUnpublishDialog = true; }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.Unpublish}</v-btn>
-                        <v-btn onClick={() => { this.createDraft() }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.CreateDraft}</v-btn>
+                        <v-btn loading={this.processing} class="mr-2" onClick={() => { this.openSetNewReviewDateDialog = true; }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.SetNewReviewDate}</v-btn>
+                        <v-btn loading={this.processing} class="mr-2" onClick={() => { this.openUnpublishDialog = true; }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.Unpublish}</v-btn>
+                        <v-btn loading={this.processing} onClick={() => { this.createDraft() }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.CreateDraft}</v-btn>
                     </v-flex>
                 }
                 {
-                    !authorized && !taskCompleted &&
+                    allowCloseTask && !taskCompleted &&
                     <v-flex class="text-right">
-                        <v-btn onClick={() => { this.closeTask() }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.CloseTask}</v-btn>
+                        <v-btn loading={this.processing} onClick={() => { this.closeTask() }} dark color={this.omniaTheming.themes.primary.base}>{this.coreLoc.ProcessActions.CloseTask}</v-btn>
                     </v-flex>
                 }
             </v-layout>,
@@ -173,39 +201,44 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
                 model={{ visible: true }}
                 hideCloseButton
                 position={DialogPositions.Center}>
-
-                <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                    <v-toolbar-title>{this.coreLoc.ProcessActions.SetNewReviewDate}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon onClick={() => { this.openSetNewReviewDateDialog = false }}>
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
-                <v-divider></v-divider>
-                <v-container>
-                    <omfx-date-time-picker
-                        model={this.newReviewDate}
-                        color={this.omniaTheming.themes.primary.base}
-                        dark={this.omniaTheming.promoted.body.dark}
-                        pickerMode={"date"}
-                        formatter={this.formatter}
-                        onModelChange={(newVal) => { this.newReviewDate = newVal; }}>
-                    </omfx-date-time-picker>
-                </v-container>
-                <div class="text-right">
-                    <v-btn
-                        disabled={!this.newReviewDate}
-                        dark={this.newReviewDate}
-                        color={this.omniaTheming.themes.primary.base}
-                        onClick={() => { this.setNewReviewDate() }}>
-                        {this.omniaUxLoc.Common.Buttons.Ok}
-                    </v-btn>
-                    <v-btn
-                        dark={this.omniaTheming.promoted.body.dark}
-                        text
-                        onClick={() => { this.openSetNewReviewDateDialog = false; }}>
-                        {this.omniaUxLoc.Common.Buttons.Cancel}
-                    </v-btn>
+                <div>
+                    <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
+                        <v-toolbar-title>{this.coreLoc.ProcessActions.SetNewReviewDate}</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn icon onClick={() => { this.openSetNewReviewDateDialog = false }}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+                    <v-divider></v-divider>
+                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
+                        <v-container>
+                            <omfx-date-time-picker
+                                model={this.newReviewDate}
+                                color={this.omniaTheming.themes.primary.base}
+                                dark={this.omniaTheming.promoted.body.dark}
+                                pickerMode={"date"}
+                                formatter={this.formatter}
+                                onModelChange={(newVal) => { this.newReviewDate = newVal; }}>
+                            </omfx-date-time-picker>
+                        </v-container>
+                        <v-card-actions class={this.processLibraryClasses.dialogFooter}>
+                            <v-spacer></v-spacer>
+                            <v-btn
+                                disabled={!this.newReviewDate}
+                                class="mr-2"
+                                dark={this.newReviewDate ? true : false}
+                                color={this.omniaTheming.themes.primary.base}
+                                onClick={() => { this.setNewReviewDate() }}>
+                                {this.omniaUxLoc.Common.Buttons.Ok}
+                            </v-btn>
+                            <v-btn
+                                dark={false}
+                                text
+                                onClick={() => { this.openSetNewReviewDateDialog = false; }}>
+                                {this.omniaUxLoc.Common.Buttons.Cancel}
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
                 </div>
             </omfx-dialog>
         )
@@ -214,7 +247,9 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
     renderUnpublishDialog(h) {
         return <opm-unpublish-process-dialog
             process={this.task.publishedProcess}
+            unpublishHandler={this.unpublish}
             closeCallback={(unpublished) => {
+                this.openUnpublishDialog = false;
                 if (unpublished) {
                     this.task.sharePointTask.percentComplete = 1;
                 }
@@ -222,23 +257,44 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
         ></opm-unpublish-process-dialog>;
     }
 
+    renderTitle(h) {
+        let msg = this.task.publishedProcess ? '' : ` - ${this.coreLoc.Messages.UnauthorizedOrProcessNotFound}`
+        return <div><p><a href="javascript:void(0)" onClick={this.viewProcess}>{this.task.sharePointTask.title}</a>{msg}</p></div>
+    }
+
     renderReviewReminderTask(h) {
         if (this.task.sharePointTask.percentComplete == 1) {
             return [
+                this.renderTitle(h),
                 <div class="pt-4">{this.coreLoc.Messages.TaskCompleted}</div>,
-                this.renderActions(h, true)
+                this.renderActions(h, true, false)
             ]
         }
         else if (!this.task.hasAuthorPermission) {
             return [
+                this.renderTitle(h),
                 <div class="pt-4">{this.coreLoc.Messages.AuthorPermissionIsRequried}</div>,
-                this.renderActions(h, false, false)
+                this.renderActions(h, false, true)
+            ]
+        }
+        else if (this.task.draftExists) {
+            return [
+                this.renderTitle(h),
+                <div class="pt-4">{this.coreLoc.Messages.MessageDraftExist}</div>,
+                this.renderActions(h, false, true)
+            ]
+        }
+        else if (this.task.publishedProcess) {
+            return [
+                this.renderTitle(h),
+                <div>{this.coreLoc.Messages.MessageReviewReminderTaskEditingDescription}</div>,
+                this.renderActions(h, false, false),
+                this.renderActionDialogs(h)
             ]
         }
         else {
             return [
-                <div><p><a onClick={this.viewProcess}>{this.task.sharePointTask.title}</a></p></div>,
-                <div>{this.coreLoc.Messages.MessageReviewReminderTaskEditingDescription}</div>,
+                this.renderTitle(h),
                 this.renderActions(h, false, true),
                 this.renderActionDialogs(h)
             ]

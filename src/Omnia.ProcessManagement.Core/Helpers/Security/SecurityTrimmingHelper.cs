@@ -21,15 +21,17 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         public readonly static string ProcessDataTableAlias = "PD";
         public readonly static string ProcessDataTableName = nameof(OmniaPMDbContext.ProcessData);
 
-        public static List<Guid> Roles()
+        public static List<Guid> Roles
         {
-            return new List<Guid>()
+            get
             {
-                new Guid(OPMConstants.Security.Roles.Reader),
-                new Guid(OPMConstants.Security.Roles.Author),
-                new Guid(OPMConstants.Security.Roles.Reviewer),
-                new Guid(OPMConstants.Security.Roles.Approver)
-            };
+                return new List<Guid>(){
+                    new Guid(OPMConstants.Security.Roles.Reader),
+                    new Guid(OPMConstants.Security.Roles.Author),
+                    new Guid(OPMConstants.Security.Roles.Reviewer),
+                    new Guid(OPMConstants.Security.Roles.Approver)
+                };
+            }
         }
 
         public static string GenerateSecurityTrimming(UserAuthorizedResource resources, IOmniaContext omniaContext, Guid? opmProcessId, bool includeCheckedOutByOther = false)
@@ -165,7 +167,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             {
                 var connectPart = "";
 
-                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();                
+                var readerSecurityResourceIds = resources.ReaderSecurityResourceIds.Distinct().ToList();
 
                 if (readerSecurityResourceIds.Any())
                 {
@@ -174,7 +176,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 }
 
                 var opmProcessIdTrimming = $" AND {GeneratePermissionForOPMProcessIds(new List<Guid> { opmProcessId })}";
-               
+
                 if (securityTrimming != "")
                 {
                     securityTrimming = $"({securityTrimming}){opmProcessIdTrimming}";

@@ -106,9 +106,8 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             await ReviewReminderRepository.DoneQueueAsync(queue.Id, log);
         }
 
-        public async ValueTask EnsureReviewReminderAsync(Process process)
+        public async ValueTask EnsureReviewReminderAsync(Process process, DateTime? reviewDate = null)
         {
-            DateTime? reviewDate = null;
             DateTime? reviewReminderDate = null;
 
             var rootProcessStep = process.RootProcessStep;
@@ -117,10 +116,18 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             var processTypeId = Guid.Parse(processEnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString());
             var processType = (await ProcessTypeService.GetByIdsAsync(processTypeId)).FirstOrDefault();
 
+
             if (processType != null && processType.Settings.Type == ProcessTypeSettingsTypes.Item)
             {
                 var processTypeSettings = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>();
-                if (processTypeSettings.ReviewReminder != null)
+
+                if (reviewDate.HasValue)
+                {
+                    reviewReminderDate = processTypeSettings.ReviewReminder != null ?
+                        processTypeSettings.ReviewReminder.ReminderInAdvance.Before(reviewDate.Value) :
+                        reviewDate;
+                }
+                else if (processTypeSettings.ReviewReminder != null)
                 {
                     if (processTypeSettings.ReviewReminder.Schedule.Type == ReviewReminderScheduleTypes.TimeAfterPublishing)
                     {
@@ -152,8 +159,8 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                 await ReviewReminderRepository.AddPendingQueueAsync(new ReviewReminderQueue
                 {
                     OPMProcessId = process.OPMProcessId,
-                    ReviewDate = reviewDate.Value,
-                    ReviewReminderDate = reviewReminderDate.Value
+                    ReviewDate = new DateTimeOffset(reviewDate.Value.Date),
+                    ReviewReminderDate = new DateTimeOffset(reviewReminderDate.Value.Date)
                 });
             }
         }
@@ -350,6 +357,31 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             logStrBuilder.AppendLine($"Ensure {user.LoginName} has contributor permission on the created task item.");
         }
 
+        public async ValueTask CompleteTaskAsync(string spUrl, int id, ReviewReminderTaskOutcome taskOutcome)
+        {
+            PortableClientContext ctx = SharePointClientContextProvider.CreateClientContext(spUrl);
+            ctx.Load(ctx.Web, w => w.Title, w => w.Url, w => w.ServerRelativeUrl);
+            ctx.Load(ctx.Web.CurrentUser, p => p.LoginName, p => p.Email, p => p.Title, p => p.Id);
+            List taskList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.TaskList, false);
+            var taskItem = taskList.GetItemById(id);
+
+            ctx.Load(taskItem,
+                it => it.Id,
+                it => it[OPMConstants.SharePoint.SharePointFields.Fields_Status],
+                it => it[OPMConstants.SharePoint.OPMFields.Fields_Comment],
+                it => it[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete],
+                it => it[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome],
+                it => it[OPMConstants.SharePoint.SharePointFields.ContentTypeId]);
+            await ctx.ExecuteQueryAsync();
+
+            OPMUtilities.ValidateReviewReminderSharePointTask(taskItem);
+
+            taskItem[OPMConstants.SharePoint.SharePointFields.Fields_Status] = Models.Workflows.TaskStatus.Completed.ToString();
+            taskItem[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] = 1;
+            taskItem[OPMConstants.SharePoint.OPMFields.Fields_TaskOutcome] = taskOutcome;
+            taskItem.Update();
+            await ctx.ExecuteQueryAsync();
+        }
     }
 }
 
