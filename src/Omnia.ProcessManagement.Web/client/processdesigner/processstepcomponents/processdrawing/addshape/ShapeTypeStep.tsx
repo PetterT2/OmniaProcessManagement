@@ -164,7 +164,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                             drawingOptions={this.drawingShapeOptions}
                             changeDrawingOptionsCallback={this.onChangedDrawingOptions}
                             changeShapeCallback={this.changeShape}
-                            formValidator={this.internalValidator}
+                            useValidator={this.internalValidator}
                         ></ShapeTypeComponent>
                 }
             </v-card-content>
