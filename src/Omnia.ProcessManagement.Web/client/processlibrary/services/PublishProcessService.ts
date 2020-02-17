@@ -2,6 +2,7 @@
 import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
 import { AxiosRequestConfig } from 'axios';
 import { OPMService, Process, Enums, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, Workflow, WorkflowTask } from '../../fx/models';
+import { UserService } from '@omnia/fx/services';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class PublishProcessService {
@@ -9,6 +10,7 @@ export class PublishProcessService {
         configPromise: HttpClient.createOmniaServiceRequestConfig(OPMService.Id.toString())
     }) private httpClient: HttpClient;
     @Inject<HttpClientConstructor>(HttpClient, {}) private emptyHttpClient: HttpClient;
+    @Inject(UserService) userService: UserService;
     constructor() {
     }
 
@@ -70,4 +72,29 @@ export class PublishProcessService {
         });
     }
 
+    public getApprovalTaskById = (spItemId: number, teamAppId: GuidValue): Promise<WorkflowTask> => {
+        return new Promise<WorkflowTask>((resolve, reject) => {
+
+            this.httpClient.get<IHttpApiOperationResult<WorkflowTask>>(`/api/publish/task/${teamAppId}/${spItemId}`).then(response => {
+                if (response.data.success) {
+                    this.generateClientSideData(response.data.data).then(() => {
+                        resolve(response.data.data);
+                    }).catch(reject)
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    private generateClientSideData = (workflowTask: WorkflowTask) => {
+        let principalNames = [workflowTask.assignedUser, workflowTask.createdBy];
+
+        return this.userService.resolveUsersByPrincipalNames(principalNames).then(users => {
+            let assignedUser = users.find(u => u.userPrincipalName.toLowerCase() == workflowTask.assignedUser.toLowerCase());
+            let createdByUser = users.find(u => u.userPrincipalName.toLowerCase() == workflowTask.createdBy.toLowerCase());
+
+            workflowTask.assignedUserDisplayName = assignedUser ? assignedUser.displayName : workflowTask.assignedUser;
+            workflowTask.createdByUserDisplayName = createdByUser ? createdByUser.displayName : workflowTask.createdBy;
+        })
+    }
 }

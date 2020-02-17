@@ -17,6 +17,7 @@ export interface SharePointTask {
     comment: string,
     isCurrentResponsible: boolean,
     description: string,
-    webUrl: string
+    webUrl: string,
+    opmProcessId: GuidValue
 }
 

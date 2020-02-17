@@ -16,7 +16,7 @@ export class DraftsActionButtons extends VueComponentBase<DraftsActionButtonsPro
     @Prop() closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
 
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
-    @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -55,7 +55,7 @@ export class DraftsActionButtons extends VueComponentBase<DraftsActionButtonsPro
                     this.isCurrentUserCanAddDoc ?
                         <v-btn text class="ml-2"
                             color={this.omniaTheming.promoted.body.primary.base as any} onClick={() => { this.openNewProcessDialog = true; }}>
-                            {this.loc.Buttons.NewProcess}
+                            {this.coreLoc.ProcessActions.NewProcess}
                         </v-btn> :
                         null
                 }

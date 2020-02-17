@@ -74,27 +74,6 @@
             Tasks: string,
             Published: string
         },
-        Buttons: {
-            NewProcess: string
-        },
-        ProcessActions: {
-            Edit: string,
-            Preview: string,
-            SendForComments: string,
-            Publish: string,
-            WorkflowHistory: string,
-            DeleteDraft: string,
-            PreviewProcess: string,
-            CreateDraft: string,
-            ViewProcess: string,
-            ExportProcess: string,
-            ProcessHistory: string,
-            MoveProcess: string,
-            UnpublishProcess: string,
-            SyncToSharePoint: string,
-            RetrySyncToSharePoint: string,
-            Archive: string
-        },
         SortText: {
             Direction: string,
             Ascending: string,
@@ -107,25 +86,6 @@
             BooeleanFieldDescending: string,
             DateFieldAscending: string,
             DateFieldDescending: string
-        },
-        Messages: {
-            DeletePublishedProcessConfirmation: string,
-            ArchivePublishedProcessConfirmation: string,
-            DeleteDraftProcessConfirmation: string,
-            NoProcessTemplateValidation: string,
-            MessageNobodyCanApprove: string,
-            MessageUpdateProcessPropertiesBeforePublishing: string,
-            MessageNoItem: string,
-            MessageApprovalTaskEditingCompletedTask: string,
-            MessageApprovalTaskEditingCompletedTaskNoComment: string,
-            MessageRequireRejectComment: string,
-            MessageTaskHasBeenCompletedOrCanceled: string,
-            MessageTaskCancelledBySystem: string,
-            MessageApprovalTaskEditingDescription: string,
-            MessageDraftExistCannotBeArchived: string,
-            SyncToSharePointFailed: string,
-            ArchiveProcessFailed: string
-
         },
         ProcessType: string,
         ProcessTemplate: string,

@@ -107,6 +107,10 @@
     <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncG.ts" />
     <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsFuncR.ts" />
     <TypeScriptCompile Remove="client\components\richtexteditorextensions\MediaPicker\nodes\ScalableVectorGraphicsImage.ts" />
+    <TypeScriptCompile Remove="client\components\unpublishprocessdialog\IUnpublishProcessDialog.ts" />
+    <TypeScriptCompile Remove="client\components\unpublishprocessdialog\UnpublishProcessDialog.css.ts" />
+    <TypeScriptCompile Remove="client\components\unpublishprocessdialog\UnpublishProcessDialog.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\unpublishprocessdialog\UnpublishProcessDialog.tsx" />
     <TypeScriptCompile Remove="client\core\Constants.ts" />
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
@@ -212,6 +216,9 @@
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeItemSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processtypes\ProcessTypeTermSynchronizationStatus.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processtypes\ReviewReminderTaskSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\reviewreminders\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\reviewreminders\ReviewReminderTask.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\security\AuthorAndDefaultReaderUpdateInput.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\security\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\settings\GlobalSettings.ts" />
@@ -275,6 +282,7 @@
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeTypeStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\TitleBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\UnpublishProcessDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\canvas\DrawingCanvasFreeForm.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricLineShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricPolylineShape.ts" />
@@ -430,10 +438,10 @@
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedProcessingStatus.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\PublishedView.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\published\SyncToSharePointDialog.tsx" />
-    <TypeScriptCompile Remove="client\processlibrary\components\views\published\UnpublishDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ApprovalTask.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\registration\Registration.manifest.ts" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\registration\Registration.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\ReviewReminderTask.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\tasks\TasksView.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\factory\ProcessLibraryConfigurationFactory.ts" />
     <TypeScriptCompile Remove="client\processlibrary\filtersandsorting\FiltersAndSorting - Copy.ts" />
@@ -473,7 +481,7 @@
     <TypeScriptCompile Remove="client\processdesigner\TempTestComponent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\Utils.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\PublishProcessService.ts" />
-    <TypeScriptCompile Remove="client\processlibrary\services\TaskService.ts" />
+    <TypeScriptCompile Remove="client\processlibrary\services\ReviewReminderService.ts" />
     <TypeScriptCompile Remove="client\processlibrary\services\UnpublishProcessService.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.css.ts" />
     <TypeScriptCompile Remove="client\processrenderer\global\GlobalProcessRenderer.manifest.ts" />
@@ -948,7 +956,7 @@
     <None Update="client\processlibrary\filtersandsorting\FiltersAndSorting.ts">
       <SubType>Code</SubType>
     </None>
-    <None Update="client\processlibrary\services\TaskService.ts">
+    <None Update="client\processlibrary\services\ReviewReminderService.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\processlibrary\services\PublishProcessService.ts">

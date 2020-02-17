@@ -76,28 +76,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Drafts: "Drafts",
             Tasks: "Tasks",
             Published: "Published"
-        },
-        Buttons: {
-            NewProcess: "New Process"
-        },
-        ProcessActions: {
-            Edit: "Edit",
-            Preview: "Preview",
-            SendForComments: "Send for Comments",
-            Publish: "Publish",
-            WorkflowHistory: "Workflow History",
-            DeleteDraft: "Delete Draft",
-            PreviewProcess: "Preview",
-            CreateDraft: "Create Draft",
-            ViewProcess: "View Process",
-            ExportProcess: "Export Process",
-            ProcessHistory: "Process History",
-            MoveProcess: "Move Process",
-            UnpublishProcess: "Unpublish Process",
-            SyncToSharePoint: "Sync To SharePoint",
-            RetrySyncToSharePoint: "Retry",
-            Archive: "Archive"
-        },
+        },      
         SortText: {
             Direction: "Sort Direction",
             Ascending: "Ascending",
@@ -110,25 +89,6 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             BooeleanFieldDescending: "Yes to No",
             DateFieldAscending: "Older to newer",
             DateFieldDescending: "Newer to older"
-        },
-        Messages: {
-            DeletePublishedProcessConfirmation: "Are you sure you want to delete the process?",
-            ArchivePublishedProcessConfirmation: "Are you sure you want to delete and archive the process?",
-            DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?",
-            NoProcessTemplateValidation: "This process is not based on any existing process template.",
-            MessageNobodyCanApprove: "There are no available approver for this process.",
-            MessageUpdateProcessPropertiesBeforePublishing: "You need to fill in all required properties to be able to publish a process.",
-            MessageNoItem: "There are no items to show in this view.",
-            MessageApprovalTaskEditingCompletedTask: "This task has been completed by <strong>{{User}}</strong> with the following comment:",
-            MessageApprovalTaskEditingCompletedTaskNoComment: "This task has been completed by <strong>{{User}}</strong>.",            
-            MessageTaskHasBeenCompletedOrCanceled: "This task has been completed or canceled.",
-            MessageRequireRejectComment: "You need to submit a comment when the process is rejected.",
-            MessageTaskCancelledBySystem: "Task was cancelled by the system",
-            MessageApprovalTaskEditingDescription: "Open the process and review the contents. When you are done, please write a comment in the text field below and select Approve or Reject",
-            MessageDraftExistCannotBeArchived: "This published process has a draft version and cannot be archived.",
-            SyncToSharePointFailed: "This process was synced to SharePoint failed.",
-            ArchiveProcessFailed: "This process has been archived unsuccessfully."
-
         },
         ProcessType: "Process Type",
         ProcessTemplate: "Process Template",

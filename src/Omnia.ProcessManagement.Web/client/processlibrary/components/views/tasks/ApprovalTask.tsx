@@ -7,7 +7,7 @@ import { StyleFlow, OmniaUxLocalization, OmniaUxLocalizationNamespace, VueCompon
 import * as moment from 'moment';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
-import { PublishProcessService, TaskService } from '../../../services';
+import { PublishProcessService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome } from '../../../../fx/models';
@@ -20,24 +20,21 @@ import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { DisplayModes } from '../../../../models/processdesigner';
 
-interface ApprovalTaskProps {
+interface ApprovalTaskComponentProps {
     closeCallback: () => void;
     previewPageUrl: string;
 }
 
 @Component
-export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
+export class ApprovalTaskComponent extends VueComponentBase<ApprovalTaskComponentProps>
 {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() closeCallback: () => void;
     @Prop() previewPageUrl: string;
 
-    @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(PublishProcessService) publishProcessService: PublishProcessService;
-    @Inject(TaskService) taskService: TaskService;
     @Inject(OmniaContext) omniaCtx: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(UserService) private omniaUserService: UserService;
     @Inject(OPMContext) private opmContext: OPMContext;
     @Inject(ProcessStore) private processStore: ProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
@@ -72,7 +69,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
 
         this.isLoadingTask = true;
         this.taskId = WebUtils.getQs(UrlParameters.TaskId);
-        this.taskService.getApprovalTaskById(parseInt(this.taskId), this.opmContext.teamAppId)
+        this.publishProcessService.getApprovalTaskById(parseInt(this.taskId), this.opmContext.teamAppId)
             .then((data) => {
                 this.task = data;
                 if (this.task != null) {
@@ -89,11 +86,11 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     private setTaskDescription() {
         if (this.task.isCompleted) {
             if (this.task.comment && this.task.comment.length > 0) {
-                this.completedTaskDescription = this.loc.Messages.MessageApprovalTaskEditingCompletedTask;
+                this.completedTaskDescription = this.coreLoc.Messages.MessageApprovalTaskEditingCompletedTask;
                 this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedUserDisplayName);
             }
             else {
-                this.completedTaskDescription = this.loc.Messages.MessageApprovalTaskEditingCompletedTaskNoComment;
+                this.completedTaskDescription = this.coreLoc.Messages.MessageApprovalTaskEditingCompletedTaskNoComment;
                 this.completedTaskDescription = this.completedTaskDescription.replace("{{User}}", this.task.assignedUserDisplayName);
             }
         }
@@ -112,7 +109,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
     private reject() {
         if (!this.task.comment || this.task.comment.length == 0) {
             this.hasError = true;
-            this.errorMessage = this.loc.Messages.MessageRequireRejectComment;
+            this.errorMessage = this.coreLoc.Messages.MessageRequireRejectComment;
             return false;
         }
 
@@ -162,7 +159,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
         if (this.task.workflow.completedType == WorkflowCompletedType.Cancelled) {
             return (
                 <div>
-                    <p>{this.loc.Messages.MessageTaskCancelledBySystem}</p>
+                    <p>{this.coreLoc.Messages.MessageTaskCancelledBySystem}</p>
                 </div>
             )
         }
@@ -184,7 +181,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                             <div>
                                 <div><p><a href="javascript:void(0)" onClick={this.previewProcess}>{this.task.sharePointTask.title}</a></p></div>
 
-                                <p>{this.loc.Messages.MessageApprovalTaskEditingDescription}</p>
+                                <p>{this.coreLoc.Messages.MessageApprovalTaskEditingDescription}</p>
                                 <p>{this.task.createdByUserDisplayName + " " + moment(this.task.createdAt).locale(this.omniaCtx.language).format(this.dateFormat) + ":"}</p>
                                 {
                                     Utils.isNullOrEmpty(this.task.workflow.comment) ? null : <p>{"\"" + this.task.workflow.comment + "\""}</p>
@@ -196,7 +193,7 @@ export class ApprovalTask extends VueComponentBase<ApprovalTaskProps>
                                 ></v-textarea>
                                 {
                                     this.emptyCommentError ?
-                                        <div><span class={this.processLibraryClasses.error}>{this.loc.Messages.MessageRequireRejectComment}</span></div>
+                                        <div><span class={this.processLibraryClasses.error}>{this.coreLoc.Messages.MessageRequireRejectComment}</span></div>
                                         : null
                                 }
                             </div>

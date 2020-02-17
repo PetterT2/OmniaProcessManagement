@@ -11,6 +11,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMUtils, ProcessService } from '../../../../fx';
 import { ProcessLibraryStyles } from '../../../../models';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
+import { OPMCoreLocalization } from '../../../../core/loc/localize';
 declare var moment;
 
 interface PublishDialogProps {
@@ -30,6 +31,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
@@ -65,7 +67,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
     renderBody(h) {
         return (
             <v-container class={this.processLibraryClasses.centerDialogBody}>
-                {this.loc.Messages.SyncToSharePointFailed}
+                {this.corLoc.Messages.SyncToSharePointFailed}
             </v-container>
         )
     }
@@ -80,7 +82,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
                             dark
                             color={this.omniaTheming.themes.primary.base}
                             loading={this.isRetrying}
-                            onClick={() => { this.retrySync() }}>{this.loc.ProcessActions.RetrySyncToSharePoint}
+                            onClick={() => { this.retrySync() }}>{this.corLoc.ProcessActions.RetrySyncToSharePoint}
                         </v-btn>
                         : null
                 }
@@ -106,7 +108,7 @@ export class SyncToSharePointDialog extends VueComponentBase<PublishDialogProps>
                     position={DialogPositions.Center}>
                     <div>
                         <div class={this.omniaTheming.promoted.header.class}>
-                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.loc.ProcessActions.SyncToSharePoint + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
+                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.corLoc.ProcessActions.SyncToSharePoint + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
                         </div>
                         <v-card flat tile class={this.omniaTheming.promoted.body.class}>
                             <div data-omfx>

@@ -9,7 +9,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
 {
     internal class ReviewReminderTaskValidation
     {
-        internal static void Validate(ReviewReminderTask task, EnterprisePropertySet set)
+        internal static void Validate(ReviewReminderTaskSettings task, EnterprisePropertySet set)
         {
             if (task.PersonEnterprisePropertyDefinitionId == Guid.Empty)
             {

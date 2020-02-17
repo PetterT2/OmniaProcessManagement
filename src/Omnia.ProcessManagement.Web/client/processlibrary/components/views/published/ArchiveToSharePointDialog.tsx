@@ -11,6 +11,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMUtils, ProcessService } from '../../../../fx';
 import { ProcessLibraryStyles } from '../../../../models';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
+import { OPMCoreLocalization } from '../../../../core/loc/localize';
 declare var moment;
 
 interface PublishDialogProps {
@@ -29,6 +30,7 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
@@ -64,7 +66,7 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
     renderBody(h) {
         return (
             <v-container class={this.processLibraryClasses.centerDialogBody}>
-                {this.loc.Messages.ArchiveProcessFailed}
+                {this.coreLoc.Messages.ArchiveProcessFailed}
             </v-container>
         )
     }
@@ -79,7 +81,7 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
                             dark
                             color={this.omniaTheming.themes.primary.base}
                             loading={this.isRetrying}
-                            onClick={() => { this.retryArchive() }}>{this.loc.ProcessActions.RetrySyncToSharePoint}
+                            onClick={() => { this.retryArchive() }}>{this.coreLoc.ProcessActions.RetrySyncToSharePoint}
                         </v-btn>
                         : null
                 }
@@ -105,7 +107,7 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
                     position={DialogPositions.Center}>
                     <div>
                         <div class={this.omniaTheming.promoted.header.class}>
-                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.loc.ProcessActions.Archive + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
+                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.coreLoc.ProcessActions.Archive + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
                         </div>
                         <v-card flat tile class={this.omniaTheming.promoted.body.class}>
                             <div data-omfx>

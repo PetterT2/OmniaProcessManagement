@@ -139,27 +139,27 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                     })}>
                     <v-list>
                         <v-list-item onClick={() => { this.editProcess(); }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.Edit}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.Edit}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => { this.previewProcess(); }}>
-                            <v-list-item-title>{this.loc.ProcessActions.Preview}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.Preview}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.SendForComments}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => {
                             this.openPublishDialog = true;
                         }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.Publish}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.Publish}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { }}>
-                            <v-list-item-title>{this.loc.ProcessActions.WorkflowHistory}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.WorkflowHistory}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.openDeleteDraft(); }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.DeleteDraft}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.DeleteDraft}</v-list-item-title>
                         </v-list-item>
                     </v-list>
                 </v-menu>

@@ -11,3 +11,4 @@ export * from './security';
 export * from './sharepointtasks';
 export * from './processrollup';
 export * from './shapetemplates';
+export * from './reviewreminders';

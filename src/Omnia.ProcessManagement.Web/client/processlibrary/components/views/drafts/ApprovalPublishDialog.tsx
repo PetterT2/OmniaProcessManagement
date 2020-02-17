@@ -194,7 +194,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
                             item: p => this.renderApprover(h, p.item)
                         }}>
                         <div slot="no-data">
-                            {this.loc.Messages.MessageNoItem}
+                            {this.coreLoc.Messages.MessageNoItem}
                         </div>
                     </v-data-table>
                 </div>
@@ -238,7 +238,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
                     position={DialogPositions.Center}>
                     <div>
                         <div class={this.omniaTheming.promoted.header.class}>
-                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.loc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
+                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
                         </div>
                         <v-card flat tile class={this.omniaTheming.promoted.body.class}>
                             <div data-omfx>

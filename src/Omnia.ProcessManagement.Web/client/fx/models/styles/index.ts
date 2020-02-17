@@ -11,3 +11,4 @@ export * from './MediaPickerStyles';
 export * from './ShapeGalleryDefaultSettingStyles';
 export * from './FreeformPickerStyles';
 export * from './TitleBlockStyles';
+export * from './UnpublishProcessDialogStyles';

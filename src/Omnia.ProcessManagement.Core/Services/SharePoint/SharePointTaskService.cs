@@ -260,6 +260,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                 PercentComplete = item[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete] != null ? double.Parse(item[OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete].ToString()) : 0,
                 Status = item[OPMConstants.SharePoint.SharePointFields.Fields_Status] != null ? item[OPMConstants.SharePoint.SharePointFields.Fields_Status].ToString() : string.Empty,
                 Comment = item[OPMConstants.SharePoint.OPMFields.Fields_Comment] != null ? item[OPMConstants.SharePoint.OPMFields.Fields_Comment].ToString() : string.Empty,
+                OPMProcessId = item[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] != null ? Guid.Parse(item[OPMConstants.SharePoint.OPMFields.Fields_Comment].ToString()) : Guid.Empty,
                 ContentType = taskContentType,
                 WebUrl = webUrl,
                 IsCurrentResponsible = currentUserId == assignedToLookupId
@@ -304,6 +305,10 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                 item.Fields.TryGetValue(OPMConstants.SharePoint.SharePointFields.Fields_PercentComplete, out var percentCompleteObj);
                 if (percentCompleteObj != null) double.TryParse(percentCompleteObj.ToString(), out percentComplete);
 
+                Guid opmProcessId = Guid.Empty;
+                item.Fields.TryGetValue(OPMConstants.SharePoint.OPMFields.Fields_ProcessId, out var opmProcessIdObj);
+                if (opmProcessIdObj != null) Guid.TryParse(opmProcessIdObj.ToString(), out opmProcessId);
+
                 string contentType = "";
                 item.Fields.TryGetValue(OPMConstants.SharePoint.SharePointFields.ContentTypeId, out var contentTypeObj);
                 if (contentTypeObj != null) contentType = JObject.Parse(contentTypeObj.ToString())["StringValue"].ToString();
@@ -322,6 +327,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
                     Comment = comment,
                     Description = description,
                     WebUrl = webUrl,
+                    OPMProcessId = opmProcessId,
                     IsCurrentResponsible = userId == assignedToLookupId
                 };
 

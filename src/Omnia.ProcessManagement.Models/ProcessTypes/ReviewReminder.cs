@@ -13,7 +13,7 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         /// <summary>
         /// null means no task creation
         /// </summary>
-        public ReviewReminderTask Task { get; set; }
+        public ReviewReminderTaskSettings Task { get; set; }
 
         /// <summary>
         /// There is special value for defining approver
@@ -22,7 +22,7 @@ namespace Omnia.ProcessManagement.Models.ProcessTypes
         public List<Guid> PersonEnterprisePropertyDefinitionIds { get; set; }
     }
 
-    public class ReviewReminderTask
+    public class ReviewReminderTaskSettings
     {
         public Guid PersonEnterprisePropertyDefinitionId { get; set; }
         public TimePeriodSettings Expiration { get; set; }

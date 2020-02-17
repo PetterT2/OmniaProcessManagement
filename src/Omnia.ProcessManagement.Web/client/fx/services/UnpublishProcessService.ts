@@ -1,6 +1,7 @@
-﻿import { Inject, HttpClientConstructor, HttpClient, Utils as omniaUtils, Utils, Injectable } from '@omnia/fx';
-import { IHttpApiOperationResult, InstanceLifetimes, Guid, GuidValue } from '@omnia/fx/models';
-import { OPMService } from '../../fx/models';
+﻿import { Injectable, Inject, HttpClientConstructor, HttpClient } from '@omnia/fx';
+import { InstanceLifetimes, IHttpApiOperationResult } from '@omnia/fx-models';
+import { OPMService } from '../models';
+
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class UnpublishProcessService {

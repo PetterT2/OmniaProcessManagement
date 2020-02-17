@@ -7,6 +7,7 @@ import { ProcessService } from '../../../../fx';
 import { GuidValue } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
+import { OPMCoreLocalization } from '../../../../core/loc/localize';
 
 interface DeletedDialogProps {
     opmProcessId: GuidValue;
@@ -21,6 +22,8 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Localize(OmniaUxLocalizationNamespace) private omniaUxLoc: OmniaUxLocalization;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
+
     @Inject(ProcessService) processService: ProcessService;
 
     private classes = StyleFlow.use(ProcessLibraryStyles);
@@ -61,7 +64,7 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
                 position={DialogPositions.Center}>
                 <div>
                     <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.loc.ProcessActions.DeleteDraft}</v-toolbar-title>
+                        <v-toolbar-title>{this.coreLoc.ProcessActions.DeleteDraft}</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <v-btn icon onClick={() => { this.close(); }}>
                             <v-icon>close</v-icon>
@@ -72,7 +75,7 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
                         <div data-omfx>
                             <v-container>
                                 <div v-show={Utils.isNullOrEmpty(this.errMessage)}>
-                                    {this.loc.Messages.DeleteDraftProcessConfirmation}
+                                    {this.coreLoc.Messages.DeleteDraftProcessConfirmation}
                                 </div>
                                 <span class={[this.classes.error, 'mt-3 mb-3']}>{this.errMessage}</span>
                             </v-container>

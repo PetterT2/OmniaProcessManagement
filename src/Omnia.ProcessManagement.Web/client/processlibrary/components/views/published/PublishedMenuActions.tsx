@@ -5,10 +5,10 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
-import { UnpublishDialog } from './UnpublishDialog';
+import { Process, Enums, ProcessWorkingStatus, ProcessVersionType } from '../../../../fx/models';
 import { ProcessStore, OPMUtils, OPMRouter, ProcessRendererOptions } from '../../../../fx';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 
 interface PublishedMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
@@ -72,7 +72,15 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     private renderUnpublishDialog(h) {
         return (
-            <UnpublishDialog closeCallback={() => { this.openUnpublishDialog = false; }} process={this.process}></UnpublishDialog>
+            <opm-unpublishprocess-dialog
+                closeCallback={(unpublished: boolean) => {
+                    if (unpublished) {
+                        InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Published);
+                    }
+                    this.openUnpublishDialog = false;
+                }}
+                process={this.process}>
+            </opm-unpublishprocess-dialog>
         )
     }
 
@@ -105,25 +113,25 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                     })}>
                     <v-list>
                         <v-list-item onClick={() => { this.createDraft() }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.CreateDraft}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.CreateDraft}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.viewProcess() }}>
-                            <v-list-item-title>{this.loc.ProcessActions.ViewProcess}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.ViewProcess}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => { }}>
-                            <v-list-item-title>{this.loc.ProcessActions.ExportProcess}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.ExportProcess}</v-list-item-title>
                         </v-list-item>
                         <v-list-item onClick={() => { this.openProcessHistoryDialog = true; }}>
-                            <v-list-item-title>{this.loc.ProcessActions.ProcessHistory}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.ProcessHistory}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.MoveProcess}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.MoveProcess}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.openUnpublishDialog = true; }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.loc.ProcessActions.UnpublishProcess}</v-list-item-title>
+                            <v-list-item-title>{this.corLoc.ProcessActions.UnpublishProcess}</v-list-item-title>
                         </v-list-item>
                     </v-list>
                 </v-menu>

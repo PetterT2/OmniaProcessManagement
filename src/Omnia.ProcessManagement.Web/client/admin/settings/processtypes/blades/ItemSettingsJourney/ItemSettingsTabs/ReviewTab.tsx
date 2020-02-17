@@ -3,7 +3,7 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { OmniaTheming, FormValidator, VueComponentBase, StyleFlow, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../../loc/localize';
-import { ProcessType, ProcessTypeItemSettings, ApproverId, ReviewReminderFactory, ReviewReminderScheduleTypes, ReviewReminderScheduleFactory, TimeAfterPublishingSchedule, PropertySchedule, ReviewReminderSchedule, ReviewReminder, ReviewReminderTaskFactory, ReviewReminderTask } from '../../../../../../fx/models';
+import { ProcessType, ProcessTypeItemSettings, ApproverId, ReviewReminderFactory, ReviewReminderScheduleTypes, ReviewReminderScheduleFactory, TimeAfterPublishingSchedule, PropertySchedule, ReviewReminderSchedule, ReviewReminder, ReviewReminderTaskSettingsFactory, ReviewReminderTaskSettings } from '../../../../../../fx/models';
 import { EnterprisePropertyDefinition, PropertyIndexedType, GuidValue, TimePeriodTypes } from '@omnia/fx-models';
 import { ProcessTypeHelper } from '../../../core';
 
@@ -66,14 +66,14 @@ export default class ReviewTab extends VueComponentBase<ReviewTabProps> {
         let settings = this.processType.settings as ProcessTypeItemSettings;
 
         if (this.enableCreateReviewTask) {
-            settings.reviewReminder.task = ReviewReminderTaskFactory.createDefault()
+            settings.reviewReminder.task = ReviewReminderTaskSettingsFactory.createDefault()
         } else {
             settings.reviewReminder.task = null;
         }
     }
 
 
-    renderCreateTask(h, task: ReviewReminderTask) {
+    renderCreateTask(h, task: ReviewReminderTaskSettings) {
         return (
             <v-card>
                 <v-card-text>

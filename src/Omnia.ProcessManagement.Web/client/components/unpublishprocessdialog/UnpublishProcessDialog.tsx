@@ -1,23 +1,20 @@
-﻿import Component from 'vue-class-component';
-import { VueComponentBase, OmniaTheming, DialogPositions, DialogModel, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
-import { Process, OPMEnterprisePropertyInternalNames, ProcessTypeItemSettings, GlobalSettings } from '../../../../fx/models';
-import { Prop } from 'vue-property-decorator';
-import { Localize, Inject, Utils } from '@omnia/fx';
-import { ProcessLibraryLocalization } from '../../../loc/localize';
-import { ProcessLibraryStyles } from '../../../../models';
-import { ProcessTypeStore, SettingsStore, ProcessService } from '../../../../fx';
-import { UnpublishProcessService } from '../../../services';
-
-interface UnpublishDialogProps {
-    process: Process;
-    closeCallback: () => void;
-}
+﻿import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Localize, Inject, Utils } from "@omnia/fx";
+import { Prop } from 'vue-property-decorator'
+import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogPositions, StyleFlow, VueComponentBase, HeadingStyles, DialogStyles, DialogModel } from '@omnia/fx/ux';
+import './UnpublishProcessDialog.css';
+import { IUnpublishProcessDialog } from './IUnpublishProcessDialog';
+import { Process, UnpublishProcessDialogStyles, OPMEnterprisePropertyInternalNames, GlobalSettings, ProcessTypeItemSettings, ProcessVersionType } from '../../fx/models';
+import { ProcessTypeStore, SettingsStore, ProcessService, UnpublishProcessService } from '../../fx';
+import { OPMCoreLocalization } from '../../core/loc/localize';
+import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
 
 @Component
-export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
-{
+export default class UnpublishProcessDialog extends VueComponentBase implements IWebComponentInstance, IUnpublishProcessDialog {
+
     @Prop() process: Process;
-    @Prop() closeCallback: () => void;
+    @Prop() closeCallback: (unpublished: boolean) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
@@ -25,10 +22,10 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
     @Inject(ProcessService) processService: ProcessService;
     @Inject(UnpublishProcessService) unpublishProcessService: UnpublishProcessService;
 
-    @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
+    
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
-
-    private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
+    @Localize(OPMCoreLocalization.namespace) loc: OPMCoreLocalization.locInterface;
+    private styleClasses = StyleFlow.use(UnpublishProcessDialogStyles);
 
     private dialogModel: DialogModel = { visible: false };
 
@@ -70,15 +67,15 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
         })
     }
 
-    private unpublishDialogClose() {
+    private unpublishDialogClose(unpublished: boolean = null) {
         this.dialogModel.visible = false;
-        if (this.closeCallback) this.closeCallback();
+        if (this.closeCallback) this.closeCallback(unpublished);
     }
 
     private unpublishProcess() {
         this.isUnpublishing = true;
         this.unpublishProcessService.unpublishProcess(this.process.opmProcessId.toString()).then((data) => {
-            this.unpublishDialogClose();
+            this.unpublishDialogClose(true);
         })
     }
 
@@ -96,21 +93,21 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
 
     private renderBody(h) {
         return (
-            <v-container class={this.processLibraryClasses.centerDialogBody}>
+            <v-container class={this.styleClasses.centerDialogBody}>
                 {
                     !this.hasError ?
                         <span>{this.canBeArchive ? this.loc.Messages.ArchivePublishedProcessConfirmation : this.loc.Messages.DeletePublishedProcessConfirmation}</span>
                         :
                         <span>{this.errorMsg}</span>
                 }
-                
+
             </v-container>
         )
     }
 
     private renderFooter(h) {
         return (
-            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
+            <v-card-actions class={this.styleClasses.dialogFooter}>
                 <v-spacer></v-spacer>
                 <v-btn
                     dark={!(this.isLoading || !this.allowToUnpublish)}
@@ -158,3 +155,8 @@ export class UnpublishDialog extends VueComponentBase<UnpublishDialogProps>
         )
     }
 }
+
+WebComponentBootstrapper.registerElement((manifest) => {
+    vueCustomElement(manifest.elementName, UnpublishProcessDialog);
+});
+

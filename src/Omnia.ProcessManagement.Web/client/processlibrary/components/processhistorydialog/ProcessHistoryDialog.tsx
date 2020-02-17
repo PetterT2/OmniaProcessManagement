@@ -173,7 +173,7 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
                     item: p => this.renderItems(h, p.item)
                 }}>
                 <div slot="no-data">
-                    {this.loc.Messages.MessageNoItem}
+                    {this.coreLoc.Messages.MessageNoItem}
                 </div>
             </v-data-table>
         )

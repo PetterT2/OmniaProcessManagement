@@ -45,6 +45,8 @@ export class OPMWebComponentManifests {
 
     public static get PointPicker(): Guid { return new Guid('601b298e-7d64-4faf-91fd-1daac7b80267'); }
 
+    public static get UnpublishProcessDialog(): Guid { return new Guid('350726cf-ae39-438f-bc34-ffe1a173a49a'); }
+
     public static get PermissionDialog(): Guid { return new Guid('5b7169cd-7003-4cf6-a86e-4a7a38250ec3'); }
     public static get ProcessStepPicker(): Guid { return new Guid('5a0c11c9-9691-47a1-9f7d-2aedfc8dbce7'); }
 

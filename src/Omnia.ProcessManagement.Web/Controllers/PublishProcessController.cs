@@ -204,6 +204,27 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-
+        [HttpGet, Route("task/{teamAppId:guid}/{spItemId:int}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<WorkflowTask>> GetWorkflowApprovalTaskAsync(int spItemId, Guid teamAppId)
+        {
+            try
+            {
+                //We based on the permission on SharePoint for this task item
+                var workflowTask = await WorkflowTaskService.GetAsync(spItemId, teamAppId, true);
+                if (!workflowTask.IsCompleted)
+                {
+                    var process = (await ProcessService.GetProcessesByOPMProcessIdAsync(workflowTask.Workflow.OPMProcessId, ProcessVersionType.Draft)).FirstOrDefault();
+                    if (process != null)
+                        workflowTask.RootProcessStepId = process.RootProcessStep.Id;
+                }
+                return workflowTask.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<WorkflowTask>(ex);
+            }
+        }
     }
 }
