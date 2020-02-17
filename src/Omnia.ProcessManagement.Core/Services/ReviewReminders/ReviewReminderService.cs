@@ -159,8 +159,8 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                 await ReviewReminderRepository.AddPendingQueueAsync(new ReviewReminderQueue
                 {
                     OPMProcessId = process.OPMProcessId,
-                    ReviewDate = reviewDate.Value,
-                    ReviewReminderDate = reviewReminderDate.Value
+                    ReviewDate = new DateTimeOffset(reviewDate.Value.Date),
+                    ReviewReminderDate = new DateTimeOffset(reviewReminderDate.Value.Date)
                 });
             }
         }
