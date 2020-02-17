@@ -137,7 +137,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                     if (!Utils.isArrayNullOrEmpty(foundFieldValue)) {
                         availableApprovers = foundFieldValue;
                     } else {
-                        this.errorHandler(this.loc.Messages.MessageNobodyCanApprove);
+                        this.errorHandler(this.coreLoc.Messages.MessageNobodyCanApprove);
                     }
                     break;
                 case PublishingApprovalSettingsTypes.LimitedUsers:
@@ -184,7 +184,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
             this.unlimitedApprover = true;
         }
         else if (availableApprovers.length == 0) {
-            this.errorHandler(this.loc.Messages.MessageNobodyCanApprove);
+            this.errorHandler(this.coreLoc.Messages.MessageNobodyCanApprove);
         }
         else {
             this.unlimitedApprover = false;
@@ -279,7 +279,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         return (
             <div class="px-3 py-3">
                 <div class={["px-3", "py-3", this.listViewClasses.publishDialogErrorFormContent]}>
-                    <span>{this.loc.Messages.MessageUpdateProcessPropertiesBeforePublishing}</span>
+                    <span>{this.coreLoc.Messages.MessageUpdateProcessPropertiesBeforePublishing}</span>
                 </div>
             </div>
         )
@@ -448,7 +448,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     renderHeader(h) {
         return (
             <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                <v-toolbar-title>{this.loc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
+                <v-toolbar-title>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn icon onClick={() => { this.publishDialogClose(); }}>
                     <v-icon>close</v-icon>
@@ -479,7 +479,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                                 disabled={this.isCheckingPublishingRules || this.needToUpdateProcessProperties}
                                 color={this.omniaTheming.themes.primary.base}
                                 loading={this.isPublishingOrSending}
-                                onClick={() => { this.publishProcess() }}>{this.loc.ProcessActions.Publish}
+                                onClick={() => { this.publishProcess() }}>{this.coreLoc.ProcessActions.Publish}
                             </v-btn>
                         )
                 }

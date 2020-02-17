@@ -28,6 +28,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
     {
         IOnlyTeamAppIdSecurityResponseHandler OrRequireTeamAppAdmin(params ProcessVersionType[] versionTypes);
         IOnlyTeamAppIdSecurityResponseHandler OrRequireAuthor(params ProcessVersionType[] versionTypes);
+        ValueTask<bool> IsAuthorizedAsync();
         ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
     }
 
@@ -50,6 +51,7 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
         ISecurityResponseHandler OrRequireReader(params ProcessVersionType[] versionTypes);
         ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action);
         ValueTask<T> DoAsync<T>(Func<Guid, Guid, ProcessVersionType, ValueTask<T>> action);
+        ValueTask<bool> IsAuthorizedAsync();
         internal ValueTask<T> DoAsync<T>(Func<InternalProcess, ValueTask<T>> action);
     }
 
@@ -195,6 +197,17 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
             return await action(Process.TeamAppId, Process.OPMProcessId, Process.VersionType);
         }
 
+        async ValueTask<bool> ISecurityResponseHandler.IsAuthorizedAsync()
+        {
+            var isAuthorized = await ValidateAuthorized();
+            return isAuthorized;
+        }
+
+        public async ValueTask<bool> IsAuthorizedAsync()
+        {
+            var isAuthorized = await ValidateAuthorized();
+            return isAuthorized;
+        }
 
         public async ValueTask<T> DoAsync<T>(Func<ValueTask<T>> action)
         {

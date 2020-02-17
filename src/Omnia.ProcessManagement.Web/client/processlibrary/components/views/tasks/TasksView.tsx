@@ -8,12 +8,12 @@ import { SharePointContext } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils, WebUtils } from '@omnia/fx';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { ApprovalTask } from './ApprovalTask';
+import { ApprovalTaskComponent } from './ApprovalTask';
 import { PropertyIndexedType, TenantRegionalSettings } from '@omnia/fx-models';
 import { SharePointFieldsConstants, SharePointTaskService, OPMUtils } from '../../../../fx';
 import { UrlParameters } from '../../../Constants';
 import Vue from 'vue';
-import { ReviewReminderTask } from './ReviewReminderTask';
+import { ReviewReminderTaskComponent } from './ReviewReminderTask';
 declare var moment;
 
 interface TasksViewProps {
@@ -283,9 +283,9 @@ export class TasksView extends VueComponentBase<TasksViewProps>
     renderEditTaskForm(h) {
         switch (this.selectingTaskType) {
             case Enums.TaskContentType.ApprovalTask:
-                return (<ApprovalTask closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ApprovalTask>)
+                return (<ApprovalTaskComponent closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ApprovalTaskComponent>)
             case Enums.TaskContentType.ReviewReminderTask:
-                return (<ReviewReminderTask closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ReviewReminderTask>)
+                return (<ReviewReminderTaskComponent closeCallback={this.onEditTaskFormClose} previewPageUrl={this.previewPageUrl}></ReviewReminderTaskComponent>)
 
             default:
                 return null
@@ -396,7 +396,7 @@ export class TasksView extends VueComponentBase<TasksViewProps>
                         header: p => this.renderHeaders(h)
                     }}>
                     <div slot="no-data">
-                        {this.loc.Messages.MessageNoItem}
+                        {this.coreLoc.Messages.MessageNoItem}
                     </div>
                 </v-data-table>
                 <div>

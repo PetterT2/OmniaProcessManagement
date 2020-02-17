@@ -16,6 +16,7 @@ import { ProcessDesignerStore } from '../../../processdesigner/stores';
 import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
 import { DisplayModes } from '../../../models/processdesigner';
 import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
+import { OPMCoreLocalization } from '../../../core/loc/localize';
 
 @Component
 export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IWebComponentInstance, INewProcessDialog {
@@ -32,6 +33,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
@@ -164,7 +166,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                 </div>
                 {
                     this.selectedTemplate == null ?
-                        <div class={[this.classes.error, 'mr-2 mb-3 ']}>{this.loc.Messages.NoProcessTemplateValidation}</div>
+                        <div class={[this.classes.error, 'mr-2 mb-3 ']}>{this.coreLoc.Messages.NoProcessTemplateValidation}</div>
                         : null
                 }
                 < div >
@@ -195,7 +197,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                 position={DialogPositions.Center}>
                 <div>
                     <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.loc.Buttons.NewProcess}</v-toolbar-title>
+                        <v-toolbar-title>{this.coreLoc.ProcessActions.NewProcess}</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <v-btn icon onClick={() => { this.closeCallback(false); }}>
                             <v-icon>close</v-icon>

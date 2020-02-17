@@ -1,6 +1,6 @@
 ﻿import { ReviewReminderSchedule, ReviewReminderScheduleTypes, ReviewReminderScheduleFactory } from './reviewreminderschedule';
 import { GuidValue, TimePeriodSettings, TimePeriodTypes  } from '@omnia/fx-models';
-import { ReviewReminderTask } from '.';
+import { ReviewReminderTaskSettings } from '.';
 
 export interface ReviewReminder {
     schedule: ReviewReminderSchedule;
@@ -9,7 +9,7 @@ export interface ReviewReminder {
     /**
      * null means no task creation
      * */
-    task?: ReviewReminderTask;
+    task?: ReviewReminderTaskSettings;
 
     /**
      * who should receive the reminder email

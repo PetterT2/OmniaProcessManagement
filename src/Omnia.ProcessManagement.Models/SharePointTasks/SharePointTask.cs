@@ -27,5 +27,6 @@ namespace Omnia.ProcessManagement.Models.SharePointTasks
         public bool IsCurrentResponsible { get; set; }
         public string Description { get; set; }
         public string WebUrl { get; set; }
+        public Guid OPMProcessId { get; set; }
     }
 }

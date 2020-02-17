@@ -190,6 +190,49 @@
         ShapeNames: {
             Freeform: string,
             Media: string
+        },
+        Messages: {
+            TaskCompleted: string,
+            AuthorPermissionIsRequried: string,
+            MessageReviewReminderTaskEditingDescription: string,
+            DeletePublishedProcessConfirmation: string,
+            ArchivePublishedProcessConfirmation: string,
+            DeleteDraftProcessConfirmation: string,
+            NoProcessTemplateValidation: string,
+            MessageNobodyCanApprove: string,
+            MessageUpdateProcessPropertiesBeforePublishing: string,
+            MessageNoItem: string,
+            MessageApprovalTaskEditingCompletedTask: string,
+            MessageApprovalTaskEditingCompletedTaskNoComment: string,
+            MessageRequireRejectComment: string,
+            MessageTaskHasBeenCompletedOrCanceled: string,
+            MessageTaskCancelledBySystem: string,
+            MessageApprovalTaskEditingDescription: string,
+            MessageDraftExistCannotBeArchived: string,
+            SyncToSharePointFailed: string,
+            ArchiveProcessFailed: string
+        },
+        ProcessActions: {
+            Edit: string,
+            Preview: string,
+            SendForComments: string,
+            Publish: string,
+            WorkflowHistory: string,
+            DeleteDraft: string,
+            PreviewProcess: string,
+            CreateDraft: string,
+            ViewProcess: string,
+            ExportProcess: string,
+            ProcessHistory: string,
+            MoveProcess: string,
+            UnpublishProcess: string,
+            SyncToSharePoint: string,
+            RetrySyncToSharePoint: string,
+            Archive: string,
+            NewProcess: string,
+            SetNewReviewDate: string,
+            Unpublish: string,
+            CloseTask: string
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿import { GuidValue, TimePeriodTypes, TimePeriodSettings } from '@omnia/fx-models';
 
-export interface ReviewReminderTask {
+export interface ReviewReminderTaskSettings {
     personEnterprisePropertyDefinitionId: GuidValue;
     expiration: TimePeriodSettings;
 }
@@ -9,9 +9,9 @@ export interface ReviewReminderTask {
  * NOTE: whenever an new property is added in settings, we need to define its initial value in factory
  * To ensure it fully react on view
  * */
-export const ReviewReminderTaskFactory = {
-    createDefault(): ReviewReminderTask {
-        let settings: ReviewReminderTask = {
+export const ReviewReminderTaskSettingsFactory = {
+    createDefault(): ReviewReminderTaskSettings {
+        let settings: ReviewReminderTaskSettings = {
             expiration: {
                 type: TimePeriodTypes.Months,
                 value: 1

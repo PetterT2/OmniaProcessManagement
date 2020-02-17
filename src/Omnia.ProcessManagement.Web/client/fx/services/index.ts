@@ -7,3 +7,4 @@ export * from './SharePointTaskService';
 export * from './ImageService';
 export * from './ProcessRollupService';
 export * from './ShapeTemplateService';
+export * from './UnpublishProcessService';

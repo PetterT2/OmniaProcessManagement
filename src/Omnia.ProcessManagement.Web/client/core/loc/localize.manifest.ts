@@ -194,5 +194,49 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         ShapeNames: {
             Freeform: "Freeform",
             Media: "Media"
+        },
+        Messages: {
+            TaskCompleted: "Task completed.",
+            AuthorPermissionIsRequried: "Author permission is requried.",
+            MessageReviewReminderTaskEditingDescription: "Review the process and decide whether to create a new edition of the process, unpublish it or set a new review date.",
+            DeletePublishedProcessConfirmation: "Are you sure you want to delete the process?",
+            ArchivePublishedProcessConfirmation: "Are you sure you want to delete and archive the process?",
+            DeleteDraftProcessConfirmation: "Are you sure you want to delete the selected process?",
+            NoProcessTemplateValidation: "This process is not based on any existing process template.",
+            MessageNobodyCanApprove: "There are no available approver for this process.",
+            MessageUpdateProcessPropertiesBeforePublishing: "You need to fill in all required properties to be able to publish a process.",
+            MessageNoItem: "There are no items to show in this view.",
+            MessageApprovalTaskEditingCompletedTask: "This task has been completed by <strong>{{User}}</strong> with the following comment:",
+            MessageApprovalTaskEditingCompletedTaskNoComment: "This task has been completed by <strong>{{User}}</strong>.",
+            MessageTaskHasBeenCompletedOrCanceled: "This task has been completed or canceled.",
+            MessageRequireRejectComment: "You need to submit a comment when the process is rejected.",
+            MessageTaskCancelledBySystem: "Task was cancelled by the system",
+            MessageApprovalTaskEditingDescription: "Open the process and review the contents. When you are done, please write a comment in the text field below and select Approve or Reject",
+            MessageDraftExistCannotBeArchived: "This published process has a draft version and cannot be archived.",
+            SyncToSharePointFailed: "This process was synced to SharePoint failed.",
+            ArchiveProcessFailed: "This process has been archived unsuccessfully."
+
+        },
+        ProcessActions: {
+            Edit: "Edit",
+            Preview: "Preview",
+            SendForComments: "Send for Comments",
+            Publish: "Publish",
+            WorkflowHistory: "Workflow History",
+            DeleteDraft: "Delete Draft",
+            PreviewProcess: "Preview",
+            CreateDraft: "Create Draft",
+            ViewProcess: "View Process",
+            ExportProcess: "Export Process",
+            ProcessHistory: "Process History",
+            MoveProcess: "Move Process",
+            UnpublishProcess: "Unpublish Process",
+            SyncToSharePoint: "Sync To SharePoint",
+            RetrySyncToSharePoint: "Retry",
+            Archive: "Archive",
+            NewProcess: "New Process",
+            SetNewReviewDate: "Set new review date",
+            Unpublish: "Unpublish",
+            CloseTask: "Close task"
         }
     });

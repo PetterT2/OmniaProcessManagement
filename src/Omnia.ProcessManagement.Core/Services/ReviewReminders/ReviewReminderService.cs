@@ -325,7 +325,7 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             }
         }
 
-        private async ValueTask CreateTaskAsync(PortableClientContext ctx, Microsoft.SharePoint.Client.User user, string taskTitle, Process process, ReviewReminderTask task, StringBuilder logStrBuilder)
+        private async ValueTask CreateTaskAsync(PortableClientContext ctx, Microsoft.SharePoint.Client.User user, string taskTitle, Process process, ReviewReminderTaskSettings task, StringBuilder logStrBuilder)
         {
             DateTime startDate = DateTime.Now;
             DateTime dueDate = task.Expiration.After(startDate);
