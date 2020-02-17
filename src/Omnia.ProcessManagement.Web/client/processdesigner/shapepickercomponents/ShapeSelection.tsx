@@ -5,8 +5,8 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils } from '../../fx';
-import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles } from '../../fx/models';
+import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils, ShapeTemplateStore } from '../../fx';
+import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles, DrawingFreeformShapeDefinition, ShapeTemplateType } from '../../fx/models';
 import { ShapeDefinitionSelection } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -26,6 +26,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
+    @Inject(ShapeTemplateStore) shapeTemplateStore: ShapeTemplateStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
@@ -44,14 +45,17 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
     private isLoading: boolean = true;
 
     created() {
-        this.init();
+        
     }
 
     init() {
         let processTemplateId = this.currentProcessStore.getters.referenceData().process.rootProcessStep.processTemplateId;
-        this.processTemplateStore.actions.ensureLoadProcessTemplate.dispatch(processTemplateId).then((loadedProcessTemplate) => {
+        Promise.all([
+            this.processTemplateStore.actions.ensureLoadProcessTemplate.dispatch(processTemplateId),
+            this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch()]
+        ).then((result) => {
             this.isLoading = false;
-            this.availableShapeDefinitions = loadedProcessTemplate.settings.shapeDefinitions;
+            this.availableShapeDefinitions = result[0].settings.shapeDefinitions;
             if (this.availableShapeDefinitions) {
                 this.availableShapeDefinitions.forEach((item) => {
                     item.visible = true;
@@ -71,11 +75,11 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 this.shapeDefinitionGroups = this.groupDefinitionsByHeading();
                 this.startToDrawShape();
             }
-        });
+        })
     }
 
     mounted() {
-        //WebComponentBootstrapper.registerElementInstance(this, this.$el);
+        this.init();
     }
 
     beforeDestroy() {
@@ -226,8 +230,9 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (shapeDefinition.type == ShapeDefinitionTypes.Heading)
             return;
         let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-        if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type ||
-            drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {            
+        let foundShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == drawingShapeDefinition.shapeTemplateId.toString());
+        if (foundShapeTemplate.builtIn && (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type ||
+            drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type)) {            
             return;
         }
 
@@ -238,6 +243,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (!srcDrawingCanvasListing[canvasId]) {
             let canvasSize = 100;
             let iconSize = drawingShapeDefinition.textPosition == TextPosition.On ? canvasSize : 80;
+
             let shapeIconWidth = this.getNumber(drawingShapeDefinition.width);
             let shapeIconHeight = this.getNumber(drawingShapeDefinition.height);
 
@@ -260,12 +266,25 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                     width: canvasSize,
                     height: canvasSize
                 });
+
             let definitionToDraw: DrawingShapeDefinition = Utils.clone(drawingShapeDefinition);
             definitionToDraw.width = shapeIconWidth;
             definitionToDraw.height = shapeIconHeight;
             definitionToDraw.fontSize = fontSize;
 
-            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, 0, 0);
+            if (foundShapeTemplate.settings.type == ShapeTemplateType.FreeformShape && (definitionToDraw as DrawingFreeformShapeDefinition).nodes &&
+                (definitionToDraw as DrawingFreeformShapeDefinition).nodes.length > 0 &&
+                ((definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['width'] > canvasSize ||
+                    (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['height'] > canvasSize)) {
+                let sideToScale = (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['width'] >= (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['height'] ?
+                    (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['width'] : (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['height'];
+                let scaleDownRate = canvasSize / sideToScale;
+                (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['scaleX'] = scaleDownRate;
+                (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['scaleY'] = scaleDownRate;
+            }
+
+            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, 0, 0, null, null,
+                (definitionToDraw as DrawingFreeformShapeDefinition).nodes ? (definitionToDraw as DrawingFreeformShapeDefinition).nodes : null);
         }
     }
 
@@ -328,6 +347,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
     }
 
     private renderShapeDefinitionIcon(h, shapeDefinition: ShapeDefinitionSelection, isRecent: boolean = false) {
+        let foundShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == (shapeDefinition as DrawingShapeDefinition).shapeTemplateId.toString());
         let shapeDefinitionElement: JSX.Element = null;
         let idPrefix = isRecent ? 'recent_' : '';
         let shapeId = idPrefix + shapeDefinition.id.toString();
@@ -339,7 +359,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         else {
 
             let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
-            if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type) {
+            if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type && foundShapeTemplate && foundShapeTemplate.builtIn) {
                 isIcon = true;
 
                 shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>
@@ -361,7 +381,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 </div>;
             }
             else
-                if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type) {
+                if (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type && foundShapeTemplate && foundShapeTemplate.builtIn) {
                     isIcon = true;
 
                     shapeDefinitionElement = <div class={this.shapeSelectionStepStyles.iconWrapper}>

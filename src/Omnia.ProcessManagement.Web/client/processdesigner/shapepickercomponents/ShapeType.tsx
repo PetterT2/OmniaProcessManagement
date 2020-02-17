@@ -3,11 +3,11 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -18,26 +18,25 @@ import { ProcessDesignerLocalization } from '../loc/localize';
 
 export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
-    formValidator: FormValidator;
+    useValidator: IValidator;
     isHideCreateNew?: boolean;
     changeShapeCallback?: () => void;
     changeDrawingOptionsCallback?: (options: DrawingShapeOptions) => void;
-    reInitFormValidator?: () => void;
 }
 
 @Component
 export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance {
     @Prop() drawingOptions: DrawingShapeOptions;
-    @Prop() formValidator: FormValidator;
+    @Prop({ default: null }) useValidator: IValidator;
     @Prop() isHideCreateNew?: boolean;
     @Prop() changeShapeCallback?: () => void;
     @Prop() changeDrawingOptionsCallback?: (options: DrawingShapeOptions) => void;
-    @Prop() reInitFormValidator?: () => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ShapeTemplateStore) shapeTemplateStore: ShapeTemplateStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) opmCoreloc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
@@ -52,6 +51,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedCustomLinkId: GuidValue = Guid.empty;
     private shapeTitle: MultilingualString = null;
     private shape: ShapeObject = null;
+    private selectedShapeTemplate: ShapeTemplate = null;
     private textPositions = [
         {
             value: TextPosition.Above,
@@ -91,6 +91,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.pdLoc.ShapeTypes.ProcessStep
         },
         {
+            value: DrawingShapeTypes.ExternalProcess,
+            title: this.pdLoc.ShapeTypes.LinkedProcess
+        },
+        {
             value: DrawingShapeTypes.CustomLink,
             title: this.pdLoc.ShapeTypes.Link
         }
@@ -99,10 +103,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private isOpenMediaPicker: boolean = false;
     private isOpenFreeformPicker: boolean = false;
     private renderUniqueKey = Utils.generateGuid();
+
     //Support to change selected shape in Drawing
     @Watch('drawingOptions')
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
-        if (this.drawingOptions.id && this.drawingOptions.id.toString() != this.internalShapeDefinition.id.toString()) {
+        if (this.drawingOptions.id && this.drawingOptions.id.toString() != (this.internalShapeDefinition.id || "").toString()) {
             this.renderUniqueKey = Utils.generateGuid();
             this.init();
             this.$nextTick(() => {
@@ -111,15 +116,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
     created() {
-        if (this.formValidator) {
-            var component: any = this;
-            this.formValidator.register(component);
-        }
-
         this.init();
     }
 
     mounted() {
+        this.selectedShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == this.drawingOptions.shapeDefinition.shapeTemplateId.toString());
         this.startToDrawShape();
     }
 
@@ -154,16 +155,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private onSelectedShapeType(selectedShapeType) {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
     private onSelectedProcessChanged() {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
         let selectedStep = childSteps.find(item => item.id == this.selectedProcessStepId);
         if (selectedStep) {
@@ -176,8 +173,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private onSelectedLinkChanged() {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         let links = this.currentProcessStore.getters.referenceData().current.processData.links;
         if (links) {
             let selectedLink = links.find(item => item.id == this.selectedCustomLinkId);
@@ -230,8 +225,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     renderShapePreview(h) {
-        let isFreeform = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Freeform.settings.type;
-        let isMedia = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Media.settings.type;
+        let showFreeformButton = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Freeform.settings.type && this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn;
+        let showMediaButton = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Media.settings.type && this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn;
         let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
         return [
 
@@ -243,13 +238,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     </div>
                 }
                 {
-                    !renderCanvas && isFreeform && <v-icon>fa fa-draw-polygon</v-icon>
+                    !renderCanvas && showFreeformButton && <v-icon>fa fa-draw-polygon</v-icon>
                 }
                 {
-                    !renderCanvas && isMedia && <v-icon>fa fa-photo-video</v-icon>
+                    !renderCanvas && showMediaButton && <v-icon>fa fa-photo-video</v-icon>
                 }
                 {
-                    isFreeform &&
+                    showFreeformButton &&
                     <v-btn
                         class="mt-2"
                         text
@@ -260,7 +255,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     </v-btn>
                 }
                 {
-                    isMedia &&
+                    showMediaButton &&
                     <v-btn
                         class="mt-2"
                         text
@@ -276,16 +271,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private getCanvasSize(): { width: number, height: number } {
+        if (!this.selectedShapeTemplate.builtIn && this.internalShapeDefinition.shapeTemplateType == ShapeTemplateType.FreeformShape &&
+            (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes && (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes.length > 0) {
+            this.internalShapeDefinition.width = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['width'] + 10;
+            this.internalShapeDefinition.height = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['height'] + 10;
+        }
+
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
-            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
-            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
-            canvasWidth = bound.width + 10;
-            canvasHeight = bound.height + 10;
-        }
+
         if (this.internalShapeDefinition.textPosition != TextPosition.On)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+
         if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
             canvasWidth += 2;
             canvasHeight += 2;
@@ -332,12 +329,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private isNewMedia() {
-        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type &&
+        return this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn &&
+            this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type &&
             !(this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
     }
 
     private isNewFreeForm() {
-        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type &&
+        return this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn &&
+            this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type &&
             (!this.drawingOptions.shape || this.drawingOptions.shape.nodes.length == 0) ? true : false;
     }
 
@@ -378,7 +377,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderShapeTypeOptions(h) {
-        let isNewProcessStep = this.selectedShapeType == DrawingShapeTypes.ProcessStep && this.selectedProcessStepId == Guid.empty;
+        let isNewProcessStep = this.selectedShapeType == DrawingShapeTypes.ExternalProcess || (this.selectedShapeType == DrawingShapeTypes.ProcessStep && this.selectedProcessStepId == Guid.empty);
         return <v-container class="pa-0">
             <v-row dense>
                 <v-col cols="6">
@@ -388,12 +387,16 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         this.renderChildProcessSteps(h)
                         : null
                     }
+                    {this.selectedShapeType == DrawingShapeTypes.ExternalProcess ?
+                        this.renderChildLinkedProcessSteps(h)
+                        : null
+                    }
                     {this.selectedShapeType == DrawingShapeTypes.CustomLink ?
                         this.renderCustomLinkOptions(h)
                         : null
                     }
                     <omfx-multilingual-input
-                        requiredWithValidator={isNewProcessStep ? this.formValidator : null}
+                        requiredWithValidator={isNewProcessStep ? this.useValidator : null}
                         model={this.shapeTitle}
                         onModelChange={(title) => {
                             this.shapeTitle = title;
@@ -432,6 +435,15 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             ></v-select>
         </div>;
     }
+
+    private renderChildLinkedProcessSteps(h) {
+        return <div>
+            <opm-processdesigner-addlinkedprocess
+                onChange={(title: MultilingualString) => { this.shapeTitle = title; }}>
+            </opm-processdesigner-addlinkedprocess>
+        </div>;
+    }
+
     private renderCustomLinkOptions(h) {
         let customLinkOptions = [{
             id: Guid.empty,

@@ -17,6 +17,11 @@ export enum ProcessVersionType {
     Published = 3
 }
 
+export enum ProcessStepType {
+    ProcessStep = 0,
+    LinkedProcessStep = 1
+}
+
 export enum ProcessWorkingStatus {
     None = 0,
 
@@ -67,3 +72,4 @@ export enum ShapeTemplateType {
     FreeformShape = 4,
     MediaShape = 5
 }
+

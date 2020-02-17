@@ -3,12 +3,12 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas } from '../../../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplateStore } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link } from '../../../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link, ShapeTemplateType, DrawingFreeformShapeDefinition } from '../../../../fx/models';
 import { ShapeDefinitionSelection, DrawingShapeOptions } from '../../../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -27,13 +27,15 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
     @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ShapeTemplateStore) shapeTemplateStore: ShapeTemplateStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) opmCoreloc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private selectedShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
-    private internalValidator: FormValidator = new FormValidator(this);
+    private internalValidator: IValidator = null;
+    private isLoading: boolean = false;
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private errorMessage: string = "";
@@ -45,9 +47,11 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
+        
     }
 
     init() {
+        this.internalValidator = new FormValidator();
         this.selectedShapeDefinition = Utils.clone(this.addShapeWizardStore.selectedShape.state);
         this.drawingShapeOptions = {
             processStepId: Guid.empty,
@@ -55,6 +59,21 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
             shapeType: DrawingShapeTypes.ProcessStep,
             title: null
         };
+        var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == this.selectedShapeDefinition.shapeTemplateId.toString());
+        if (!foundTemplate.builtIn && foundTemplate.settings.type == ShapeTemplateType.FreeformShape) {
+            this.drawingShapeOptions.shape = {
+                nodes: (this.selectedShapeDefinition as DrawingFreeformShapeDefinition).nodes,
+                definition: this.selectedShapeDefinition,
+                shapeTemplateTypeName: ShapeTemplateType[this.selectedShapeDefinition.shapeTemplateType],
+                left: null,
+                top: null
+            }
+        }
+        //if (!foundTemplate.builtIn && foundTemplate.settings.type == ShapeTemplateType.MediaShape) {
+        //    this.isLoading = true;
+
+        //}
+        //else this.isLoading = false;
     }
 
     beforeDestroy() {
@@ -71,7 +90,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private createShape() {
-        this.errorMessage = "";
+        this.errorMessage = ""; 
         if (this.internalValidator.validateAll()) {
             let readyToDrawShape: boolean = true;
 
@@ -94,10 +113,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 this.completedAddShape();
             }
         }
-    }
-
-    private reInitFormValidator() {
-        this.internalValidator = new FormValidator(this);
     }
 
     private completedAddShape() {
@@ -142,8 +157,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                     drawingOptions={this.drawingShapeOptions}
                     changeDrawingOptionsCallback={this.onChangedDrawingOptions}
                     changeShapeCallback={this.changeShape}
-                    formValidator={this.internalValidator}
-                    reInitFormValidator={this.reInitFormValidator}
+                    useValidator={this.internalValidator}
                 ></ShapeTypeComponent>
             </v-card-content>
             {this.renderActionButtons(h)}
