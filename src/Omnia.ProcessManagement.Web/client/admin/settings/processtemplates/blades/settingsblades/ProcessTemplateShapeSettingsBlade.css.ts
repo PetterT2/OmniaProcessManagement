@@ -21,5 +21,8 @@ StyleFlow.define(ProcessTemplateShapeSettingsBladeStyles,
         },
         shapeSettingsContainer: {
             paddingTop: "5px"
+        },
+        error: {
+            color: "#a94442"
         }
     });

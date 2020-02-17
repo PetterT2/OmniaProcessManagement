@@ -403,15 +403,15 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                     </div>;
                 }
                 else {
-                    shapeDefinitionElement = <canvas id={shapeId}></canvas>;                    
+                    shapeDefinitionElement = <canvas id={shapeId}></canvas>;
                 }
         }
-        let retElement: JSX.Element = <div id={'shape_' + shapeId}
+        let retElement: JSX.Element = foundShapeTemplate ? <div id={'shape_' + shapeId}
             class={[this.shapeSelectionStepStyles.shapeDefinitionItem(100), isIcon ? '' : this.shapeSelectionStepStyles.canvasWrapper(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
             style={{ display: shapeDefinition.visible ? 'block' : 'none' }}
             onClick={() => { this.selectShape(shapeDefinition, idPrefix) }}>
             {shapeDefinitionElement}
-        </div>;
+        </div> : null;
         return retElement;
 
     }

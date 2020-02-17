@@ -11,6 +11,7 @@ export interface ProcessTemplateShapeSettingsBladeStylesInterface<T extends Nest
     canvas: T;
     hidePreviewContainer: T;
     shapeSettingsContainer: T;
+    error: T;
 }
 
 export const ProcessTemplateShapeSettingsBladeStyles = {} as ProcessTemplateShapeSettingsBladeStylesInterface<NestedCSSProperties>

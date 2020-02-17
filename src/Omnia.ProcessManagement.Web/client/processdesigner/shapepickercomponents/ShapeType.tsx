@@ -97,6 +97,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.pdLoc.ShapeTypes.Link
         }
     ];
+    private errorMessage: string = "";
+    private hasError: boolean = false;
     private isShowAddLinkDialog: boolean = false;
     private isOpenMediaPicker: boolean = false;
     private isOpenFreeformPicker: boolean = false;
@@ -122,8 +124,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     mounted() {
-        this.selectedShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == this.drawingOptions.shapeDefinition.shapeTemplateId.toString());
-        this.startToDrawShape();
+        this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
+            this.selectedShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == this.drawingOptions.shapeDefinition.shapeTemplateId.toString());
+            if (!this.selectedShapeTemplate) {
+                this.hasError = true;
+                this.errorMessage = this.opmCoreloc.Messages.ShapeTemplateHasBeenDeleted;
+            }
+            this.startToDrawShape();
+        });
     }
 
     init() {
@@ -634,6 +642,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private renderDrawingShapeDefinition(h) {
         return <div key={this.renderUniqueKey}>
+            {this.hasError && <span class={this.shapeTypeStepStyles.error}>{this.errorMessage}</span>}
             {this.renderShapeTypeOptions(h)}
             {this.renderShapeSettings(h)}
         </div>

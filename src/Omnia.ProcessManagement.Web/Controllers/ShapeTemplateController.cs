@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Models.Enums;
+using System.IO;
 
 namespace Omnia.ProcessManagement.Web.Controllers
 {
@@ -105,7 +106,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var (fileStream, fileName) = await ShapeTemplateService.GetImageAsync(shapeGalleryItemId);
+                var (bytesData, fileName) = await ShapeTemplateService.GetImageAsync(shapeGalleryItemId);
+                MemoryStream fileStream = new MemoryStream(bytesData);
                 fileStream.Seek(0, System.IO.SeekOrigin.Begin);
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                 {

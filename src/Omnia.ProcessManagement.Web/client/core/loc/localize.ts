@@ -210,7 +210,8 @@
             MessageApprovalTaskEditingDescription: string,
             MessageDraftExistCannotBeArchived: string,
             SyncToSharePointFailed: string,
-            ArchiveProcessFailed: string
+            ArchiveProcessFailed: string,
+            ShapeTemplateHasBeenDeleted: string
         },
         ProcessActions: {
             Edit: string,

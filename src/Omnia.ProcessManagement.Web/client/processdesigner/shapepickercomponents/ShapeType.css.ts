@@ -48,5 +48,8 @@ StyleFlow.define(ShapeTypeStyles, {
     },
     textMarginLabel: {
         fontSize: '12px'
+    },
+    error: {
+        color: "#a94442"
     }
 });

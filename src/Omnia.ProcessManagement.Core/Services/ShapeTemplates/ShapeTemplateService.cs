@@ -41,10 +41,9 @@ namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
             return await ShapeGalleryItemRepository.AddImageAsync(shapeTemplateId, fileName, bytes);
         }
 
-        public async ValueTask<(MemoryStream, string)> GetImageAsync(Guid shapeTemplateId)
+        public async ValueTask<(byte[], string)> GetImageAsync(Guid shapeTemplateId)
         {
-            var (bytes, fileName) = await ShapeGalleryItemRepository.GetImageAsync(shapeTemplateId);
-            return (new MemoryStream(bytes), fileName);
+            return await ShapeGalleryItemRepository.GetImageAsync(shapeTemplateId);
         }
     }
 }
