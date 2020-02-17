@@ -204,7 +204,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
 
     needToShowCanvas(): boolean {
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
-        return (this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
+        return foundTemplate && (this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
             (!foundTemplate.builtIn || ((this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type &&
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
     }
@@ -357,7 +357,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                                 label={this.opmCoreloc.DrawingShapeSettings.SelectedBackgroundColor}
                                 model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor }}
                                 allowRgba
-                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor = p.color; this.updateTemplateShape(); }}>
+                                onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBackgroundColor = p.color; }}>
                             </omfx-color-picker>
                         </v-col>
                     }
@@ -367,7 +367,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             label={this.opmCoreloc.DrawingShapeSettings.SelectedBorderColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).selectedBorderColor }}
                             allowRgba
-                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBorderColor = p.color; this.updateTemplateShape(); }}>
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedBorderColor = p.color; }}>
                         </omfx-color-picker>
                     </v-col>
                     <v-col cols={this.needToShowShapeSettings() ? "4" : "6"}>
@@ -376,7 +376,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             label={this.opmCoreloc.DrawingShapeSettings.SelectedTextColor}
                             model={{ color: (this.editingShape as DrawingShapeDefinition).selectedTextColor }}
                             allowRgba
-                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedTextColor = p.color; this.updateTemplateShape(); }}>
+                            onChange={(p) => { (this.editingShape as DrawingShapeDefinition).selectedTextColor = p.color; }}>
                         </omfx-color-picker>
                     </v-col>
                 </v-row>

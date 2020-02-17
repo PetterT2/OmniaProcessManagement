@@ -5,9 +5,9 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
-import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension } from '../../fx';
+import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -38,6 +38,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ShapeTemplateStore) shapeTemplateStore: ShapeTemplateStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) opmCoreloc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
@@ -52,6 +53,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedCustomLinkId: GuidValue = Guid.empty;
     private shapeTitle: MultilingualString = null;
     private shape: ShapeObject = null;
+    private selectedShapeTemplate: ShapeTemplate = null;
     private textPositions = [
         {
             value: TextPosition.Above,
@@ -120,6 +122,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     mounted() {
+        this.selectedShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == this.drawingOptions.shapeDefinition.shapeTemplateId.toString());
         this.startToDrawShape();
     }
 
@@ -230,8 +233,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     renderShapePreview(h) {
-        let isFreeform = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Freeform.settings.type;
-        let isMedia = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Media.settings.type;
+        let showFreeformButton = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Freeform.settings.type && this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn;
+        let showMediaButton = this.drawingOptions.shapeDefinition.shapeTemplateType === ShapeTemplatesConstants.Media.settings.type && this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn;
         let renderCanvas = !this.isNewFreeForm() && !this.isNewMedia();
         return [
 
@@ -243,13 +246,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     </div>
                 }
                 {
-                    !renderCanvas && isFreeform && <v-icon>fa fa-draw-polygon</v-icon>
+                    !renderCanvas && showFreeformButton && <v-icon>fa fa-draw-polygon</v-icon>
                 }
                 {
-                    !renderCanvas && isMedia && <v-icon>fa fa-photo-video</v-icon>
+                    !renderCanvas && showMediaButton && <v-icon>fa fa-photo-video</v-icon>
                 }
                 {
-                    isFreeform &&
+                    showFreeformButton &&
                     <v-btn
                         class="mt-2"
                         text
@@ -260,7 +263,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     </v-btn>
                 }
                 {
-                    isMedia &&
+                    showMediaButton &&
                     <v-btn
                         class="mt-2"
                         text
@@ -276,16 +279,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private getCanvasSize(): { width: number, height: number } {
+        if (!this.selectedShapeTemplate.builtIn && this.internalShapeDefinition.shapeTemplateType == ShapeTemplateType.FreeformShape &&
+            (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes && (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes.length > 0) {
+            this.internalShapeDefinition.width = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['width'] + 10;
+            this.internalShapeDefinition.height = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['height'] + 10;
+        }
+
         let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
         let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
-            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
-            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
-            canvasWidth = bound.width + 10;
-            canvasHeight = bound.height + 10;
-        }
+
         if (this.internalShapeDefinition.textPosition != TextPosition.On)
             canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
+
         if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
             canvasWidth += 2;
             canvasHeight += 2;
@@ -332,12 +337,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private isNewMedia() {
-        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type &&
+        return this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn &&
+            this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type &&
             !(this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl ? true : false;
     }
 
     private isNewFreeForm() {
-        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type &&
+        return this.selectedShapeTemplate && this.selectedShapeTemplate.builtIn &&
+            this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type &&
             (!this.drawingOptions.shape || this.drawingOptions.shape.nodes.length == 0) ? true : false;
     }
 
