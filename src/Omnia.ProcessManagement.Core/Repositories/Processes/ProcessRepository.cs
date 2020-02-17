@@ -247,7 +247,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 draftProcess.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
 
                 draftProcess.SecurityResourceId = securityResourceId;
-                draftProcess.PublishedAt = DateTime.UtcNow;
+                draftProcess.PublishedAt = DateTimeOffset.UtcNow;
                 draftProcess.PublishedBy = OmniaContext.Identity.LoginName.ToLower();
 
                 await DbContext.SaveChangesAsync();
