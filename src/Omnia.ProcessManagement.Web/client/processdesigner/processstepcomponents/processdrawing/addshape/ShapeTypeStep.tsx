@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
 import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplateStore } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
@@ -34,7 +34,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private selectedShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
-    private internalValidator: FormValidator = new FormValidator(this);
+    private internalValidator: IValidator = null;
     private isLoading: boolean = false;
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
@@ -51,6 +51,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     init() {
+        this.internalValidator = new FormValidator();
         this.selectedShapeDefinition = Utils.clone(this.addShapeWizardStore.selectedShape.state);
         this.drawingShapeOptions = {
             processStepId: Guid.empty,
@@ -89,7 +90,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private createShape() {
-        this.errorMessage = "";
+        this.errorMessage = ""; 
         if (this.internalValidator.validateAll()) {
             let readyToDrawShape: boolean = true;
 
@@ -112,10 +113,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 this.completedAddShape();
             }
         }
-    }
-
-    private reInitFormValidator() {
-        this.internalValidator = new FormValidator(this);
     }
 
     private completedAddShape() {
@@ -160,8 +157,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                     drawingOptions={this.drawingShapeOptions}
                     changeDrawingOptionsCallback={this.onChangedDrawingOptions}
                     changeShapeCallback={this.changeShape}
-                    formValidator={this.internalValidator}
-                    reInitFormValidator={this.reInitFormValidator}
+                    useValidator={this.internalValidator}
                 ></ShapeTypeComponent>
             </v-card-content>
             {this.renderActionButtons(h)}

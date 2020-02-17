@@ -170,7 +170,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
                     isHideCreateNew={true}
                     drawingOptions={this.drawingShapeOptions}
                     changeDrawingOptionsCallback={this.onChangedDrawingOptions}
-                    formValidator={this.processDesignerStore.formValidator}
+                    useValidator={this.processDesignerStore.formValidator}
                     changeShapeCallback={this.onChangeShape}></ShapeTypeComponent>
                 <v-card-actions>
                     <v-btn text

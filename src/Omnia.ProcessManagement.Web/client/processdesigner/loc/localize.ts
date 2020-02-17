@@ -28,6 +28,7 @@
             None: string;
             ProcessStep: string;
             Link: string;
+            LinkedProcess: string;
         },
         New: string;
         AddLink: string;
@@ -68,5 +69,11 @@
         ChangeProcessType: string;
         ProcessType: string;
         ProcessTemplate: string;
+        AddLinkedProcess: {
+            SearchText: string;
+            AddTitle: string;
+            ProcessNotFound: string;
+            Process: string;
+        }
     }
 }

@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
@@ -18,21 +18,19 @@ import { ProcessDesignerLocalization } from '../loc/localize';
 
 export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
-    formValidator: FormValidator;
+    useValidator: IValidator;
     isHideCreateNew?: boolean;
     changeShapeCallback?: () => void;
     changeDrawingOptionsCallback?: (options: DrawingShapeOptions) => void;
-    reInitFormValidator?: () => void;
 }
 
 @Component
 export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance {
     @Prop() drawingOptions: DrawingShapeOptions;
-    @Prop() formValidator: FormValidator;
+    @Prop({ default: null }) useValidator: IValidator;
     @Prop() isHideCreateNew?: boolean;
     @Prop() changeShapeCallback?: () => void;
     @Prop() changeDrawingOptionsCallback?: (options: DrawingShapeOptions) => void;
-    @Prop() reInitFormValidator?: () => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -93,6 +91,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.pdLoc.ShapeTypes.ProcessStep
         },
         {
+            value: DrawingShapeTypes.ExternalProcess,
+            title: this.pdLoc.ShapeTypes.LinkedProcess
+        },
+        {
             value: DrawingShapeTypes.CustomLink,
             title: this.pdLoc.ShapeTypes.Link
         }
@@ -101,6 +103,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private isOpenMediaPicker: boolean = false;
     private isOpenFreeformPicker: boolean = false;
     private renderUniqueKey = Utils.generateGuid();
+
     //Support to change selected shape in Drawing
     @Watch('drawingOptions')
     onShapeToEditSettingsChanged(newValue: DrawingShapeOptions, oldValue: DrawingShapeOptions) {
@@ -113,11 +116,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
     created() {
-        if (this.formValidator) {
-            var component: any = this;
-            this.formValidator.register(component);
-        }
-
         this.init();
     }
 
@@ -157,16 +155,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private onSelectedShapeType(selectedShapeType) {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
     private onSelectedProcessChanged() {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
         let selectedStep = childSteps.find(item => item.id == this.selectedProcessStepId);
         if (selectedStep) {
@@ -179,8 +173,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private onSelectedLinkChanged() {
-        if (this.reInitFormValidator)
-            this.reInitFormValidator();
         let links = this.currentProcessStore.getters.referenceData().current.processData.links;
         if (links) {
             let selectedLink = links.find(item => item.id == this.selectedCustomLinkId);
@@ -385,7 +377,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderShapeTypeOptions(h) {
-        let isNewProcessStep = this.selectedShapeType == DrawingShapeTypes.ProcessStep && this.selectedProcessStepId == Guid.empty;
+        let isNewProcessStep = this.selectedShapeType == DrawingShapeTypes.ExternalProcess || (this.selectedShapeType == DrawingShapeTypes.ProcessStep && this.selectedProcessStepId == Guid.empty);
         return <v-container class="pa-0">
             <v-row dense>
                 <v-col cols="6">
@@ -395,12 +387,16 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         this.renderChildProcessSteps(h)
                         : null
                     }
+                    {this.selectedShapeType == DrawingShapeTypes.ExternalProcess ?
+                        this.renderChildLinkedProcessSteps(h)
+                        : null
+                    }
                     {this.selectedShapeType == DrawingShapeTypes.CustomLink ?
                         this.renderCustomLinkOptions(h)
                         : null
                     }
                     <omfx-multilingual-input
-                        requiredWithValidator={isNewProcessStep ? this.formValidator : null}
+                        requiredWithValidator={isNewProcessStep ? this.useValidator : null}
                         model={this.shapeTitle}
                         onModelChange={(title) => {
                             this.shapeTitle = title;
@@ -439,6 +435,15 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             ></v-select>
         </div>;
     }
+
+    private renderChildLinkedProcessSteps(h) {
+        return <div>
+            <opm-processdesigner-addlinkedprocess
+                onChange={(title: MultilingualString) => { this.shapeTitle = title; }}>
+            </opm-processdesigner-addlinkedprocess>
+        </div>;
+    }
+
     private renderCustomLinkOptions(h) {
         let customLinkOptions = [{
             id: Guid.empty,

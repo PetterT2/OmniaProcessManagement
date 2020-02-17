@@ -19,14 +19,14 @@ using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 {
-    internal class ProcessRollupService: IProcessRollupService
+    internal class ProcessRollupService : IProcessRollupService
     {
         IProcessHandleService ProcessHandleService { get; }
         IMultilingualHelper MultilingualHelper { get; }
         ITenantService TenantService { get; }
         IUserService UserService { get; }
 
-        public ProcessRollupService(IProcessHandleService processHandleService, IMultilingualHelper multilingualHelper, ITenantService tenantService, IUserService userService) 
+        public ProcessRollupService(IProcessHandleService processHandleService, IMultilingualHelper multilingualHelper, ITenantService tenantService, IUserService userService)
         {
             ProcessHandleService = processHandleService;
             MultilingualHelper = multilingualHelper;
@@ -38,13 +38,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
         {
             List<RollupFilter> titleFilters = new List<RollupFilter>();
 
-            if(setting.CustomFilters != null && setting.CustomFilters.Count > 0)
+            if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
             {
                 titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
                 setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList(); ;
             }
 
-            if(setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
+            if (setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
             {
                 var titleQueries = setting.Resources[0].Filters.Where(f => f.Property == "Title").ToList();
                 if (titleQueries.Count > 0)
@@ -135,13 +135,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             LanguageTag? currentLanguage = currentUser.PreferredLanguage;
             var (defaultLanguage, availableLanguages) = await GetLanguageSettings();
             string filterText = "";
-            if(titleFilter.IsNotNull())
+            if (titleFilter.IsNotNull())
                 filterText = titleFilter.ValueObj.AdditionalProperties["searchValue"].ToString();
 
             if (multilingualTitle != null)
             {
-                if(currentLanguage.IsNotNull() && 
-                    multilingualTitle.ContainsKey((LanguageTag)currentLanguage) && 
+                if (currentLanguage.IsNotNull() &&
+                    multilingualTitle.ContainsKey((LanguageTag)currentLanguage) &&
                     !string.IsNullOrWhiteSpace(multilingualTitle[(LanguageTag)currentLanguage]))
                     result = multilingualTitle[(LanguageTag)currentLanguage];
                 else if (defaultLanguage.IsNotNull() &&
@@ -150,7 +150,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                     result = multilingualTitle[(LanguageTag)defaultLanguage];
                 else
                 {
-                    if (!string.IsNullOrEmpty(filterText)) 
+                    if (!string.IsNullOrEmpty(filterText))
                     {
                         foreach (var language in availableLanguages)
                         {

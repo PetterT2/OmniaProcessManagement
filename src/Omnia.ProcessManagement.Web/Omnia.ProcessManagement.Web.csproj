@@ -366,6 +366,10 @@
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.manifest.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\IAddLinkedProcess.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.tsx" />
