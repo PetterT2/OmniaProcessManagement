@@ -154,7 +154,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 this.currentProcessStepId = processStep.id.toString().toLowerCase();
                 this.currentTitle = title;
 
-                this.protectedNavigate(title, routeOption, { versionType: process.versionType });
+                this.protectedNavigate(title, routeOption, { processId: process.id });
 
                 let processRefrerence = OPMUtils.generateProcessReference(process, processStep.id);
                 if (processRefrerence) {
@@ -186,50 +186,57 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     public navigateWithCurrentRoute(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             let newProcessStepId = this.routeContext.route && this.routeContext.route.processStepId || '';
+            let newProcessId = this.routeContext.stateData && this.routeContext.stateData.processId || '';
             let version = this.routeContext.route.version;
             let isPreview = OPMSpecialRouteVersion.isPreview(version);
 
-            if (newProcessStepId) {
-                let loadProcessPromise: Promise<Process> = null;
-
-                if (isPreview) {
-                    if (this.currentPreviewProcessId && this.processStepIdsInCurrentPreviewProcess[newProcessStepId.toString().toLowerCase()]) {
-                        let process = this.processStore.getters.process(this.currentPreviewProcessId);
-                        loadProcessPromise = Promise.resolve(process);
-                    }
-                    else {
-                        loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => {
-                            this.currentPreviewProcessId = p.process.id;
-                            let stepIds = OPMUtils.getAllProcessStepIds(p.process.rootProcessStep);
-                            stepIds.forEach(id => { this.processStepIdsInCurrentPreviewProcess[id.toString().toLowerCase()] = true; });
-                            return p.process;
-                        })
-                    }
-                }
-                else {
-                    this.currentPreviewProcessId = null;
-                    this.processStepIdsInCurrentPreviewProcess = {};
-                    loadProcessPromise = this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, version)
-                }
-
-                loadProcessPromise.then((process) => {
-
-                    //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
-                    //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
-                    let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
-
-                    this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
-                }).catch((errMsg) => {
-                    let versionLabel = isPreview ? 'preview' :
-                        OPMSpecialRouteVersion.isPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
-
-                    let reason = `Cannot find valid ${versionLabel}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
-                    console.warn(reason);
-                    reject(reason);
-                });
+            if (this.currentProcessStepId == newProcessStepId.toString().toLowerCase() &&
+                this.currentProcessId == newProcessId.toString().toLowerCase()) {
+                resolve();
             }
             else {
-                reject(`Cannot find valid process match to current route`);
+                if (newProcessStepId) {
+                    let loadProcessPromise: Promise<Process> = null;
+
+                    if (isPreview) {
+                        if (this.currentPreviewProcessId && this.processStepIdsInCurrentPreviewProcess[newProcessStepId.toString().toLowerCase()]) {
+                            let process = this.processStore.getters.process(this.currentPreviewProcessId);
+                            loadProcessPromise = Promise.resolve(process);
+                        }
+                        else {
+                            loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(newProcessStepId).then(p => {
+                                this.currentPreviewProcessId = p.process.id;
+                                let stepIds = OPMUtils.getAllProcessStepIds(p.process.rootProcessStep);
+                                stepIds.forEach(id => { this.processStepIdsInCurrentPreviewProcess[id.toString().toLowerCase()] = true; });
+                                return p.process;
+                            })
+                        }
+                    }
+                    else {
+                        this.currentPreviewProcessId = null;
+                        this.processStepIdsInCurrentPreviewProcess = {};
+                        loadProcessPromise = this.processStore.actions.loadProcessByProcessStepId.dispatch(newProcessStepId, version)
+                    }
+
+                    loadProcessPromise.then((process) => {
+
+                        //The server-side already check the valid data, otherise it will throw exception. So we don't need to check null here
+                        //If anycase the processStep ends up with null value, please re-verify the flow. it could be something else wrong
+                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, newProcessStepId);
+
+                        this.navigate(process, processStepRef.desiredProcessStep).then(resolve).catch(reject);
+                    }).catch((errMsg) => {
+                        let versionLabel = isPreview ? 'preview' :
+                            OPMSpecialRouteVersion.isPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
+
+                        let reason = `Cannot find valid ${versionLabel}-version process for the process step with id: ${newProcessStepId}. ` + errMsg;
+                        console.warn(reason);
+                        reject(reason);
+                    });
+                }
+                else {
+                    reject(`Cannot find valid process match to current route`);
+                }
             }
         })
     }
