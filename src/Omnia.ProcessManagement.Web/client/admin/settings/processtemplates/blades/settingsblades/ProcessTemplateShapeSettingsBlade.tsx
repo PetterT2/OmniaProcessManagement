@@ -49,6 +49,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     ];
     selectedShapeTemplate: ShapeTemplate = null;
     drawingCanvas: DrawingCanvas = null;
+    errorMessage: string = "";
+    hasError: boolean = false;
     canvasContainerId = "opm_template_canvas_container";
     canvasId: string = "opm_template_canvas";
     classes = StyleFlow.use(ProcessTemplateShapeSettingsBladeStyles);
@@ -89,12 +91,19 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     mounted() {
         this.isLoading = true;
         this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
-            this.isLoading = false;
             this.shapeTemplateSelections = this.shapeTemplateStore.getters.shapeTemplates();
             this.shapeTemplateSelections.forEach((shapeTemplateSelection) => {
                 shapeTemplateSelection.multilingualTitle = this.multilingualStore.getters.stringValue(shapeTemplateSelection.title);
             })
             this.editingShape = JSON.parse(JSON.stringify(this.processTemplateJournayStore.getters.editingShapeDefinition()));
+            if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
+                this.selectedShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId);
+                if (!this.selectedShapeTemplate) {
+                    this.errorMessage = this.opmCoreloc.Messages.ShapeTemplateHasBeenDeleted;
+                    this.hasError = true;
+                }
+            }
+            this.isLoading = false;
             this.startToDrawShape();
         })
     }
@@ -128,6 +137,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     }
 
     onShapeTemplateChanged() {
+        this.hasError = false;
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
         if (foundTemplate) {
             this.destroyCanvas(); 
@@ -136,17 +146,23 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.editingShape.title = Utils.clone(foundTemplate.title);
             if (!foundTemplate.builtIn) {
                 if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.MediaShape) {
+                    (this.editingShape as DrawingImageShapeDefinition).width = (this.editingShape as DrawingImageShapeDefinition).height = 200;
                     (this.editingShape as DrawingImageShapeDefinition).imageUrl = (foundTemplate.settings as ShapeTemplateMediaSettings).imageUrl;
                     delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
                 }
                 else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.FreeformShape) {
                     (this.editingShape as DrawingFreeformShapeDefinition).nodes = (foundTemplate.settings as ShapeTemplateFreeformSettings).nodes;
+                    if ((this.editingShape as DrawingFreeformShapeDefinition).nodes && (this.editingShape as DrawingFreeformShapeDefinition).nodes.length > 0) {
+                        (this.editingShape as DrawingFreeformShapeDefinition).width = (this.editingShape as DrawingFreeformShapeDefinition).nodes[0].properties['width'];
+                        (this.editingShape as DrawingFreeformShapeDefinition).height = (this.editingShape as DrawingFreeformShapeDefinition).nodes[0].properties['height'];
+                    }
                     delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
                 }
             }
             else {
                 if ((this.editingShape as DrawingImageShapeDefinition).imageUrl) delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
                 if ((this.editingShape as DrawingFreeformShapeDefinition).nodes) delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
+                (this.editingShape as DrawingImageShapeDefinition).width = (this.editingShape as DrawingImageShapeDefinition).height = 100;
             }
             this.updateTemplateShape();
         }
@@ -158,7 +174,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         }
         else {
             let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true, null, top);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, false, null, top);
         }
     }
 
@@ -197,6 +213,11 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         }
     }
 
+    isCustomShapeTemplate(): boolean {
+        var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
+        return foundTemplate && !foundTemplate.builtIn
+    }
+
     needToShowShapeSettings(): boolean {
         return !(this.editingShape as DrawingShapeDefinition).shapeTemplateId || ((this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type);
@@ -229,26 +250,30 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 </div>
 
                 <v-row>
-                    <v-col cols="3">
-                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
-                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                        <omfx-field-validation
-                            useValidator={this.internalValidator}
-                            checkValue={(this.editingShape as DrawingShapeDefinition).width}
-                            rules={new FieldValueValidation().IsRequired().getRules()}>
-                        </omfx-field-validation>
-                    </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
-                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
-                        <omfx-field-validation
-                            useValidator={this.internalValidator}
-                            checkValue={(this.editingShape as DrawingShapeDefinition).height}
-                            rules={new FieldValueValidation().IsRequired().getRules()}>
-                        </omfx-field-validation>
-                    </v-col>
-                    <v-col cols="6">
-                    </v-col>
+                    {
+                        !this.isCustomShapeTemplate() && [
+                            <v-col cols="3">
+                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
+                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).width}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+                            </v-col>,
+                            <v-col cols="3">
+                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
+                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                <omfx-field-validation
+                                    useValidator={this.internalValidator}
+                                    checkValue={(this.editingShape as DrawingShapeDefinition).height}
+                                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                                </omfx-field-validation>
+                            </v-col>,
+                            <v-col cols="6">
+                            </v-col>
+                        ]
+                    }
                     <v-col cols="6">
                         <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                             onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
@@ -410,6 +435,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 </v-toolbar>
                 <v-divider></v-divider>
                 <v-container>
+                    {this.hasError && <span class={this.classes.error}>{this.errorMessage}</span>}
                     {
                         this.editingShapeType == ShapeDefinitionTypes.Heading ?
                             this.renderTitle(h)

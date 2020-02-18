@@ -212,6 +212,7 @@
             MessageDraftExist: string,
             SyncToSharePointFailed: string,
             ArchiveProcessFailed: string,
+            ShapeTemplateHasBeenDeleted: string,
             UnauthorizedOrProcessNotFound: string,
         },
         ProcessActions: {

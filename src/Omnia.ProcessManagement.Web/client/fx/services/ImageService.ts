@@ -28,4 +28,21 @@ export class ImageService {
                 });
         })
     }
+
+    public copyImageFromTemplate = (process: Process, shapeTemplateId: GuidValue) => {
+        return new Promise<string>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<string>>(`/api/images/${process.id}/${shapeTemplateId}`)
+                .then(response => {
+                    if (response.data.success) {
+                        resolve(response.data.data);
+                    }
+                    else {
+                        reject(response.data.errorMessage);
+                    }
+                })
+                .catch(() => {
+                    reject();
+                });
+        })
+    }
 }

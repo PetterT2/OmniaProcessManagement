@@ -5,10 +5,10 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplateStore } from '../../../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplateStore, ImageService } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link, ShapeTemplateType, DrawingFreeformShapeDefinition } from '../../../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link, ShapeTemplateType, DrawingFreeformShapeDefinition, DrawingImageShapeDefinition } from '../../../../fx/models';
 import { ShapeDefinitionSelection, DrawingShapeOptions } from '../../../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -22,6 +22,7 @@ export interface ShapeSelectionStepProps {
 @Component
 export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepProps> implements IWebComponentInstance {
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
+    @Inject(ImageService) imageService: ImageService;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(ProcessTemplateStore) processTemplateStore: ProcessTemplateStore;
@@ -34,8 +35,8 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
     private selectedShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
+    private isLoading: boolean = true;
     private internalValidator: IValidator = null;
-    private isLoading: boolean = false;
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private errorMessage: string = "";
@@ -69,11 +70,13 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                 top: null
             }
         }
-        //if (!foundTemplate.builtIn && foundTemplate.settings.type == ShapeTemplateType.MediaShape) {
-        //    this.isLoading = true;
-
-        //}
-        //else this.isLoading = false;
+        if (!foundTemplate.builtIn && foundTemplate.settings.type == ShapeTemplateType.MediaShape) {
+            this.imageService.copyImageFromTemplate(this.currentProcessStore.getters.referenceData().process, foundTemplate.id).then((imageUrl) => {
+                (this.drawingShapeOptions.shapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
+                this.isLoading = false;
+            })
+        }
+        else this.isLoading = false;
     }
 
     beforeDestroy() {
@@ -153,12 +156,17 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
         return <v-card flat>
             <v-card-content>
                 <span style={{ color: 'red' }}>{this.errorMessage}</span>
-                <ShapeTypeComponent
-                    drawingOptions={this.drawingShapeOptions}
-                    changeDrawingOptionsCallback={this.onChangedDrawingOptions}
-                    changeShapeCallback={this.changeShape}
-                    useValidator={this.internalValidator}
-                ></ShapeTypeComponent>
+                {
+                    this.isLoading ?
+                        <v-skeleton-loader loading={true} height="100%" type="table-tbody"></v-skeleton-loader>
+                        :
+                        <ShapeTypeComponent
+                            drawingOptions={this.drawingShapeOptions}
+                            changeDrawingOptionsCallback={this.onChangedDrawingOptions}
+                            changeShapeCallback={this.changeShape}
+                            useValidator={this.internalValidator}
+                        ></ShapeTypeComponent>
+                }
             </v-card-content>
             {this.renderActionButtons(h)}
         </v-card>;

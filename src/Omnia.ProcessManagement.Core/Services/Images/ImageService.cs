@@ -29,7 +29,7 @@ namespace Omnia.ProcessManagement.Core.Services.Images
             ProcessRepository = processRepository;
         }
 
-        public async ValueTask<string> AddAuthroziedImageAsync(Guid processId, string fileName, string imageBase64)
+        public async ValueTask<string> AddAuthroziedImageAsync(Guid processId, string fileName, byte[] byteData)
         {
             var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessIdAsync(processId);
             return await securityResponse
@@ -37,14 +37,13 @@ namespace Omnia.ProcessManagement.Core.Services.Images
                 .OrRequireReviewer(ProcessVersionType.CheckedOut)
                 .DoAsync(async (process) =>
                 {
-                    var bytes = Convert.FromBase64String(imageBase64);
-                    var imageRef = await ImageRepository.AddImageAsync(process, fileName, bytes);
+                    var imageRef = await ImageRepository.AddImageAsync(process, fileName, byteData);
 
                     var tempFolderPath = EnsureTempFolderPath(imageRef, process.OPMProcessId);
                     var tempFileName = imageRef.FileName;
                     var tempFilePath = Path.Combine(tempFolderPath, tempFileName);
 
-                    await File.WriteAllBytesAsync(tempFilePath, bytes);
+                    await File.WriteAllBytesAsync(tempFilePath, byteData);
 
                     var imageRelativeApiUrl = ImageHelper.GenerateRelativeApiUrl(imageRef, process.OPMProcessId);
 

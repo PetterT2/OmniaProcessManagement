@@ -13,7 +13,7 @@ namespace Omnia.ProcessManagement.Core.Services.ShapeTemplates
         ValueTask<ShapeTemplate> GetByIdAsync(Guid id);
         ValueTask<ShapeTemplate> AddOrUpdateAsync(ShapeTemplate shapeDeclaration);
         ValueTask<bool> AddImageAsync(Guid shapeGalleryItemId, string fileName, string imageBase64);
-        ValueTask<(MemoryStream, string)> GetImageAsync(Guid shapeGalleryItemId);
+        ValueTask<(byte[], string)> GetImageAsync(Guid shapeGalleryItemId);
         ValueTask DeleteAsync(Guid id);
     }
 }

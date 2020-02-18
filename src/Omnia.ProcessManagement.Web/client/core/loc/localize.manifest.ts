@@ -216,6 +216,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             MessageDraftExist: "this process has a draft version.",
             SyncToSharePointFailed: "This process was synced to SharePoint failed.",
             ArchiveProcessFailed: "This process has been archived unsuccessfully.",
+            ShapeTemplateHasBeenDeleted: "The shape template of this shape may have been deleted. Please select an alternative template.",
             UnauthorizedOrProcessNotFound: "Unauthrozied or Not Found."
 
         },

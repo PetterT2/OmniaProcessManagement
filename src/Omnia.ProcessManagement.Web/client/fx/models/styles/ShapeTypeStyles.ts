@@ -5,4 +5,5 @@ export const ShapeTypeStyles = {} as {
     webkitScrollbar?: types.NestedCSSProperties;
     canvasPreviewWrapper?: types.NestedCSSProperties;
     drawingSettingsWrapper?: types.NestedCSSProperties;
+    error?: types.NestedCSSProperties;
 }

@@ -13,6 +13,7 @@ using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Images;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
+using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -26,11 +27,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
     {
         ILogger<ImageController> Logger { get; }
         IImageService ImageService { get; }
+        IShapeTemplateService ShapeTemplateService { get; }
         FileExtensionContentTypeProvider ContentTypeProvider { get; }
 
-        public ImageController(ILogger<ImageController> logger, IImageService imageService)
+        public ImageController(ILogger<ImageController> logger, IImageService imageService, IShapeTemplateService shapeTemplateService)
         {
             ImageService = imageService;
+            ShapeTemplateService = shapeTemplateService;
             ContentTypeProvider = new FileExtensionContentTypeProvider();
             Logger = logger;
         }
@@ -41,7 +44,26 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var imageRelativeApiUrl = await ImageService.AddAuthroziedImageAsync(processId, fileName, imageBase64);
+                var imageRelativeApiUrl = await ImageService.AddAuthroziedImageAsync(processId, fileName, Convert.FromBase64String(imageBase64));
+                var imageUrl = $"https://{Request.Host.Value}{imageRelativeApiUrl}";
+
+                return imageUrl.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<string>(ex);
+            }
+        }
+
+        [HttpPost, Route("{processId:guid}/{shapeTemplateId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<string>> AddImageFromTemplateAsync(Guid processId, Guid shapeTemplateId)
+        {
+            try
+            {
+                var (bytesData, fileName) = await ShapeTemplateService.GetImageAsync(shapeTemplateId);
+                var imageRelativeApiUrl = await ImageService.AddAuthroziedImageAsync(processId, fileName, bytesData);
                 var imageUrl = $"https://{Request.Host.Value}{imageRelativeApiUrl}";
 
                 return imageUrl.AsApiResponse();
