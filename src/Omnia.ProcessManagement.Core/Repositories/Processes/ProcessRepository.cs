@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
+using Omnia.Fx.Models.JsonTypes;
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.NetCore.Utils.Query;
@@ -68,7 +69,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             DbContext.Processes.Add(process);
 
             var processDataDict = actionModel.ProcessData;
-            AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
+            actionModel.Process.RootProcessStep = (RootProcessStep)AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
 
             process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
@@ -164,10 +165,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        private void AddProcessDataRecursive(Guid processId, ProcessStep processStep, Dictionary<Guid, ProcessData> processDataDict)
+        private InternalProcessStep AddProcessDataRecursive(Guid processId, InternalProcessStep processStep, Dictionary<Guid, ProcessData> processDataDict)
         {
             if (processDataDict.TryGetValue(processStep.Id, out var processData) && processData != null)
             {
+                CleanModel(processStep);
                 var refrerenceProcessStepIds = GetReferenceProcessStepIds(processData);
 
                 var processDataEf = new Entities.Processes.ProcessData();
@@ -192,11 +194,32 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             if (processStep.ProcessSteps != null)
             {
+                var processSteps = new List<ProcessStep>();
                 foreach (var childProcessStep in processStep.ProcessSteps)
                 {
-                    AddProcessDataRecursive(processId, childProcessStep, processDataDict);
+                    ProcessStep validChildProcessStep = null;
+                    if (childProcessStep.Type == ProcessStepType.Internal)
+                    {
+                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        validChildProcessStep = AddProcessDataRecursive(processId, childInternalProcessStep, processDataDict);
+                    }
+                    else if(childProcessStep.Type == ProcessStepType.External)
+                    {
+                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        CleanModel(validChildProcessStep);
+                    }
+                    processSteps.Add(validChildProcessStep);
                 }
+                processStep.ProcessSteps = processSteps;
             }
+
+            return processStep;
+        }
+
+        private void CleanModel(OmniaJsonBase omniaJsonBase)
+        {
+            if (omniaJsonBase.AdditionalProperties != null)
+                omniaJsonBase.AdditionalProperties.Clear();
         }
 
         public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
@@ -308,7 +331,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var usingProcessDataIdHashSet = new HashSet<Guid>();
 
-            UpdateProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
+            actionModel.Process.RootProcessStep = (RootProcessStep)UpdateProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
             RemoveOldProcessData(actionModel.Process.Id, existingProcessDataDict, usingProcessDataIdHashSet);
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -563,7 +586,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
-        private void UpdateProcessDataRecursive(Guid processId, ProcessStep processStep,
+        private InternalProcessStep UpdateProcessDataRecursive(Guid processId, InternalProcessStep processStep,
                 Dictionary<Guid, ProcessDataIdHash> existingProcessDataIdHashDict,
                 Dictionary<Guid, ProcessData> newProcessDataDict,
                 HashSet<Guid> usingProcessDataIdHashSet)
@@ -622,12 +645,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             if (processStep.ProcessSteps != null)
             {
+                var processSteps = new List<ProcessStep>();
                 foreach (var childProcessStep in processStep.ProcessSteps)
                 {
-                    UpdateProcessDataRecursive(processId, childProcessStep, existingProcessDataIdHashDict, newProcessDataDict, usingProcessDataIdHashSet);
+                    ProcessStep validChildProcessStep = null;
+                    if (childProcessStep.Type == ProcessStepType.Internal)
+                    {
+                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        validChildProcessStep = UpdateProcessDataRecursive(processId, childInternalProcessStep, existingProcessDataIdHashDict, newProcessDataDict, usingProcessDataIdHashSet);
+                    }
+                    else if (childProcessStep.Type == ProcessStepType.External)
+                    {
+                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        CleanModel(validChildProcessStep);
+                    }
+                    processSteps.Add(validChildProcessStep);
                 }
+                processStep.ProcessSteps = processSteps;
             }
 
+            return processStep;
         }
 
         private void RemoveProcessData(Guid id, Guid processId)

@@ -6,3 +6,5 @@ export * from './Link';
 export * from './Task';
 export * from './ProcessCheckoutInfo';
 export * from './PreviewProcessWithCheckoutInfo';
+export * from './InternalProcessStep';
+export * from './ExternalProcessStep';

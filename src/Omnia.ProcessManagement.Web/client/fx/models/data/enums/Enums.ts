@@ -18,8 +18,8 @@ export enum ProcessVersionType {
 }
 
 export enum ProcessStepType {
-    ProcessStep = 0,
-    LinkedProcessStep = 1
+    Internal = 0,
+    External = 1
 }
 
 export enum ProcessWorkingStatus {

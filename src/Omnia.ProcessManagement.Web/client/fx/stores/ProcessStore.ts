@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames, InternalProcessStep, ProcessStepType } from '../models';
 import { OPMUtils } from '../utils';
 import { ProcessSite } from '../../models';
 
@@ -302,7 +302,7 @@ export class ProcessStore extends Store {
             let newState = Object.assign({}, currentState, { [key]: info });
             this.processCheckoutInfoDict.mutate(newState);
         },
-        addOrUpdateProcessData: (processId: GuidValue, processStep: ProcessStep, processData: ProcessData) => {
+        addOrUpdateProcessData: (processId: GuidValue, processStep: InternalProcessStep, processData: ProcessData) => {
             let currentState = this.processDataDict.state;
             let newKey = this.getProcessDataCacheKey(processId, processStep.id);
             let newState = Object.assign({}, currentState, { [newKey]: processData });
@@ -371,13 +371,14 @@ export class ProcessStore extends Store {
 
         let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStepId);
 
-        if (processStepRef.desiredProcessStep) {
-            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash);
+        if (processStepRef.desiredProcessStep && processStepRef.desiredProcessStep.type == ProcessStepType.Internal) {
+            let desiredProcessStep = processStepRef.desiredProcessStep as InternalProcessStep;
+            let resolvablePromise = this.getProcessDataLoadResolvablePromise(process.id, desiredProcessStep.id, desiredProcessStep.processDataHash);
 
             if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
                 resolvablePromise.resolving = true;
-                this.processService.getProcessData(processStepRef.desiredProcessStep.id, processStepRef.desiredProcessStep.processDataHash).then((processData) => {
-                    this.internalMutations.addOrUpdateProcessData(process.id, processStepRef.desiredProcessStep, processData);
+                this.processService.getProcessData(desiredProcessStep.id, desiredProcessStep.processDataHash).then((processData) => {
+                    this.internalMutations.addOrUpdateProcessData(process.id, desiredProcessStep, processData);
                 }).catch((reason) => {
                     resolvablePromise.reject(reason);
                 });

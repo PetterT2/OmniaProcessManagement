@@ -1,4 +1,4 @@
-﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames, ShapeTemplateType, ShapeTemplate } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames, ShapeTemplateType, ShapeTemplate, InternalProcessStep, ProcessStepType } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 import { Utils } from '@omnia/fx';
 declare var moment: any;
@@ -14,8 +14,8 @@ export module OPMUtils {
         if (processStep.id.toString().toLowerCase() == activeProcessStepId) {
             expandState[processStep.id.toString().toLowerCase()] = true;
         }
-        else if (processStep.processSteps) {
-            for (let childProcessStep of processStep.processSteps) {
+        if (processStep.type == ProcessStepType.Internal && (processStep as InternalProcessStep).processSteps) {
+            for (let childProcessStep of (processStep as InternalProcessStep).processSteps) {
                 generateProcessStepExpandStateInternal(childProcessStep, activeProcessStepId, expandState);
 
                 if (expandState[childProcessStep.id.toString().toLowerCase()]) {
@@ -26,7 +26,7 @@ export module OPMUtils {
         }
     }
 
-    export function getProcessStepInProcess(processStep: RootProcessStep, desiredProcessStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+    export function getProcessStepInProcess(processStep: RootProcessStep, desiredProcessStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: InternalProcessStep } {
         return getProcessStepInProcessInternal(processStep, desiredProcessStepId.toString().toLowerCase(), null);
     }
 
@@ -43,14 +43,14 @@ export module OPMUtils {
         return processReference;
     }
 
-    function getProcessStepInProcessInternal(processStep: ProcessStep, desiredProcessStepId: string, parentProcessStep?: ProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: ProcessStep } {
+    function getProcessStepInProcessInternal(processStep: ProcessStep, desiredProcessStepId: string, parentProcessStep?: InternalProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: InternalProcessStep } {
         let desiredProcessStep: ProcessStep = null;
         if (processStep.id.toString().toLowerCase() == desiredProcessStepId) {
             desiredProcessStep = processStep;
         }
-        else if (processStep.processSteps) {
-            for (let childProcessStep of processStep.processSteps) {
-                let result = getProcessStepInProcessInternal(childProcessStep, desiredProcessStepId, processStep);
+        else if (processStep.type == ProcessStepType.Internal && (processStep as InternalProcessStep).processSteps) {
+            for (let childProcessStep of (processStep as InternalProcessStep).processSteps) {
+                let result = getProcessStepInProcessInternal(childProcessStep, desiredProcessStepId, processStep as InternalProcessStep);
                 if (result.desiredProcessStep) {
                     desiredProcessStep = result.desiredProcessStep;
                     parentProcessStep = result.parentProcessStep;
@@ -58,6 +58,7 @@ export module OPMUtils {
                 }
             }
         }
+
         return {
             desiredProcessStep: desiredProcessStep,
             parentProcessStep: parentProcessStep
@@ -68,12 +69,12 @@ export module OPMUtils {
         let ids: Array<string> = [];
 
         ids.push(processStep.id.toString().toLowerCase());
-
-        if (processStep.processSteps) {
-            for (let childProcessStep of processStep.processSteps) {
+        if (processStep.type == ProcessStepType.Internal && (processStep as InternalProcessStep).processSteps) {
+            for (let childProcessStep of (processStep as InternalProcessStep).processSteps) {
                 let childIds = getAllProcessStepIds(childProcessStep);
                 ids = ids.concat(childIds);
             }
+
         }
 
         return ids;
@@ -151,7 +152,7 @@ export module OPMUtils {
 
                     reject(`The current component has been destroyed while its waiting for an element with id ${elementId}`);
                 }
-                else if (canvasAvailable ) {
+                else if (canvasAvailable) {
                     clearInterval(intervalHandler);
 
                     resolve();

@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition, ProcessStepType, InternalProcessStep } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -169,7 +169,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.onDrawingShapeOptionChanged();
     }
     private onSelectedProcessChanged() {
-        let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
+        let childSteps = (this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep).processSteps;
         let selectedStep = childSteps.find(item => item.id == this.selectedProcessStepId);
         if (selectedStep) {
             this.shapeTitle = Utils.clone(selectedStep.title);
@@ -426,9 +426,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 title: '[' + this.pdLoc.New + ']'
             });
         }
-        let childSteps = this.currentProcessStore.getters.referenceData().current.processStep.processSteps;
-        if (childSteps) {
-            processStepOptions = processStepOptions.concat(childSteps.map(item => {
+        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep;
+        if (currentProcessStep.processSteps) {
+            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.filter(p => p.type == ProcessStepType.Internal).map(item => {
                 return {
                     id: item.id,
                     title: this.multilingualStore.getters.stringValue(item.title)

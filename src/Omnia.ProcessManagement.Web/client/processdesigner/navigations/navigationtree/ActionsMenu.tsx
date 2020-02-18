@@ -6,7 +6,7 @@ import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNam
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils, PropertyInternalNamesConstants } from '../../../fx';
 import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
-import { RootProcessStep, ProcessStep, IdDict, ProcessStepType } from '../../../fx/models';
+import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerStore } from '../../stores';
@@ -106,7 +106,10 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         this.showDeleteProcessStepDialog = true;
 
         let referenceData = this.currentProcessStore.getters.referenceData();
-        this.deletingMultipleProcessSteps = referenceData.current.processStep.processSteps && referenceData.current.processStep.processSteps.length > 0;
+        this.deletingMultipleProcessSteps = referenceData.current.processStep.type == ProcessStepType.Internal &&
+            (referenceData.current.processStep as InternalProcessStep).processSteps &&
+            (referenceData.current.processStep as InternalProcessStep).processSteps.length > 0;
+
         this.checkingDeletingProcessSteps = true;
         this.processService.checkIfDeletingProcessStepsAreBeingUsed(referenceData.process.id, OPMUtils.getAllProcessStepIds(referenceData.current.processStep))
             .then((beingUsed) => {
@@ -178,7 +181,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         }
     }
 
-    moveToProcessStep(newParentProcessStep: ProcessStep): Promise<void> {
+    moveToProcessStep(newParentProcessStep: InternalProcessStep): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             let currentProcessReferenceData = this.currentProcessStore.getters.referenceData();
             let parentProcessStep = currentProcessReferenceData.current.parentProcessStep;
@@ -363,7 +366,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                         dark={this.omniaTheming.promoted.header.dark}
                         class={this.omniaTheming.promoted.header.class}>
                         {
-                            currentReferenceData.current.processStep.type == ProcessStepType.ProcessStep ?
+                            currentReferenceData.current.processStep.type == ProcessStepType.Internal ?
                                 [<v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickCreateProcessStep(e)}>
                                     <v-list-item-avatar>
                                         <v-icon medium color={this.omniaTheming.promoted.header.text.base}>add</v-icon>
