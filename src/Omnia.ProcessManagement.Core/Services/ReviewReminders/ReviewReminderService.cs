@@ -143,9 +143,9 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                             var enterpriseProperty = await EnterprisePropertyService.GetByIdAsync(schedule.DateTimeEnterprisePropertyDefinitionId);
                             if (processEnterpriseProperties.TryGetValue(enterpriseProperty.InternalName, out JToken tokenValue) &&
                                 tokenValue != null &&
-                                DateTime.TryParse(tokenValue.ToString(), out DateTime dateTimeValue))
+                                DateTimeOffset.TryParse(tokenValue.ToString(), out DateTimeOffset dateTimeValue))
                             {
-                                reviewDate = dateTimeValue;
+                                reviewDate = dateTimeValue.UtcDateTime;
                                 reviewReminderDate = processTypeSettings.ReviewReminder.ReminderInAdvance.Before(reviewDate.Value);
                             }
                         }
