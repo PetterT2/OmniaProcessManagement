@@ -64,6 +64,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     filterOptions: Array<FilterOption> = [];
 
     refreshStatusInterval: any;
+    isSettingInterval: boolean = false;
     refreshStatusPromise: ResolvablePromise<IdDict<ProcessWorkingStatus>> = null;
 
     dateFormat: string = DefaultDateFormat;
@@ -90,10 +91,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
         this.isLoading = true;
 
-        this.refreshStatusInterval = setInterval(() => {
-            this.refreshStatus();
-        }, 5000);
-
+        this.controlGettingWorkingStatus(true);
+        this.processDesignerStore.editmode.onMutated((value) => {
+            if (value.newState == this.isSettingInterval)
+                this.controlGettingWorkingStatus(!value.newState);
+        });
         this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
             this.initProcesses();
             this.initSubscription();
@@ -121,7 +123,17 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     beforeDestroy() {
-        clearInterval(this.refreshStatusInterval);
+        this.controlGettingWorkingStatus(false);
+    }
+
+    private controlGettingWorkingStatus(isSettingInterval: boolean) {
+        this.isSettingInterval = isSettingInterval;
+        if (isSettingInterval)
+            this.refreshStatusInterval = setInterval(() => {
+                this.refreshStatus();
+            }, 5000);
+        else
+            clearInterval(this.refreshStatusInterval);
     }
 
     private loadPermisison() {
