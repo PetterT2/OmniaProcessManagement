@@ -57,6 +57,7 @@ export class ProcessStepDesignerItemBase {
 
     private handleCloseDesinger() {
         this.processDesignerStore.mutations.setHasDataChangedState.commit(null);
+        this.processDesignerStore.actions.showDesigner.dispatch(false);
         OPMRouter.clearRoute();
     }
 }
