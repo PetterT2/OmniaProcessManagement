@@ -140,9 +140,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
                     });
                 }
-                this.drawingCanvas.setHoveredShapeItemId(OPMRouter.routeContext.route.processStepId, DrawingShapeTypes.ProcessStep);
-            } else if (shape.type == DrawingShapeTypes.CustomLink && this.currentDrawingProcessData.links) {
-                let link = this.currentDrawingProcessData.links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
+                this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId);
+            } else if (shape.type == DrawingShapeTypes.CustomLink) {
+                let links = (this.currentDrawingProcessData.links || []).concat(this.parentProcessData.links || []);
+                let link = links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
                 if (link) {
                     let target = "";
                     if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
@@ -150,7 +151,6 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                         target = preview ? '_parent' : '';
                     }
                     window.open(link.url, link.openNewWindow ? '_blank' : target);
-                    this.drawingCanvas.setHoveredShapeItemId(shape.id, DrawingShapeTypes.CustomLink);
                 }
             }
         }

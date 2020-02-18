@@ -27,7 +27,6 @@ export class DrawingCanvas implements CanvasDefinition {
     private isSetHover: boolean = false;
     protected showGridlines: boolean = true;
     protected darkHightlight: boolean = null;
-    private hoveredShape: { id: GuidValue, type: DrawingShapeTypes } = null;
     private selectedShape: { id: GuidValue } = null;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, showGridlines?: boolean, darkHightlight?: boolean) {
@@ -85,47 +84,18 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    setHoveredShapeItemId(shapeIdentityId: GuidValue, type: DrawingShapeTypes) {
-        this.hoveredShape = { id: shapeIdentityId, type: type };
-        this.updateHoveredShapeStyle();
-    }
-
     setSelectedShapeItemId(shapeIdentityId: GuidValue) {
         this.selectedShape = { id: shapeIdentityId };
         this.updateSelectedShapeStyle();
     }
 
     private updateSelectedShapeStyle() {
+        this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
         if (this.selectedShape == null)
             return;
-
-        this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
-
-        let drawingShape: DrawingShape = null;
-
-        drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
-
+        let drawingShape: DrawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
         if (drawingShape) {
             (drawingShape.shape as Shape).setSelectedShape(true);
-            this.canvasObject.renderAll();
-        }
-    }
-
-    private updateHoveredShapeStyle() {
-        if (this.hoveredShape == null)
-            return;
-
-        this.drawingShapes.forEach(s => (s.shape as Shape).setHoveredShape(false));
-
-        let drawingShape: DrawingShape = null;
-        if (this.hoveredShape.type == DrawingShapeTypes.ProcessStep) {
-            drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.hoveredShape.id);
-        }
-        else {
-            drawingShape = this.drawingShapes.find(s => s.id == this.hoveredShape.id);
-        }
-        if (drawingShape) {
-            (drawingShape.shape as Shape).setHoveredShape(true);
             this.canvasObject.renderAll();
         }
     }
@@ -204,7 +174,6 @@ export class DrawingCanvas implements CanvasDefinition {
                     promises.push(this.addShapeFromTemplateClassName(s));
                 }
             })
-            Promise.all(promises).then(() => { this.updateHoveredShapeStyle(); })
         }
     }
 
