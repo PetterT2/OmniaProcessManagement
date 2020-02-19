@@ -79,11 +79,13 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
     private drawShapes() {
         var needToDestroyCanvas = true;
-        var selectedShape: DrawingShape = null;
+        var selectedShape: DrawingProcessStepShape = null;
         if (!this.canvasDefinition && this.parentProcessData && this.parentProcessData.canvasDefinition) {
             this.canvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
             selectedShape = this.canvasDefinition.drawingShapes && this.canvasDefinition.drawingShapes.length > 0 ?
-                this.canvasDefinition.drawingShapes.find(s => s.processStepId && s.processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) : null;
+                this.canvasDefinition.drawingShapes.find(s => s.type == DrawingShapeTypes.ProcessStep &&
+                    (s as DrawingProcessStepShape).processStepId &&
+                    (s as DrawingProcessStepShape).processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) as DrawingProcessStepShape : null;
             if (selectedShape && this.previousParentProcessStep && this.previousParentProcessStep.id.toString() == this.parentProcessStep.id.toString()) {
                 needToDestroyCanvas = false;
             }

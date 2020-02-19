@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingExternalProcessShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
@@ -194,7 +194,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalOPMProcessId?:GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -220,6 +220,9 @@ export class DrawingCanvas implements CanvasDefinition {
                     }
                     if (type == DrawingShapeTypes.CustomLink) {
                         (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                    }
+                    if (type == DrawingShapeTypes.ExternalProcess) {
+                        (drawingShape as DrawingExternalProcessShape).opmProcessId = externalOPMProcessId;
                     }
                     resolved = false;
                     this.addShapeFromTemplateClassName(drawingShape).then((readyDrawingShape: DrawingShape) => {
@@ -308,8 +311,12 @@ export class DrawingCanvas implements CanvasDefinition {
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;
-                    delete currentDrawingShape['processStepId'];
-                    delete currentDrawingShape['linkId'];
+
+                    //
+                    delete (currentDrawingShape as DrawingProcessStepShape).processStepId;
+                    delete (currentDrawingShape as DrawingCustomLinkShape).linkId;
+                    delete (currentDrawingShape as DrawingExternalProcessShape).opmProcessId;
+
                     currentDrawingShape.type = drawingOptions.shapeType;
                     if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
                         (currentDrawingShape as DrawingProcessStepShape).processStepId = drawingOptions.processStepId;
@@ -317,6 +324,10 @@ export class DrawingCanvas implements CanvasDefinition {
                     if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
                         (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
                     }
+                    if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess) {
+                        (currentDrawingShape as DrawingExternalProcessShape).opmProcessId = drawingOptions.opmProcessId;
+                    }
+
                     currentDrawingShape.shape = {
                         shapeTemplateTypeName: ShapeTemplateType[drawingOptions.shapeDefinition.shapeTemplateType],
                         nodes: nodes,

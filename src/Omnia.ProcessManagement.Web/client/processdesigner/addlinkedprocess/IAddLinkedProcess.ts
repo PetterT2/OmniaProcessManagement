@@ -1,5 +1,5 @@
 ﻿import { TsxAllowUnknowProperties, IValidator } from '@omnia/fx/ux'
-import { MultilingualString } from '@omnia/fx-models';
+import { GuidValue, MultilingualString } from '@omnia/fx-models'
 
 export interface IAddLinkedProcessAttributes {
 
@@ -8,7 +8,10 @@ export interface IAddLinkedProcessAttributes {
 /*@WebComponentInterface("opm-processdesigner-addlinkedprocess")*/
 export interface IAddLinkedProcess extends IAddLinkedProcessAttributes {
     /*@DomProperty*/
-    onChange: (title: MultilingualString) => void;
+    opmProcessId?: GuidValue;
+
+    /*@DomProperty*/
+    onChange: (title: MultilingualString, opmProcessId: GuidValue) => void
 }
 
 declare global {

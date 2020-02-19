@@ -289,7 +289,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                             {
                                 this.showAddLinkedProcessStepDialog ?
                                     <opm-processdesigner-addlinkedprocess
-                                        onChange={(title: MultilingualString) => { this.title = title; }}>
+                                        onChange={(title, opmProcessId) => { this.title = title; }}>
                                     </opm-processdesigner-addlinkedprocess> :
                                     null
                             }

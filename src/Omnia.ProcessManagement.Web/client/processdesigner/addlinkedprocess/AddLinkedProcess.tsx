@@ -8,12 +8,19 @@ import { ProcessRollupService, ProcessTableColumnsConstants } from '../../fx';
 import { ProcessDesignerLocalization } from '../loc/localize';
 import { MultilingualString, RollupSetting, GuidValue } from '@omnia/fx-models';
 import { IAddLinkedProcess } from './IAddLinkedProcess';
-import { RollupProcess, ProcessVersionType, ProcessStep } from '../../fx/models';
+import { RollupProcess, ProcessVersionType, ProcessStep, Process } from '../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
+
+interface Selection {
+    title: MultilingualString,
+    displayText: string,
+    opmProcessId: GuidValue
+}
 
 @Component
 export class AddLinkedProcessComponent extends VueComponentBase implements IWebComponentInstance, IAddLinkedProcess {
-    @Prop() onChange: (title: MultilingualString) => void;
+    @Prop() onChange: (title: MultilingualString, opmProcessId: GuidValue) => void;
+    @Prop() opmProcessId: GuidValue;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
@@ -23,11 +30,9 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     private isLoading: boolean = false;
-    private isSearching: boolean = false;
-    private processes: Array<ProcessStep> = [];
+    private selections: Array<Selection> = [];
     private searchInput: string = '';
-    private selectedProcess: ProcessStep;
-
+    private selectedSelection: Selection = null;
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
     }
@@ -40,8 +45,8 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
     }
 
     private init() {
+
         this.isLoading = true;
-        this.isSearching = false;
         let query: RollupSetting = {
             resources: [{
                 id: ProcessVersionType.Published.toString(),
@@ -53,15 +58,42 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
             displayFields: []
         };
         this.processRollupService.queryProcesses(query).then((result) => {
-            this.processes = [];
+            this.selections = [];
             let rollupProcesses = result.items as Array<RollupProcess>;
+            let selectedSelection: Selection = null;
             rollupProcesses.forEach(p => {
                 p.process.rootProcessStep.multilingualTitle = this.multilingualStore.getters.stringValue(p.process.rootProcessStep.title);
-                this.processes.push(p.process.rootProcessStep);
+                let selection = {
+                    opmProcessId: p.process.opmProcessId,
+                    title: p.process.rootProcessStep.title,
+                    displayText: p.process.rootProcessStep.multilingualTitle
+                };
+
+                if (p.process.opmProcessId == this.opmProcessId) {
+                    selectedSelection = selection;
+                }
+                else {
+                    this.selections.push(selection);
+                }
             });
-            this.processes.sort((a, b) => {
-                return a.multilingualTitle.localeCompare(b.multilingualTitle);
+
+            this.selections.sort((a, b) => {
+                return a.displayText.localeCompare(b.displayText);
             });
+
+            if (!selectedSelection && this.opmProcessId) {
+                selectedSelection = {
+                    opmProcessId: this.opmProcessId,
+                    title: this.multilingualStore.getters.ensureMultilingualString(this.opmProcessId.toString()),
+                    displayText: this.opmProcessId.toString()
+                }
+            }
+
+            if (selectedSelection) {
+                this.selectedSelection = selectedSelection;
+                this.selections.unshift(selectedSelection);
+            }
+
             this.isLoading = false;
         }).catch((msg) => {
             this.isLoading = false;
@@ -74,20 +106,18 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
                 <v-autocomplete
                     class="mb-4"
                     dark={this.omniaTheming.promoted.body.dark}
-                    loading={this.isSearching || this.isLoading}
+                    loading={this.isLoading}
                     label={this.pdLoc.AddLinkedProcess.Process}
                     placeholder={this.pdLoc.AddLinkedProcess.SearchText}
-                    items={this.processes}
-                    v-model={this.selectedProcess}
+                    items={this.selections}
+                    v-model={this.selectedSelection}
                     hide-details
-                    hide-selected="true"
-                    item-text="multilingualTitle"
+                    item-text="displayText"
                     return-object
                     searchInput={this.searchInput}
-                    onChange={(val: ProcessStep) => {
+                    onChange={(val: Selection) => {
                         this.searchInput = '';
-                        this.isSearching = false;
-                        this.onChange(val ? val.title : null);
+                        this.onChange(val ? val.title : null, val ? val.opmProcessId : null);
                         this.$forceUpdate();
                     }}
                     no-data-text={this.pdLoc.AddLinkedProcess.ProcessNotFound}>

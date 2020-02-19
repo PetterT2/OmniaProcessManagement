@@ -47,8 +47,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private internalShapeDefinition: DrawingShapeDefinition = null;//ToDo check other type?
     private selectedShapeType: DrawingShapeTypes = null;
     private previewCanvasId: GuidValue = Guid.newGuid();
+
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
+
+    private selectedOPMProcessId: GuidValue = null;
     private shapeTitle: MultilingualString = null;
     private shape: ShapeObject = null;
     private selectedShapeTemplate: ShapeTemplate = null;
@@ -137,6 +140,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
+        this.selectedOPMProcessId = this.drawingOptions.opmProcessId;
         this.shapeTitle = this.drawingOptions.title;
     }
 
@@ -154,6 +158,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             shapeType: this.selectedShapeType,
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
+            opmProcessId: this.selectedOPMProcessId,
             title: this.shapeTitle,
             shape: this.shape
         };
@@ -165,6 +170,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private onSelectedShapeType(selectedShapeType) {
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
+        this.selectedOPMProcessId = null;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
@@ -447,7 +453,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderChildLinkedProcessSteps(h) {
         return <div>
             <opm-processdesigner-addlinkedprocess
-                onChange={(title: MultilingualString) => { this.shapeTitle = title; }}>
+                opmProcessId={this.selectedOPMProcessId}
+                onChange={(title, opmProcessId) => {
+                    this.shapeTitle = title;
+                    this.selectedOPMProcessId = opmProcessId;
+                    this.updateDrawedShape();
+                }}>
             </opm-processdesigner-addlinkedprocess>
         </div>;
     }

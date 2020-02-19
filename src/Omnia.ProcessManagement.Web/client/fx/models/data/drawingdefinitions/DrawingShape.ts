@@ -13,5 +13,4 @@ export interface DrawingShape {
     type: DrawingShapeTypes,
     shape: ShapeObject;
     title: MultilingualString;
-    processStepId?: GuidValue;
 }
