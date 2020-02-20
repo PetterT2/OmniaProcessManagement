@@ -157,7 +157,8 @@
             Documents: string,
             Links: string,
             Tasks: string,
-            Properties: string
+            Properties: string,
+            LinkedProcess: string
         },
         Shape: string,
         DrawingShapeSettings: {
@@ -241,6 +242,12 @@
             SetNewReviewDate: string,
             Unpublish: string,
             CloseTask: string
+        },
+        SearchTemplates: {
+            ProcessSearchTemplate: {
+                Preview: string,
+                ClosePreview: string
+            }
         }
     }
 }

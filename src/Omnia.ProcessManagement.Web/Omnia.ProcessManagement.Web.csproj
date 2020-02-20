@@ -364,6 +364,7 @@
     <TypeScriptCompile Remove="client\models\styles\ProcessRollupStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\PropertiesBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\SearchTemplateProcessStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
@@ -376,6 +377,7 @@
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\core\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\designeritems\ExternalProcessStepDesignerItem.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepShortcutDesignerItem.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
@@ -385,6 +387,8 @@
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\ProcessContent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\ProcessDocuments.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\externalprocesses\ExternalProcess.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\externalprocesses\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\CreateLinkPanel.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\ICreateLinkPanel.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\links\index.ts" />
@@ -511,6 +515,11 @@
     <TypeScriptCompile Remove="client\processrollup\ProcessRollupCore.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.css.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.tsx" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.ts" />
     <TypeScriptCompile Remove="client\security\security.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -936,6 +945,12 @@
     <None Update="client\processdesigner\processstepcomponents\documents\ProcessDocuments.tsx">
       <SubType>Code</SubType>
     </None>
+    <None Update="client\processdesigner\processstepcomponents\externalprocesses\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\processdesigner\processstepcomponents\externalprocesses\ExternalProcess.tsx">
+      <SubType>Code</SubType>
+    </None>
     <None Update="client\processdesigner\processstepcomponents\links\index.ts">
       <SubType>Code</SubType>
     </None>
@@ -979,6 +994,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\processdrawing\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.css.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\registration\Registration.manifest.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

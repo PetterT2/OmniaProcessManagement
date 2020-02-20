@@ -81,13 +81,13 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         if (navigateToNode) {
-
             //Ensure savestate before navigating to another process step
             this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
+                let isExternal = this.processStep.type == ProcessStepType.External;
                 this.processDesignerStore.actions.setProcessToShow.dispatch(this.currentProcessStore.getters.referenceData().process, this.processStep).then(() => {
-                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(isExternal), DisplayModes.contentEditing);
                 });
-            })
+            });
         }
     }
 
@@ -152,7 +152,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                     </div>
                     <div class={this.navigationNodeStyles.title(isSelectedNode)}>{this.processStep.multilingualTitle}</div>
                     {
-                        isSelectedNode && 
+                        isSelectedNode &&
                         <div class={[this.navigationNodeStyles.actionBar]}>
                             {
                                 !this.firstNode || !this.lastNode ? [

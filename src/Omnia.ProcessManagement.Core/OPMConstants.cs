@@ -337,6 +337,8 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_TaskDescription = "Body";
                 public const string Fields_FileLeafRef = "FileLeafRef";
             }
+
+            public const string PublishedProcessFileName = "process.opm";
         }
 
         public static class OPMPages
