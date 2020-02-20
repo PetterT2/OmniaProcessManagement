@@ -73,7 +73,7 @@ namespace Omnia.ProcessManagement.Core
                         Circle, Pentagon, Diamond, Freeform, Media
                     };
 
-                public static ShapeTemplate Circle 
+                public static ShapeTemplate Circle
                 {
                     get
                     {
@@ -85,7 +85,7 @@ namespace Omnia.ProcessManagement.Core
                             {
                                 [LanguageTag.EnUs] = "Circle"
                             },
-                            Settings = new ShapeTemplateSettings() 
+                            Settings = new ShapeTemplateSettings()
                             {
                                 Type = ShapeTemplateType.CircleShape
                             }
@@ -376,7 +376,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");
             public static readonly string ReadersGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.ReaderGroupSuffix");
-            public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
+            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.Blocks.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
             public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");
@@ -453,7 +453,7 @@ namespace Omnia.ProcessManagement.Core
                     public static readonly string ProcessLink = "ProcessLink";
                     public static readonly string SiteUrl = "SiteUrl";
                     public static readonly string SiteTitle = "SiteTitle";
-                    public static readonly string PublishDate= "PublishDate";
+                    public static readonly string PublishDate = "PublishDate";
                     public static readonly string ReviewDate = "ReviewDate";
                 }
             }
