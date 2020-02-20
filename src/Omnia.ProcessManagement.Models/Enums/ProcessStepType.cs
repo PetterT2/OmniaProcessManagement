@@ -6,7 +6,7 @@ namespace Omnia.ProcessManagement.Models.Enums
 {    
     public enum ProcessStepType
     {
-        ProcessStep = 0,
-        LinkedProcessStep = 1
+        Internal = 0,
+        External = 1
     }
 }

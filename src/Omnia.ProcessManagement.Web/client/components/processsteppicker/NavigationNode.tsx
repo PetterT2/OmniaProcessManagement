@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import { Prop, Emit, Watch } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
-import { ProcessStep, NavigationNodeStyles, ProcessStepPickerStyles, IdDict } from '../../fx/models';
+import { ProcessStep, NavigationNodeStyles, ProcessStepPickerStyles, IdDict, ProcessStepType, InternalProcessStep } from '../../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 
 export interface NavigationNodeComponentProps {
@@ -28,7 +28,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
     @Prop() private hiddenProcessStepIdsDict: IdDict<boolean>;
     @Prop() private disabledProcessStepIdsDict: IdDict<boolean>;
 
-    @Prop() private selectProcessStep: (processStep: ProcessStep) => void;
+    @Prop() private selectProcessStep: (processStep: InternalProcessStep) => void;
     @Prop() private pickerStyles: { [P in keyof typeof ProcessStepPickerStyles]?: any; }
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
@@ -48,14 +48,14 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         if (navigateToNode) {
-            this.selectProcessStep(this.processStep);
+            this.selectProcessStep(this.processStep as InternalProcessStep);
         }
     }
 
 
     renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.processStep.processSteps.forEach((childProcessStep) => {
+        (this.processStep as InternalProcessStep).processSteps.forEach((childProcessStep) => {
             result.push(
                 <NavigationNodeComponent
                     expandState={this.expandState}
@@ -86,10 +86,13 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         let isSelectedNode = this.selectingProcessStep == this.processStep;
-        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.filter(child => !this.hiddenProcessStepIdsDict[child.id.toString().toLowerCase()]).length > 0;
+        let hasChildren: boolean = this.processStep.type == ProcessStepType.Internal &&
+            (this.processStep as InternalProcessStep).processSteps &&
+            (this.processStep as InternalProcessStep).processSteps.filter(child => !this.hiddenProcessStepIdsDict[child.id.toString().toLowerCase()]).length > 0;
+
         let id = this.processStep.id.toString().toLowerCase();
         let hidden = this.hiddenProcessStepIdsDict[id];
-        let disabled = this.disabledProcessStepIdsDict[id];
+        let disabled = this.disabledProcessStepIdsDict[id] || this.processStep.type !== ProcessStepType.Internal;
 
         if (hidden)
             return null;

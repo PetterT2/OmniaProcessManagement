@@ -85,7 +85,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     ];
 
     created() {
-        
+
     }
 
     mounted() {
@@ -140,7 +140,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         this.hasError = false;
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
         if (foundTemplate) {
-            this.destroyCanvas(); 
+            this.destroyCanvas();
             (this.editingShape as DrawingShapeDefinition).shapeTemplateId = foundTemplate.id;
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType = foundTemplate.settings.type;
             this.editingShape.title = Utils.clone(foundTemplate.title);
@@ -174,7 +174,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         }
         else {
             let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, false, null, top);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true, null, top);
         }
     }
 
@@ -227,7 +227,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
         return foundTemplate && (this.editingShape as DrawingShapeDefinition).shapeTemplateId &&
             (!foundTemplate.builtIn || ((this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Media.settings.type &&
-            (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
+                (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
     }
 
     renderDrawingSettings(h) {
@@ -254,7 +254,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         !this.isCustomShapeTemplate() && [
                             <v-col cols="3">
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
-                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                    onChange={() => {
+                                        (this.editingShape as DrawingShapeDefinition).width = (this.editingShape as DrawingShapeDefinition).width ? parseInt((this.editingShape as DrawingShapeDefinition).width.toString()) : 0;
+                                        this.updateTemplateShape();
+                                    }} type="number" suffix="px"></v-text-field>
                                 <omfx-field-validation
                                     useValidator={this.internalValidator}
                                     checkValue={(this.editingShape as DrawingShapeDefinition).width}
@@ -263,7 +266,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             </v-col>,
                             <v-col cols="3">
                                 <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
-                                    onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                                    onChange={() => {
+                                        (this.editingShape as DrawingShapeDefinition).height = (this.editingShape as DrawingShapeDefinition).height ? parseInt((this.editingShape as DrawingShapeDefinition).height.toString()) : 0;
+                                        this.updateTemplateShape();
+                                    }} type="number" suffix="px"></v-text-field>
                                 <omfx-field-validation
                                     useValidator={this.internalValidator}
                                     checkValue={(this.editingShape as DrawingShapeDefinition).height}
@@ -285,7 +291,10 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
                             onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textAlignment}></v-select>
                         <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                            onChange={this.updateTemplateShape} type="number" suffix="px"></v-text-field>
+                            onChange={() => {
+                                (this.editingShape as DrawingShapeDefinition).fontSize = (this.editingShape as DrawingShapeDefinition).fontSize ? parseInt((this.editingShape as DrawingShapeDefinition).fontSize.toString()) : 0;
+                                this.updateTemplateShape();
+                            }} type="number" suffix="px"></v-text-field>
                         <omfx-field-validation
                             useValidator={this.internalValidator}
                             checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}

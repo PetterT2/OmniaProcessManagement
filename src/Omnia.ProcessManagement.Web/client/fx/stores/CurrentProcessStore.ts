@@ -2,7 +2,7 @@
 import { Injectable, Inject, OmniaContext, Utils } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType, InternalProcessStep, ProcessStepType } from '../models';
 import { OPMUtils } from '../utils';
 import { InternalOPMTopics } from '../messaging/InternalOPMTopics';
 
@@ -265,14 +265,19 @@ export class CurrentProcessStore extends Store {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
+                    if (currentProcessReferenceData.current.processStep.type !== ProcessStepType.Internal) {
+                        throw `Only internal process step can add child process step`
+                    }
+
                     if (Utils.isNullOrEmpty(title))
                         title = { isMultilingualString: true };
-                    let processStep: ProcessStep = {
+                    let processStep: InternalProcessStep = {
                         id: Guid.newGuid(),
                         title: title,
                         processDataHash: '',
                         processSteps: [],
-                        multilingualTitle: this.multilingualStore.getters.stringValue(title)
+                        multilingualTitle: this.multilingualStore.getters.stringValue(title),
+                        type: ProcessStepType.Internal
                     };
 
                     let processData: ProcessData = {
@@ -283,11 +288,13 @@ export class CurrentProcessStore extends Store {
                         tasks: null
                     } as ProcessData
 
-                    if (!currentProcessReferenceData.current.processStep.processSteps) {
-                        currentProcessReferenceData.current.processStep.processSteps = [];
+                    
+
+                    if (!(currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps) {
+                        (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps = [];
                     }
 
-                    currentProcessReferenceData.current.processStep.processSteps.push(processStep);
+                    (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps.push(processStep);
 
 
                     let actionModel: ProcessActionModel = {

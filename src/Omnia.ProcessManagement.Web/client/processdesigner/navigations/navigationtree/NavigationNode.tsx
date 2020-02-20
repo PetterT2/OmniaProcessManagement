@@ -6,7 +6,7 @@ import 'vue-tsx-support/enable-check';
 import { Utils } from "@omnia/fx";
 import './NavigationNode.css';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { ProcessStep, DrawingShape } from '../../../fx/models';
+import { ProcessStep, DrawingShape, InternalProcessStep, ProcessStepType } from '../../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { NavigationNodeStyles } from '../../../fx/models';
 import './NavigationNode.css';
@@ -94,9 +94,9 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
     renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.processStep.processSteps.forEach((childProcessStep, index) => {
+        (this.processStep as InternalProcessStep).processSteps.forEach((childProcessStep, index) => {
             let firstNode = index == 0;
-            let lastNode = index == this.processStep.processSteps.length - 1;
+            let lastNode = index == (this.processStep as InternalProcessStep).processSteps.length - 1;
             result.push(
                 <NavigationNodeComponent
                     expandState={this.expandState}
@@ -130,7 +130,9 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
 
         let isSelectedNode = (currentProcessStep == this.processStep);
 
-        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
+        let hasChildren: boolean = this.processStep.type == ProcessStepType.Internal &&
+            (this.processStep as InternalProcessStep).processSteps &&
+            (this.processStep as InternalProcessStep).processSteps.length > 0;
 
         return (
             <div class={this.navigationNodeStyles.wrapper}>

@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, ProcessStepType, InternalProcessStep } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessSite } from '../../models';
 
@@ -330,9 +330,11 @@ export class ProcessService {
 
     private setProcessStepMultilingualTitle = (processStep: ProcessStep) => {
         processStep.multilingualTitle = this.multilingualStore.getters.stringValue(processStep.title);
-        if (processStep.processSteps) {
-            for (let childProcessStep of processStep.processSteps) {
-                this.setProcessStepMultilingualTitle(childProcessStep);
+        if (processStep.type == ProcessStepType.Internal) {
+            if ((processStep as InternalProcessStep).processSteps) {
+                for (let childProcessStep of (processStep as InternalProcessStep).processSteps) {
+                    this.setProcessStepMultilingualTitle(childProcessStep);
+                }
             }
         }
     }

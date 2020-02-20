@@ -1,8 +1,7 @@
 ﻿import { GuidValue, LanguageTag } from '@omnia/fx-models';
-import { ProcessStep } from './ProcessStep';
-import { Enums } from '../../Enums';
+import { InternalProcessStep } from './InternalProcessStep';
 
-export interface RootProcessStep extends ProcessStep {
+export interface RootProcessStep extends InternalProcessStep {
     enterpriseProperties: { [internalName: string]: any };
     processTemplateId: GuidValue;
     comment: string;

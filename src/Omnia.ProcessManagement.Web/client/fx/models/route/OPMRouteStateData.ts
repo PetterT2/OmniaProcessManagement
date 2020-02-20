@@ -1,6 +1,5 @@
-﻿import { TokenBasedRouteStateData } from '@omnia/fx-models';
-import { ProcessVersionType } from '../data';
+﻿import { TokenBasedRouteStateData, GuidValue } from '@omnia/fx-models';
 
 export interface OPMRouteStateData extends TokenBasedRouteStateData {
-    versionType: ProcessVersionType;
+    processId: GuidValue;
 }

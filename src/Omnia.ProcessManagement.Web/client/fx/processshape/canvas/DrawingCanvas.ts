@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape } from '../../models/data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingExternalProcessShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
@@ -27,7 +27,6 @@ export class DrawingCanvas implements CanvasDefinition {
     private isSetHover: boolean = false;
     protected showGridlines: boolean = true;
     protected darkHightlight: boolean = null;
-    private hoveredShape: { id: GuidValue, type: DrawingShapeTypes } = null;
     private selectedShape: { id: GuidValue } = null;
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, showGridlines?: boolean, darkHightlight?: boolean) {
@@ -85,47 +84,18 @@ export class DrawingCanvas implements CanvasDefinition {
         }
     }
 
-    setHoveredShapeItemId(shapeIdentityId: GuidValue, type: DrawingShapeTypes) {
-        this.hoveredShape = { id: shapeIdentityId, type: type };
-        this.updateHoveredShapeStyle();
-    }
-
     setSelectedShapeItemId(shapeIdentityId: GuidValue) {
         this.selectedShape = { id: shapeIdentityId };
         this.updateSelectedShapeStyle();
     }
 
     private updateSelectedShapeStyle() {
+        this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
         if (this.selectedShape == null)
             return;
-
-        this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
-
-        let drawingShape: DrawingShape = null;
-
-        drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
-
+        let drawingShape: DrawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
         if (drawingShape) {
             (drawingShape.shape as Shape).setSelectedShape(true);
-            this.canvasObject.renderAll();
-        }
-    }
-
-    private updateHoveredShapeStyle() {
-        if (this.hoveredShape == null)
-            return;
-
-        this.drawingShapes.forEach(s => (s.shape as Shape).setHoveredShape(false));
-
-        let drawingShape: DrawingShape = null;
-        if (this.hoveredShape.type == DrawingShapeTypes.ProcessStep) {
-            drawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.hoveredShape.id);
-        }
-        else {
-            drawingShape = this.drawingShapes.find(s => s.id == this.hoveredShape.id);
-        }
-        if (drawingShape) {
-            (drawingShape.shape as Shape).setHoveredShape(true);
             this.canvasObject.renderAll();
         }
     }
@@ -204,7 +174,6 @@ export class DrawingCanvas implements CanvasDefinition {
                     promises.push(this.addShapeFromTemplateClassName(s));
                 }
             })
-            Promise.all(promises).then(() => { this.updateHoveredShapeStyle(); })
         }
     }
 
@@ -225,7 +194,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, nodes?: FabricShapeData[]) {
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalOPMProcessId?:GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -251,6 +220,9 @@ export class DrawingCanvas implements CanvasDefinition {
                     }
                     if (type == DrawingShapeTypes.CustomLink) {
                         (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                    }
+                    if (type == DrawingShapeTypes.ExternalProcess) {
+                        (drawingShape as DrawingExternalProcessShape).opmProcessId = externalOPMProcessId;
                     }
                     resolved = false;
                     this.addShapeFromTemplateClassName(drawingShape).then((readyDrawingShape: DrawingShape) => {
@@ -339,8 +311,12 @@ export class DrawingCanvas implements CanvasDefinition {
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;
-                    delete currentDrawingShape['processStepId'];
-                    delete currentDrawingShape['linkId'];
+
+                    //
+                    delete (currentDrawingShape as DrawingProcessStepShape).processStepId;
+                    delete (currentDrawingShape as DrawingCustomLinkShape).linkId;
+                    delete (currentDrawingShape as DrawingExternalProcessShape).opmProcessId;
+
                     currentDrawingShape.type = drawingOptions.shapeType;
                     if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
                         (currentDrawingShape as DrawingProcessStepShape).processStepId = drawingOptions.processStepId;
@@ -348,6 +324,10 @@ export class DrawingCanvas implements CanvasDefinition {
                     if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
                         (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
                     }
+                    if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess) {
+                        (currentDrawingShape as DrawingExternalProcessShape).opmProcessId = drawingOptions.opmProcessId;
+                    }
+
                     currentDrawingShape.shape = {
                         shapeTemplateTypeName: ShapeTemplateType[drawingOptions.shapeDefinition.shapeTemplateType],
                         nodes: nodes,

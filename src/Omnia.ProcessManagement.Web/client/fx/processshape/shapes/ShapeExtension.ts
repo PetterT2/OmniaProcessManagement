@@ -313,6 +313,8 @@ export class ShapeExtension implements Shape {
     }
 
     private setHover(objects: fabric.Object[], isActive: boolean) {
+        if (this.isSelected)
+            return;
         this.isHovering = isActive;
         objects.forEach((object) => {
             if (object.type == 'text') {

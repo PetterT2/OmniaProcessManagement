@@ -7,7 +7,7 @@ import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessNavigationBlockStyles } from '../../../models';
 import { classes } from 'typestyle';
 import { CurrentProcessStore, OPMRouter } from '../../../fx';
-import { ProcessStep } from '../../../fx/models';
+import { ProcessStep, ProcessStepType, InternalProcessStep } from '../../../fx/models';
 
 
 export interface ProcessNavigationNodeComponentProps {
@@ -70,7 +70,7 @@ ProcessNavigationNodeComponentProps>
 
     renderChildren(h): Array<JSX.Element> {
         let result: Array<JSX.Element> = [];
-        this.processStep.processSteps.forEach((childProcessStep, index) => {
+        (this.processStep as InternalProcessStep).processSteps.forEach((childProcessStep, index) => {
             result.push(
                 <ProcessNavigationNodeComponent
                     indentation={this.indentation}
@@ -104,7 +104,9 @@ ProcessNavigationNodeComponentProps>
         else {
             collapsedStyle = this.styles.contentHide;
         }
-        let hasChildren: boolean = this.processStep.processSteps && this.processStep.processSteps.length > 0;
+        let hasChildren: boolean = this.processStep.type == ProcessStepType.Internal &&
+            (this.processStep as InternalProcessStep).processSteps &&
+            (this.processStep as InternalProcessStep).processSteps.length > 0;
 
         return (
             <div class={classes(this.styles.wrapper)}>
