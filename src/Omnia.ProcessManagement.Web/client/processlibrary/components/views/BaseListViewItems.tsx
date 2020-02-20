@@ -21,6 +21,7 @@ import { ProcessDesignerStore } from '../../../processdesigner/stores';
 import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
 import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
 import { DisplayModes } from '../../../models/processdesigner';
+import { BaseListViewItemRow } from './BaseListViewItemRow';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -354,20 +355,6 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         return field;
     }
 
-    private isErrorStatus(status: ProcessWorkingStatus) {
-        if (status == ProcessWorkingStatus.SendingForApprovalFailed ||
-            status == ProcessWorkingStatus.CancellingApprovalFailed ||
-            status == ProcessWorkingStatus.SendingForReviewFailed ||
-            status == ProcessWorkingStatus.CancellingReviewFailed ||
-            status == ProcessWorkingStatus.SyncingToSharePointFailed ||
-            status == ProcessWorkingStatus.ArchivingFailed) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
     private closeSubComponentCallback(refreshList: boolean, tab?: ProcessLibraryListViewTabs) {
         if (tab) {
             this.changeTab(tab);
@@ -379,62 +366,14 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     renderItems(h, item: DisplayProcess) {
         return (
-            <tr onMouseover={() => { item.isMouseOver = true; this.$forceUpdate(); }} onMouseout={() => { item.isMouseOver = false; this.$forceUpdate(); }}>
-                {
-                    this.displaySettings.selectedFields.map((internalName: string) => {
-                        switch (internalName) {
-                            case LibrarySystemFieldsConstants.Menu:
-                                return (
-                                    <td class={this.listViewClasses.menuColumn}>
-                                        {h(this.processListViewComponentKey.processMenuComponent, {
-                                            domProps: {
-                                                closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
-                                                process: item,
-                                                isAuthor: this.isAuthor,
-                                                viewPageUrl: this.previewPageUrl
-                                            }
-                                        })}
-                                    </td>
-                                );
-                            case LibrarySystemFieldsConstants.Status:
-                                let errorStatus = this.isErrorStatus(item.processWorkingStatus);
-                                return (<td>
-                                    {h(this.processListViewComponentKey.processingStatusComponent, {
-                                        domProps: {
-                                            redLabel: errorStatus,
-                                            closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
-                                            process: item,
-                                            isAuthor: this.isAuthor
-                                        }
-                                    })}
-                                </td>)
-                            case LibrarySystemFieldsConstants.Title:
-                                return (
-                                    <td>
-                                        <a onClick={() => { this.openProcess(item); }}>{item.rootProcessStep.multilingualTitle}</a>
-                                    </td>
-                                );
-                            case ProcessLibraryFields.Edition:
-                            case ProcessLibraryFields.Revision:
-                                return (
-                                    <td>
-                                        {item.rootProcessStep.enterpriseProperties[internalName]}
-                                    </td>
-                                );
-                            case ProcessLibraryFields.Published:
-                                return (
-                                    <td>
-                                        {moment(item.publishedAt).isValid() ? moment(item.publishedAt).format(this.dateFormat) : ""}
-                                    </td>
-                                );
-                            default:
-                                return (
-                                    <td>{Utils.isNullOrEmpty(item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(item, internalName) : item.sortValues[internalName]}</td>
-                                )
-                        };
-                    })
-                }
-            </tr>
+            <BaseListViewItemRow item={item}
+                displaySettings={this.displaySettings}
+                processListViewComponentKey={this.processListViewComponentKey}
+                isAuthor={this.isAuthor}
+                previewPageUrl={this.previewPageUrl}
+                closeSubComponentCallback={this.closeSubComponentCallback}
+                openProcess={this.openProcess}>
+            </BaseListViewItemRow>
         );
     }
 

@@ -424,6 +424,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayFileldTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\GeneralTab.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\BaseListViewItemRow.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\BaseListViewItems.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
