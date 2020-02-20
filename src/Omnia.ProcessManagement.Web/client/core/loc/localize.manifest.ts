@@ -5,6 +5,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
     .registerLocalization()
     .namespace(OPMCoreLocalization.namespace)
     .add<OPMCoreLocalization.locInterface>({
+        EnterprisePropertyDataType: {
+            Process: {
+                Title: "Process"
+            }
+        },
         Common: {
             SearchBoxPlaceholder: "Search"
         },

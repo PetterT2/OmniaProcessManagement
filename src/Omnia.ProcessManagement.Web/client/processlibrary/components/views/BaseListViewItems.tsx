@@ -376,18 +376,6 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         }
     }
 
-    renderMenuAction(item: DisplayProcess) {
-        let h = this.$createElement;
-        return h(this.processListViewComponentKey.processMenuComponent, {
-            domProps: {
-                closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
-                process: item,
-                isAuthor: this.isAuthor,
-                viewPageUrl: this.previewPageUrl
-            }
-        });
-    }
-
     renderItems(h, item: DisplayProcess) {
         return (
             <BaseListViewItemRow item={item}

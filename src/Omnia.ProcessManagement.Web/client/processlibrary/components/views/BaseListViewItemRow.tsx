@@ -60,6 +60,18 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
         }
     }
 
+    renderMenuAction(item: DisplayProcess) {
+        let h = this.$createElement;
+        return h(this.processListViewComponentKey.processMenuComponent, {
+            domProps: {
+                closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
+                process: item,
+                isAuthor: this.isAuthor,
+                viewPageUrl: this.previewPageUrl
+            }
+        });
+    }
+
     render(h) {
         return (
             <tr onMouseover={() => { this.item.isMouseOver = true; this.$forceUpdate(); }} onMouseout={() => { this.item.isMouseOver = false; this.$forceUpdate(); }}>
@@ -69,14 +81,7 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
                             case LibrarySystemFieldsConstants.Menu:
                                 return (
                                     <td class={this.listViewClasses.menuColumn}>
-                                        {h(this.processListViewComponentKey.processMenuComponent, {
-                                            domProps: {
-                                                closeCallback: (refreshList, tab) => { this.closeSubComponentCallback(refreshList, tab) },
-                                                process: this.item,
-                                                isAuthor: this.isAuthor,
-                                                viewPageUrl: this.previewPageUrl
-                                            }
-                                        })}
+                                        {this.renderMenuAction(this.item)}
                                     </td>
                                 );
                             case LibrarySystemFieldsConstants.Status:

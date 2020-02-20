@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ShapeTemplates;
+using Omnia.Fx.Models.Manifests.ServerSide;
 
 namespace Omnia.ProcessManagement.Core
 {
@@ -15,6 +16,15 @@ namespace Omnia.ProcessManagement.Core
     {
         [Obsolete("Wait for TeamCollaboration's fx, pay attention to replace it as soon as possible")]
         public static Guid TeamCollaborationAppDefinitionId = new Guid("d2240d7b-af3c-428c-bae8-5b8bfc08e3ac");
+
+        public static class OPMService
+        {
+            public static class WebApp
+            {
+                public static string IdAsString { get { return "e1849a9d-4d94-4f47-b2d8-918f73df8759"; } }
+                public static Guid Id { get { return new Guid(IdAsString); } }
+            }
+        }
 
         public static class RequestedOmniaResources
         {
@@ -36,6 +46,26 @@ namespace Omnia.ProcessManagement.Core
 
         public static class Features
         {
+            public static EnterprisePropertyDataType ProcessDataType
+            {
+                get 
+                {
+                    return new EnterprisePropertyDataType() 
+                    { 
+                        Id = new Guid("323e96a4-1e6b-4744-8e87-ece171b36e54"),
+                        OmniaServiceId = OPMService.WebApp.Id,
+                        Title = "$Localize:OPM.Core.EnterprisePropertyDataType.Process.Title;",
+                        UIOptions = new EnterprisePropertyUIOptions()
+                        {
+                            EditModeElementName = "opm-enterpriseproperties-process-edit",
+                            DisplayModeElementName = "opm-enterpriseproperties-process-display",
+                            ValueDefinitionElementName = "opm-enterpriseproperties-process-value-definition"
+                        },
+                        IndexedType = PropertyIndexedType.Taxonomy
+                    };
+                }
+            }
+
             public static class DefaultShapeTemplates
             {
                 public static IList<ShapeTemplate> ShapeTemplates => new List<ShapeTemplate>()

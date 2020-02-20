@@ -45,6 +45,20 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
         {
             List<Task> EnsureBuiltInDataTask = new List<Task>();
 
+            var allPropertyDataTypes = await EnterprisePropertyService.GetAllDataTypesAsync();
+            var existingDataType = allPropertyDataTypes.FirstOrDefault(t => t.Id == OPMConstants.Features.ProcessDataType.Id);
+            if(existingDataType == null)
+            {
+                try
+                {
+                    await EnterprisePropertyService.CreateDataTypeAsync(OPMConstants.Features.ProcessDataType);
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError($"ProcessManagement - Add Process Data Type {OPMConstants.Features.ProcessDataType.Id.ToString()} ERROR: {ex.Message}", ex);
+                }
+            }
+
             var (allProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();
             foreach (var property in OPMConstants.Features.OPMDefaultProperties.Properties)
             {
