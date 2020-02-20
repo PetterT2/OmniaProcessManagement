@@ -318,7 +318,7 @@ namespace Omnia.ProcessManagement.Core
             public const string SingleWebPartAppPageLayoutType = "SingleWebPartAppPage";
 
             public const string ApprovalTaskUrl = "{0}/SitePages/Processes.aspx?displaytab=tasks&taskid={1}&viewtasktype=1";
-            public const string ProcessPreviewUrl = "{0}/SitePages/Processes.aspx/?displaytab=drafts/#/@pm/{1}/preview/g";
+            public const string ProcessPreviewUrl = "{0}/SitePages/Processes.aspx/?displaytab=drafts/#/@pm/{1}/v-preview/g";
         }
 
         public static class ModerPageTemplate

@@ -142,6 +142,15 @@ export const OPMSpecialRouteVersion = {
         return version && version.edition === 0 && version.revision === 0;
     },
     generateVersion: (edition: number | string, revision: number | string): Version => {
-        return { edition: parseInt(edition as string), revision: parseInt(revision as string) }
+        let version: Version = { edition: parseInt(edition as string), revision: parseInt(revision as string) };
+        if (isNaN(version.edition) || isNaN(version.revision))
+            throw `Invalid version. edition: ${edition}, revision: ${revision}`;
+
+        return version;
+    },
+    generateVersionLabel: (version: Version) => {
+        let versionLabel = OPMSpecialRouteVersion.isPreview(version) ? 'preview' :
+            OPMSpecialRouteVersion.isPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
+        return versionLabel;
     }
 }

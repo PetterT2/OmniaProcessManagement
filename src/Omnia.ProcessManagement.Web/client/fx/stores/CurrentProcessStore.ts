@@ -313,7 +313,7 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        addExtenalProcessStep: this.action((title: MultilingualString, opmProcessId: GuidValue): Promise<{ process: Process, processStep: ExternalProcessStep }> => {
+        addExtenalProcessStep: this.action((title: MultilingualString, externalRootProcessStepId: GuidValue): Promise<{ process: Process, processStep: ExternalProcessStep }> => {
             return this.transaction.newProcessOperation(() => {
                 return new Promise<{ process: Process, processStep: ExternalProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
@@ -327,7 +327,7 @@ export class CurrentProcessStore extends Store {
                         id: Guid.newGuid(),
                         title: title,
                         multilingualTitle: this.multilingualStore.getters.stringValue(title),
-                        opmProcessId: opmProcessId,
+                        rootProcessStepId: externalRootProcessStepId,
                         type: ProcessStepType.External
                     };
 

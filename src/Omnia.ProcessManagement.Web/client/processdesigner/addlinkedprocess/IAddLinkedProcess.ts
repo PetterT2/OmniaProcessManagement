@@ -8,10 +8,10 @@ export interface IAddLinkedProcessAttributes {
 /*@WebComponentInterface("opm-processdesigner-addlinkedprocess")*/
 export interface IAddLinkedProcess extends IAddLinkedProcessAttributes {
     /*@DomProperty*/
-    opmProcessId?: GuidValue;
+    rootProcessStepId?: GuidValue;
 
     /*@DomProperty*/
-    onChange: (title: MultilingualString, opmProcessId: GuidValue) => void
+    onChange: (title: MultilingualString, rootProcessStepId: GuidValue) => void
 }
 
 declare global {

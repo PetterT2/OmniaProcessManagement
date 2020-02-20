@@ -110,11 +110,11 @@ export module OPMUtils {
         let processStepId = desiredProcessStep.id.toString().toLowerCase();
 
         if (process.versionType == ProcessVersionType.Draft || process.versionType == ProcessVersionType.CheckedOut) {
-            version = "/preview";
+            version = "/v-preview";
         } else if (process.versionType == ProcessVersionType.Archived) {
             let edition = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
             let revision = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision];
-            version = `/${edition}/${revision}`
+            version = `/v-${edition}-${revision}`
         }
 
         if (previewPageUrl) {

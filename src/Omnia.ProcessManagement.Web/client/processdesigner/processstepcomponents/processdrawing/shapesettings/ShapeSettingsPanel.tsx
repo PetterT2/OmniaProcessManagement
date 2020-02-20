@@ -36,7 +36,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private selectedShape: DrawingShape = null;
     private selectedProcessStepId: GuidValue = null;
     private selectedCustomLinkId: GuidValue = null;
-    private selectedOPMProcessId: GuidValue = null;
+    private selectedExternalRootProcessStepId: GuidValue = null;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private isShowChangeShape: boolean = false;
     private selectedTab = StaticTabNames.shape;
@@ -62,12 +62,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
 
         this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
         this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
-        this.selectedOPMProcessId = this.selectedShape.type == DrawingShapeTypes.ExternalProcess ? (this.selectedShape as DrawingExternalProcessShape).opmProcessId : null;
+        this.selectedExternalRootProcessStepId = this.selectedShape.type == DrawingShapeTypes.ExternalProcess ? (this.selectedShape as DrawingExternalProcessShape).rootProcessStepId : null;
         this.drawingShapeOptions = {
             id: Guid.newGuid(),
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            opmProcessId: this.selectedOPMProcessId,
+            externalRootProcesStepId: this.selectedExternalRootProcessStepId,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title,
@@ -117,7 +117,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink && (!drawingOptions.customLinkId || drawingOptions.customLinkId == Guid.empty)) {
             result = false;
         }
-        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.opmProcessId || drawingOptions.opmProcessId == Guid.empty)) {
+        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.externalRootProcesStepId || drawingOptions.externalRootProcesStepId == Guid.empty)) {
             result = false;
         }
 

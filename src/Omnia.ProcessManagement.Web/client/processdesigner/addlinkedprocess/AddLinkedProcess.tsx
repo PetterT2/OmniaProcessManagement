@@ -14,13 +14,13 @@ import { MultilingualStore } from '@omnia/fx/store';
 interface Selection {
     title: MultilingualString,
     displayText: string,
-    opmProcessId: GuidValue
+    rootProcessStepId: GuidValue
 }
 
 @Component
 export class AddLinkedProcessComponent extends VueComponentBase implements IWebComponentInstance, IAddLinkedProcess {
-    @Prop() onChange: (title: MultilingualString, opmProcessId: GuidValue) => void;
-    @Prop() opmProcessId: GuidValue;
+    @Prop() onChange: (title: MultilingualString, rootProcessStepId: GuidValue) => void;
+    @Prop() rootProcessStepId: GuidValue;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
@@ -64,12 +64,12 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
             rollupProcesses.forEach(p => {
                 p.process.rootProcessStep.multilingualTitle = this.multilingualStore.getters.stringValue(p.process.rootProcessStep.title);
                 let selection = {
-                    opmProcessId: p.process.opmProcessId,
+                    rootProcessStepId: p.process.rootProcessStep.id,
                     title: p.process.rootProcessStep.title,
                     displayText: p.process.rootProcessStep.multilingualTitle
                 };
 
-                if (p.process.opmProcessId == this.opmProcessId) {
+                if (selection.rootProcessStepId == this.rootProcessStepId) {
                     selectedSelection = selection;
                 }
                 else {
@@ -81,11 +81,11 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
                 return a.displayText.localeCompare(b.displayText);
             });
 
-            if (!selectedSelection && this.opmProcessId) {
+            if (!selectedSelection && this.rootProcessStepId) {
                 selectedSelection = {
-                    opmProcessId: this.opmProcessId,
-                    title: this.multilingualStore.getters.ensureMultilingualString(this.opmProcessId.toString()),
-                    displayText: this.opmProcessId.toString()
+                    rootProcessStepId: this.rootProcessStepId,
+                    title: this.multilingualStore.getters.ensureMultilingualString(this.rootProcessStepId.toString()),
+                    displayText: this.rootProcessStepId.toString()
                 }
             }
 
@@ -117,7 +117,7 @@ export class AddLinkedProcessComponent extends VueComponentBase implements IWebC
                     searchInput={this.searchInput}
                     onChange={(val: Selection) => {
                         this.searchInput = '';
-                        this.onChange(val ? val.title : null, val ? val.opmProcessId : null);
+                        this.onChange(val ? val.title : null, val ? val.rootProcessStepId : null);
                         this.$forceUpdate();
                     }}
                     no-data-text={this.pdLoc.AddLinkedProcess.ProcessNotFound}>

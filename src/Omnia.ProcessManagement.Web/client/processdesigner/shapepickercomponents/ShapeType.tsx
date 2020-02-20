@@ -140,7 +140,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
-        this.selectedOPMProcessId = this.drawingOptions.opmProcessId;
+        this.selectedOPMProcessId = this.drawingOptions.externalRootProcesStepId;
         this.shapeTitle = this.drawingOptions.title;
     }
 
@@ -158,7 +158,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             shapeType: this.selectedShapeType,
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            opmProcessId: this.selectedOPMProcessId,
+            externalRootProcesStepId: this.selectedOPMProcessId,
             title: this.shapeTitle,
             shape: this.shape
         };
@@ -434,7 +434,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep;
         if (currentProcessStep.processSteps) {
-            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.filter(p => p.type == ProcessStepType.Internal).map(item => {
+            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.map(item => {
                 return {
                     id: item.id,
                     title: this.multilingualStore.getters.stringValue(item.title)
