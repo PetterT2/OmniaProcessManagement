@@ -364,6 +364,7 @@
     <TypeScriptCompile Remove="client\models\styles\ProcessRollupStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\PropertiesBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\SearchTemplateProcessStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
@@ -429,6 +430,7 @@
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayFileldTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\DisplayTab.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\settingtabs\GeneralTab.tsx" />
+    <TypeScriptCompile Remove="client\processlibrary\components\views\BaseListViewItemRow.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\BaseListViewItems.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\DeleteDialog.tsx" />
     <TypeScriptCompile Remove="client\processlibrary\components\views\dialogs\FilterDialog.tsx" />
@@ -513,6 +515,11 @@
     <TypeScriptCompile Remove="client\processrollup\ProcessRollupCore.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.css.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.tsx" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.ts" />
     <TypeScriptCompile Remove="client\security\security.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -601,8 +608,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.47-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.47-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.64-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.64-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 
@@ -987,6 +994,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\processdrawing\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.css.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\registration\Registration.manifest.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

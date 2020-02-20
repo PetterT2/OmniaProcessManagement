@@ -6,7 +6,7 @@ import { ProcessRollupBlockStyles } from '../../models';
 import { ProcessRollupLocalization } from '../loc/localize';
 import { MultilingualStore, EnterprisePropertyStore, TargetingPropertyStore } from '@omnia/fx/store';
 import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration, ProcessRollupDatePeriodsPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupTextPropFilterValue } from '../../fx/models';
-import { PropertyIndexedType, SpacingSetting, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, PeoplePickerConstants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery } from '@omnia/fx-models';
+import { PropertyIndexedType, SpacingSetting, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, Constants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery } from '@omnia/fx-models';
 import { FilterExtension, SearchBoxFilterExtension, FilterComponent } from './FilterComponent';
 import { SharePointFieldsConstants, ProcessRollupConstants, ProcessRollupService } from '../../fx';
 import { classes } from 'typestyle';
@@ -214,7 +214,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
             case PropertyIndexedType.Person:
                 let perValue = uiFilter.valueObj as ProcessRollupPersonPropFilterValue;
                 if (Utils.isArrayNullOrEmpty(perValue.value)) return null;
-                if (!Utils.isArrayNullOrEmpty(perValue.value) && perValue.value[0].uid == PeoplePickerConstants.CurrentUserUID)
+                if (!Utils.isArrayNullOrEmpty(perValue.value) && perValue.value[0].uid == Constants.ux.components.peoplePicker.currentUserId)
                     perValue.value[0].uid = '';
                 break;
             case PropertyIndexedType.DateTime:

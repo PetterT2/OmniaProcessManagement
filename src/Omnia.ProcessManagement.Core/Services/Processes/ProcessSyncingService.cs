@@ -172,7 +172,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
             //Sync the process
             //var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
-            var fileName = $"process";
+            var fileName = OPMConstants.SharePoint.PublishedProcessFileName;
             FileCreationInformation newFile = new FileCreationInformation();
             newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); ;
             newFile.Overwrite = true;

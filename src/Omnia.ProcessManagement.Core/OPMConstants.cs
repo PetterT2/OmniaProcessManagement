@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ShapeTemplates;
+using Omnia.Fx.Models.Manifests.ServerSide;
 
 namespace Omnia.ProcessManagement.Core
 {
@@ -15,6 +16,15 @@ namespace Omnia.ProcessManagement.Core
     {
         [Obsolete("Wait for TeamCollaboration's fx, pay attention to replace it as soon as possible")]
         public static Guid TeamCollaborationAppDefinitionId = new Guid("d2240d7b-af3c-428c-bae8-5b8bfc08e3ac");
+
+        public static class OPMService
+        {
+            public static class WebApp
+            {
+                public static string IdAsString { get { return "e1849a9d-4d94-4f47-b2d8-918f73df8759"; } }
+                public static Guid Id { get { return new Guid(IdAsString); } }
+            }
+        }
 
         public static class RequestedOmniaResources
         {
@@ -36,6 +46,26 @@ namespace Omnia.ProcessManagement.Core
 
         public static class Features
         {
+            public static EnterprisePropertyDataType ProcessDataType
+            {
+                get 
+                {
+                    return new EnterprisePropertyDataType() 
+                    { 
+                        Id = new Guid("323e96a4-1e6b-4744-8e87-ece171b36e54"),
+                        OmniaServiceId = OPMService.WebApp.Id,
+                        Title = "$Localize:OPM.Core.EnterprisePropertyDataType.Process.Title;",
+                        UIOptions = new EnterprisePropertyUIOptions()
+                        {
+                            EditModeElementName = "opm-enterpriseproperties-process-edit",
+                            DisplayModeElementName = "opm-enterpriseproperties-process-display",
+                            ValueDefinitionElementName = "opm-enterpriseproperties-process-value-definition"
+                        },
+                        IndexedType = PropertyIndexedType.Taxonomy
+                    };
+                }
+            }
+
             public static class DefaultShapeTemplates
             {
                 public static IList<ShapeTemplate> ShapeTemplates => new List<ShapeTemplate>()
@@ -43,7 +73,7 @@ namespace Omnia.ProcessManagement.Core
                         Circle, Pentagon, Diamond, Freeform, Media
                     };
 
-                public static ShapeTemplate Circle 
+                public static ShapeTemplate Circle
                 {
                     get
                     {
@@ -55,7 +85,7 @@ namespace Omnia.ProcessManagement.Core
                             {
                                 [LanguageTag.EnUs] = "Circle"
                             },
-                            Settings = new ShapeTemplateSettings() 
+                            Settings = new ShapeTemplateSettings()
                             {
                                 Type = ShapeTemplateType.CircleShape
                             }
@@ -307,6 +337,8 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_TaskDescription = "Body";
                 public const string Fields_FileLeafRef = "FileLeafRef";
             }
+
+            public const string PublishedProcessFileName = "process.opm";
         }
 
         public static class OPMPages
@@ -344,7 +376,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");
             public static readonly string ReadersGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.ReaderGroupSuffix");
-            public static readonly string ProcessLibraryQuickLauchName = CommonUtils.GetLocalizedText("OPM.Core.Features.ProcessLibrary.Title");
+            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.Blocks.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
             public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");
@@ -421,7 +453,7 @@ namespace Omnia.ProcessManagement.Core
                     public static readonly string ProcessLink = "ProcessLink";
                     public static readonly string SiteUrl = "SiteUrl";
                     public static readonly string SiteTitle = "SiteTitle";
-                    public static readonly string PublishDate= "PublishDate";
+                    public static readonly string PublishDate = "PublishDate";
                     public static readonly string ReviewDate = "ReviewDate";
                 }
             }

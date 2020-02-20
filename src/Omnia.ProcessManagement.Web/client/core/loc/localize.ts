@@ -1,6 +1,11 @@
 ﻿export module OPMCoreLocalization {
     export const namespace = "OPM.Core";
     export interface locInterface {
+        EnterprisePropertyDataType: {
+            Process: {
+                Title: string
+            }
+        },
         Common: {
             SearchBoxPlaceholder: string
         },
@@ -237,6 +242,12 @@
             SetNewReviewDate: string,
             Unpublish: string,
             CloseTask: string
+        },
+        SearchTemplates: {
+            ProcessSearchTemplate: {
+                Preview: string,
+                ClosePreview: string
+            }
         }
     }
 }

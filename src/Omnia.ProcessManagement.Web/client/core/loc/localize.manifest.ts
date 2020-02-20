@@ -5,6 +5,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
     .registerLocalization()
     .namespace(OPMCoreLocalization.namespace)
     .add<OPMCoreLocalization.locInterface>({
+        EnterprisePropertyDataType: {
+            Process: {
+                Title: "Process"
+            }
+        },
         Common: {
             SearchBoxPlaceholder: "Search"
         },
@@ -87,7 +92,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
         },
         Blocks: {
             ProcessLibrary: {
-                Title: "Processes Library",
+                Title: "Processes",
                 Description: "Add this to a site where you want to work with processes."
             },
             BlockProcessRenderer: {
@@ -242,5 +247,11 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             SetNewReviewDate: "Set new review date",
             Unpublish: "Unpublish",
             CloseTask: "Close task"
+        },
+        SearchTemplates: {
+            ProcessSearchTemplate: {
+                Preview: "Preview process",
+                ClosePreview: "Close preview"
+            }
         }
     });

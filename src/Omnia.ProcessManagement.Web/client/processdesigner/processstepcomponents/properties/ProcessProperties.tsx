@@ -274,7 +274,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 required={field.required}
                 validator={this.useValidator}
                 termSetId={field.termSetId}
-                preSelectedTermIds={field.termIds}
+                preSelectedTermIds={field.termIds || []}
                 onTermsSelected={(model) => {
                     field.termIds = model;
                     this.resetChildTermPickers(field, fields);

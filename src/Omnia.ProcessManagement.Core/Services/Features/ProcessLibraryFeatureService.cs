@@ -213,7 +213,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
             {
                 var isUpdate = false;
                 var quickLaunchList = web.Navigation.QuickLaunch;
-                string title = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ProcessLibraryQuickLauchName, web.Language);
+                string title = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ProcessLibraryQuickLauch, web.Language);
                 var currentNode = quickLaunchList
                     .Where(q => q.Url.ToLower().EndsWith(OPMConstants.OPMPages.ProcessLibraryPageName.ToLower()))
                     .FirstOrDefault();
@@ -268,7 +268,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 item[OPMConstants.SharePoint.SharePointFields.PageLayoutType] = OPMConstants.OPMPages.SingleWebPartAppPageLayoutType;
                 item[OPMConstants.SharePoint.SharePointFields.PromotedState] = "0";
                 item[OPMConstants.SharePoint.SharePointFields.CanvasContent1] = string.Format(OPMConstants.ModerPageTemplate.Canvas, id, id, OPMConstants.ModerPageTemplate.ProcessLibraryComponent, "null");
-                item[OPMConstants.SharePoint.SharePointFields.Title] = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ProcessLibraryQuickLauchName, web.Language);
+                item[OPMConstants.SharePoint.SharePointFields.Title] = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ProcessLibraryQuickLauch, web.Language);
                 item.Update();
                 clientContext.Web.Context.Load(item);
                 if (sitePageList.EnableVersioning)
