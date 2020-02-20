@@ -2,7 +2,7 @@
 import { Injectable, Inject, OmniaContext, Utils } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType, InternalProcessStep, ProcessStepType } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType, InternalProcessStep, ProcessStepType, ExternalProcessStep } from '../models';
 import { OPMUtils } from '../utils';
 import { InternalOPMTopics } from '../messaging/InternalOPMTopics';
 
@@ -261,9 +261,9 @@ export class CurrentProcessStore extends Store {
                 })
             })
         }),
-        addProcessStep: this.action((title: MultilingualString, navigateTo?: boolean): Promise<{ process: Process, processStep: ProcessStep }> => {
+        addProcessStep: this.action((title: MultilingualString): Promise<{ process: Process, processStep: InternalProcessStep }> => {
             return this.transaction.newProcessOperation(() => {
-                return new Promise<{ process: Process, processStep: ProcessStep }>((resolve, reject) => {
+                return new Promise<{ process: Process, processStep: InternalProcessStep }>((resolve, reject) => {
                     let currentProcessReferenceData = this.currentProcessReferenceData.state;
                     if (currentProcessReferenceData.current.processStep.type !== ProcessStepType.Internal) {
                         throw `Only internal process step can add child process step`
@@ -307,7 +307,50 @@ export class CurrentProcessStore extends Store {
                         let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
                         resolve({
                             process: process,
-                            processStep: processStepRef.desiredProcessStep
+                            processStep: processStepRef.desiredProcessStep as InternalProcessStep
+                        });
+                    }).catch(reject)
+                })
+            })
+        }),
+        addExtenalProcessStep: this.action((title: MultilingualString, opmProcessId: GuidValue): Promise<{ process: Process, processStep: ExternalProcessStep }> => {
+            return this.transaction.newProcessOperation(() => {
+                return new Promise<{ process: Process, processStep: ExternalProcessStep }>((resolve, reject) => {
+                    let currentProcessReferenceData = this.currentProcessReferenceData.state;
+                    if (currentProcessReferenceData.current.processStep.type !== ProcessStepType.Internal) {
+                        throw `Only internal process step can add child process step`
+                    }
+
+                    if (Utils.isNullOrEmpty(title))
+                        title = { isMultilingualString: true };
+                    let processStep: ExternalProcessStep = {
+                        id: Guid.newGuid(),
+                        title: title,
+                        multilingualTitle: this.multilingualStore.getters.stringValue(title),
+                        opmProcessId: opmProcessId,
+                        type: ProcessStepType.External
+                    };
+
+                    
+
+                    if (!(currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps) {
+                        (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps = [];
+                    }
+
+                    (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps.push(processStep);
+
+
+                    let actionModel: ProcessActionModel = {
+                        processStepTitle: title,
+                        process: currentProcessReferenceData.process,
+                        processData: {}
+                    }
+
+                    this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
+                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
+                        resolve({
+                            process: process,
+                            processStep: processStepRef.desiredProcessStep as ExternalProcessStep
                         });
                     }).catch(reject)
                 })

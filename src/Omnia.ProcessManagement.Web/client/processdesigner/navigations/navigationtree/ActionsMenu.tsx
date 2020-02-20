@@ -6,7 +6,7 @@ import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNam
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils, PropertyInternalNamesConstants } from '../../../fx';
 import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
-import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep } from '../../../fx/models';
+import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep, Process, ExternalProcessStep } from '../../../fx/models';
 import { util } from 'fabric/fabric-impl';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerStore } from '../../stores';
@@ -33,6 +33,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     showCreateProcessStepDialog = false;
     showMoveProcessStepDialog = false;
     showDeleteProcessStepDialog = false;
+    externalOPMProcessId: GuidValue = null;
 
     loading: boolean = false;
     checkingDeletingProcessSteps: boolean = false;
@@ -136,11 +137,20 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         this.errorMessage = "";
         if (this.internalValidator.validateAll()) {
             this.loading = true;
-            this.currentProcessStore.actions.addProcessStep.dispatch(this.title, true).then((result) => {
+            let promise: Promise<{ process: Process, processStep: ProcessStep }> = null;
+            let isExternalProcessStep = this.showAddLinkedProcessStepDialog;
+            if (isExternalProcessStep) {
+                promise = this.currentProcessStore.actions.addExtenalProcessStep.dispatch(this.title, this.externalOPMProcessId)
+            }
+            else {
+                promise = this.currentProcessStore.actions.addProcessStep.dispatch(this.title);
+            }
+
+            promise.then((result) => {
                 let processRefrerence = OPMUtils.generateProcessReference(result.process, result.processStep.id);
                 this.currentProcessStore.actions.setProcessToShow.dispatch(processRefrerence).then(() => {
                     this.loading = false;
-                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
+                    this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(isExternalProcessStep), DisplayModes.contentEditing);
                 });
             }).catch((err) => {
                 this.errorMessage = err;
@@ -289,7 +299,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                             {
                                 this.showAddLinkedProcessStepDialog ?
                                     <opm-processdesigner-addlinkedprocess
-                                        onChange={(title, opmProcessId) => { this.title = title; }}>
+                                        onChange={(title, opmProcessId) => { this.title = title; this.externalOPMProcessId = opmProcessId }}>
                                     </opm-processdesigner-addlinkedprocess> :
                                     null
                             }
@@ -336,7 +346,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     render(h) {
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
-
+        let isInternal = currentReferenceData.current.processStep.type == ProcessStepType.Internal;
         return (
             <div>
                 <v-menu
@@ -366,7 +376,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                         dark={this.omniaTheming.promoted.header.dark}
                         class={this.omniaTheming.promoted.header.class}>
                         {
-                            currentReferenceData.current.processStep.type == ProcessStepType.Internal ?
+                            isInternal ?
                                 [<v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickCreateProcessStep(e)}>
                                     <v-list-item-avatar>
                                         <v-icon medium color={this.omniaTheming.promoted.header.text.base}>add</v-icon>
@@ -382,18 +392,17 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                                     <v-list-item-content class={"mr-2"}>
                                         <v-list-item-title>{this.loc.AddLinkedProcess.AddTitle}</v-list-item-title>
                                     </v-list-item-content>
+                                </v-list-item>,
+                                <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickEditTitle(e)}>
+                                    <v-list-item-avatar>
+                                        <v-icon medium color={this.omniaTheming.promoted.header.text.base}>edit</v-icon>
+                                    </v-list-item-avatar>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.loc.EditTitle}</v-list-item-title>
+                                    </v-list-item-content>
                                 </v-list-item>]
                                 : null
                         }
-
-                        <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickEditTitle(e)}>
-                            <v-list-item-avatar>
-                                <v-icon medium color={this.omniaTheming.promoted.header.text.base}>edit</v-icon>
-                            </v-list-item-avatar>
-                            <v-list-item-content class={"mr-2"}>
-                                <v-list-item-title>{this.loc.EditTitle}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
                         {
                             currentReferenceData.current.parentProcessStep ?
                                 <v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickMoveProcessStep(e)}>

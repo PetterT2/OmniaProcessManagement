@@ -60,12 +60,18 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
     }
 
-    get canvasDefinition() {
-        return this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition;
+    get canvasDefinition(): CanvasDefinition {
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (referenceData && referenceData.current.processData)
+            return referenceData.current.processData.canvasDefinition;
+        return null;
     }
 
     get parentProcessData() {
-        return this.currentProcessStore.getters.referenceData().current.parentProcessData;
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        if (referenceData) 
+            return referenceData.current.parentProcessData;
+        return null;
     }
 
     initSubscription() {

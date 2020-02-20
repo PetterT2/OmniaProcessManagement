@@ -57,16 +57,22 @@ export class ProcessStore extends Store {
     public getters = {
         getProcessReferenceData: (processReference: ProcessReference): ProcessReferenceData => {
             let processCacheKey = this.getProcessCacheKey(processReference.processId);
-            let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId);
+            
             let process = this.processDict.state[processCacheKey];
-            let processData = this.processDataDict.state[processDataCacheKey];
+            let processData = null;
+
             if (process == null)
                 throw `Process with id: ${processReference.processId} not found in store`;
 
-            if (processData == null)
-                throw `Process with id: ${processReference.processId} does not contains valid process data for process step id: ${processReference.processStepId}`;
-
             let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.processStepId);
+
+            if (processStepRef.desiredProcessStep.type == ProcessStepType.Internal) {
+                let processDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.processStepId);
+                processData = this.processDataDict.state[processDataCacheKey];
+
+                if (processData == null)
+                    throw `Process with id: ${processReference.processId} does not contains valid process data for process step id: ${processReference.processStepId}`;
+            } 
 
             if (processStepRef.desiredProcessStep == null)
                 throw `Process with id: ${processReference.processId} does not contains process step id: ${processReference.processStepId}`;
@@ -195,8 +201,12 @@ export class ProcessStore extends Store {
 
                             let promises: Array<Promise<ProcessData>> = [];
 
-                            promises.push(this.ensureProcessData(process, processReference.processStepId));
                             var processStepData = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processReference.processStepId);
+
+                            if (processStepData.desiredProcessStep.type == ProcessStepType.Internal) {
+                                promises.push(this.ensureProcessData(process, processReference.processStepId));
+                            }
+                            
 
                             if (processStepData.parentProcessStep)
                                 promises.push(this.ensureProcessData(process, processStepData.parentProcessStep.id));

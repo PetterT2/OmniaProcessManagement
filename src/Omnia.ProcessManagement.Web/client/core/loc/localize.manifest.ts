@@ -156,7 +156,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Drawing: "Drawing",
             Links: "Links",
             Properties: "Properties",
-            Tasks: "Tasks"
+            Tasks: "Tasks",
+            LinkedProcess: "Linked Process" 
         },
         Shape: "Shape",
         DrawingShapeSettings: {

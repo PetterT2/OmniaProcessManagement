@@ -152,7 +152,8 @@
             Documents: string,
             Links: string,
             Tasks: string,
-            Properties: string
+            Properties: string,
+            LinkedProcess: string
         },
         Shape: string,
         DrawingShapeSettings: {
