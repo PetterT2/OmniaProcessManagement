@@ -364,6 +364,7 @@
     <TypeScriptCompile Remove="client\models\styles\ProcessRollupStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ProcessTemplateShapeSettingsBladeStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\PropertiesBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\models\styles\SearchTemplateProcessStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
@@ -513,6 +514,11 @@
     <TypeScriptCompile Remove="client\processrollup\ProcessRollupCore.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.manifest.ts" />
     <TypeScriptCompile Remove="client\processrollup\registration\Registration.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.css.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\process\ProcessSearchTemplate.tsx" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.manifest.ts" />
+    <TypeScriptCompile Remove="client\searchtemplate\registration\Registration.ts" />
     <TypeScriptCompile Remove="client\security\security.manifest.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricCircleShape.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\fabricshape\FabricEllipseShape.ts" />
@@ -987,6 +993,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\processdesigner\processstepcomponents\processdrawing\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.css.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.manifest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\process\ProcessSearchTemplate.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\searchtemplate\registration\Registration.manifest.ts">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

@@ -237,6 +237,12 @@
             SetNewReviewDate: string,
             Unpublish: string,
             CloseTask: string
+        },
+        SearchTemplates: {
+            ProcessSearchTemplate: {
+                Preview: string,
+                ClosePreview: string
+            }
         }
     }
 }

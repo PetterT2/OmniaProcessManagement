@@ -38,6 +38,8 @@ export class OPMWebComponentManifests {
     public static get PublishedProcessingStatus(): Guid { return new Guid('bdfb6a67-ca86-481c-a7a0-a3caaf9f685e'); }
     public static get ProcessHistoryDialog(): Guid { return new Guid('eda1224e-d141-4937-bd05-c67318598c37'); }
 
+    public static get ProcessSearchTemplate(): Guid { return new Guid('caa4f687-e72e-4f69-bb09-4d360f3a6608') }
+
     public static get MediaPicker(): Guid { return new Guid('7bb3613d-baac-408a-8ada-c195632a6be1') }
     public static get FreeformPicker(): Guid { return new Guid('544b9ae0-3fa7-440d-b62b-d2cbc36d6fe3') }
 
