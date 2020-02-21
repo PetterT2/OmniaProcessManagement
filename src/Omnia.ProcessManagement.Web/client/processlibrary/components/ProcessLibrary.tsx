@@ -89,7 +89,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
                 }
                 else {
                     var defaultSettings = ProcessLibraryConfigurationFactory.create();
-                    defaultSettings.settings.title = { "en-us": this.corLoc.Blocks.ProcessLibrary.Title, isMultilingualString: true };
+                    defaultSettings.settings.title = { "en-us": this.corLoc.BlockDefinitions.ProcessLibrary.Title, isMultilingualString: true };
                     this.settingsService.setValue(this.settingsKey, defaultSettings);
                 }
             });

@@ -2,6 +2,10 @@
 import { Version } from '../shared';
 
 export interface OPMRoute extends TokenBasedRoute {
+    externalParents: Array<{
+        processStepId: GuidValue,
+        version?: Version
+    }>,
     processStepId: GuidValue,
     globalRenderer: boolean,
 
@@ -10,5 +14,5 @@ export interface OPMRoute extends TokenBasedRoute {
      * -0-0     : Latest Published Version (defined in OPMSpecialRouteVersion)
      * -Others  : Specific Version
      * */
-    version?: Version  
+    version?: Version
 }

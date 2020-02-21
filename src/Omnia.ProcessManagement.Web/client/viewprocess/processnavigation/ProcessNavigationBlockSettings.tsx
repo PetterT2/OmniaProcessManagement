@@ -4,12 +4,12 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { IProcessNavigationBlockSettingsComponent } from './IProcessNavigationBlockSettings';
-import { ProcessNavigationBlockLocalization } from './loc/localize';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from "@omnia/fx/ux"
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessNavigationBlockData, ProcessNavigationBlockDataData } from '../../fx/models';
 import { ProcessNavigationBlockStyles } from '../../models';
+import { OPMCoreLocalization } from '../../core/loc/localize';
 
 @Component
 export class ProcessNavigationBlockSettingsComponent extends Vue implements IWebComponentInstance, IProcessNavigationBlockSettingsComponent {
@@ -19,8 +19,8 @@ export class ProcessNavigationBlockSettingsComponent extends Vue implements IWeb
     @Inject(MultilingualStore) multiLIngualStore: MultilingualStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    @Localize(ProcessNavigationBlockLocalization.namespace) private loc: ProcessNavigationBlockLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
+    @Localize(OPMCoreLocalization.namespace) private coreLoc: OPMCoreLocalization.locInterface;
 
     blockData: ProcessNavigationBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
@@ -79,7 +79,7 @@ export class ProcessNavigationBlockSettingsComponent extends Vue implements IWeb
                 <v-row no-gutters>
                     <v-col cols="12">
                         <omfx-multilingual-input
-                            label={this.loc.ProcessNavigationBlockSettings.Title}
+                            label={this.uxLoc.Common.Title}
                             model={this.blockData.settings.title}
                             onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
                         </omfx-multilingual-input>
@@ -88,7 +88,7 @@ export class ProcessNavigationBlockSettingsComponent extends Vue implements IWeb
                         <v-flex>
                             <v-text-field
                                 dark={this.omniaTheming.promoted.body.dark}
-                                label={this.loc.ProcessNavigationBlockSettings.LevelIndentation}
+                                label={this.coreLoc.BlockDefinitions.ProcessNavigation.Title}
                                 placeholder=""
                                 hide-details
                                 v-model={this.blockData.settings.levelIndentation}

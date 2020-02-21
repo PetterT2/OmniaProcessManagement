@@ -194,7 +194,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalOPMProcessId?:GuidValue, nodes?: FabricShapeData[]) {
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalRootProcessStepId?:GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -222,7 +222,7 @@ export class DrawingCanvas implements CanvasDefinition {
                         (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
                     }
                     if (type == DrawingShapeTypes.ExternalProcess) {
-                        (drawingShape as DrawingExternalProcessShape).opmProcessId = externalOPMProcessId;
+                        (drawingShape as DrawingExternalProcessShape).rootProcessStepId = externalRootProcessStepId;
                     }
                     resolved = false;
                     this.addShapeFromTemplateClassName(drawingShape).then((readyDrawingShape: DrawingShape) => {
@@ -315,7 +315,7 @@ export class DrawingCanvas implements CanvasDefinition {
                     //
                     delete (currentDrawingShape as DrawingProcessStepShape).processStepId;
                     delete (currentDrawingShape as DrawingCustomLinkShape).linkId;
-                    delete (currentDrawingShape as DrawingExternalProcessShape).opmProcessId;
+                    delete (currentDrawingShape as DrawingExternalProcessShape).rootProcessStepId;
 
                     currentDrawingShape.type = drawingOptions.shapeType;
                     if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
@@ -325,7 +325,7 @@ export class DrawingCanvas implements CanvasDefinition {
                         (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
                     }
                     if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess) {
-                        (currentDrawingShape as DrawingExternalProcessShape).opmProcessId = drawingOptions.opmProcessId;
+                        (currentDrawingShape as DrawingExternalProcessShape).rootProcessStepId = drawingOptions.externalRootProcesStepId;
                     }
 
                     currentDrawingShape.shape = {

@@ -71,11 +71,11 @@ class ExternalProcessComponent extends VueComponentBase<ExternalProcessProps, {}
                 <v-card-text>
 
                     <opm-processdesigner-addlinkedprocess
-                        opmProcessId={(referenceData.processStep as ExternalProcessStep).opmProcessId}
-                        onChange={(title, opmProcessId) => {
+                        rootProcessStepId={(referenceData.processStep as ExternalProcessStep).rootProcessStepId}
+                        onChange={(title, rootProcessStepId) => {
                             referenceData.processStep.title = title;
                             referenceData.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(title);
-                            (referenceData.processStep as ExternalProcessStep).opmProcessId = opmProcessId;
+                            (referenceData.processStep as ExternalProcessStep).rootProcessStepId = rootProcessStepId;
                             this.saveState();
                         }}>
                     </opm-processdesigner-addlinkedprocess>

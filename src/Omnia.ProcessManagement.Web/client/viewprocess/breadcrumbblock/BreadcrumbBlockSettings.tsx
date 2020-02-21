@@ -3,25 +3,26 @@ import { SettingsService, SettingsServiceConstructor } from '@omnia/fx/services'
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import { ITasksBlockSettingsComponent } from './ITasksBlockSettings';
+import { IBreadcrumbBlockSettingsComponent } from './IBreadcrumbBlockSettings';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux"
 import { MultilingualStore } from '@omnia/fx/store';
-import { TasksBlockData, TasksBlockDataData } from '../../fx/models';
+import { ContentBlockData, ContentBlockDataData } from '../../fx/models';
+import { BreadcrumbBlockData } from '@omnia/wcm/models';
 
 @Component
-export class TasksBlockSettingsComponent extends Vue implements IWebComponentInstance, ITasksBlockSettingsComponent {
+export class BreadcrumbBlockSettingsComponent extends Vue implements IWebComponentInstance, IBreadcrumbBlockSettingsComponent {
     @Prop() public settingsKey: string;
 
-    @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<TasksBlockData>;
+    @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<BreadcrumbBlockData>;
     @Inject(MultilingualStore) multiLIngualStore: MultilingualStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
     @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
 
-    blockData: TasksBlockData = null;
+    blockData:  BreadcrumbBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-
+  
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
     }
@@ -33,16 +34,14 @@ export class TasksBlockSettingsComponent extends Vue implements IWebComponentIns
                 .subscribe(this.setBlockData)
 
             this.setBlockData(blockData || {
-                data: {} as TasksBlockDataData,
-                settings: {
-                    title: { isMultilingualString: true }
-                }
-            } as TasksBlockData);
+                data: {},
+                settings: {}
+            } as BreadcrumbBlockData);
         });
 
     }
 
-    setBlockData(blockData: TasksBlockData) {
+    setBlockData(blockData: BreadcrumbBlockData) {
         this.blockData = blockData;
     }
 
@@ -65,13 +64,6 @@ export class TasksBlockSettingsComponent extends Vue implements IWebComponentIns
             <v-container>
                 <v-row no-gutters>
                     <v-col cols="12">
-                        <omfx-multilingual-input
-                            label={this.uxLoc.Common.Title}
-                            model={this.blockData.settings.title}
-                            onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
-                        </omfx-multilingual-input>
-                    </v-col>
-                    <v-col cols="12">
                         <div class="mb-1">
                             {this.uxLoc.Common.Padding}
                         </div>
@@ -90,5 +82,5 @@ export class TasksBlockSettingsComponent extends Vue implements IWebComponentIns
 }
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, TasksBlockSettingsComponent);
+    vueCustomElement(manifest.elementName, BreadcrumbBlockSettingsComponent);
 });

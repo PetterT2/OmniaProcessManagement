@@ -14,6 +14,7 @@ import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSel
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessStepDesignerItem } from '../../../designeritems/ProcessStepDesignerItem';
 import { ProcessStepShortcutDesignerItem } from '../../../designeritems/ProcessStepShortcutDesignerItem';
+import { MultilingualStore } from '@omnia/fx/store';
 
 export interface ShapeSettingsProps {
 
@@ -28,6 +29,8 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
     @Localize(OPMCoreLocalization.namespace) opmCoreLoc: OPMCoreLocalization.locInterface;
@@ -36,7 +39,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private selectedShape: DrawingShape = null;
     private selectedProcessStepId: GuidValue = null;
     private selectedCustomLinkId: GuidValue = null;
-    private selectedOPMProcessId: GuidValue = null;
+    private selectedExternalRootProcessStepId: GuidValue = null;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private isShowChangeShape: boolean = false;
     private selectedTab = StaticTabNames.shape;
@@ -62,12 +65,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
 
         this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
         this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
-        this.selectedOPMProcessId = this.selectedShape.type == DrawingShapeTypes.ExternalProcess ? (this.selectedShape as DrawingExternalProcessShape).opmProcessId : null;
+        this.selectedExternalRootProcessStepId = this.selectedShape.type == DrawingShapeTypes.ExternalProcess ? (this.selectedShape as DrawingExternalProcessShape).rootProcessStepId : null;
         this.drawingShapeOptions = {
             id: Guid.newGuid(),
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            opmProcessId: this.selectedOPMProcessId,
+            externalRootProcesStepId: this.selectedExternalRootProcessStepId,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title,
@@ -75,10 +78,9 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         };
 
         this.previousProcessStepId = this.selectedProcessStepId;
+        this.processDesignerStore.mutations.initFormValidator.commit(this);
 
         this.initShortcut();
-
-        this.processDesignerStore.mutations.initFormValidator.commit(this);
     }
 
     mounted() {
@@ -117,7 +119,12 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink && (!drawingOptions.customLinkId || drawingOptions.customLinkId == Guid.empty)) {
             result = false;
         }
-        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.opmProcessId || drawingOptions.opmProcessId == Guid.empty)) {
+        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.externalRootProcesStepId || drawingOptions.externalRootProcesStepId == Guid.empty)) {
+            result = false;
+        }
+
+        let title = this.multilingualStore.getters.stringValue(drawingOptions.title).trim();
+        if (!title) {
             result = false;
         }
 

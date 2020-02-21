@@ -5,7 +5,6 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
 import './ContentBlock.css';
 import { ContentBlockStyles } from '../../models';
-import { ContentBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
 import { ContentBlockData, ProcessReferenceData } from '../../fx/models';
@@ -17,7 +16,6 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
     @Prop() settingsKey: string;
     @Prop() styles: typeof ContentBlockStyles | any;
 
-    @Localize(ContentBlockLocalization.namespace) loc: ContentBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ContentBlockData>;
@@ -100,7 +98,7 @@ export class ContentBlockComponent extends VueComponentBase implements IWebCompo
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.Blocks.Content.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.BlockDefinitions.Content.Title}></wcm-empty-block-view>
                 </aside>
             )
         }

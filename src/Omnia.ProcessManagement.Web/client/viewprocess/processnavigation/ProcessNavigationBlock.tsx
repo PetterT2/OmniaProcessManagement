@@ -5,12 +5,11 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { IMessageBusSubscriptionHandler, SpacingSetting, GuidValue } from '@omnia/fx/models';
 import './ProcessNavigationBlock.css';
 import { ProcessNavigationBlockStyles } from '../../models';
-import { ProcessNavigationBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
 import { CurrentProcessStore, OPMUtils, OPMRouter } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
-import { ProcessNavigationBlockData, RootProcessStep, ProcessStep } from '../../fx/models';
+import { ProcessNavigationBlockData } from '../../fx/models';
 import { ProcessNavigationNodeComponent } from './navigationtree/ProcessNavigationNode';
 
 @Component
@@ -19,7 +18,6 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
     @Prop() styles: typeof ProcessNavigationBlockStyles | any;
     @Prop() mobileView: boolean;
 
-    @Localize(ProcessNavigationBlockLocalization.namespace) loc: ProcessNavigationBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ProcessNavigationBlockData>;
@@ -134,7 +132,7 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
             return (
                 <nav>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fas fa-bars"} text={this.corLoc.Blocks.ProcessNavigation.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fas fa-bars"} text={this.corLoc.BlockDefinitions.ProcessNavigation.Title}></wcm-empty-block-view>
                 </nav>
             )
         }

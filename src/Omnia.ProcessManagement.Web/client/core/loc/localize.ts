@@ -86,7 +86,7 @@
                 }
             }
         },
-        Blocks: {
+        BlockDefinitions: {
             ProcessLibrary: {
                 Title: string,
                 Description: string
@@ -129,10 +129,53 @@
             Title: {
                 Title: string,
                 Description: string
+            },
+            Breadcrumb: {
+                Title: string,
+                Description: string
             }
         },
-        BlockCategories: {
-            Process: string
+        Blocks: {
+            Drawing: {
+
+            },
+            Content: {
+
+            },
+            Links: {
+
+            },
+            Navigation: {
+                StartLevel: string,
+                GetParentSiblings: string,
+                LevelIndentation: string
+            },
+            Properties: {
+                SelectProperties: string,
+                SelectPropertySet: string,
+                ShowLabel: string,
+                DateFormatMode: string,
+                Format: string,
+                FormatModeDefault: string,
+                FormatModeNormal: string,
+                FormatModeSocial: string,
+                Properties: {
+                    Published: string,
+                    LinkToProcessLibrary: string
+                }
+            },
+            Tasks: {
+
+            },
+            Title: {
+                Formatting: string,
+                FormatingOptions: {
+                    Normal: string,
+                    Heading1: string,
+                    Heading2: string,
+                    Heading3: string
+                }
+            }
         },
         Columns: {
             ProcessMenu: string,

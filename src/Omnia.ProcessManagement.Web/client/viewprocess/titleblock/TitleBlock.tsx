@@ -3,11 +3,8 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
 import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
-//import './TitleBlock.css';
-//import { TitleBlockStyles } from '../../models';
-import { TitleBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
-import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
+import { StyleFlow, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { TitleBlockData, ProcessReferenceData, Enums } from '../../fx/models';
 import { CurrentProcessStore } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -17,19 +14,17 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
     @Prop() settingsKey: string;
     //@Prop() styles: typeof TitleBlockStyles | any;
 
-    @Localize(TitleBlockLocalization.namespace) loc: TitleBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
+    @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<TitleBlockData>;
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
-    //componentUniqueKey: string = Utils.generateGuid();
     blockData: TitleBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
     content: string = "";
-    //contentClasses = StyleFlow.use(TitleBlockStyles, this.styles);
 
     created() {
         this.init();
@@ -114,7 +109,7 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.Blocks.Title.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.BlockDefinitions.Title.Title}></wcm-empty-block-view>
                 </aside>
             )
         }

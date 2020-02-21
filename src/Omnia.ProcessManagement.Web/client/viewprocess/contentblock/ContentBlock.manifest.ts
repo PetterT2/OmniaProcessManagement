@@ -3,26 +3,18 @@ import { FontAwesomeIcon } from '@omnia/fx-models';
 import { OPMWebComponentManifests, OPMService } from '../../fx/models';
 
 Composer
-    .registerManifest(OPMWebComponentManifests.ContentBlockCore, "opm.viewprocess.content.core")
-    .registerResources({
-        resourcePaths: [
-            './loc/**/*.js'
-        ]
-    })
-
-Composer
     .registerManifest(OPMWebComponentManifests.ContentBlock, "opm.viewprocess.content")
     .registerWebComponent({
         elementName: "opm-content-block",
         entryPoint: "./ContentBlock.jsx"
     })
     .withDefinition({
-        title: "$Localize:OPM.Core.Blocks.Content.Title;",
-        description: "$Localize:OPM.Core.Blocks.Content.Description;",
+        title: "$Localize:OPM.Core.BlockDefinitions.Content.Title;",
+        description: "$Localize:OPM.Core.BlockDefinitions.Content.Description;",
         icon: new FontAwesomeIcon("fa fa-font")
     })
     .registerOmniaBlock({
-        category: "$Localize:OPM.Core.Blocks.ProcessInformation.Title;"
+        category: "$Localize:OPM.Core.BlockDefinitions.ProcessInformation.Title;"
     })
 
 Composer

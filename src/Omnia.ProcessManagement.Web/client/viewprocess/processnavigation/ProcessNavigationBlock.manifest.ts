@@ -3,26 +3,18 @@ import { FontAwesomeIcon } from '@omnia/fx-models';
 import { OPMWebComponentManifests, OPMService } from '../../fx/models';
 
 Composer
-    .registerManifest(OPMWebComponentManifests.ProcessNavigationBlockCore, "opm.viewprocess.processnavigation.core")
-    .registerResources({
-        resourcePaths: [
-            './loc/**/*.js'
-        ]
-    })
-
-Composer
     .registerManifest(OPMWebComponentManifests.ProcessNavigationBlock, "opm.viewprocess.processnavigation")
     .registerWebComponent({
         elementName: "opm-processnavigation-block",
         entryPoint: "./ProcessNavigationBlock.jsx"
     })
     .withDefinition({
-        title: "$Localize:OPM.Core.Blocks.ProcessNavigation.Title;",
-        description: "$Localize:OPM.Core.Blocks.ProcessNavigation.Description;",
+        title: "$Localize:OPM.Core.BlockDefinitions.ProcessNavigation.Title;",
+        description: "$Localize:OPM.Core.BlockDefinitions.ProcessNavigation.Description;",
         icon: new FontAwesomeIcon("fas fa-bars")
     })
     .registerOmniaBlock({
-        category: "$Localize:OPM.Core.Blocks.ProcessInformation.Title;"
+        category: "$Localize:OPM.Core.BlockDefinitions.ProcessInformation.Title;"
     })
 
 Composer

@@ -9,6 +9,6 @@ namespace Omnia.ProcessManagement.Models.Processes
     public class ExternalProcessStep : ProcessStep
     {
         public override ProcessStepType Type => ProcessStepType.External;
-        public Guid OPMProcessId { get; set; }
+        public Guid RootProcessStepId { get; set; }
     }
 }

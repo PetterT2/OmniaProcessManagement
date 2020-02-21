@@ -52,36 +52,32 @@ export class OPMWebComponentManifests {
     public static get PermissionDialog(): Guid { return new Guid('5b7169cd-7003-4cf6-a86e-4a7a38250ec3'); }
     public static get ProcessStepPicker(): Guid { return new Guid('5a0c11c9-9691-47a1-9f7d-2aedfc8dbce7'); }
 
-    public static get ContentBlockCore(): Guid { return new Guid('1a53363e-2727-4d5a-afcf-c1bcba10c608'); }
     public static get ContentBlock(): Guid { return new Guid('dbb39473-aea9-445d-a032-701bda353439'); }
     public static get ContentBlockSettings(): Guid { return new Guid('ba9c1472-bcf7-4925-8cc8-900993b43caa'); }
 
-    public static get DrawingBlockCore(): Guid { return new Guid('5eab070f-f79f-4d10-aef2-c6feb3c8282a'); }
     public static get DrawingBlock(): Guid { return new Guid('7f8445de-8499-4e4e-80d6-8e3c852af367'); }
     public static get DrawingBlockSettings(): Guid { return new Guid('c1dacea1-10f7-4543-b01b-cb85525ef3a2'); }
 
-    public static get TasksBlockCore(): Guid { return new Guid('3249afe7-e336-4197-8010-7ccaed401425'); }
     public static get TasksBlock(): Guid { return new Guid('47614dde-ea27-47e1-8cb5-29971d4f7516'); }
     public static get TasksBlockSettings(): Guid { return new Guid('3c40a1a1-4ee9-46ef-85cf-93aa11a3771a'); }
 
-    public static get LinksBlockCore(): Guid { return new Guid('b6392893-9c30-4223-a58f-3d216d96b3b8'); }
     public static get LinksBlock(): Guid { return new Guid('7227e805-61f8-4ffc-9ed9-657a4ce21bb1'); }
     public static get LinksBlockSettings(): Guid { return new Guid('8f058d05-1a9b-4ea1-a6cc-87fae540bd91'); }
 
-    public static get ProcessNavigationBlockCore(): Guid { return new Guid('91b5e2c6-6e66-454d-a849-d79c78a12574'); }
     public static get ProcessNavigationBlock(): Guid { return new Guid('82677598-496e-48aa-99ae-96b23aa6f4a9'); }
     public static get ProcessNavigationBlockSettings(): Guid { return new Guid('321378ba-2fc3-449b-b321-95368b987590'); }
+
+    public static get BreadcrumbBlock(): Guid { return new Guid('2368673d-bd45-404c-9c26-1fa348777979'); }
+    public static get BreadcrumbBlockSettings(): Guid { return new Guid('af778544-870c-4c2e-9aaa-ea6d87d8d257'); }
 
     public static get ProcessRollup(): Guid { return new Guid('f9f26f4b-6c1c-40a1-b10e-781f0062bfd3'); }
     public static get ProcessRollupSettings(): Guid { return new Guid('0aec18e0-41d3-4148-b08a-0c123d83b4cb'); }
     public static get ProcessRollupListView(): Guid { return new Guid('6fa93477-75b3-4dd0-a626-62a484905ecd'); }
     public static get ProcessRollupListViewSettings(): Guid { return new Guid('d5ea454b-d65b-45c3-9c77-9e01f684c1e2'); }
 
-    public static get PropertiesBlockCore(): Guid { return new Guid('f743fa95-eb45-465f-8788-9cb91a7ef18c'); }
     public static get PropertiesBlock(): Guid { return new Guid('6fbb96f3-40e7-45ee-b99e-68533a993bd4'); }
     public static get PropertiesBlockSettings(): Guid { return new Guid('bdab3f12-f9b8-4891-847f-a7a84ff8e27e'); }
 
-    public static get TitleBlockCore(): Guid { return new Guid('b9087ca1-aee3-4274-b762-9b41bd2d1fd0'); }
     public static get TitleBlock(): Guid { return new Guid('3d5e86a2-8f75-4928-85a0-8a7d1e7414b4'); }
     public static get TitleBlockSettings(): Guid { return new Guid('87c0e638-1418-4388-acff-91747fb81f00'); }
 

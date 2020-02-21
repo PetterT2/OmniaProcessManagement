@@ -25,6 +25,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
 
     titleBlockSettingsKey = '4E97BB9D-52C7-4ED4-8B81-EA378445180F'
     navigationBlockSettingsKey = '8B1D86EE-7994-4694-9BF1-982BCC47A6C3';
+    breadcrumbBlockSettingsKey = '1BCCF2E4-6702-4560-8209-92E04033D2C4';
     drawingBlockSettingsKey = '1A0DA029-68D5-48AC-91B9-E4B939A09D79';
     contentBlockSettingsKey = 'A4AD7AA5-2050-406B-BC0A-949E29276B61';
     linkBlockSettingsKey = 'C526C872-0837-4315-AAEE-AB7DC6D5BB31';
@@ -52,7 +53,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
         return (
             <v-container fluid>
                 <v-row justify="center" align="center">
-                    <v-col cols="auto">Breadcrumb</v-col>
+                    <v-col cols="auto"><opm-breadcrumb-block settingsKey={this.breadcrumbBlockSettingsKey}></opm-breadcrumb-block></v-col>
                     <v-spacer></v-spacer>
                     <v-col cols="auto">
                         {

@@ -8,8 +8,8 @@ import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from "@omnia/fx/ux"
 import { MultilingualStore } from '@omnia/fx/store';
 import { TitleBlockData, TitleBlockDataData, Enums, TitleBlockStyles } from '../../fx/models';
-import { TitleBlockLocalization } from './loc/localize';
 import './TitleBlockStyles.css.js';
+import { OPMCoreLocalization } from '../../core/loc/localize';
 
 @Component
 export class TitleBlockSettingsComponent extends Vue implements IWebComponentInstance, ITitleBlockSettingsComponent {
@@ -19,17 +19,17 @@ export class TitleBlockSettingsComponent extends Vue implements IWebComponentIns
     @Inject(MultilingualStore) multiLIngualStore: MultilingualStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    @Localize(TitleBlockLocalization.namespace) private loc: TitleBlockLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
+    @Localize(OPMCoreLocalization.namespace) private coreLoc: OPMCoreLocalization.locInterface;
 
     blockData: TitleBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
 
     formattings: Array<{ id: Enums.ProcessViewEnums.HeadingFormatting, title: string }> = [
-        { id: Enums.ProcessViewEnums.HeadingFormatting.Normal, title: this.loc.FormatingOptions.Normal },
-        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading1, title: this.loc.FormatingOptions.Heading1 },
-        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading2, title: this.loc.FormatingOptions.Heading2 },
-        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading3, title: this.loc.FormatingOptions.Heading3 }
+        { id: Enums.ProcessViewEnums.HeadingFormatting.Normal, title: this.coreLoc.Blocks.Title.FormatingOptions.Normal },
+        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading1, title: this.coreLoc.Blocks.Title.FormatingOptions.Heading1 },
+        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading2, title: this.coreLoc.Blocks.Title.FormatingOptions.Heading2 },
+        { id: Enums.ProcessViewEnums.HeadingFormatting.Heading3, title: this.coreLoc.Blocks.Title.FormatingOptions.Heading3 }
     ];
 
     titleBlockStyles = StyleFlow.use(TitleBlockStyles);
@@ -86,14 +86,14 @@ export class TitleBlockSettingsComponent extends Vue implements IWebComponentIns
                     </v-col>
                     <v-col cols="12">
                         <div class="mb-1">
-                            {this.loc.Formatting}
+                            {this.coreLoc.Blocks.Title.Formatting}
                         </div>
                         <v-select
                             dark={this.omniaTheming.promoted.body.dark}
                             item-value="id" item-text="title"
                             items={this.formattings}
                             v-model={this.blockData.settings.formatting}
-                            label={this.loc.Formatting} onChange={() => { this.updateSettings() }}
+                            label={this.coreLoc.Blocks.Title.Formatting} onChange={() => { this.updateSettings() }}
                             scopedSlots={{
                                 item: p =>
                                     <v-list-item-content class={this.titleBlockStyles.formattingLabels(p.item.id)}>
