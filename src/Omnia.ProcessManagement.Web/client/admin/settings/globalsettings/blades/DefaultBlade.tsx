@@ -25,7 +25,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     isSaving = false;
     isLoading = true;
     globalSettings: GlobalSettings = new GlobalSettings();
-    originalSettings: GlobalSettings = null;
+    originalSettings: GlobalSettings = new GlobalSettings();
 
     created() {
         Promise.all([
@@ -75,7 +75,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                                     scrollableMaxHeight={300}
                                     label={this.loc.ProcessTermSetId}
                                     disabled={disabled}
-                                    termSetId={this.globalSettings && this.globalSettings.processTermSetId ? this.globalSettings.processTermSetId : null}
+                                    termSetId={this.globalSettings && this.globalSettings.processTermSetId && this.originalSettings.processTermSetId != Guid.empty ? this.globalSettings.processTermSetId : null}
                                     onChanged={(termSetId) => { this.onTermSetChanged(termSetId); }}></omfx-termset-picker>
                                 <div class='text-right'>
                                     <v-btn dark={this.omniaTheming.promoted.body.dark} loading={this.isSaving} text onClick={() => { this.addOrUpdate() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
