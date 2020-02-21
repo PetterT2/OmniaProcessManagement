@@ -190,11 +190,13 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 resolve();
             }
             else {
+                let processIdChanged = this.currentProcessId && this.currentProcessId.toString().toLowerCase() != process.id.toString().toLowerCase();
+
                 this.currentProcessId = process.id.toString().toLowerCase();
                 this.currentProcessStepId = processStep.id.toString().toLowerCase();
                 this.currentTitle = title;
 
-                this.generateOPMRouteData(process, processStep, rendererOption).then(({ opmRoute, processReference }) => {
+                this.generateOPMRouteData(process, processStep, processIdChanged, rendererOption).then(({ opmRoute, processReference }) => {
                     if (processReference) {
                         this.protectedNavigate(title, opmRoute, { processId: process.id });
                         this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
@@ -275,13 +277,13 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     }
 
 
-    private generateOPMRouteData(process: Process, processStep: ProcessStep, rendererOption: ProcessRendererOptions = ProcessRendererOptions.CurrentRenderer) {
+    private generateOPMRouteData(process: Process, processStep: ProcessStep, processIdChanged: boolean, rendererOption: ProcessRendererOptions = ProcessRendererOptions.CurrentRenderer) {
         return new Promise<{ opmRoute: OPMRoute, processReference: ProcessReference }>((resolve, reject) => {
             let globalRenderer = rendererOption === ProcessRendererOptions.CurrentRenderer ?
                 (this.routeContext.route && this.routeContext.route.globalRenderer) : rendererOption === ProcessRendererOptions.ForceToGlobalRenderer;
 
 
-            let processStepId = processStep.id.toString().toLowerCase();
+            let processStepIdNavigateTo = processStep.id.toString().toLowerCase();
             let isExternal: boolean = false;
             let version = this.routeContext.route ? this.routeContext.route.version :
                 process.versionType == ProcessVersionType.Archived ? OPMSpecialRouteVersion.generateVersion(
@@ -292,8 +294,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
             if (processStep.type == ProcessStepType.External) {
                 isExternal = true;
-                processStepId = (processStep as ExternalProcessStep).rootProcessStepId.toString().toLowerCase();
+                processStepIdNavigateTo = (processStep as ExternalProcessStep).rootProcessStepId.toString().toLowerCase();
                 version = OPMSpecialRouteVersion.Published;
+
+                if (!this.routeContext.route) {
+                    throw `Cannot do the first navigation to external process`;
+                }
             }
 
             let currentParents: Array<{ processStepId: GuidValue, version?: Version }> = [];
@@ -302,13 +308,24 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                     currentParents = currentParents.concat(this.routeContext.route.externalParents);
                 }
 
-                let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
+                if (isExternal) {
+                    if ((processStep as ExternalProcessStep).basedProcessStepId) {
+                        currentParents.push({
+                            processStepId: (processStep as ExternalProcessStep).basedProcessStepId,
+                            version: this.routeContext.route.version //If navigate to external then this.routeContext.route should have value
+                        });
+                    }
+                    else {
+                        let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
 
-                if (processStepRef && processStepRef.parentProcessSteps.length > 0) {
-                    currentParents.push({
-                        processStepId: processStepRef.parentProcessSteps[processStepRef.parentProcessSteps.length - 1].id,
-                        version: this.routeContext.route.version
-                    });
+                        if (processStepRef) {
+                            currentParents.push({
+                                processStepId: processStepRef.parentProcessSteps.length > 0 ?
+                                    processStepRef.parentProcessSteps[processStepRef.parentProcessSteps.length - 1].id : processStep.id,
+                                version: this.routeContext.route.version //If navigate to external then this.routeContext.route should have value
+                            });
+                        }
+                    }
                 }
             }
 
@@ -325,10 +342,10 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 let parentProcess = relevantProcess.process;
                 let stepIdDict = relevantProcess.processStepIdDict;
 
-                if (isExternal && parentProcess.rootProcessStep.id.toString().toLowerCase() != processStepId.toString().toLowerCase()) {
+                if (isExternal && parentProcess.rootProcessStep.id.toString().toLowerCase() != processStepIdNavigateTo.toString().toLowerCase()) {
                     externalParents.push(parent);
                 }
-                else if (!isExternal && !stepIdDict[processStepId]) {
+                else if (!isExternal && !stepIdDict[processStepIdNavigateTo]) {
                     externalParents.push(parent);
                 }
                 else {
@@ -342,12 +359,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             let opmRoute: OPMRoute = {
                 externalParents: externalParents,
                 globalRenderer: globalRenderer,
-                processStepId: processStepId,
+                processStepId: processStepIdNavigateTo,
                 version: version
             }
 
-            this.currentProcessStore.actions.ensureRelavantProcess.dispatch(processStepId, version).then(process => {
-                let processReference = OPMUtils.generateProcessReference(process, processStepId);
+            this.currentProcessStore.actions.ensureRelavantProcess.dispatch(processStepIdNavigateTo, version).then(process => {
+                let processReference = OPMUtils.generateProcessReference(process, processStepIdNavigateTo);
                 resolve({
                     opmRoute: opmRoute,
                     processReference: processReference
