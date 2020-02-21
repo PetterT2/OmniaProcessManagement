@@ -3,26 +3,18 @@ import { FontAwesomeIcon } from '@omnia/fx-models';
 import { OPMWebComponentManifests, OPMService } from '../../fx/models';
 
 Composer
-    .registerManifest(OPMWebComponentManifests.TasksBlockCore, "opm.viewprocess.tasks.core")
-    .registerResources({
-        resourcePaths: [
-            './loc/**/*.js'
-        ]
-    })
-
-Composer
     .registerManifest(OPMWebComponentManifests.TasksBlock, "opm.viewprocess.tasks")
     .registerWebComponent({
         elementName: "opm-tasks-block",
         entryPoint: "./TasksBlock.jsx"
     })
     .withDefinition({
-        title: "$Localize:OPM.Core.Blocks.Tasks.Title;",
-        description: "$Localize:OPM.Core.Blocks.Tasks.Description;",
+        title: "$Localize:OPM.Core.BlockDefinitions.Tasks.Title;",
+        description: "$Localize:OPM.Core.BlockDefinitions.Tasks.Description;",
         icon: new FontAwesomeIcon("fa fa-tasks")
     })
     .registerOmniaBlock({
-        category: "$Localize:OPM.Core.Blocks.ProcessInformation.Title;"
+        category: "$Localize:OPM.Core.BlockDefinitions.ProcessInformation.Title;"
     })
 
 Composer

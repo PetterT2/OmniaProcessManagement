@@ -4,7 +4,6 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { IDrawingBlockSettingsComponent } from './IDrawingBlockSettings';
-import { DrawingBlockLocalization } from './loc/localize';
 import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux"
 import { MultilingualStore } from '@omnia/fx/store';
@@ -18,7 +17,6 @@ export class DrawingBlockSettingsComponent extends Vue implements IWebComponentI
     @Inject(MultilingualStore) multiLIngualStore: MultilingualStore;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    @Localize(DrawingBlockLocalization.namespace) private loc: DrawingBlockLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
 
     blockData: DrawingBlockData = null;
@@ -68,7 +66,7 @@ export class DrawingBlockSettingsComponent extends Vue implements IWebComponentI
                 <v-row no-gutters>
                     <v-col cols="12">
                         <omfx-multilingual-input
-                            label={this.loc.DrawingBlockSettings.Title}
+                            label={this.uxLoc.Common.Title}
                             model={this.blockData.settings.title}
                             onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
                         </omfx-multilingual-input>

@@ -5,7 +5,6 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { IMessageBusSubscriptionHandler, GuidValue, EnterprisePropertyDefinition, EnterprisePropertyDataType, PropertyIndexedType } from '@omnia/fx/models';
 import './PropertiesBlock.css';
 import { PropertiesBlockStyles } from '../../models';
-import { PropertiesBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
 import { PropertiesBlockData, ProcessReferenceData, ProcessPropertyInfo, ProcessPropertySetting } from '../../fx/models';
@@ -27,7 +26,6 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
     @Prop() settingsKey: string;
     @Prop() styles: typeof PropertiesBlockStyles | any;
 
-    @Localize(PropertiesBlockLocalization.namespace) loc: PropertiesBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<PropertiesBlockData>;
@@ -95,7 +93,7 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
         let displayElement = "";
         let contentProperty: EnterprisePropertyDefinition = null;
         if (item.internalName == SystemProcessProperties.Published) {
-            title = this.loc.Properties.Published;
+            title = this.corLoc.Blocks.Properties.Properties.Published;
             let enterprisePropertyDataType = availablePropertyTypes.find((p) => {
                 return p.indexedType === PropertyIndexedType.DateTime;
             });
@@ -108,7 +106,7 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
             }
         }
         if (item.internalName == SystemProcessProperties.LinkToProcessLibrary) {
-            title = this.loc.Properties.LinkToProcessLibrary;
+            title = this.corLoc.Blocks.Properties.Properties.LinkToProcessLibrary;
             let enterprisePropertyDataType = availablePropertyTypes.find((p) => {
                 return p.indexedType === PropertyIndexedType.RichText;
             });
@@ -241,7 +239,7 @@ export class PropertiesBlockComponent extends VueComponentBase implements IWebCo
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fas fa-info"} text={this.corLoc.Blocks.Properties.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fas fa-info"} text={this.corLoc.BlockDefinitions.Properties.Title}></wcm-empty-block-view>
                 </aside>
             )
         }

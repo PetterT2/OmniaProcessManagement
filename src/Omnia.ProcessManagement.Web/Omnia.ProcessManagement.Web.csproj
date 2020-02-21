@@ -154,6 +154,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTextPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupUISearchboxFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupViewSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\propertiesblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
@@ -349,6 +353,7 @@
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
     <TypeScriptCompile Remove="client\models\processsite\index.ts" />
     <TypeScriptCompile Remove="client\models\processsite\ProcessSite.ts" />
+    <TypeScriptCompile Remove="client\models\styles\BreadcrumbBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\GenericNodeStyles.ts" />
@@ -538,19 +543,18 @@
     <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.css.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\IBreadcrumbBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\IPropertiesBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\propertiesblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\propertiesblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\IProcessNavigationBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\processnavigation\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\processnavigation\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\LinksBlockSettings.tsx" />
-    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\linksblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\navigationtree\ProcessNavigationNode.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\ProcessNavigationBlock.manifest.ts" />
@@ -561,29 +565,21 @@
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\PropertiesBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\PropertiesBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\ITasksBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\tasksblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\DrawingBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\drawingblock\IDrawingBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\drawingblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\drawingblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\ContentBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\contentblock\IContentBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\contentblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.css.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\tasksblock\TasksBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\ITitleBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.manifest.ts" />
-    <TypeScriptCompile Remove="client\viewprocess\titleblock\loc\localize.ts" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockSettings.tsx" />
@@ -646,6 +642,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\mediapicker\MediaPicker.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\breadcrumbblock\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\propertiesblock\index.ts">

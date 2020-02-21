@@ -14,3 +14,4 @@ export * from './ProcessRollupStyles';
 export * from './ProcessNavigationBlockStyles';
 export * from './PropertiesBlockStyles';
 export * from './SearchTemplateProcessStyles';
+export * from './BreadcrumbBlockStyles';

@@ -4,13 +4,13 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import { IPropertiesBlockSettingsComponent } from './IPropertiesBlockSettings';
-import { PropertiesBlockLocalization } from './loc/localize';
 import { IMessageBusSubscriptionHandler, PropertyIndexedType, GuidValue, EnterprisePropertySet, EnterprisePropertyDefinition, EnterprisePropertyDataType } from '@omnia/fx-models';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from "@omnia/fx/ux"
 import { MultilingualStore, EnterprisePropertyStore, EnterprisePropertySetStore } from '@omnia/fx/store';
 import { PropertiesBlockData, PropertiesBlockDataData, ProcessPropertySetting, DateTimeMode, DatePropertySetting, ProcessType, OPMEnterprisePropertyInternalNames, ProcessTypeItemSettings } from '../../fx/models';
 import { PropertiesBlockStyles } from '../../models';
 import { CurrentProcessStore, ProcessTypeStore, SystemProcessProperties } from '../../fx';
+import { OPMCoreLocalization } from '../../core/loc/localize';
 
 export interface DisplaySettingProperty {
     title: string;
@@ -29,8 +29,8 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
 
-    @Localize(PropertiesBlockLocalization.namespace) private loc: PropertiesBlockLocalization.locInterface;
-    @Localize(OmniaUxLocalizationNamespace) private uxLoc: OmniaUxLocalization;
+    @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
+    @Localize(OmniaUxLocalizationNamespace) uxLoc: OmniaUxLocalization;
 
     private propertiesClasses = StyleFlow.use(PropertiesBlockStyles);
 
@@ -46,9 +46,9 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
     isLoadingProperties: boolean = true;
     dateModes: Array<{ id: DateTimeMode, title: string }> =
         [
-            { id: DateTimeMode.Default, title: this.loc.Settings.FormatModeDefault },
-            { id: DateTimeMode.Normal, title: this.loc.Settings.FormatModeNormal },
-            { id: DateTimeMode.Social, title: this.loc.Settings.FormatModeSocial }
+            { id: DateTimeMode.Default, title: this.coreLoc.Blocks.Properties.FormatModeDefault },
+            { id: DateTimeMode.Normal, title: this.coreLoc.Blocks.Properties.FormatModeNormal },
+            { id: DateTimeMode.Social, title: this.coreLoc.Blocks.Properties.FormatModeSocial }
         ]
 
     mounted() {
@@ -137,12 +137,12 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
             availableProperties = availableProperties.filter(p => this.selectedPropertySet.settings.items.findIndex(i => i.enterprisePropertyDefinitionId == p.id) > -1);
         }
         let publishedSystemProperty: EnterprisePropertyDefinition = {
-            multilingualTitle: "[" + this.loc.Properties.Published + "]",
+            multilingualTitle: "[" + this.coreLoc.Blocks.Properties.Properties.Published + "]",
             enterprisePropertyDataType: { indexedType: PropertyIndexedType.DateTime } as EnterprisePropertyDataType,
             internalName: SystemProcessProperties.Published
         } as EnterprisePropertyDefinition;
         let linkToProcessLibrarySystemProperty: EnterprisePropertyDefinition = {
-            multilingualTitle: "[" + this.loc.Properties.LinkToProcessLibrary + "]",
+            multilingualTitle: "[" + this.coreLoc.Blocks.Properties.Properties.LinkToProcessLibrary + "]",
             enterprisePropertyDataType: { indexedType: PropertyIndexedType.Text } as EnterprisePropertyDataType,
             internalName: SystemProcessProperties.LinkToProcessLibrary
         } as EnterprisePropertyDefinition;
@@ -238,9 +238,9 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
     renderProperty(h, property: DisplaySettingProperty) {
         let isDateTimeType: boolean = property.propertyType == PropertyIndexedType.DateTime;
         if (property.settings.internalName == SystemProcessProperties.Published)
-            property.title = this.loc.Properties.Published;
+            property.title = this.coreLoc.Blocks.Properties.Properties.Published;
         if (property.settings.internalName == SystemProcessProperties.LinkToProcessLibrary)
-            property.title = this.loc.Properties.LinkToProcessLibrary;
+            property.title = this.coreLoc.Blocks.Properties.Properties.LinkToProcessLibrary;
 
         return (
             <v-card class="mb-3">
@@ -261,7 +261,7 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
                                 color={this.omniaTheming.promoted.body.text.base}
                                 input-value={property.settings.showLabel}
                                 onChange={() => { this.onShowLabelChanged(property) }}
-                                label={this.loc.Settings.ShowLabel}>
+                                label={this.coreLoc.Blocks.Properties.ShowLabel}>
                             </v-checkbox>
                         </v-flex>
                         {
@@ -286,14 +286,14 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
                         item-text="title"
                         v-model={settings.mode}
                         onChange={(v) => { this.onUpdateDateMode(v, settings) }}
-                        label={this.loc.Settings.DateFormatMode}>
+                        label={this.coreLoc.Blocks.Properties.DateFormatMode}>
                     </v-select>
                 </v-flex>,
                 settings.mode == DateTimeMode.Normal &&
                 <v-flex xs12>
                     <v-text-field
                         v-model={settings.format}
-                        label={this.loc.Settings.Format}
+                        label={this.coreLoc.Blocks.Properties.Format}
                         placeholder="MM/DD/YYYY"
                         onChange={() => { this.updateSettings() }}>
                     </v-text-field>
@@ -316,7 +316,7 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
                 <v-row no-gutters>
                     <v-col cols="12">
                         <omfx-multilingual-input
-                            label={this.loc.PropertiesBlockSettings.Title}
+                            label={this.uxLoc.Common.Title}
                             model={this.blockData.settings.title}
                             onModelChange={(title) => { this.blockData.settings.title = title; this.updateSettings() }}>
                         </omfx-multilingual-input>
@@ -332,7 +332,7 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
                                         return-object
                                         items={this.availablePropertySets}
                                         v-model={this.selectedPropertySet}
-                                        label={this.loc.Settings.SelectPropertySet}
+                                        label={this.coreLoc.Blocks.Properties.SelectPropertySet}
                                         onChange={() => { this.propertiesSetChanged(); }}>
                                     </v-select>
                                 </v-list-item-content>
@@ -346,7 +346,7 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
                                         item-text="title"
                                         items={this.availableProperties}
                                         v-model={this.selectedProperty}
-                                        label={this.loc.Settings.SelectProperties}>
+                                        label={this.coreLoc.Blocks.Properties.SelectProperties}>
                                     </v-select>
                                 </v-list-item-content>
                                 <v-list-item-action>

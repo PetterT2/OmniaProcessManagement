@@ -2,9 +2,10 @@
 import { Injectable, Inject, OmniaContext, Utils } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue, MultilingualString, Guid } from '@omnia/fx-models';
 import { ProcessStore } from './ProcessStore';
-import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType, InternalProcessStep, ProcessStepType, ExternalProcessStep } from '../models';
+import { ProcessActionModel, ProcessData, ProcessReference, ProcessReferenceData, Process, ProcessStep, IdDict, ProcessVersionType, InternalProcessStep, ProcessStepType, ExternalProcessStep, Version } from '../models';
 import { OPMUtils } from '../utils';
 import { InternalOPMTopics } from '../messaging/InternalOPMTopics';
+import { OPMSpecialRouteVersion } from '../constants';
 
 type EnsureActiveProcessInStoreFunc = () => boolean;
 
@@ -119,6 +120,8 @@ export class CurrentProcessStore extends Store {
     private currentProcessReference = this.state<ProcessReference>(null);
     private currentProcessReferenceData = this.state<ProcessReferenceData>(null);
 
+    private relevantProcessStepIdAndProcessIdDict: IdDict<GuidValue> = {};
+    private relevantProcessIdAndProcessStepIdDictDict: IdDict<IdDict<boolean>> = {};
 
     private currentLoadedProcessDataDict: IdDict<ProcessData> = {};
 
@@ -139,6 +142,16 @@ export class CurrentProcessStore extends Store {
         referenceData: () => this.currentProcessReferenceData.state,
         onCurrentProcessReferenceDataMutated: () => {
             return this.currentProcessReferenceData.onMutated
+        },
+        relevantProcess: (processStepId: GuidValue): { process: Process, processStepIdDict: IdDict<boolean> } => {
+            let process = this.getRelevantProcess(processStepId);
+            if (!process) {
+                return null
+            }
+            return {
+                process: process,
+                processStepIdDict: this.relevantProcessIdAndProcessStepIdDictDict[process.id.toString().toLowerCase()]
+            }
         }
     }
 
@@ -152,6 +165,9 @@ export class CurrentProcessStore extends Store {
                 this.currentLoadedProcessDataJsonDict = {};
                 this.currentLoadedProcessDataDict = {};
                 this.currentProcessJson = '';
+
+                this.relevantProcessIdAndProcessStepIdDictDict = {};
+                this.relevantProcessStepIdAndProcessIdDict = {};
 
                 this.currentProcessReference.mutate(null);
                 this.currentProcessReferenceData.mutate(null);
@@ -209,6 +225,31 @@ export class CurrentProcessStore extends Store {
             }).then((processReferenceToUse) => {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse)
             })
+        }),
+        ensureRelavantProcess: this.action((processStepId: GuidValue, version: Version) => {
+            let loadProcessPromise: Promise<Process> = null;
+            let isPreview = OPMSpecialRouteVersion.isPreview(version);
+
+            if (isPreview) {
+                if (this.relevantProcessStepIdAndProcessIdDict[processStepId.toString().toLowerCase()]) {
+                    let process = this.getRelevantProcess(processStepId);
+                    loadProcessPromise = Promise.resolve(process);
+                }
+                else {
+                    loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(processStepId).then(p => {
+                        this.updateProcessStepIdAndProcessIdDict(p.process);
+                        return p.process;
+                    })
+                }
+            }
+            else {
+                loadProcessPromise = this.processStore.actions.loadProcessByProcessStepId.dispatch(processStepId, version).then(p => {
+                    this.updateProcessStepIdAndProcessIdDict(p);
+                    return p;
+                })
+            }
+
+            return loadProcessPromise;
         }),
         checkOut: this.action((): Promise<null> => {
             return this.transaction.newProcessOperation(() => {
@@ -288,7 +329,7 @@ export class CurrentProcessStore extends Store {
                         tasks: null
                     } as ProcessData
 
-                    
+
 
                     if (!(currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps) {
                         (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps = [];
@@ -331,7 +372,7 @@ export class CurrentProcessStore extends Store {
                         type: ProcessStepType.External
                     };
 
-                    
+
 
                     if (!(currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps) {
                         (currentProcessReferenceData.current.processStep as InternalProcessStep).processSteps = [];
@@ -430,6 +471,27 @@ export class CurrentProcessStore extends Store {
                 return this.actions.setProcessToShow.dispatch(processReferenceToUse);
             })
         })
+    }
+
+    private getRelevantProcess(processStepId: GuidValue): Process {
+        let process: Process = null;
+        if (this.relevantProcessStepIdAndProcessIdDict[processStepId.toString().toLowerCase()]) {
+            let previewProcessId = this.relevantProcessStepIdAndProcessIdDict[processStepId.toString().toLowerCase()];
+            process = this.processStore.getters.process(previewProcessId);
+        }
+        return process;
+    }
+
+    private updateProcessStepIdAndProcessIdDict(process: Process) {
+        let processId = process.id.toString().toLowerCase();
+        let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
+        let stepIdDict: IdDict<boolean> = {};
+        stepIds.forEach(id => {
+            id = id.toString().toLowerCase();
+            this.relevantProcessStepIdAndProcessIdDict[id] = processId;
+            stepIdDict[id] = true;
+        });
+        this.relevantProcessIdAndProcessStepIdDictDict[processId] = stepIdDict;
     }
 
     private prepareProcessReferenceToUse(process: Process, processStepId: GuidValue) {

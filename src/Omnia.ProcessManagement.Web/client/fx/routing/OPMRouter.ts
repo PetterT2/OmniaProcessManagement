@@ -33,9 +33,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     private currentProcessId = '';
     private currentProcessStepId = '';
 
-    private processStepIdAndProcessIdDict: IdDict<GuidValue> = {};
-    private processAndProcessStepIdDictDict: IdDict<IdDict<GuidValue>> = {};
-
     constructor() {
         super('pm')
     }
@@ -220,8 +217,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         this.currentTitle = '';
         this.currentProcessId = '';
         this.currentProcessStepId = '';
-        this.processStepIdAndProcessIdDict = {};
-        this.processAndProcessStepIdDictDict = {};
 
         this.currentProcessStore.actions.setProcessToShow.dispatch(null).then(() => {
             this.protectedClearRoute();
@@ -241,12 +236,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             else {
                 if (newProcessStepId) {
                     let loadProcessPromises: Array<Promise<Process>> = [];
-                    loadProcessPromises.push(this.loadProcess(newProcessStepId, version));
+                    loadProcessPromises.push(this.currentProcessStore.actions.ensureRelavantProcess.dispatch(newProcessStepId, version));
 
                     if (this.routeContext.route.externalParents) {
                         this.routeContext.route.externalParents.forEach(parent => {
                             loadProcessPromises.push(new Promise<Process>((resolve, reject) => {
-                                this.loadProcess(parent.processStepId, parent.version).then(resolve).catch(err => {
+                                this.currentProcessStore.actions.ensureRelavantProcess.dispatch(parent.processStepId, parent.version).then(resolve).catch(err => {
                                     //If the linked parent process load failed, the current flow should continue. Only the breadcrumb will be effected
 
                                     let versionLabel = OPMSpecialRouteVersion.generateVersionLabel(parent.version);
@@ -307,25 +302,28 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                     currentParents = currentParents.concat(this.routeContext.route.externalParents);
                 }
 
-                currentParents.push({
-                    processStepId: this.routeContext.route.processStepId,
-                    version: this.routeContext.route.version
-                });
-            }
+                let processStepRef = OPMUtils.getProcessStepInProcess(process.rootProcessStep, processStep.id);
 
+                if (processStepRef && processStepRef.parentProcessSteps.length > 0) {
+                    currentParents.push({
+                        processStepId: processStepRef.parentProcessSteps[processStepRef.parentProcessSteps.length - 1].id,
+                        version: this.routeContext.route.version
+                    });
+                }
+            }
 
             let externalParents: Array<{ processStepId: GuidValue, version?: Version }> = [];
 
-
             for (let parent of currentParents) {
-                let parentProcess = this.getProcess(parent.processStepId);
+                let relevantProcess = this.currentProcessStore.getters.relevantProcess(parent.processStepId);
 
-                if (!parentProcess) {
+                if (!relevantProcess) {
                     externalParents = [];
                     break;
                 }
 
-                let stepIdDict = this.processAndProcessStepIdDictDict[parentProcess.id.toString()];
+                let parentProcess = relevantProcess.process;
+                let stepIdDict = relevantProcess.processStepIdDict;
 
                 if (isExternal && parentProcess.rootProcessStep.id.toString().toLowerCase() != processStepId.toString().toLowerCase()) {
                     externalParents.push(parent);
@@ -348,7 +346,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 version: version
             }
 
-            this.loadProcess(processStepId, version).then(process => {
+            this.currentProcessStore.actions.ensureRelavantProcess.dispatch(processStepId, version).then(process => {
                 let processReference = OPMUtils.generateProcessReference(process, processStepId);
                 resolve({
                     opmRoute: opmRoute,
@@ -356,53 +354,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 });
             })
         });
-    }
-
-    private loadProcess(processStepId: GuidValue, version: Version): Promise<Process> {
-        let loadProcessPromise: Promise<Process> = null;
-        let isPreview = OPMSpecialRouteVersion.isPreview(version);
-
-        if (isPreview) {
-            if (this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()]) {
-                let process = this.getProcess(processStepId);
-                loadProcessPromise = Promise.resolve(process);
-            }
-            else {
-                loadProcessPromise = this.processStore.actions.loadPreviewProcessByProcessStepId.dispatch(processStepId).then(p => {
-                    this.updateProcessStepIdAndProcessIdDict(p.process);
-                    return p.process;
-                })
-            }
-        }
-        else {
-            loadProcessPromise = this.processStore.actions.loadProcessByProcessStepId.dispatch(processStepId, version).then(p => {
-                this.updateProcessStepIdAndProcessIdDict(p);
-                return p;
-            })
-        }
-
-        return loadProcessPromise;
-    }
-
-    private getProcess(processStepId: GuidValue): Process {
-        let process: Process = null;
-        if (this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()]) {
-            let previewProcessId = this.processStepIdAndProcessIdDict[processStepId.toString().toLowerCase()];
-            process = this.processStore.getters.process(previewProcessId);
-        }
-        return process;
-    }
-
-    private updateProcessStepIdAndProcessIdDict(process: Process) {
-        let processId = process.id.toString().toLowerCase();
-        let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
-        let stepIdDict: IdDict<GuidValue> = {};
-        stepIds.forEach(id => {
-            id = id.toString().toLowerCase();
-            this.processStepIdAndProcessIdDict[id] = processId;
-            stepIdDict[id] = true;
-        });
-        this.processAndProcessStepIdDictDict[processId] = stepIdDict;
     }
 }
 

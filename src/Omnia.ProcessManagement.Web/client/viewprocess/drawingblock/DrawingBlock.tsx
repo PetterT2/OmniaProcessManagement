@@ -5,7 +5,6 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
 import './DrawingBlock.css';
 import { DrawingBlockStyles } from '../../models';
-import { DrawingBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
 import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessData, ProcessStep } from '../../fx/models';
@@ -17,7 +16,6 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     @Prop() settingsKey: string;
     @Prop() styles: typeof DrawingBlockStyles | any;
 
-    @Localize(DrawingBlockLocalization.namespace) loc: DrawingBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -184,7 +182,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.Blocks.Drawing.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.BlockDefinitions.Drawing.Title}></wcm-empty-block-view>
                 </aside>
             )
         }

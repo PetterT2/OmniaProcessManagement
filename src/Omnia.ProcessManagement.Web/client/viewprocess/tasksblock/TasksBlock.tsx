@@ -5,9 +5,8 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
 import './TasksBlock.css';
 import { TasksBlockStyles } from '../../models';
-import { TasksBlockLocalization } from './loc/localize';
 import { OPMCoreLocalization } from '../../core/loc/localize';
-import { StyleFlow, VueComponentBase } from '@omnia/fx/ux';
+import { StyleFlow, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { TasksBlockData, ProcessReferenceData, Task } from '../../fx/models';
 import { CurrentProcessStore } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -17,8 +16,8 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
     @Prop() settingsKey: string;
     @Prop() styles: typeof TasksBlockStyles | any;
 
-    @Localize(TasksBlockLocalization.namespace) loc: TasksBlockLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
+    @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<TasksBlockData>;
     @Inject(OmniaContext) omniaContext: OmniaContext;
@@ -111,7 +110,7 @@ export class TasksBlockComponent extends VueComponentBase implements IWebCompone
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-tasks"} text={this.corLoc.Blocks.Tasks.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-tasks"} text={this.corLoc.BlockDefinitions.Tasks.Title}></wcm-empty-block-view>
                 </aside>
             )
         }

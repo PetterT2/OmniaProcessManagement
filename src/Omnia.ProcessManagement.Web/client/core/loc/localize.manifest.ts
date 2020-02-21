@@ -90,7 +90,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 }
             }
         },
-        Blocks: {
+        BlockDefinitions: {
             ProcessLibrary: {
                 Title: "Processes",
                 Description: "Add this to a site where you want to work with processes."
@@ -133,10 +133,53 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Title: {
                 Title: "Process Title",
                 Description: ""
+            },
+            Breadcrumb: {
+                Title: "Process Breadcrumb",
+                Description: ""
             }
         },
-        BlockCategories: {
-            Process: "Process"
+        Blocks: {
+            Drawing: {
+
+            },
+            Content: {
+
+            },
+            Links: {
+
+            },
+            Navigation: {
+                StartLevel: "Start Level",
+                GetParentSiblings: "Show Parent Siblings",
+                LevelIndentation: "Level Indentation",
+            },
+            Properties: {
+                SelectProperties: "Select properties",
+                SelectPropertySet: "Select property set",
+                ShowLabel: "Show label",
+                DateFormatMode: "Date Type",
+                Format: "Format",
+                FormatModeDefault: "Default",
+                FormatModeNormal: "Classic",
+                FormatModeSocial: "Social",
+                Properties: {
+                    Published: "Published",
+                    LinkToProcessLibrary: "Link to Process Library"
+                }
+            },
+            Tasks: {
+
+            },
+            Title: {
+                Formatting: "Formatting",
+                FormatingOptions: {
+                    Normal: "Normal",
+                    Heading1: "Heading 1",
+                    Heading2: "Heading 2",
+                    Heading3: "Heading 3"
+                }
+            }
         },
         Columns: {
             ProcessMenu: "Process Menu",
@@ -162,7 +205,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Links: "Links",
             Properties: "Properties",
             Tasks: "Tasks",
-            LinkedProcess: "Linked Process" 
+            LinkedProcess: "Linked Process"
         },
         Shape: "Shape",
         DrawingShapeSettings: {

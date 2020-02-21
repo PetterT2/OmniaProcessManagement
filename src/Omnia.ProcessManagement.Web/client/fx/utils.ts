@@ -26,8 +26,8 @@ export module OPMUtils {
         }
     }
 
-    export function getProcessStepInProcess(processStep: RootProcessStep, desiredProcessStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessStep?: InternalProcessStep } {
-        return getProcessStepInProcessInternal(processStep, desiredProcessStepId.toString().toLowerCase(), null);
+    export function getProcessStepInProcess(processStep: RootProcessStep, desiredProcessStepId: GuidValue): { desiredProcessStep: ProcessStep, parentProcessSteps: Array<InternalProcessStep> } {
+        return getProcessStepInProcessInternal(processStep, desiredProcessStepId.toString().toLowerCase(), []);
     }
 
     export function generateProcessReference(process: Process, processStepId: GuidValue): ProcessReference {
@@ -43,17 +43,17 @@ export module OPMUtils {
         return processReference;
     }
 
-    function getProcessStepInProcessInternal(processStep: ProcessStep, desiredProcessStepId: string, parentProcessStep?: InternalProcessStep): { desiredProcessStep: ProcessStep, parentProcessStep?: InternalProcessStep } {
+    function getProcessStepInProcessInternal(processStep: ProcessStep, desiredProcessStepId: string, parentProcessSteps: Array<InternalProcessStep>): { desiredProcessStep: ProcessStep, parentProcessSteps: Array<InternalProcessStep> } {
         let desiredProcessStep: ProcessStep = null;
         if (processStep.id.toString().toLowerCase() == desiredProcessStepId) {
             desiredProcessStep = processStep;
         }
         else if (processStep.type == ProcessStepType.Internal && (processStep as InternalProcessStep).processSteps) {
             for (let childProcessStep of (processStep as InternalProcessStep).processSteps) {
-                let result = getProcessStepInProcessInternal(childProcessStep, desiredProcessStepId, processStep as InternalProcessStep);
+                let result = getProcessStepInProcessInternal(childProcessStep, desiredProcessStepId, [...parentProcessSteps, processStep as InternalProcessStep]);
                 if (result.desiredProcessStep) {
                     desiredProcessStep = result.desiredProcessStep;
-                    parentProcessStep = result.parentProcessStep;
+                    parentProcessSteps = result.parentProcessSteps;
                     break;
                 }
             }
@@ -61,7 +61,7 @@ export module OPMUtils {
 
         return {
             desiredProcessStep: desiredProcessStep,
-            parentProcessStep: parentProcessStep
+            parentProcessSteps: parentProcessSteps
         }
     }
 
