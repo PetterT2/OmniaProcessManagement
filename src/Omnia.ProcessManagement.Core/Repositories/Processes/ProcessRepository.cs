@@ -203,7 +203,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
                         validChildProcessStep = AddProcessDataRecursive(processId, childInternalProcessStep, processDataDict);
                     }
-                    else if(childProcessStep.Type == ProcessStepType.External)
+                    else if (childProcessStep.Type == ProcessStepType.External)
                     {
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
@@ -258,7 +258,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 {
                     publishedProcess.VersionType = ProcessVersionType.Archived;
 
-                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(publishedProcess);
+                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(JsonConvert.DeserializeObject<Dictionary<string, JToken>>(publishedProcess.EnterpriseProperties));
                     edition = isRevision ? latestEdition : latestEdition + 1;
                     revision = isRevision ? latestRevision + 1 : 0;
                 }
@@ -322,8 +322,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 throw new ProcessNotFoundException(actionModel.Process.Id);
             }
+            var rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(checkedOutProcessWithProcessDataIdHash.Process.JsonValue);
 
-            var (edition, revision) = ProcessVersionHelper.GetEditionAndRevision(checkedOutProcessWithProcessDataIdHash.Process);
+            if(rootProcessStep.Id != actionModel.Process.RootProcessStep.Id)
+            {
+                throw new InvalidRootProcessStepIdException(actionModel.Process.OPMProcessId, rootProcessStep.Id, actionModel.Process.RootProcessStep.Id);
+            }
+
+            var (edition, revision) = ProcessVersionHelper.GetEditionAndRevision(rootProcessStep.EnterpriseProperties);
             EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);

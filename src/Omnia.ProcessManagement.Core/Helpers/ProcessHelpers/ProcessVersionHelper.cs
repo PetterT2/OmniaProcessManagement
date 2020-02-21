@@ -9,10 +9,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Processes
 {
     public class ProcessVersionHelper
     {
-        internal static (int, int) GetEditionAndRevision(Entities.Processes.Process process)
+        internal static (int, int) GetEditionAndRevision(Dictionary<string, JToken> processEnterpriseProperties)
         {
-            var processEnterpriseProperties = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(process.EnterpriseProperties);
-
             if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
                 processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Revision.InternalName, out JToken revisionJToken) &&
                 int.TryParse(editionJToken.ToString(), out int edition) &&
