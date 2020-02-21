@@ -36,11 +36,12 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     previousParentProcessStep: ProcessStep = null;
     setSelectedShapeItemIdTimeOut: NodeJS.Timeout = null;
     created() {
-        this.init();
+        
     }
 
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
+        this.init();
     }
 
     beforeDestroy() {
@@ -191,30 +192,26 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             </div>
         )
     }
-
+    
     render(h) {
-        if (!this.blockData) {
-            return (
-                <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
-            )
-        }
-
-        if (Utils.isNullOrEmpty(this.canvasDefinition)) {
-            return (
-                <aside>
-                    <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.BlockDefinitions.Drawing.Title}></wcm-empty-block-view>
-                </aside>
-            )
-        }
         return (
-            <aside>
-                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                <div class={this.drawingClasses.blockPadding(this.blockData.settings.spacing)}>
-                    <div key={this.componentUniqueKey}>{this.renderDrawing(h)}</div>
-                </div>
-            </aside>
-        );
+            <div>
+                {
+                    !this.blockData ? <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div> :
+                        !this.canvasDefinition ? 
+                            <aside>
+                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                                <wcm-empty-block-view dark={false} icon={"fa fa-image"} text={this.corLoc.BlockDefinitions.Drawing.Title}></wcm-empty-block-view>
+                            </aside> :
+                            <aside>
+                                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+                                <div class={this.drawingClasses.blockPadding(this.blockData.settings.spacing)}>
+                                    <div key={this.componentUniqueKey}>{this.renderDrawing(h)}</div>
+                                </div>
+                            </aside>
+                }
+            </div>
+        )
     }
 }
 

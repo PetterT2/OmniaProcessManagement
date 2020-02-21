@@ -72,7 +72,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
 
     private renderUnpublishDialog(h) {
         return (
-            <opm-unpublishprocess-dialog
+            <opm-unpublish-process-dialog
                 closeCallback={(unpublished: boolean) => {
                     if (unpublished) {
                         InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Published);
@@ -80,7 +80,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                     this.openUnpublishDialog = false;
                 }}
                 process={this.process}>
-            </opm-unpublishprocess-dialog>
+            </opm-unpublish-process-dialog>
         )
     }
 

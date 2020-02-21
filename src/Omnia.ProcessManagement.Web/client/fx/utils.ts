@@ -170,7 +170,7 @@ export module OPMUtils {
             numberOfTimes--;
         })
 
-        resolvablePromise.promise.then(callBack).catch(err => console.warn(err));
+        resolvablePromise.promise.then(callBack).catch(err => { console.warn(err) });
     }
 }
 
