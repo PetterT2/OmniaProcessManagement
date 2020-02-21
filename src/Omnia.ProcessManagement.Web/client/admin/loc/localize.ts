@@ -4,6 +4,7 @@
         ProcessManagement: string,
         Settings: string,
         ArchiveSiteUrl: string,
+        ProcessTermSetId: string,
         ProcessTypes: {
             Title: string,
             UniqueId: string,
