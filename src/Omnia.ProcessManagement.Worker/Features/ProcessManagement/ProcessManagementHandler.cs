@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Omnia.ProcessManagement.Core;
 using Omnia.ProcessManagement.Core.Services.ShapeTemplates;
+using Omnia.Fx.Models.EnterpriseProperties;
 
 namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
 {
@@ -49,14 +50,17 @@ namespace Omnia.ProcessManagement.Worker.Features.ProcessManagement
             var existingDataType = allPropertyDataTypes.FirstOrDefault(t => t.Id == OPMConstants.Features.ProcessDataType.Id);
             if(existingDataType == null)
             {
-                try
+                EnsureBuiltInDataTask.Add(Task.Run(() =>
                 {
-                    await EnterprisePropertyService.CreateDataTypeAsync(OPMConstants.Features.ProcessDataType);
-                }
-                catch(Exception ex)
-                {
-                    Logger.LogError($"ProcessManagement - Add Process Data Type {OPMConstants.Features.ProcessDataType.Id.ToString()} ERROR: {ex.Message}", ex);
-                }
+                    try
+                    {
+                        EnterprisePropertyService.CreateDataTypeAsync(OPMConstants.Features.ProcessDataType).GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"ProcessManagement - Add Process Data Type {OPMConstants.Features.ProcessDataType.Id.ToString()} ERROR: {ex.Message}", ex);
+                    }
+                }));
             }
 
             var (allProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();

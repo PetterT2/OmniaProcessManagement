@@ -10,7 +10,9 @@ export class GlobalSettings extends Setting {
         * To ensure it fully react on view
         * */
         this.archiveSiteUrl = "";
+        this.processTermSetId = null;
     }
 
     archiveSiteUrl: string;
+    processTermSetId: GuidValue
 }

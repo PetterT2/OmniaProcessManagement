@@ -11,6 +11,7 @@ namespace Omnia.ProcessManagement.Models.Settings
         public GlobalSettings() : base("globalsettings", new Guid(Constants.Security.Roles.TenantAdmin), true) { }
 
         public string ArchiveSiteUrl { get; set; }
+        public Guid ProcessTermSetId { get; set; }
 
         public override ValueTask ValidateAsync()
         {

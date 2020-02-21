@@ -592,6 +592,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="client\enterpriseproperties\display\processfield\" />
+    <Folder Include="client\enterpriseproperties\edit\processfield\" />
+    <Folder Include="client\enterpriseproperties\valuedefinition\processfield\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
