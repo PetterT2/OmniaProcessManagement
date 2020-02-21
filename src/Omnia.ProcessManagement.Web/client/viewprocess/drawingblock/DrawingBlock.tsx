@@ -7,7 +7,7 @@ import './DrawingBlock.css';
 import { DrawingBlockStyles } from '../../models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessData, ProcessStep } from '../../fx/models';
+import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessData, ProcessStep, DrawingExternalProcessShape, ExternalProcessStep, ProcessStepType } from '../../fx/models';
 import { CurrentProcessStore, DrawingCanvas, OPMRouter, OPMUtils, ProcessStore, Shape } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 
@@ -142,7 +142,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                 }
                 this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId);
             } else if (shape.type == DrawingShapeTypes.CustomLink) {
-                let links = (this.currentDrawingProcessData.links || []).concat(this.parentProcessData.links || []);
+                let links = (this.currentDrawingProcessData.links || []).concat(this.parentProcessData && this.parentProcessData.links || []);
                 let link = links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
                 if (link) {
                     let target = "";
@@ -151,6 +151,25 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                         target = preview ? '_parent' : '';
                     }
                     window.open(link.url, link.openNewWindow ? '_blank' : target);
+                }
+            }
+            else if (shape.type == DrawingShapeTypes.ExternalProcess) {
+                let rootProcessStepId = (shape as DrawingExternalProcessShape).rootProcessStepId;
+
+                if (rootProcessStepId) {
+                    //We create a fake external process step so OPMRouter can navigate it as a "real" external process step way
+                    let fakeExternalProcessStep: ExternalProcessStep = {
+                        id: rootProcessStepId,
+                        rootProcessStepId: rootProcessStepId,
+                        type: ProcessStepType.External,
+                        multilingualTitle: null,
+                        title: null,
+                        basedProcessStepId: currentReferenceData.current.processStep.id
+                    } as ExternalProcessStep;
+
+                    OPMRouter.navigate(currentReferenceData.process, fakeExternalProcessStep).then(() => {
+
+                    });
                 }
             }
         }
