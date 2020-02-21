@@ -34,7 +34,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     drawingCanvas: DrawingCanvas = null;
     currentDrawingProcessData: ProcessData;
     previousParentProcessStep: ProcessStep = null;
-
+    setSelectedShapeItemIdTimeOut: NodeJS.Timeout = null;
     created() {
         this.init();
     }
@@ -99,20 +99,22 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
         this.canvasDefinition.gridX = 0;
         this.canvasDefinition.gridY = 0;
 
-        setTimeout(() => {
+        OPMUtils.waitForElementAvailable(this.$el, this.canvasId, () => {
             if (needToDestroyCanvas) {
                 this.drawingCanvas = new DrawingCanvas(this.canvasId, {}, this.canvasDefinition, true);
                 this.drawingCanvas.setSelectShapeEventWithCallback(this.onSelectShape);
             }
             if (selectedShape) {
-                setTimeout(() => {
+                this.setSelectedShapeItemIdTimeOut = setTimeout(() => {
                     this.drawingCanvas.setSelectedShapeItemId(selectedShape.processStepId);
                 }, 20)
             }
-        }, 20);
+        })
+
     }
 
     private initCanvas() {
+        clearTimeout(this.setSelectedShapeItemIdTimeOut);
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
 
         if (!currentReferenceData) {
