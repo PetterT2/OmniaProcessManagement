@@ -51,7 +51,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
 
-    private selectedOPMProcessId: GuidValue = null;
+    private selectedRootProcessStepId: GuidValue = null;
     private shapeTitle: MultilingualString = null;
     private shape: ShapeObject = null;
     private selectedShapeTemplate: ShapeTemplate = null;
@@ -140,7 +140,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
-        this.selectedOPMProcessId = this.drawingOptions.externalRootProcesStepId;
+        this.selectedRootProcessStepId = this.drawingOptions.externalRootProcesStepId;
         this.shapeTitle = this.drawingOptions.title;
     }
 
@@ -158,7 +158,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             shapeType: this.selectedShapeType,
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            externalRootProcesStepId: this.selectedOPMProcessId,
+            externalRootProcesStepId: this.selectedRootProcessStepId,
             title: this.shapeTitle,
             shape: this.shape
         };
@@ -170,7 +170,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private onSelectedShapeType(selectedShapeType) {
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
-        this.selectedOPMProcessId = null;
+        this.selectedRootProcessStepId = null;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
@@ -391,7 +391,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     }
 
     private renderShapeTypeOptions(h) {
-        let isNewProcessStep = this.selectedShapeType == DrawingShapeTypes.ExternalProcess || (this.selectedShapeType == DrawingShapeTypes.ProcessStep && this.selectedProcessStepId == Guid.empty);
         return <v-container class="pa-0">
             <v-row dense>
                 <v-col cols="6">
@@ -410,13 +409,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         : null
                     }
                     <omfx-multilingual-input
-                        requiredWithValidator={isNewProcessStep ? this.useValidator : null}
+                        requiredWithValidator={this.useValidator}
                         model={this.shapeTitle}
                         onModelChange={(title) => {
                             this.shapeTitle = title;
                             this.updateDrawedShape();
                         }}
-                        forceTenantLanguages={isNewProcessStep} label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                        forceTenantLanguages
+                        label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
                 </v-col>
                 <v-col cols="6">
                     {this.renderShapePreview(h)}
@@ -453,10 +453,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderChildLinkedProcessSteps(h) {
         return <div>
             <opm-processdesigner-addlinkedprocess
-                opmProcessId={this.selectedOPMProcessId}
-                onChange={(title, opmProcessId) => {
+                rootProcessStepId={this.selectedRootProcessStepId}
+                onChange={(title, rootProcessStepId) => {
                     this.shapeTitle = title;
-                    this.selectedOPMProcessId = opmProcessId;
+                    this.selectedRootProcessStepId = rootProcessStepId;
                     this.updateDrawedShape();
                 }}>
             </opm-processdesigner-addlinkedprocess>

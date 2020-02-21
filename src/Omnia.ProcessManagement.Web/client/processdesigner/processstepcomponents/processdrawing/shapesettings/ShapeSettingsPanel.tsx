@@ -14,6 +14,7 @@ import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSel
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessStepDesignerItem } from '../../../designeritems/ProcessStepDesignerItem';
 import { ProcessStepShortcutDesignerItem } from '../../../designeritems/ProcessStepShortcutDesignerItem';
+import { MultilingualStore } from '@omnia/fx/store';
 
 export interface ShapeSettingsProps {
 
@@ -28,6 +29,8 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
     @Localize(OPMCoreLocalization.namespace) opmCoreLoc: OPMCoreLocalization.locInterface;
@@ -75,10 +78,9 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         };
 
         this.previousProcessStepId = this.selectedProcessStepId;
+        this.processDesignerStore.mutations.initFormValidator.commit(this);
 
         this.initShortcut();
-
-        this.processDesignerStore.mutations.initFormValidator.commit(this);
     }
 
     mounted() {
@@ -118,6 +120,11 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             result = false;
         }
         if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.externalRootProcesStepId || drawingOptions.externalRootProcesStepId == Guid.empty)) {
+            result = false;
+        }
+
+        let title = this.multilingualStore.getters.stringValue(drawingOptions.title).trim();
+        if (!title) {
             result = false;
         }
 

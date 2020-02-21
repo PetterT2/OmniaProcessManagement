@@ -40,7 +40,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private errorMessage: string = "";
-    private readyForSave: boolean = false;
 
     created() {
         this.init();
@@ -48,7 +47,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
-        
+
     }
 
     init() {
@@ -93,7 +92,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private createShape() {
-        this.errorMessage = ""; 
+        this.errorMessage = "";
         if (this.internalValidator.validateAll()) {
             let readyToDrawShape: boolean = true;
 
@@ -125,11 +124,12 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
-        this.readyForSave = true;
+
         this.drawingShapeOptions = drawingOptions;
     }
 
     private renderActionButtons(h) {
+        let readyForSave = this.drawingShapeOptions ? true : false;
         return (
             <v-card-actions>
                 <v-btn text
@@ -138,7 +138,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                     onClick={this.changeShape}>{this.pdLoc.ChangeShape}</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn text
-                    disabled={!this.readyForSave}
+                    disabled={!readyForSave}
                     color={this.omniaTheming.themes.primary.base}
                     dark={this.omniaTheming.promoted.body.dark}
                     loading={this.isCreatingChildStep}
