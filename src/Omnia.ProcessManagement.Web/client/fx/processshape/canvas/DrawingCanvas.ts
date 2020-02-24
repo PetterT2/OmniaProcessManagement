@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingExternalProcessShape } from '../../models/data/drawingdefinitions';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
@@ -93,7 +93,7 @@ export class DrawingCanvas implements CanvasDefinition {
         this.drawingShapes.forEach(s => (s.shape as Shape).setSelectedShape(false));
         if (this.selectedShape == null)
             return;
-        let drawingShape: DrawingShape = this.drawingShapes.find(s => (s as DrawingProcessStepShape).processStepId == this.selectedShape.id);
+        let drawingShape: DrawingShape = this.drawingShapes.find(s => (s as ProcessStepDrawingShape).processStepId == this.selectedShape.id);
         if (drawingShape) {
             (drawingShape.shape as Shape).setSelectedShape(true);
             this.canvasObject.renderAll();
@@ -194,7 +194,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalRootProcessStepId?:GuidValue, nodes?: FabricShapeData[]) {
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalProcessStepId?:GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -216,13 +216,13 @@ export class DrawingCanvas implements CanvasDefinition {
                         title: title
                     };
                     if (type == DrawingShapeTypes.ProcessStep) {
-                        (drawingShape as DrawingProcessStepShape).processStepId = processStepId;
+                        (drawingShape as ProcessStepDrawingShape).processStepId = processStepId;
                     }
                     if (type == DrawingShapeTypes.CustomLink) {
-                        (drawingShape as DrawingCustomLinkShape).linkId = customLinkId;
+                        (drawingShape as CustomLinkDrawingShape).linkId = customLinkId;
                     }
-                    if (type == DrawingShapeTypes.ExternalProcess) {
-                        (drawingShape as DrawingExternalProcessShape).rootProcessStepId = externalRootProcessStepId;
+                    if (type == DrawingShapeTypes.ExternalProcessStep) {
+                        (drawingShape as ExternalProcessStepDrawingShape).processStepId = externalProcessStepId;
                     }
                     resolved = false;
                     this.addShapeFromTemplateClassName(drawingShape).then((readyDrawingShape: DrawingShape) => {
@@ -313,19 +313,19 @@ export class DrawingCanvas implements CanvasDefinition {
                     currentDrawingShape.title = drawingOptions.title;
 
                     //
-                    delete (currentDrawingShape as DrawingProcessStepShape).processStepId;
-                    delete (currentDrawingShape as DrawingCustomLinkShape).linkId;
-                    delete (currentDrawingShape as DrawingExternalProcessShape).rootProcessStepId;
+                    delete (currentDrawingShape as ProcessStepDrawingShape).processStepId;
+                    delete (currentDrawingShape as CustomLinkDrawingShape).linkId;
+                    delete (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId;
 
                     currentDrawingShape.type = drawingOptions.shapeType;
                     if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
-                        (currentDrawingShape as DrawingProcessStepShape).processStepId = drawingOptions.processStepId;
+                        (currentDrawingShape as ProcessStepDrawingShape).processStepId = drawingOptions.processStepId;
                     }
                     if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
-                        (currentDrawingShape as DrawingCustomLinkShape).linkId = drawingOptions.customLinkId;
+                        (currentDrawingShape as CustomLinkDrawingShape).linkId = drawingOptions.customLinkId;
                     }
-                    if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess) {
-                        (currentDrawingShape as DrawingExternalProcessShape).rootProcessStepId = drawingOptions.externalRootProcesStepId;
+                    if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcessStep) {
+                        (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId = drawingOptions.externalProcesStepId;
                     }
 
                     currentDrawingShape.shape = {

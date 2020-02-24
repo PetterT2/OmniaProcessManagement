@@ -9,7 +9,7 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
         Undefined = 0,
         ProcessStep = 1,
         CustomLink = 2,
-        ExternalProcess = 3
+        ExternalProcessStep = 3
     }
 
     public class DrawingShape : Omnia.Fx.Models.JsonTypes.OmniaJsonBase

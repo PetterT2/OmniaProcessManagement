@@ -18,6 +18,7 @@ import { DisplayModes } from '../../../models/processdesigner';
 import { ActionsMenuComponent } from './ActionsMenu';
 
 export interface NavigationNodeComponentProps {
+    refresh: () => void;
     level: number;
     processStep: ProcessStep;
     firstNode: boolean;
@@ -33,6 +34,7 @@ export interface NavigationNodeComponentEvents {
 @Component
 export class NavigationNodeComponent extends tsx.Component<NavigationNodeComponentProps, NavigationNodeComponentEvents>
 {
+    @Prop() private refresh: () => void;
     @Prop() private level: number;
     @Prop() private processStep: ProcessStep;
     @Prop() private expandState: { [id: string]: boolean };
@@ -70,6 +72,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
         }
 
         this.processDesignerStore.actions.saveState.dispatch(true, true);
+        this.refresh();
     }
 
 
@@ -99,6 +102,7 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             let lastNode = index == (this.processStep as InternalProcessStep).processSteps.length - 1;
             result.push(
                 <NavigationNodeComponent
+                    refresh={this.refresh}
                     expandState={this.expandState}
                     level={this.level + 1}
                     processStep={childProcessStep}

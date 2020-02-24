@@ -10,6 +10,7 @@ import { ContentNavigationStyles } from './ContentNavigation.css';
 import { SharePointContext } from '@omnia/fx-sp';
 import { NavigationNodeComponent } from './navigationtree/NavigationNode';
 import { RootProcessStep, ProcessStep } from '../../fx/models';
+import { ProcessDesignerStore } from '../stores';
 
 
 export interface ContentNavigationProps {
@@ -29,6 +30,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
     @Inject(SubscriptionHandler) subscriptionHandler: SubscriptionHandler;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
+    @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(SharePointContext) spContext: SharePointContext;
 
     private teamSiteName: string = "";
@@ -57,7 +59,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
 
     subscribeEvents() {
         this.subscriptionHandler.add(
-            this.currentProcessStore.actions.saveState.onDispatched((result, refreshContentNavigation) => {
+            this.processDesignerStore.actions.saveState.onDispatched((result, timewatch, refreshContentNavigation) => {
                 if (refreshContentNavigation) {
                     let referenceData = this.currentProcessStore.getters.referenceData();
                     this.refreshExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep);
@@ -66,6 +68,11 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
         )
         this.subscriptionHandler.add(
             this.currentProcessStore.actions.addProcessStep.onDispatched((result) => {
+                this.refreshExpandState(result.process.rootProcessStep, result.processStep);
+            })
+        )
+        this.subscriptionHandler.add(
+            this.currentProcessStore.actions.addExtenalProcessStep.onDispatched((result) => {
                 this.refreshExpandState(result.process.rootProcessStep, result.processStep);
             })
         )
@@ -96,7 +103,7 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                     </div>
                 </v-list-item>
                 <div class={ContentNavigationStyles.scrollContainer} key={this.renderKey}>
-                    <NavigationNodeComponent firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
+                    <NavigationNodeComponent refresh={() => { this.renderKey = Utils.generateGuid(); }} firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
                 </div>
             </div>)
     }

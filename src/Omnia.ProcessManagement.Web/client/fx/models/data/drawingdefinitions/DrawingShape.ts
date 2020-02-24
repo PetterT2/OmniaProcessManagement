@@ -5,7 +5,7 @@ export enum DrawingShapeTypes {
     Undefined = 0,
     ProcessStep = 1,
     CustomLink = 2,
-    ExternalProcess = 3
+    ExternalProcessStep = 3
 }
 
 export interface DrawingShape {

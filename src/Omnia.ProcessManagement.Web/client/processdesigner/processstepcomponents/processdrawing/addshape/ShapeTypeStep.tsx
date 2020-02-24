@@ -98,8 +98,8 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
 
             if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ProcessStep) {
                 if (this.drawingShapeOptions.processStepId == Guid.empty) {
-                    this.isCreatingChildStep = true;
                     readyToDrawShape = false;
+                    this.isCreatingChildStep = true;
                     this.currentProcessStore.actions.addProcessStep.dispatch(this.drawingShapeOptions.title).then((result) => {
                         this.isCreatingChildStep = false;
                         this.drawingShapeOptions.processStepId = result.processStep.id;
@@ -108,6 +108,22 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                         this.isCreatingChildStep = false;
                         this.errorMessage = err || "";
                     });
+                }
+            }
+            else if (this.drawingShapeOptions.shapeType == DrawingShapeTypes.ExternalProcessStep) {
+                if (this.drawingShapeOptions.externalProcesStepId == Guid.empty) {
+                    readyToDrawShape = false;
+                    if (this.drawingShapeOptions.linkedRootProcessStepId) {
+                        this.isCreatingChildStep = true;
+                        this.currentProcessStore.actions.addExtenalProcessStep.dispatch(this.drawingShapeOptions.title, this.drawingShapeOptions.linkedRootProcessStepId).then((result) => {
+                            this.isCreatingChildStep = false;
+                            this.drawingShapeOptions.externalProcesStepId = result.processStep.id;
+                            this.completedAddShape();
+                        }).catch((err) => {
+                            this.isCreatingChildStep = false;
+                            this.errorMessage = err || "";
+                        });
+                    }
                 }
             }
 

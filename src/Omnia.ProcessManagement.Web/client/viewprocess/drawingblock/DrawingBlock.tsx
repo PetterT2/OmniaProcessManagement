@@ -7,7 +7,7 @@ import './DrawingBlock.css';
 import { DrawingBlockStyles } from '../../models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaTheming } from '@omnia/fx/ux';
-import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, ProcessData, ProcessStep, DrawingExternalProcessShape, ExternalProcessStep, ProcessStepType } from '../../fx/models';
+import { DrawingBlockData, CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ProcessData, ProcessStep, ExternalProcessStepDrawingShape, ExternalProcessStep, ProcessStepType } from '../../fx/models';
 import { CurrentProcessStore, DrawingCanvas, OPMRouter, OPMUtils, ProcessStore, Shape } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 
@@ -78,13 +78,13 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
 
     private drawShapes() {
         var needToDestroyCanvas = true;
-        var selectedShape: DrawingProcessStepShape = null;
+        var selectedShape: ProcessStepDrawingShape = null;
         if (!this.canvasDefinition && this.parentProcessData && this.parentProcessData.canvasDefinition) {
             this.canvasDefinition = JSON.parse(JSON.stringify(this.parentProcessData.canvasDefinition));
             selectedShape = this.canvasDefinition.drawingShapes && this.canvasDefinition.drawingShapes.length > 0 ?
                 this.canvasDefinition.drawingShapes.find(s => s.type == DrawingShapeTypes.ProcessStep &&
-                    (s as DrawingProcessStepShape).processStepId &&
-                    (s as DrawingProcessStepShape).processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) as DrawingProcessStepShape : null;
+                    (s as ProcessStepDrawingShape).processStepId &&
+                    (s as ProcessStepDrawingShape).processStepId.toString() == this.currentProcessStore.getters.referenceData().current.processStep.id) as ProcessStepDrawingShape : null;
             if (selectedShape && this.previousParentProcessStep && this.previousParentProcessStep.id.toString() == this.parentProcessStep.id.toString()) {
                 needToDestroyCanvas = false;
             }
@@ -136,8 +136,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     private onSelectShape(shape: DrawingShape) {
         if (shape) {
             let currentReferenceData = this.currentProcessStore.getters.referenceData();
-            if (shape.type == DrawingShapeTypes.ProcessStep) {
-                let currentProcessStep = OPMUtils.getProcessStepInProcess(currentReferenceData.process.rootProcessStep, (shape as DrawingProcessStepShape).processStepId);
+            if (shape.type == DrawingShapeTypes.ProcessStep || shape.type == DrawingShapeTypes.ExternalProcessStep) {
+                let processStepId = shape.type == DrawingShapeTypes.ProcessStep ? (shape as ProcessStepDrawingShape).processStepId :
+                    (shape as ExternalProcessStepDrawingShape).processStepId
+                let currentProcessStep = OPMUtils.getProcessStepInProcess(currentReferenceData.process.rootProcessStep, processStepId);
                 if (currentProcessStep && currentProcessStep.desiredProcessStep) {
                     OPMRouter.navigate(currentReferenceData.process, currentProcessStep.desiredProcessStep).then(() => {
 
@@ -146,7 +148,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                 this.drawingCanvas.setSelectedShapeItemId(OPMRouter.routeContext.route.processStepId);
             } else if (shape.type == DrawingShapeTypes.CustomLink) {
                 let links = (this.currentDrawingProcessData.links || []).concat(this.parentProcessData && this.parentProcessData.links || []);
-                let link = links.find(l => l.id == (shape as DrawingCustomLinkShape).linkId);
+                let link = links.find(l => l.id == (shape as CustomLinkDrawingShape).linkId);
                 if (link) {
                     let target = "";
                     if (OPMRouter.routeContext && OPMRouter.routeContext.route) {
@@ -154,25 +156,6 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
                         target = preview ? '_parent' : '';
                     }
                     window.open(link.url, link.openNewWindow ? '_blank' : target);
-                }
-            }
-            else if (shape.type == DrawingShapeTypes.ExternalProcess) {
-                let rootProcessStepId = (shape as DrawingExternalProcessShape).rootProcessStepId;
-
-                if (rootProcessStepId) {
-                    //We create a fake external process step so OPMRouter can navigate it as a "real" external process step way
-                    let fakeExternalProcessStep: ExternalProcessStep = {
-                        id: rootProcessStepId,
-                        rootProcessStepId: rootProcessStepId,
-                        type: ProcessStepType.External,
-                        multilingualTitle: null,
-                        title: null,
-                        basedProcessStepId: currentReferenceData.current.processStep.id
-                    } as ExternalProcessStep;
-
-                    OPMRouter.navigate(currentReferenceData.process, fakeExternalProcessStep).then(() => {
-
-                    });
                 }
             }
         }
