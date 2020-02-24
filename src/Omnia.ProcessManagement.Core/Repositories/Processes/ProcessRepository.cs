@@ -326,7 +326,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             var rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(checkedOutProcessWithProcessDataIdHash.Process.JsonValue);
 
-            if(rootProcessStep.Id != actionModel.Process.RootProcessStep.Id)
+            if (rootProcessStep.Id != actionModel.Process.RootProcessStep.Id)
             {
                 throw new InvalidRootProcessStepIdException(actionModel.Process.OPMProcessId, rootProcessStep.Id, actionModel.Process.RootProcessStep.Id);
             }
@@ -1220,6 +1220,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 List<Guid> newProcessIds = new List<Guid>();
                 foreach (var drawingShape in processData.CanvasDefinition.DrawingShapes)
                 {
+                    if (!string.IsNullOrEmpty(drawingShape.Shape.Definition.ImageUrl))
+                    {
+                        drawingShape.Shape.Definition.ImageUrl = drawingShape.Shape.Definition.ImageUrl.Replace(oldOpmProcessId.ToString(), newOpmProcessId.ToString());
+                        imageIds.AddRange(ImageHelper.GetImageIds(drawingShape.Shape.Definition.ImageUrl, newOpmProcessId));
+                    }
                     if (drawingShape.Type == DrawingShapeTypes.ProcessStep)
                     {
                         var newDrawingShape = drawingShape.Cast<DrawingShape, ProcessStepDrawingShape>();
@@ -1237,7 +1242,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         }
                     }
                     else
-                        drawingShapes.Add(drawingShape);
+                        drawingShapes.Add(drawingShape);                   
                 }
                 processData.CanvasDefinition.DrawingShapes = drawingShapes;
                 if (!string.IsNullOrEmpty(processData.CanvasDefinition.BackgroundImageUrl))
