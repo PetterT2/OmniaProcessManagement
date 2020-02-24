@@ -174,7 +174,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             //var fileName = $"process-{process.OPMProcessId.ToString("N").ToLower()}";
             var fileName = OPMConstants.SharePoint.PublishedProcessFileName;
             FileCreationInformation newFile = new FileCreationInformation();
-            newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); ;
+            newFile.Url = String.Format("{0}/{1}", opmProcessIdFolder.ServerRelativeUrl, fileName); 
             newFile.Overwrite = true;
             newFile.Content = new byte[0];
             Microsoft.SharePoint.Client.File addedFile = opmProcessIdFolder.Files.Add(newFile);

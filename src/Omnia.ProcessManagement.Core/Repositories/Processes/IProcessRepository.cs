@@ -23,6 +23,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
         ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
+        ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
+
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
         ValueTask<Process> UnpublishProcessAsync(Guid opmProcessId);

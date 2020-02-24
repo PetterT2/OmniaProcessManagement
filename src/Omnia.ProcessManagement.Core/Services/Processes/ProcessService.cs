@@ -54,6 +54,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
+        public async ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId)
+        {
+            var process = await ProcessRepository.CopyToNewProcessAsync(opmProcessId, processStepId);
+            return process;
+        }
+
         public async ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId)
         {
             var process = await ProcessRepository.DiscardChangeProcessAsync(opmProcessId);

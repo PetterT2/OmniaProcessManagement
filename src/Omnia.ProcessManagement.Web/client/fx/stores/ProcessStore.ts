@@ -271,6 +271,16 @@ export class ProcessStore extends Store {
                     resolve(null);
                 }).catch(reject);
             })
+        }),
+        copyToNewProcess: this.action((opmProcessId: GuidValue, processStepId: GuidValue) => {
+            return new Promise<Process>((resolve, reject) => {
+                this.processService.copyToNewProcess(opmProcessId, processStepId).then((process) => {
+                    this.actions.checkoutProcess.dispatch(process.opmProcessId).then((process) => {
+                        this.internalMutations.addOrUpdateProcess(process);
+                        resolve(process);
+                    }).catch(reject);                    
+                }).catch(reject);
+            })
         })
     }
 

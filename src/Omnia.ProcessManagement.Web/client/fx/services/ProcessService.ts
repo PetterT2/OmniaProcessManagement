@@ -112,6 +112,20 @@ export class ProcessService {
         })
     }
 
+    public copyToNewProcess = (opmProcessId: GuidValue, processStepId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Process>>(`/api/processes/copytonewprocess/${opmProcessId}/${processStepId}`).then((response) => {
+                if (response.data.success) {
+                    this.generateClientSideData([response.data.data]);
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
+    }
+
     public discardChangeProcess = (opmProcessId: GuidValue) => {
         return new Promise<Process>((resolve, reject) => {
             this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/discardchange/' + opmProcessId).then((response) => {

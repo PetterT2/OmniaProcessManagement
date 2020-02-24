@@ -206,6 +206,30 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpPost, Route("copytonewprocess/{opmProcessId:guid}/{processStepId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Draft);
+
+                return await securityResponse
+                    .RequireAuthor()
+                    .OrRequireReviewer()
+                    .DoAsync(async () =>
+                    {
+                        var process = await ProcessService.CopyToNewProcessAsync(opmProcessId, processStepId);
+                        return process.AsApiResponse();
+                    });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
         [HttpPost, Route("discardchange/{opmProcessId:guid}")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> DiscardChangeProcessAsync(Guid opmProcessId)

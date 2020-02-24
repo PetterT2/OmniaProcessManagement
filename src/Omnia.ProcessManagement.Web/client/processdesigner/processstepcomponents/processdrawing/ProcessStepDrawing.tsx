@@ -13,6 +13,7 @@ import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
+import { CopyToNewProcessDialog } from '../../copytonewprocess_dialog/CopyToNewProcess';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -276,6 +277,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
             </v-navigation-drawer >
         );
+
+        components.push(<CopyToNewProcessDialog></CopyToNewProcessDialog>);
 
         return components;
     }

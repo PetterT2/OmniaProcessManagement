@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Omnia.ProcessManagement.Models.Images;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
@@ -30,6 +31,29 @@ namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
         public static string GenerateRelativeApiUrl(ImageReference imageRef, Guid opmProcessId)
         {
             return $"/api/images/{opmProcessId}/{imageRef.ImageId}/{imageRef.FileName}".ToLower();
+        }
+
+        public static List<int> GetImageIds(string imageUrl, Guid opmProcessId)
+        {
+            List<int> ids = new List<int>();
+            try
+            {
+                string splitStr = $"/api/images/{opmProcessId}/";
+                string[] strs = imageUrl.Split(splitStr);
+                for (int i = 0; i < strs.Length; i++)
+                {
+                    if (i + 1 < strs.Length)
+                    {
+                        string[] strs2 = strs[i + 1].Split('/');
+                        if (strs2.Length > 1)
+                            ids.Add(int.Parse(strs2[0]));
+                    }
+                }
+            }
+            catch
+            {
+            }
+            return ids;
         }
     }
 }

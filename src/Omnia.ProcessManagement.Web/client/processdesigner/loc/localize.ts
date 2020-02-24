@@ -67,6 +67,9 @@
         DrawFreeform: string;
         CheckedOutTo: string;
         ChangeProcessType: string;
+        CopyNewProcess: string;
+        CopyNewProcessConfirmation: string;
+        CopyNewProcessConfirmationDescription: string;
         ProcessType: string;
         ProcessTemplate: string;
         AddLinkedProcess: {
