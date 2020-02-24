@@ -35,25 +35,21 @@ namespace Omnia.ProcessManagement.Core.Helpers.ImageHerlpers
 
         public static List<int> GetImageIds(string imageUrl, Guid opmProcessId)
         {
-            List<int> ids = new List<int>();
             try
             {
-                string splitStr = $"/api/images/{opmProcessId}/";
-                string[] strs = imageUrl.Split(splitStr);
-                for (int i = 0; i < strs.Length; i++)
+                List<int> ids = new List<int>();
+                MatchCollection matchs = Regex.Matches(imageUrl, @"\b" + $"/api/images/{opmProcessId}/" + @"\b\d+", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                foreach (Match match in matchs)
                 {
-                    if (i + 1 < strs.Length)
-                    {
-                        string[] strs2 = strs[i + 1].Split('/');
-                        if (strs2.Length > 1)
-                            ids.Add(int.Parse(strs2[0]));
-                    }
+                    string[] strs = match.Value.Split('/');
+                    ids.Add(int.Parse(strs[strs.Length - 1]));
                 }
+                return ids;
             }
-            catch
+            catch (Exception ex)
             {
+                throw new Exception($"Can't clone Image Reference: {imageUrl} - {ex.Message}");
             }
-            return ids;
         }
     }
 }
