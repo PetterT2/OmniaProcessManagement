@@ -369,10 +369,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var publishedProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Published);
 
                 ProcessCheckoutInfo checkoutInfo = null;
-                if (draftProcess != null)
-                {
-                    checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
-                }
+
+                checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
 
                 Process process = null;
                 if (checkedOutProcess != null && checkoutInfo != null && checkoutInfo.CanCheckout)
@@ -619,14 +617,21 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
         {
+            if(checkedOutProcess == null && draftProcess == null)
+            {
+                return null;
+            }
+
             var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";
+            var teamAppId = checkedOutProcess != null ? checkedOutProcess.TeamAppId : draftProcess.TeamAppId;
+            var workingStatus = checkedOutProcess != null ? checkedOutProcess.ProcessWorkingStatus : draftProcess.ProcessWorkingStatus;
 
             var checkoutInfo = new ProcessCheckoutInfo
             {
                 CheckedOutBy = checkedOutBy,
                 CanCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
-                    (authorizedProcessQuery.IsAuthor(draftProcess.TeamAppId) || authorizedProcessQuery.IsReviewer(draftProcess.TeamAppId)) &&
-                    !OPMUtilities.IsActiveWorkflow(draftProcess.ProcessWorkingStatus)
+                    (authorizedProcessQuery.IsAuthor(teamAppId) || authorizedProcessQuery.IsReviewer(teamAppId)) &&
+                    !OPMUtilities.IsActiveWorkflow(workingStatus)
             };
 
             return checkoutInfo;
