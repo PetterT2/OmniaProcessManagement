@@ -286,6 +286,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 }
             }
 
+            fileItem[OPMConstants.SharePoint.OPMFields.Fields_IsArchived] = false;
             fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] = processActionModel.Process.OPMProcessId;
             fileItem[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = serializedprocessActionModel;
             fileItem[OPMConstants.SharePoint.SharePointFields.Title] = processTitle;

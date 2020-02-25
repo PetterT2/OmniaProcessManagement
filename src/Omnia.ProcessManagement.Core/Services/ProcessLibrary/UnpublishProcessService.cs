@@ -112,15 +112,25 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, 
             Microsoft.SharePoint.Client.File publishedFile, Folder imageFolder, Folder archivedProcessIdFolder)
         {
-            ClientResult<Stream> publishedFileStream = publishedFile.OpenBinaryStream();
-            sourceCtx.Load(publishedFile);
-            await sourceCtx.ExecuteQueryAsync();
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                OPMUtilities.CopyStream(publishedFileStream, memoryStream);
-                string fileName = Path.GetFileName(publishedFile.ServerRelativeUrl);
-                await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedProcessIdFolder, fileName, memoryStream, true);
-            }
+
+            var processFileName = OPMConstants.SharePoint.PublishedProcessFileName;
+            FileCreationInformation newFile = new FileCreationInformation();
+            newFile.Url = String.Format("{0}/{1}", archivedProcessIdFolder.ServerRelativeUrl, processFileName);
+            newFile.Overwrite = true;
+            newFile.Content = new byte[0];
+            Microsoft.SharePoint.Client.File addedFile = archivedProcessIdFolder.Files.Add(newFile);
+            archiveCtx.Load(addedFile);
+            await archiveCtx.ExecuteQueryAsync();
+
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_IsArchived] = true;
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessId] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessId];
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessIdNumber] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessIdNumber];
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessData] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_ProcessData];
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Edition] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Edition];
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Revision] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Revision];
+            addedFile.ListItemAllFields[OPMConstants.SharePoint.SharePointFields.Title] = publishedFile.ListItemAllFields[OPMConstants.SharePoint.SharePointFields.Title];
+            addedFile.ListItemAllFields.Update();
+            await archiveCtx.ExecuteQueryAsync();
 
             if (imageFolder != null && imageFolder.Files.Count > 0)
             {

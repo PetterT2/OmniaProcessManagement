@@ -198,6 +198,8 @@ namespace Omnia.ProcessManagement.Core.Services.Features
 
         private void EnsureFields(ISharePointEntityContext context, string fieldGroupName)
         {
+            context.EnsureField<OPMIsArchived>().Configure((option) => { option.Group = fieldGroupName; });
+            context.EnsureField<OPMProcessIdNumber>().Configure((option) => { option.Group = fieldGroupName; });
             context.EnsureField<OPMProcessId>().Configure((option) => { option.Group = fieldGroupName; });
             context.EnsureField<OPMEdition>().Configure((option) => { option.Group = fieldGroupName; });
             context.EnsureField<OPMRevision>().Configure((option) => { option.Group = fieldGroupName; });

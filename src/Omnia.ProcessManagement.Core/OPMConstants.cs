@@ -178,7 +178,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static IList<EnterprisePropertyDefinition> Properties => new List<EnterprisePropertyDefinition>()
                     {
-                        ProcessType, Revision, Edition
+                        ProcessType, Revision, Edition, OPMProcessIdNumber
                     };
                 public static EnterprisePropertyDefinition ProcessType
                 {
@@ -245,6 +245,50 @@ namespace Omnia.ProcessManagement.Core
                         };
                     }
                 }
+
+                //public static EnterprisePropertyDefinition OPMProcessId
+                //{
+                //    get
+                //    {
+                //        return new EnterprisePropertyDefinition()
+                //        {
+                //            Id = new Guid("36f2d3a4-0d6d-49ce-8f84-740c9777ba64"),
+                //            InternalName = SharePoint.OPMFields.Fields_ProcessId,
+                //            OmniaSearchable = false,
+                //            Title = new MultilingualString()
+                //            {
+                //                [LanguageTag.EnUs] = "Process Id"
+                //            },
+                //            EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Text.Id,
+                //            Settings = null,
+                //            SPSearchable = false,
+                //            ManagedPropertySettings = null,
+                //            BuiltIn = true
+                //        };
+                //    }
+                //}
+
+                public static EnterprisePropertyDefinition OPMProcessIdNumber
+                {
+                    get
+                    {
+                        return new EnterprisePropertyDefinition()
+                        {
+                            Id = new Guid("6bfa5057-9a88-4422-af57-71cd530e7311"),
+                            InternalName = SharePoint.OPMFields.Fields_ProcessIdNumber,
+                            OmniaSearchable = false,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Process Id Number"
+                            },
+                            EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Number.Id,
+                            Settings = null,
+                            SPSearchable = false,
+                            ManagedPropertySettings = null,
+                            BuiltIn = true
+                        };
+                    }
+                }
             }
 
             public static class ProcessLibrary
@@ -300,6 +344,8 @@ namespace Omnia.ProcessManagement.Core
             {
                 public const string Fields_ProcessType = "OPMProcessType";
                 public const string Fields_ProcessId = "OPMProcessId";
+                public const string Fields_IsArchived = "OPMIsArchived";
+                public const string Fields_ProcessIdNumber = "OPMProcessIdNumber";
                 public const string Fields_Edition = "OPMEdition";
                 public const string Fields_Revision = "OPMRevision";
                 public const string Fields_ProcessData = "OPMProcessData";
