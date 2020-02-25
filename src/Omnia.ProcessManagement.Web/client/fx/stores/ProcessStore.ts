@@ -86,7 +86,7 @@ export class ProcessStore extends Store {
             }
 
             let processReferenceData: ProcessReferenceData = null;
-            let processSite = this.processSiteDict.state[this.getProcessSiteCacheKey(process.rootProcessStep.id)]
+            let processSite = this.processSiteDict.state[this.getProcessSiteCacheKey(process.teamAppId)]
 
             if (processReference.shortcutProcessStepId) {
                 let shortcutProcessDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.shortcutProcessStepId);

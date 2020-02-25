@@ -8,7 +8,7 @@
         Height: string;
         GridX: string;
         GridY: string;
-        ShowGridlinnes: string,
+        ShowGridlines: string,
         HighlightShapes: string,
         OnDarkBackground: string,
         OnLightBackground: string,

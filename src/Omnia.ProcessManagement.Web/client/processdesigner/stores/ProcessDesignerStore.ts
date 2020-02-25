@@ -36,7 +36,7 @@ export class ProcessDesignerStore extends Store {
     formValidator: FormValidator = null;
     recentShapeSelections = this.state<Array<ShapeDefinition>>([]);
     selectedShape = this.state<DrawingShape>(null);
-    showGridlines = this.state<boolean>(true);
+    showGridlines = this.state<boolean>(false);
     highlightShapes = this.state<boolean>(false);
     highlightShapesWithDarkColor = this.state<boolean>(true);
 

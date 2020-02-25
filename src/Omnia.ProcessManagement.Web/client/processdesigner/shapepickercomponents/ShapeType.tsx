@@ -447,7 +447,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 title: '[' + this.pdLoc.New + ']'
             });
         }
-        let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep;
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        let currentProcessStep = referenceData.current.processStep as InternalProcessStep;
         if (currentProcessStep.processSteps) {
             processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.filter(s => s.type == ProcessStepType.Internal).map(item => {
                 return {
@@ -455,6 +456,14 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     title: this.multilingualStore.getters.stringValue(item.title)
                 }
             }));
+        }
+        if (this.selectedProcessStepId && processStepOptions.find(p => p.id == this.selectedProcessStepId) == null) {
+            let selectedProcessStep = OPMUtils.getProcessStepInProcess(referenceData.process.rootProcessStep, this.selectedProcessStepId);
+            if (selectedProcessStep)
+                processStepOptions.push({
+                    id: this.selectedProcessStepId,
+                    title: this.multilingualStore.getters.stringValue(selectedProcessStep.desiredProcessStep.title)
+                });
         }
 
         return <div>
