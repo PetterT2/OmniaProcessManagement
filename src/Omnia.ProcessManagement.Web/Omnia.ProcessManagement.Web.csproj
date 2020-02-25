@@ -86,6 +86,12 @@
     <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.css.ts" />
     <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.manifest.ts" />
     <TypeScriptCompile Remove="client\components\pointpicker\PointPicker.tsx" />
+    <TypeScriptCompile Remove="client\components\processpicker\IProcessPicker.ts" />
+    <TypeScriptCompile Remove="client\components\processpicker\loc\localize.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\processpicker\loc\localize.ts" />
+    <TypeScriptCompile Remove="client\components\processpicker\ProcessPicker.css.ts" />
+    <TypeScriptCompile Remove="client\components\processpicker\ProcessPicker.manifest.ts" />
+    <TypeScriptCompile Remove="client\components\processpicker\ProcessPicker.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\IProcessStepPicker.ts" />
     <TypeScriptCompile Remove="client\components\processsteppicker\NavigationNode.tsx" />
     <TypeScriptCompile Remove="client\components\processsteppicker\ProcessStepPicker.css.ts" />
@@ -117,6 +123,16 @@
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
     <TypeScriptCompile Remove="client\core\styles\DialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\core\styles\index.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\IProcessFieldDisplay.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.css.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.manifest.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.tsx" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\edit\processfield\IProcessFieldEdit.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\edit\processfield\ProcessFieldEdit.manifest.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\edit\processfield\ProcessFieldEdit.tsx" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\valuedefinition\processfield\IProcessFieldValueDefinition.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\valuedefinition\processfield\ProcessFieldValueDefinition.manifest.ts" />
+    <TypeScriptCompile Remove="client\enterpriseproperties\valuedefinition\processfield\ProcessFieldValueDefinition.tsx" />
     <TypeScriptCompile Remove="client\fx\Constants.ts" />
     <TypeScriptCompile Remove="client\fx\contexts\index.ts" />
     <TypeScriptCompile Remove="client\fx\contexts\opm.contexts.manifest.ts" />
@@ -202,6 +218,7 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\ExternalProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\InternalProcessStep.ts" />
+    <TypeScriptCompile Remove="client\fx\models\data\processes\LightProcess.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Link.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\PreviewProcessWithCheckoutInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />
@@ -283,6 +300,8 @@
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\MediaPickerStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ProcessFieldDisplayStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ProcessPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeGalleryDefaultSettingStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ShapeSelectionStyles.ts" />
@@ -588,9 +607,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\enterpriseproperties\display\processfield\" />
-    <Folder Include="client\enterpriseproperties\edit\processfield\" />
-    <Folder Include="client\enterpriseproperties\valuedefinition\processfield\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

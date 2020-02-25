@@ -8,3 +8,4 @@ export * from './ProcessCheckoutInfo';
 export * from './PreviewProcessWithCheckoutInfo';
 export * from './InternalProcessStep';
 export * from './ExternalProcessStep';
+export * from './LightProcess';

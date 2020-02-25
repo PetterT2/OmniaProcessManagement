@@ -6,10 +6,12 @@ using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.NetCore.Utils.Query;
+using Omnia.Fx.Queries;
 using Omnia.Fx.Tenant;
 using Omnia.Fx.Users;
 using Omnia.ProcessManagement.Core.Services.ProcessHandler;
 using Omnia.ProcessManagement.Models.Enums;
+using Omnia.ProcessManagement.Models.Processes;
 using Omnia.ProcessManagement.Models.ProcessRollup;
 using System;
 using System.Collections.Generic;
@@ -36,46 +38,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 
         public async ValueTask<RollupProcessResult> QueryProcessRollup(RollupSetting setting)
         {
-            List<RollupFilter> titleFilters = new List<RollupFilter>();
-
-            if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
-            {
-                titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
-                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList(); ;
-            }
-
-            if (setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
-            {
-                var titleQueries = setting.Resources[0].Filters.Where(f => f.Property == "Title").ToList();
-                if (titleQueries.Count > 0)
-                    titleFilters.AddRange(titleQueries);
-                setting.Resources[0].Filters = setting.Resources[0].Filters.Where(f => f.Property != "Title").ToList(); ;
-            }
-
-            var helper = new RollupHelper(setting);
-            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id, titleFilters);
-
-            processQuery
-            .Where(subItem => helper.ResolveResourcesFilters(subItem))
-            .AndWhere(subItem => helper.ResolveCustomFilters(subItem));
-
-            if (setting.Skip.HasValue)
-            {
-                processQuery.Skip(setting.Skip.Value).Take(setting.ItemLimit.Value);
-            }
-
-            if (setting.IncludeTotal)
-                processQuery.IncludeTotal();
-
-            foreach (var order in setting.OrderBy)
-            {
-                if (!string.IsNullOrEmpty(order.PropertyName))
-                {
-                    if (order.Descending)
-                        processQuery.OrderByDescending(order.PropertyName);
-                    else processQuery.OrderBy(order.PropertyName);
-                }
-            }
+            var (processQuery, titleFilters) = await GetProcessQuery(setting);
 
             var queryResult = await processQuery.GetResultAsync();
 
@@ -125,6 +88,74 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             }
 
             return result;
+        }
+
+        public async ValueTask<List<LightProcess>> QueryProcessRollupWithoutPermission(RollupSetting setting)
+        {
+            var (processQuery, titleFilters) = await GetProcessQuery(setting, true);
+
+            var queryResult = await processQuery.GetResultAsync();
+
+            var result = new List<LightProcess>();
+
+            foreach (var process in queryResult.Items)
+            {
+                if (process != null)
+                {
+                    result.Add(new LightProcess() { 
+                        Id = process.Id,
+                        Title = process.RootProcessStep.Title
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        private async ValueTask<(IOmniaQueryable<Process>, List<RollupFilter>)> GetProcessQuery(RollupSetting setting, bool excludeSecurityTrimming = false)
+        {
+            List<RollupFilter> titleFilters = new List<RollupFilter>();
+
+            if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
+            {
+                titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
+                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList(); ;
+            }
+
+            if (setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
+            {
+                var titleQueries = setting.Resources[0].Filters.Where(f => f.Property == "Title").ToList();
+                if (titleQueries.Count > 0)
+                    titleFilters.AddRange(titleQueries);
+                setting.Resources[0].Filters = setting.Resources[0].Filters.Where(f => f.Property != "Title").ToList(); ;
+            }
+
+            var helper = new RollupHelper(setting);
+            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id, titleFilters, excludeSecurityTrimming);
+
+            processQuery
+            .Where(subItem => helper.ResolveResourcesFilters(subItem))
+            .AndWhere(subItem => helper.ResolveCustomFilters(subItem));
+
+            if (setting.Skip.HasValue)
+            {
+                processQuery.Skip(setting.Skip.Value).Take(setting.ItemLimit.Value);
+            }
+
+            if (setting.IncludeTotal)
+                processQuery.IncludeTotal();
+
+            foreach (var order in setting.OrderBy)
+            {
+                if (!string.IsNullOrEmpty(order.PropertyName))
+                {
+                    if (order.Descending)
+                        processQuery.OrderByDescending(order.PropertyName);
+                    else processQuery.OrderBy(order.PropertyName);
+                }
+            }
+
+            return (processQuery, titleFilters);
         }
 
         private async ValueTask<string> GetDefaultProcessTitle(MultilingualString multilingualTitle, RollupFilter? titleFilter)

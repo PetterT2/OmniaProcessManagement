@@ -52,13 +52,16 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
             TenantService = tenantService;
         }
 
-        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters)
+        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters, bool excludeSecurityTrimming = false)
         {
             Enum.TryParse(versionTypeStr, out VersionType);
             TitleFilters = titleFilters;
             var (enterpriseProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();
             var queryFilterResolver = new QueryFilterResolver(enterpriseProperties, DefaultAppProperties);
-            return new QueryBuilder<Process>(QueryProcesses, queryFilterResolver);
+            if(excludeSecurityTrimming == true)
+                return new QueryBuilder<Process>(QueryProcessesWithoutPermission, queryFilterResolver);
+            else
+                return new QueryBuilder<Process>(QueryProcesses, queryFilterResolver);
         }
 
         protected async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery)
@@ -66,6 +69,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
             string securityTrimmingQuery = await ProcessSecurityService.GetRollupSecurityTrimmingQuery(VersionType);
             List<string> titleFilters = await GetTitleFilterQuery();
             return await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery, titleFilters);
+        }
+
+        protected async ValueTask<ItemQueryResult<Process>> QueryProcessesWithoutPermission(ItemQuery itemQuery)
+        {
+            List<string> titleFilters = await GetTitleFilterQuery();
+            return await ProcessService.QueryProcesses(itemQuery, "", titleFilters);
         }
 
         private async ValueTask<List<string>> GetTitleFilterQuery()
