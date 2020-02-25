@@ -12,7 +12,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         Height: "Height",
         GridX: "GridX",
         GridY: "GridY",
-        ShowGridlinnes: "Show grindlines",
+        ShowGridlines: "Show gridlines",
         HighlightShapes: "Highlight shapes",
         OnDarkBackground: "on dark background",
         OnLightBackground: "on light background",
@@ -71,6 +71,9 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         DrawFreeform: "Draw Freeform",
         CheckedOutTo: "Checked out to",
         ChangeProcessType: "Change Process Type",
+        CopyNewProcess: "Copy to new Process",
+        CopyNewProcessConfirmation: "Are you sure you want to copy to a new process?",
+        CopyNewProcessConfirmationDescription: "The current process step and all children will be copied and created in the drafts.",
         ProcessType: "Process Type",
         ProcessTemplate: "Process Template",
         AddLinkedProcess: {

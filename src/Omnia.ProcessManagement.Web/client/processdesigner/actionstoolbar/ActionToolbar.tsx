@@ -125,6 +125,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
                                 }
                                 return [
                                     <v-btn
+                                        class="ml-2"
                                         {...toSpread}
                                         icon
                                         dark={this.omniaTheming.chrome.background.dark}>

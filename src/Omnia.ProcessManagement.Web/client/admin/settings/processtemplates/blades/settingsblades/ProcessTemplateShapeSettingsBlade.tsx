@@ -116,7 +116,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     }
 
     startToDrawShape() {
-        OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString()).then(() => {
+        OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString(), () => {
             if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
                 this.initDrawingCanvas();
                 this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, null, null, null, null,

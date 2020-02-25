@@ -12,11 +12,13 @@ using Omnia.Fx.Contexts;
 using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.Models.JsonTypes;
+using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Extensions;
+using Omnia.ProcessManagement.Core.Helpers.ImageHerlpers;
 using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
@@ -62,7 +64,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
         {
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0, 0);
 
             var process = new Entities.Processes.Process();
             process.Id = actionModel.Process.Id;
@@ -203,12 +205,16 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
                         validChildProcessStep = AddProcessDataRecursive(processId, childInternalProcessStep, processDataDict);
                     }
-                    else if(childProcessStep.Type == ProcessStepType.External)
+                    else if (childProcessStep.Type == ProcessStepType.External)
                     {
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
-                    processSteps.Add(validChildProcessStep);
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
                 }
                 processStep.ProcessSteps = processSteps;
             }
@@ -253,17 +259,26 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 var edition = 1;
                 var revision = 0;
-
+                int opmProcessIdNumber = 0;
                 if (publishedProcess != null)
                 {
                     publishedProcess.VersionType = ProcessVersionType.Archived;
 
-                    var (latestEdition, latestRevision) = ProcessVersionHelper.GetEditionAndRevision(publishedProcess);
+                    var (latestEdition, latestRevision, latestOPMProcessIdNumber) = ProcessVersionHelper.GetEditionRevisionAndOPMProcessIdNumber(JsonConvert.DeserializeObject<Dictionary<string, JToken>>(publishedProcess.EnterpriseProperties));
                     edition = isRevision ? latestEdition : latestEdition + 1;
                     revision = isRevision ? latestRevision + 1 : 0;
+                    opmProcessIdNumber = latestOPMProcessIdNumber;
                 }
 
-                EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision);
+                if(opmProcessIdNumber == 0)
+                {
+                    var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = opmProcessId };
+                    DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
+                    await DbContext.SaveChangesAsync();
+                    opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+                }
+
+                EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
 
                 rootProcessStep.Comment = comment;
                 draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
@@ -322,9 +337,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 throw new ProcessNotFoundException(actionModel.Process.Id);
             }
+            var rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(checkedOutProcessWithProcessDataIdHash.Process.JsonValue);
 
-            var (edition, revision) = ProcessVersionHelper.GetEditionAndRevision(checkedOutProcessWithProcessDataIdHash.Process);
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision);
+            if (rootProcessStep.Id != actionModel.Process.RootProcessStep.Id)
+            {
+                throw new InvalidRootProcessStepIdException(actionModel.Process.OPMProcessId, rootProcessStep.Id, actionModel.Process.RootProcessStep.Id);
+            }
+
+            var (edition, revision, opmProcessIdNumber) = ProcessVersionHelper.GetEditionRevisionAndOPMProcessIdNumber(rootProcessStep.EnterpriseProperties);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
@@ -668,7 +689,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
-                    processSteps.Add(validChildProcessStep);
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
                 }
                 processStep.ProcessSteps = processSteps;
             }
@@ -835,6 +860,28 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new ProcessCheckedOutByAnotherUserException(process.CheckedOutBy);
                 }
 
+                var model = MapEfToModel(process);
+                return model;
+            });
+        }
+
+        public async ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId)
+        {
+            return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
+            {
+                var processEf = await DbContext.Processes
+                .Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.CheckedOut)
+                .FirstOrDefaultAsync();
+
+                if (processEf == null)
+                {
+                    throw new ProcessCheckedOutVersionNotFoundException(opmProcessId);
+                }
+                var processDataEfs = await DbContext.ProcessData
+                .Where(p => p.ProcessId == processEf.Id)
+                .ToListAsync();
+
+                var process = await CloneToNewProcessAsync(processEf, processDataEfs, processStepId);
                 var model = MapEfToModel(process);
                 return model;
             });
@@ -1094,6 +1141,229 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return clonedProcess;
         }
 
+        private ProcessStep FindProcessStepRecursive(InternalProcessStep processStep, Guid processStepId)
+        {
+            ProcessStep child = null;
+            if (processStep.ProcessSteps != null)
+            {
+                child = processStep.ProcessSteps.FirstOrDefault(p => p.Id == processStepId);
+                if (child != null)
+                    return child;
+                if (processStep.ProcessSteps != null)
+                {
+                    foreach (var childProcessStep in processStep.ProcessSteps)
+                    {
+                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        child = FindProcessStepRecursive(childInternalProcessStep, processStepId);
+                        if (child != null)
+                            return child;
+                    }
+                }
+            }
+            return child;
+        }
+        private async ValueTask<Entities.Processes.Process> CloneToNewProcessAsync(Entities.Processes.Process process, List<Entities.Processes.ProcessData> processDataEfs, Guid processStepId)
+        {
+            var draftProcess = MapEfToModel(process);
+            var processStep = FindProcessStepRecursive(draftProcess.RootProcessStep, processStepId);
+            if (processStep == null)
+            {
+                throw new ProcessDraftVersionNotFoundException(processStepId);
+            }
+            Dictionary<string, JToken> enterpriseProperties = draftProcess.RootProcessStep.EnterpriseProperties;
+            EnsureSystemEnterpriseProperties(enterpriseProperties, 0, 0, 0);
+            enterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
+
+            var clonedProcess = new Entities.Processes.Process();
+            clonedProcess.Id = Guid.NewGuid();
+            clonedProcess.OPMProcessId = Guid.NewGuid();
+            clonedProcess.EnterpriseProperties = JsonConvert.SerializeObject(enterpriseProperties);
+            clonedProcess.TeamAppId = process.TeamAppId;
+            clonedProcess.VersionType = ProcessVersionType.Draft;
+            clonedProcess.CreatedBy = OmniaContext.Identity.LoginName;
+            clonedProcess.ModifiedBy = OmniaContext.Identity.LoginName;
+            clonedProcess.CreatedAt = DateTimeOffset.UtcNow;
+            clonedProcess.ModifiedAt = DateTimeOffset.UtcNow;
+
+            Dictionary<Guid, ProcessData> processStepDataDict = new Dictionary<Guid, ProcessData>();
+            processDataEfs.ForEach(p => processStepDataDict.Add(p.ProcessStepId, MapEfToModel(p)));
+            Dictionary<Guid, Guid> newOldProcessDataStepIdsMapping = new Dictionary<Guid, Guid>();
+
+            var newProcessStep = CloneNewProcessStepRecursive(processStep.Cast<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping);
+            RootProcessStep rootProcessStep = new RootProcessStep
+            {
+                Id = newProcessStep.Id,
+                Title = processStep.Title,
+                ProcessTemplateId = draftProcess.RootProcessStep.ProcessTemplateId,
+                EnterpriseProperties = enterpriseProperties,
+                ProcessSteps = newProcessStep.ProcessSteps
+            };
+            InternalProcessStep internalProcessStep = rootProcessStep;
+            List<Entities.Processes.ProcessData> clonedProcessDatas = new List<Entities.Processes.ProcessData>();
+            List<int> imageIds = new List<int>();
+            CloneNewProcessDataRecursive(clonedProcess.Id, rootProcessStep, processStepDataDict, newOldProcessDataStepIdsMapping, clonedProcessDatas, imageIds, process.OPMProcessId, clonedProcess.OPMProcessId);
+            clonedProcess.JsonValue = JsonConvert.SerializeObject((RootProcessStep)internalProcessStep);
+
+            DbContext.Processes.Add(clonedProcess);
+            await DbContext.SaveChangesAsync();
+
+            clonedProcessDatas.ForEach(processDataEf => DbContext.ProcessData.Add(processDataEf));
+            await DbContext.SaveChangesAsync();
+
+            if (imageIds.Count > 0)
+            {
+                var rawSql = GenerateCloneImageReferencesRawSql(process.Id, clonedProcess.Id, imageIds);
+                await DbContext.ExecuteSqlCommandAsync(rawSql);
+            }
+            return clonedProcess;
+        }
+
+        private string GenerateCloneImageReferencesRawSql(Guid oldProcessId, Guid newProcessId, List<int> imageIds)
+        {
+            #region Names
+            var tableName = nameof(DbContext.ImageReferences);
+            var processIdColumn = nameof(Entities.Images.ImageReference.ProcessId);
+            var fileNameColumn = nameof(Entities.Images.ImageReference.FileName);
+            var imageIdColumn = nameof(Entities.Images.ImageReference.ImageId);
+            #endregion
+
+            #region SQL
+            return @$"INSERT INTO {tableName} ({processIdColumn}, {fileNameColumn}, {imageIdColumn}) SELECT '{newProcessId}', im.{fileNameColumn}, im.{imageIdColumn} FROM {tableName} im WHERE {processIdColumn} = '{oldProcessId}' and {imageIdColumn} in ({string.Join(',', imageIds)})";
+            #endregion
+        }
+
+        private string GetReferenceProcessStepIds(ProcessData processData, Dictionary<Guid, Guid> newOldProcessDataStepIdsMapping, List<int> imageIds, Guid oldOpmProcessId, Guid newOpmProcessId)
+        {
+            var referenceProcessStepIds = "";
+            if (processData.CanvasDefinition != null && processData.CanvasDefinition.DrawingShapes != null)
+            {
+                var processStepIds =
+                    processData.CanvasDefinition.DrawingShapes.Where(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep)
+                    .Select(s => s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
+
+                List<DrawingShape> drawingShapes = new List<DrawingShape>();
+                List<Guid> newProcessIds = new List<Guid>();
+                foreach (var drawingShape in processData.CanvasDefinition.DrawingShapes)
+                {
+                    if (!string.IsNullOrEmpty(drawingShape.Shape.Definition.ImageUrl))
+                    {
+                        drawingShape.Shape.Definition.ImageUrl = drawingShape.Shape.Definition.ImageUrl.Replace(oldOpmProcessId.ToString(), newOpmProcessId.ToString());
+                        imageIds.AddRange(ImageHelper.GetImageIds(drawingShape.Shape.Definition.ImageUrl, newOpmProcessId));
+                    }
+                    if (drawingShape.Type == DrawingShapeTypes.ProcessStep)
+                    {
+                        var newDrawingShape = drawingShape.Cast<DrawingShape, ProcessStepDrawingShape>();
+                        if (newOldProcessDataStepIdsMapping.ContainsValue(newDrawingShape.ProcessStepId))
+                        {
+                            newDrawingShape.ProcessStepId = newOldProcessDataStepIdsMapping.FirstOrDefault(v => v.Value == newDrawingShape.ProcessStepId).Key;
+                            newProcessIds.Add(newDrawingShape.ProcessStepId);
+                            drawingShapes.Add(newDrawingShape);
+                        }
+                        else
+                        {
+                            var undefinedDrawingShape = drawingShape.Cast<DrawingShape, UndefinedDrawingShape>();
+                            undefinedDrawingShape.AdditionalProperties.Clear();
+                            drawingShapes.Add(undefinedDrawingShape);
+                        }
+                    }
+                    else
+                        drawingShapes.Add(drawingShape);
+                }
+                processData.CanvasDefinition.DrawingShapes = drawingShapes;
+                if (!string.IsNullOrEmpty(processData.CanvasDefinition.BackgroundImageUrl))
+                {
+                    processData.CanvasDefinition.BackgroundImageUrl = processData.CanvasDefinition.BackgroundImageUrl.Replace(oldOpmProcessId.ToString(), newOpmProcessId.ToString());
+                    imageIds.AddRange(ImageHelper.GetImageIds(processData.CanvasDefinition.BackgroundImageUrl, newOpmProcessId));
+                }
+                else
+                    processData.CanvasDefinition.BackgroundImageUrl = "";
+
+                referenceProcessStepIds = string.Join(',', newProcessIds);
+            }
+
+            if (processData.Content != null && processData.Content.Count > 0)
+            {
+                MultilingualString content = new MultilingualString();
+                processData.Content.ToList().ForEach(t => content.Add(t.Key, string.IsNullOrEmpty(t.Value) ? "" : t.Value.Replace(oldOpmProcessId.ToString(), newOpmProcessId.ToString())));
+                processData.Content.ToList().ForEach(t => imageIds.AddRange(ImageHelper.GetImageIds(t.Value, oldOpmProcessId)));
+                processData.Content = content;
+            }
+
+            return referenceProcessStepIds;
+        }
+
+        private InternalProcessStep CloneNewProcessDataRecursive(Guid processId, InternalProcessStep processStep, Dictionary<Guid, ProcessData> processStepDataDict, Dictionary<Guid, Guid> newOldProcessDataStepIdsMapping,
+            List<Entities.Processes.ProcessData> clonedProcessDatas, List<int> imageIds, Guid oldOpmProcessId, Guid newOpmProcessId)
+        {
+            if (newOldProcessDataStepIdsMapping.TryGetValue(processStep.Id, out var oldProcessStepId) && processStepDataDict.TryGetValue(oldProcessStepId, out var processData) && processData != null)
+            {
+                var refrerenceProcessStepIds = GetReferenceProcessStepIds(processData, newOldProcessDataStepIdsMapping, imageIds, oldOpmProcessId, newOpmProcessId);
+
+                var processDataEf = new Entities.Processes.ProcessData();
+                processDataEf.ProcessStepId = processStep.Id;
+                processDataEf.ProcessId = processId;
+                processDataEf.JsonValue = JsonConvert.SerializeObject(new InternalProcessData(processData));
+                processDataEf.ReferenceProcessStepIds = refrerenceProcessStepIds;
+                processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
+                processDataEf.CreatedBy = OmniaContext.Identity.LoginName;
+                processDataEf.ModifiedBy = OmniaContext.Identity.LoginName;
+                processDataEf.CreatedAt = DateTimeOffset.UtcNow;
+                processDataEf.ModifiedAt = DateTimeOffset.UtcNow;
+
+                processStep.ProcessDataHash = processDataEf.Hash;
+
+                clonedProcessDatas.Add(processDataEf);
+            }
+            else
+            {
+                throw new ProcessDataNotFoundException(processStep.Id);
+            }
+
+            if (processStep.ProcessSteps != null)
+            {
+                var processSteps = new List<ProcessStep>();
+                foreach (var childProcessStep in processStep.ProcessSteps)
+                {
+                    ProcessStep validChildProcessStep = null;
+                    if (childProcessStep.Type == ProcessStepType.Internal)
+                    {
+                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        validChildProcessStep = CloneNewProcessDataRecursive(processId, childInternalProcessStep, processStepDataDict, newOldProcessDataStepIdsMapping, clonedProcessDatas, imageIds, oldOpmProcessId, newOpmProcessId);
+                    }
+                    else if (childProcessStep.Type == ProcessStepType.External)
+                    {
+                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        CleanModel(validChildProcessStep);
+                    }
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
+                }
+                processStep.ProcessSteps = processSteps;
+            }
+
+            return processStep;
+        }
+
+        private InternalProcessStep CloneNewProcessStepRecursive(InternalProcessStep processStep, Dictionary<Guid, Guid> newOldProcessDataStepIdsMapping)
+        {
+            Guid oldProcessStepId = processStep.Id;
+            processStep.Id = Guid.NewGuid();
+            newOldProcessDataStepIdsMapping.Add(processStep.Id, oldProcessStepId);
+            if (processStep.ProcessSteps != null)
+            {
+                var processSteps = new List<ProcessStep>();
+                foreach (var childProcessStep in processStep.ProcessSteps)
+                {
+                    processSteps.Add(CloneNewProcessStepRecursive(childProcessStep.Cast<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping));
+                }
+                processStep.ProcessSteps = processSteps;
+            }
+            return processStep;
+        }
+
         private async ValueTask<Entities.Processes.Process> GetProcessAsync(Guid opmProcessId, ProcessVersionType versionType, bool tracking)
         {
             var processes = tracking ? DbContext.Processes.AsTracking() : DbContext.Processes;
@@ -1296,14 +1566,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public override bool ShouldAddComputedColumn(EnterprisePropertyDefinition property)
         {
             if (property.InternalName == OPMConstants.Features.OPMDefaultProperties.Edition.InternalName ||
-                property.InternalName == OPMConstants.Features.OPMDefaultProperties.Revision.InternalName)
+                property.InternalName == OPMConstants.Features.OPMDefaultProperties.Revision.InternalName ||
+                property.InternalName == OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName)
                 return true;
 
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
 
-        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision)
+        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision, int opmProcessIdNumber)
         {
             if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
                 !Guid.TryParse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid _))
@@ -1313,6 +1584,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.Edition.InternalName] = edition;
             enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.Revision.InternalName] = revision;
+
+            if (opmProcessIdNumber < 0 || (opmProcessIdNumber == 0 && (edition != 0 || revision != 0)))
+            {
+                throw new Exception("Invalid OPMProcessIdNumber: " + opmProcessIdNumber);
+            }
+
+            enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName] = opmProcessIdNumber;
         }
 
         private void EnsureValidProcessWorkingStatusForPublishedProcess(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)

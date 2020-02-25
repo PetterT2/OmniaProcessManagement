@@ -313,7 +313,7 @@ export class CurrentProcessStore extends Store {
                     if (Utils.isNullOrEmpty(title))
                         title = { isMultilingualString: true };
                     let processStep: InternalProcessStep = {
-                        id: Guid.newGuid(),
+                        id: Guid.newGuid().toString(),
                         title: title,
                         processDataHash: '',
                         processSteps: [],
@@ -365,7 +365,7 @@ export class CurrentProcessStore extends Store {
                     if (Utils.isNullOrEmpty(title))
                         title = { isMultilingualString: true };
                     let processStep: ExternalProcessStep = {
-                        id: Guid.newGuid(),
+                        id: Guid.newGuid().toString(),
                         title: title,
                         multilingualTitle: this.multilingualStore.getters.stringValue(title),
                         rootProcessStepId: externalRootProcessStepId,
@@ -398,7 +398,7 @@ export class CurrentProcessStore extends Store {
             })
         }),
         //refreshContentNavigation parameter is used for onDispatched
-        saveState: this.action((refreshContentNavigation?: boolean): Promise<null> => {
+        saveState: this.action((): Promise<null> => {
 
             return this.transaction.newProcessOperation(() => {
                 return new Promise<null>((resolve, reject) => {

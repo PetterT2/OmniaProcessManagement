@@ -30,10 +30,10 @@ StyleFlow.define(ProcessStepPickerStyles,
                 paddingLeft: padding,
                 color: textColor,
                 position: "relative" as any,
-                $nest: {
+                cursor: disabled ? "not-allowed" : "pointer",
+                $nest: disabled ? {} : {
                     '&:hover': {
                         background: hoverColorStr,
-                        cursor: disabled ? "auto" : "pointer",
                         color: important('white'),
                         $nest:
                         {

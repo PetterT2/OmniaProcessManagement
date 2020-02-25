@@ -50,8 +50,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private selectedProcessStepId: GuidValue = Guid.empty;
     private selectedCustomLinkId: GuidValue = Guid.empty;
+    private selectedExternalProcessStepId: GuidValue = Guid.empty;
 
-    private selectedRootProcessStepId: GuidValue = null;
+    private selectedLinkedRootProcessStepId: GuidValue = null;
     private shapeTitle: MultilingualString = null;
     private shape: ShapeObject = null;
     private selectedShapeTemplate: ShapeTemplate = null;
@@ -94,7 +95,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             title: this.pdLoc.ShapeTypes.ProcessStep
         },
         {
-            value: DrawingShapeTypes.ExternalProcess,
+            value: DrawingShapeTypes.ExternalProcessStep,
             title: this.pdLoc.ShapeTypes.LinkedProcess
         },
         {
@@ -140,7 +141,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.selectedShapeType = this.drawingOptions.shapeType;
         this.selectedProcessStepId = this.drawingOptions.processStepId;
         this.selectedCustomLinkId = this.drawingOptions.customLinkId;
-        this.selectedRootProcessStepId = this.drawingOptions.externalRootProcesStepId;
+        this.selectedExternalProcessStepId = this.drawingOptions.externalProcesStepId;
         this.shapeTitle = this.drawingOptions.title;
     }
 
@@ -158,7 +159,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             shapeType: this.selectedShapeType,
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            externalRootProcesStepId: this.selectedRootProcessStepId,
+            externalProcesStepId: this.selectedExternalProcessStepId,
+            linkedRootProcessStepId: this.selectedLinkedRootProcessStepId,
             title: this.shapeTitle,
             shape: this.shape
         };
@@ -169,14 +171,26 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private onSelectedShapeType(selectedShapeType) {
         this.selectedProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
+        this.selectedExternalProcessStepId = !this.isHideCreateNew ? Guid.empty : null;
         this.selectedCustomLinkId = Guid.empty;
-        this.selectedRootProcessStepId = null;
+        this.selectedLinkedRootProcessStepId = null;
         this.shapeTitle = null;
         this.onDrawingShapeOptionChanged();
     }
-    private onSelectedProcessChanged() {
+    private onSelectedProcessStepIdChanged() {
         let childSteps = (this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep).processSteps;
         let selectedStep = childSteps.find(item => item.id == this.selectedProcessStepId);
+        if (selectedStep) {
+            this.shapeTitle = Utils.clone(selectedStep.title);
+        }
+        else
+            this.shapeTitle = null;
+
+        this.onDrawingShapeOptionChanged();
+    }
+    private onSelectedExternalProcessStepIdChanged() {
+        let childSteps = (this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep).processSteps;
+        let selectedStep = childSteps.find(item => item.id == this.selectedExternalProcessStepId);
         if (selectedStep) {
             this.shapeTitle = Utils.clone(selectedStep.title);
         }
@@ -228,7 +242,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         else {
             let position = this.getLeftTop();
-            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
                     .then((readyDrawingShape: DrawingShape) => {
@@ -321,11 +335,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     startToDrawShape() {
         if (this.internalShapeDefinition) {
-            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
+            OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
                 let position = this.getLeftTop();
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
-            });
+            })
         }
     }
 
@@ -400,8 +414,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                         this.renderChildProcessSteps(h)
                         : null
                     }
-                    {this.selectedShapeType == DrawingShapeTypes.ExternalProcess ?
-                        this.renderChildLinkedProcessSteps(h)
+                    {this.selectedShapeType == DrawingShapeTypes.ExternalProcessStep ?
+                        this.renderChildExternalProcessSteps(h)
                         : null
                     }
                     {this.selectedShapeType == DrawingShapeTypes.CustomLink ?
@@ -424,7 +438,43 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             </v-row>
         </v-container>;
     }
+
     private renderChildProcessSteps(h) {
+        let processStepOptions = [];
+        if (!this.isHideCreateNew) {
+            processStepOptions.push({
+                id: Guid.empty,
+                title: '[' + this.pdLoc.New + ']'
+            });
+        }
+        let referenceData = this.currentProcessStore.getters.referenceData();
+        let currentProcessStep = referenceData.current.processStep as InternalProcessStep;
+        if (currentProcessStep.processSteps) {
+            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.filter(s => s.type == ProcessStepType.Internal).map(item => {
+                return {
+                    id: item.id,
+                    title: this.multilingualStore.getters.stringValue(item.title)
+                }
+            }));
+        }
+        if (this.selectedProcessStepId && processStepOptions.find(p => p.id == this.selectedProcessStepId) == null) {
+            let selectedProcessStep = OPMUtils.getProcessStepInProcess(referenceData.process.rootProcessStep, this.selectedProcessStepId);
+            if (selectedProcessStep)
+                processStepOptions.push({
+                    id: this.selectedProcessStepId,
+                    title: this.multilingualStore.getters.stringValue(selectedProcessStep.desiredProcessStep.title)
+                });
+        }
+
+        return <div>
+            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId}
+                onChange={this.onSelectedProcessStepIdChanged}
+                rules={new FieldValueValidation().IsRequired().getRules()}
+            ></v-select>
+        </div>;
+    }
+
+    private renderChildExternalProcessSteps(h) {
         let processStepOptions = [];
         if (!this.isHideCreateNew) {
             processStepOptions.push({
@@ -434,7 +484,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
         let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep as InternalProcessStep;
         if (currentProcessStep.processSteps) {
-            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.map(item => {
+            processStepOptions = processStepOptions.concat(currentProcessStep.processSteps.filter(s => s.type == ProcessStepType.External).map(item => {
                 return {
                     id: item.id,
                     title: this.multilingualStore.getters.stringValue(item.title)
@@ -442,21 +492,24 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             }));
         }
 
-        return <div>
-            <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedProcessStepId}
-                onChange={this.onSelectedProcessChanged}
-                rules={new FieldValueValidation().IsRequired().getRules()}
-            ></v-select>
-        </div>;
+        return (
+            <div>
+                <v-select item-value="id" item-text="title" items={processStepOptions} v-model={this.selectedExternalProcessStepId}
+                    onChange={this.onSelectedExternalProcessStepIdChanged}
+                    rules={new FieldValueValidation().IsRequired().getRules()}>
+                </v-select>
+                {!this.isHideCreateNew && this.selectedExternalProcessStepId === Guid.empty ? this.renderAddLinkedProcess(h) : null}
+            </div>
+        );
     }
 
-    private renderChildLinkedProcessSteps(h) {
+    private renderAddLinkedProcess(h) {
         return <div>
             <opm-processdesigner-addlinkedprocess
-                rootProcessStepId={this.selectedRootProcessStepId}
+                rootProcessStepId={this.selectedLinkedRootProcessStepId}
                 onChange={(title, rootProcessStepId) => {
                     this.shapeTitle = title;
-                    this.selectedRootProcessStepId = rootProcessStepId;
+                    this.selectedLinkedRootProcessStepId = rootProcessStepId;
                     this.updateDrawedShape();
                 }}>
             </opm-processdesigner-addlinkedprocess>

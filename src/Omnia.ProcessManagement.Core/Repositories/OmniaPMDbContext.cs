@@ -63,7 +63,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ShapeTemplate> ShapeTemplates { get; set; }
         public DbSet<ShapeTemplateImage> ShapeTemplateImages { get; set; }
         public DbSet<ReviewReminderQueue> ReviewReminderQueues { get; set; }
-
+        public DbSet<ProcessIdNumber> ProcessIdNumbers { get; set; }
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
         public DbSet<AlternativeProcessEF> AlternativeProcessEFView { get; set; }
@@ -125,6 +125,10 @@ namespace Omnia.ProcessManagement.Core.Repositories
               .HasIndex(r => new { r.OPMProcessId, r.Pending  })
               .IsUnique()
               .HasFilter($"[Pending] = 1");
+
+            modelBuilder.Entity<ProcessIdNumber>()
+               .HasIndex(r => new { r.OPMProcessId })
+               .IsUnique();
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
             modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();

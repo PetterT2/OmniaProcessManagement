@@ -194,7 +194,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
     }
 
     startToDrawShape() {
-        OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString()).then(() => {
+        OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
             this.initDrawingCanvas();
             var shapeDefinition = this.getShapeDefinitionToDraw();
             this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, shapeDefinition, null, 0, 0, null, null,

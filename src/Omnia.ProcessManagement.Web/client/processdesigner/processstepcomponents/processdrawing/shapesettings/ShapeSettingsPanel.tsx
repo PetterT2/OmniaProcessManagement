@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace
 import { CurrentProcessStore, ShapeTemplatesConstants, OPMUtils } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, DrawingProcessStepShape, DrawingCustomLinkShape, DrawingImageShapeDefinition, DrawingExternalProcessShape } from '../../../../fx/models';
+import { DrawingShape, DrawingShapeDefinition, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, DrawingImageShapeDefinition, ExternalProcessStepDrawingShape } from '../../../../fx/models';
 import { DrawingShapeOptions } from '../../../../models/processdesigner';
 import { ShapeTypeComponent } from '../../../shapepickercomponents/ShapeType';
 import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSelection';
@@ -39,7 +39,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
     private selectedShape: DrawingShape = null;
     private selectedProcessStepId: GuidValue = null;
     private selectedCustomLinkId: GuidValue = null;
-    private selectedExternalRootProcessStepId: GuidValue = null;
+    private selectedExternalProcessStepId: GuidValue = null;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private isShowChangeShape: boolean = false;
     private selectedTab = StaticTabNames.shape;
@@ -63,14 +63,14 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
             return;
         this.isShowChangeShape = false;
 
-        this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as DrawingProcessStepShape).processStepId : null;
-        this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as DrawingCustomLinkShape).linkId : null;
-        this.selectedExternalRootProcessStepId = this.selectedShape.type == DrawingShapeTypes.ExternalProcess ? (this.selectedShape as DrawingExternalProcessShape).rootProcessStepId : null;
+        this.selectedProcessStepId = this.selectedShape.type == DrawingShapeTypes.ProcessStep ? (this.selectedShape as ProcessStepDrawingShape).processStepId : null;
+        this.selectedCustomLinkId = this.selectedShape.type == DrawingShapeTypes.CustomLink ? (this.selectedShape as CustomLinkDrawingShape).linkId : null;
+        this.selectedExternalProcessStepId = this.selectedShape.type == DrawingShapeTypes.ExternalProcessStep ? (this.selectedShape as ExternalProcessStepDrawingShape).processStepId : null;
         this.drawingShapeOptions = {
             id: Guid.newGuid(),
             processStepId: this.selectedProcessStepId,
             customLinkId: this.selectedCustomLinkId,
-            externalRootProcesStepId: this.selectedExternalRootProcessStepId,
+            externalProcesStepId: this.selectedExternalProcessStepId,
             shapeDefinition: this.selectedShape.shape.definition,
             shapeType: this.selectedShape.type,
             title: this.selectedShape.title,
@@ -119,7 +119,7 @@ export class ShapeSettingsComponent extends VueComponentBase<ShapeSettingsProps,
         if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink && (!drawingOptions.customLinkId || drawingOptions.customLinkId == Guid.empty)) {
             result = false;
         }
-        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcess && (!drawingOptions.externalRootProcesStepId || drawingOptions.externalRootProcesStepId == Guid.empty)) {
+        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcessStep && (!drawingOptions.externalProcesStepId || drawingOptions.externalProcesStepId == Guid.empty)) {
             result = false;
         }
 

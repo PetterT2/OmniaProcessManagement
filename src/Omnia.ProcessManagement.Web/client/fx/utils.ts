@@ -1,6 +1,6 @@
-﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames, ShapeTemplateType, ShapeTemplate, InternalProcessStep, ProcessStepType } from '../fx/models';
+﻿import { ProcessStep, Process, ProcessReference, RootProcessStep, Version, ProcessVersionType, OPMEnterprisePropertyInternalNames, ShapeTemplateType, ShapeTemplate, InternalProcessStep, ProcessStepType, IdDict } from '../fx/models';
 import { GuidValue } from '@omnia/fx-models';
-import { Utils } from '@omnia/fx';
+import { Utils, ResolvablePromise } from '@omnia/fx';
 declare var moment: any;
 
 export module OPMUtils {
@@ -127,40 +127,50 @@ export module OPMUtils {
         return url;
     }
 
-    export function waitForElementAvailable(el: Element, elementId: string) {
+    var existingWaitForElementAvailableDict: IdDict<ResolvablePromise<void>> = {};
+
+    export function waitForElementAvailable(el: Element, elementId: string, callBack: () => void) {
         let msToReject = 5000; //5s for wait
         let msToCheck = 200; //200ms for each check
         let numberOfTimes = msToReject / msToCheck;
+        let resolvablePromise = new ResolvablePromise<void>();
 
-        return new Promise((resolve, reject) => {
-            let intervalHandler = setInterval(() => {
-                let componentStillAlive = document.body.contains(el);
-                let canvasAvailable = false;
+        if (existingWaitForElementAvailableDict[elementId] &&
+            !existingWaitForElementAvailableDict[elementId].resolved &&
+            !existingWaitForElementAvailableDict[elementId].rejected) {
+            existingWaitForElementAvailableDict[elementId].reject('A existing waitForElementAvailable is obsoleted since a new one is comming');
+        }
 
-                //If this component is not destroyed yet
-                if (componentStillAlive) {
-                    canvasAvailable = document.getElementById(elementId) && true;
-                }
+        existingWaitForElementAvailableDict[elementId] = resolvablePromise;
 
-                if (numberOfTimes == 1) {
-                    clearInterval(intervalHandler);
+        let intervalHandler = setInterval(() => {
+            let componentStillAlive = document.body.contains(el);
+            let canvasAvailable = false;
 
-                    reject(`5s timeout reached for waiting an element with id ${elementId}`);
-                }
-                else if (!componentStillAlive) {
-                    clearInterval(intervalHandler);
+            //If this component is not destroyed yet
+            if (componentStillAlive) {
+                canvasAvailable = document.getElementById(elementId) && true;
+            }
 
-                    reject(`The current component has been destroyed while its waiting for an element with id ${elementId}`);
-                }
-                else if (canvasAvailable) {
-                    clearInterval(intervalHandler);
+            if (numberOfTimes == 1) {
+                clearInterval(intervalHandler);
+                resolvablePromise.reject(`5s timeout reached for waiting an element with id ${elementId}`);
+            }
+            else if (!componentStillAlive) {
+                clearInterval(intervalHandler);
 
-                    resolve();
-                }
+                resolvablePromise.reject(`The current component has been destroyed while its waiting for an element with id ${elementId}`);
+            }
+            else if (canvasAvailable) {
+                clearInterval(intervalHandler);
 
-                numberOfTimes--;
-            })
+                resolvablePromise.resolve();
+            }
+
+            numberOfTimes--;
         })
+
+        resolvablePromise.promise.then(callBack).catch(err => { console.warn(err) });
     }
 }
 

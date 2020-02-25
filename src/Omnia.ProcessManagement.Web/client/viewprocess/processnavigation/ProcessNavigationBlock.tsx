@@ -31,7 +31,7 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
     processnavigationClasses = StyleFlow.use(ProcessNavigationBlockStyles, this.styles);
     isPageEditMode: boolean = false;
 
-    currentProcessId: GuidValue = '';
+    currentProcessStepId: GuidValue = '';
     indentation: number = 0;
     spacingSetting: SpacingSetting = null;
     expandState: { [id: string]: true } = {};
@@ -79,10 +79,10 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
         let referenceData = this.currentProcessStore.getters.referenceData();
         if (!referenceData) {
             this.expandState = {};
-            this.currentProcessId = null;
+            this.currentProcessStepId = null;
         }
-        else if (this.currentProcessId != referenceData.process.id) {
-            this.currentProcessId = referenceData.process.id;
+        else if (this.currentProcessStepId != referenceData.current.processStep.id) {
+            this.currentProcessStepId = referenceData.current.processStep.id.toString();
             let newExpandState = OPMUtils.generateProcessStepExpandState(referenceData.process.rootProcessStep, referenceData.current.processStep.id);
             this.expandState = Object.assign({}, this.expandState, newExpandState);
             this.componentUniqueKey = Utils.generateGuid();
@@ -110,6 +110,7 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
         let rootNavigationNode = this.currentProcessStore.getters.referenceData().process.rootProcessStep;
         return (
             <ProcessNavigationNodeComponent
+                key={this.componentUniqueKey}
                 indentation={this.indentation}
                 spacingSetting={this.spacingSetting}
                 level={1}

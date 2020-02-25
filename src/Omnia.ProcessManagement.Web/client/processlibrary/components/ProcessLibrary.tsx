@@ -124,7 +124,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
     // -------------------------------------------------------------------------
 
     renderProcessLibrary(h) {
-        if (OPMRouter.routeContext && OPMRouter.routeContext.route)
+        if (window.location !== window.parent.location)
             return null;
         return (
             <opm-process-library-list-view

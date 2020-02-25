@@ -1,6 +1,6 @@
 ﻿import { Guid, IMessageBusSubscriptionHandler, StateMutation } from '@omnia/fx-models';
 import { ProcessStepDesignerItemBase } from './ProcessStepDesignerItemBase';
-import { IProcessDesignerItem, DisplayModes, ActionButton, TabRegistration } from '../../models/processdesigner';
+import { IProcessDesignerItem, DisplayModes, ActionButton, TabRegistration, ActionItemType, ActionItem } from '../../models/processdesigner';
 import { ActionButtonFactory } from '../factory/ActionButtonFactory';
 import { ProcessStepDrawingTabRenderer } from '../processstepcomponents/processdrawing';
 import { OPMCoreLocalization } from '../../core/loc/localize';
@@ -9,9 +9,12 @@ import { ProcessContentTabRenderer } from '../processstepcomponents/content';
 import { ProcessDocumentsTabRenderer } from '../processstepcomponents/documents';
 import { ProcessLinksTabRenderer } from '../processstepcomponents/links';
 import { ProcessTasksTabRenderer } from '../processstepcomponents/tasks';
+import { ProcessDesignerLocalization } from '../loc/localize';
 
 export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase implements IProcessDesignerItem {
     @Localize(OPMCoreLocalization.namespace) opmCoreLoc: OPMCoreLocalization.locInterface;
+    @Localize(ProcessDesignerLocalization.namespace) loc: ProcessDesignerLocalization.locInterface;
+
     onActivation() {
         
     }
@@ -20,6 +23,21 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
     public settings = {
         defaultDisplayMode: DisplayModes.contentEditing,
     };   
+
+    protected copyProcessButton: ActionButton = {
+        type: ActionItemType.Button,
+        actionCallback: () => {
+            this.processDesignerStore.panels.mutations.toggleCopyToNewProcessPanel.commit(true);
+        },
+        highLighted: false,
+        icon: "open_in_new",
+        title: this.loc.CopyNewProcess,
+        visibilityCallBack: () => {
+            return this.processDesignerStore.settings.displayMode.state !== DisplayModes.contentPreview;
+        },
+    }
+
+    protected createDefaultCheckedOutExtendedActionButtons: ActionItem[] = [this.copyProcessButton];
 
     public static drawingTabId = "9bf78a25-3082-4333-80d1-55484a28efc0";
 
@@ -32,7 +50,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
-            checkedOutExtendedActionButtons: []
+            checkedOutExtendedActionButtons: this.createDefaultCheckedOutExtendedActionButtons
         }
     };
 
@@ -45,7 +63,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
-            checkedOutExtendedActionButtons: []
+            checkedOutExtendedActionButtons: this.createDefaultCheckedOutExtendedActionButtons
         }
     };
     protected documentsTab: TabRegistration = {
@@ -57,7 +75,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
-            checkedOutExtendedActionButtons: []
+            checkedOutExtendedActionButtons: this.createDefaultCheckedOutExtendedActionButtons
         }
     };
     protected linksTab: TabRegistration = {
@@ -69,7 +87,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
-            checkedOutExtendedActionButtons: []
+            checkedOutExtendedActionButtons: this.createDefaultCheckedOutExtendedActionButtons
         }
     };
     protected tasksTab: TabRegistration = {
@@ -81,7 +99,7 @@ export class ProcessStepDesignerItem extends ProcessStepDesignerItemBase impleme
             editorDisplayActionButtons: ActionButtonFactory.createDisplaySettingsButtons(this),
             checkedOutButtons: ActionButtonFactory.createDefaultCheckoutedButtons(this),
             notCheckedOutActionButtons: ActionButtonFactory.createDefaultNotCheckoutedButtons(this),
-            checkedOutExtendedActionButtons: []
+            checkedOutExtendedActionButtons: this.createDefaultCheckedOutExtendedActionButtons
         }
     };
 

@@ -64,6 +64,14 @@
                     Name: string,
                     Description: string,
                 },
+                OPMProcessIdNumber: {
+                    Name: string,
+                    Description: string
+                },
+                OPMIsArchived: {
+                    Name: string,
+                    Description: string
+                },
                 OPMEdition: {
                     Name: string,
                     Description: string,

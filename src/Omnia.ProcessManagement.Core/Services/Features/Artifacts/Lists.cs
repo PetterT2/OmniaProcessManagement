@@ -45,6 +45,8 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
             get;
         }
 
+        [FieldRef(typeof(OPMIsArchived))]
+        [FieldRef(typeof(OPMProcessIdNumber))]
         [FieldRef(typeof(OPMProcessId))]
         [FieldRef(typeof(OPMEdition))]
         [FieldRef(typeof(OPMRevision))]
@@ -71,6 +73,8 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
             get;
         }
 
+        [FieldRef(typeof(OPMIsArchived))]
+        [FieldRef(typeof(OPMProcessIdNumber))]
         [FieldRef(typeof(OPMProcessId))]
         [FieldRef(typeof(OPMEdition))]
         [FieldRef(typeof(OPMRevision))]

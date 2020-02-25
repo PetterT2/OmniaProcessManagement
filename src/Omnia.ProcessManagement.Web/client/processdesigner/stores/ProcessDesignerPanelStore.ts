@@ -26,6 +26,9 @@ export class ProcessDesignerPanelStore extends Store {
     changeProcessTypePanel: StoreState<IPanelState> = this.state<IPanelState>({
         show: false
     });
+    copyToNewProcessTypePanel: StoreState<IPanelState> = this.state<IPanelState>({
+        show: false
+    });
 
     constructor() {
         super({
@@ -55,6 +58,7 @@ export class ProcessDesignerPanelStore extends Store {
             this.mutations.toggleAddShapePanel.commit(false);
             this.mutations.toggleEditShapeSettingsPanel.commit(false);
             this.mutations.toggleChangeProcessTypePanel.commit(false);
+            this.mutations.toggleCopyToNewProcessPanel.commit(false);
         }),
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
@@ -64,6 +68,7 @@ export class ProcessDesignerPanelStore extends Store {
 
             this.editShapeSettingsPanel.mutate({ show: false });
             this.changeProcessTypePanel.mutate({ show: false });
+            this.copyToNewProcessTypePanel.mutate({ show: false });
         }),
         toggleAddShapePanel: this.mutation((show: boolean) => {
             this.addShapePanel.mutate({
@@ -71,6 +76,7 @@ export class ProcessDesignerPanelStore extends Store {
             });
             this.editShapeSettingsPanel.mutate({ show: false });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
+            this.copyToNewProcessTypePanel.mutate({ show: false });
         }),
         toggleEditShapeSettingsPanel: this.mutation((show: boolean) => {
             this.editShapeSettingsPanel.mutate({
@@ -78,6 +84,7 @@ export class ProcessDesignerPanelStore extends Store {
             });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.changeProcessTypePanel.mutate({ show: false });
+            this.copyToNewProcessTypePanel.mutate({ show: false });
         }),
         toggleChangeProcessTypePanel: this.mutation((show: boolean) => {
             this.changeProcessTypePanel.mutate({
@@ -85,6 +92,15 @@ export class ProcessDesignerPanelStore extends Store {
             });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.editShapeSettingsPanel.mutate({ show: false });
+            this.copyToNewProcessTypePanel.mutate({ show: false });
+        }),
+        toggleCopyToNewProcessPanel: this.mutation((show: boolean) => {
+            this.copyToNewProcessTypePanel.mutate({
+                show: show
+            });
+            this.drawingCanvasSettingsPanel.mutate({ show: false });
+            this.editShapeSettingsPanel.mutate({ show: false });
+            this.changeProcessTypePanel.mutate({ show: false });
         })
     }
 }

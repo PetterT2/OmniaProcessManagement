@@ -9,6 +9,7 @@ export interface DrawingShapeOptions {
     title: MultilingualString;
     processStepId?: GuidValue;
     customLinkId?: GuidValue;
-    externalRootProcesStepId?: GuidValue;
+    externalProcesStepId?: GuidValue;
+    linkedRootProcessStepId?: GuidValue;
     shape?: ShapeObject;
 }

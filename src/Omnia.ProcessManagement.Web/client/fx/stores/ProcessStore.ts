@@ -86,7 +86,7 @@ export class ProcessStore extends Store {
             }
 
             let processReferenceData: ProcessReferenceData = null;
-            let processSite = this.processSiteDict.state[this.getProcessSiteCacheKey(process.rootProcessStep.id)]
+            let processSite = this.processSiteDict.state[this.getProcessSiteCacheKey(process.teamAppId)]
 
             if (processReference.shortcutProcessStepId) {
                 let shortcutProcessDataCacheKey = this.getProcessDataCacheKey(processReference.processId, processReference.shortcutProcessStepId);
@@ -269,6 +269,16 @@ export class ProcessStore extends Store {
                 this.processService.deleteDraftProcess(process.opmProcessId).then(() => {
                     this.internalMutations.removeProcess(process);
                     resolve(null);
+                }).catch(reject);
+            })
+        }),
+        copyToNewProcess: this.action((opmProcessId: GuidValue, processStepId: GuidValue) => {
+            return new Promise<Process>((resolve, reject) => {
+                this.processService.copyToNewProcess(opmProcessId, processStepId).then((process) => {
+                    this.actions.checkoutProcess.dispatch(process.opmProcessId).then((process) => {
+                        this.internalMutations.addOrUpdateProcess(process);
+                        resolve(process);
+                    }).catch(reject);                    
                 }).catch(reject);
             })
         })

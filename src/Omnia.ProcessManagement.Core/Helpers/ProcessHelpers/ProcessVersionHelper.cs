@@ -9,33 +9,20 @@ namespace Omnia.ProcessManagement.Core.Helpers.Processes
 {
     public class ProcessVersionHelper
     {
-        internal static (int, int) GetEditionAndRevision(Entities.Processes.Process process)
+        internal static (int, int, int) GetEditionRevisionAndOPMProcessIdNumber(Dictionary<string, JToken> processEnterpriseProperties)
         {
-            var processEnterpriseProperties = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(process.EnterpriseProperties);
-
             if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
                 processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Revision.InternalName, out JToken revisionJToken) &&
                 int.TryParse(editionJToken.ToString(), out int edition) &&
                 int.TryParse(revisionJToken.ToString(), out int revision))
             {
-                return (edition, revision);
-            }
-            else
-            {
-                throw new Exception("Invalid edition or revision");
-            }
-        }
+                int opmProcessIdNumber = 0;
+                if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName, out JToken opmProcessIdNumberJToken) && opmProcessIdNumberJToken != null)
+                {
+                    int.TryParse(opmProcessIdNumberJToken.ToString(), out opmProcessIdNumber);
+                }
 
-        public static (int, int) GetEditionAndRevision(Process process)
-        {
-
-            if (process.RootProcessStep != null && process.RootProcessStep.EnterpriseProperties != null &&
-                process.RootProcessStep.EnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
-                process.RootProcessStep.EnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Revision.InternalName, out JToken revisionJToken) &&
-                int.TryParse(editionJToken.ToString(), out int edition) &&
-                int.TryParse(revisionJToken.ToString(), out int revision))
-            {
-                return (edition, revision);
+                return (edition, revision, opmProcessIdNumber);
             }
             else
             {

@@ -13,6 +13,19 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     {
     }
 
+    [NumberField(id: "6bfa5057-9a88-4422-af57-71cd530e7311", internalName: OPMConstants.SharePoint.OPMFields.Fields_ProcessIdNumber,
+    Title = "$Localize:OPM.Core.Features.Fields.OPMProcessIdNumber.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMProcessIdNumber.Description;",
+    Group = "$Localize:OPM.Core.Features.Fields.GroupName;", Required = false)]
+    public class OPMProcessIdNumber : FieldBase
+    {
+    }
+
+    [BooleanField(id: "cf486995-eeb8-4e06-b1ba-53a5a335fb53", internalName: OPMConstants.SharePoint.OPMFields.Fields_IsArchived,
+    Title = "$Localize:OPM.Core.Features.Fields.OPMIsArchived.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMIsArchived.Description;",
+    Group = "$Localize:OPM.Core.Features.Fields.GroupName;", Required = false)]
+    public class OPMIsArchived : FieldBase
+    {
+    }
 
     [NumberField(id: "d5128e77-3056-40a9-94c4-f1251a60690a", internalName: OPMConstants.SharePoint.OPMFields.Fields_Edition,
     Title = "$Localize:OPM.Core.Features.Fields.OPMEdition.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMEdition.Description;",

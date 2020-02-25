@@ -1,4 +1,5 @@
-﻿using Omnia.ProcessManagement.Models.FabricShape;
+﻿using Omnia.Fx.Models.Language;
+using Omnia.ProcessManagement.Models.FabricShape;
 using Omnia.ProcessManagement.Models.Shapes;
 using System;
 
@@ -9,12 +10,14 @@ namespace Omnia.ProcessManagement.Models.CanvasDefinitions
         Undefined = 0,
         ProcessStep = 1,
         CustomLink = 2,
-        ExternalProcess = 3
+        ExternalProcessStep = 3
     }
 
     public class DrawingShape : Omnia.Fx.Models.JsonTypes.OmniaJsonBase
     {
         public Guid Id { get; set; }
+
+        public MultilingualString Title { get; set; }
 
         public virtual DrawingShapeTypes Type { get; set; }
 

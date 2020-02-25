@@ -68,6 +68,14 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Name: "Process Id",
                     Description: "System column in Omnia Process Management for Process Id.",
                 },
+                OPMProcessIdNumber: {
+                    Name: "Process Id Number",
+                    Description: "System column in Omnia Process Management for Process Id Number.",
+                },
+                OPMIsArchived: {
+                    Name: "Is Archived",
+                    Description: "System column in Omnia Process Management for information about if a process is archived.",
+                },
                 OPMEdition: {
                     Name: "Edition",
                     Description: "System column in Omnia Process Management for Edition.",

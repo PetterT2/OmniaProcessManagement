@@ -59,9 +59,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
         title: MultilingualString, left?: number, top?: number,
-        processStepId?: GuidValue, customLinkId?: GuidValue, externalOPMProcessId?: GuidValue, nodes?: FabricShapeData[]) {
+        processStepId?: GuidValue, customLinkId?: GuidValue, externalProcessStepId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.addShape(id, type, definition, title, left, top, processStepId, customLinkId, externalOPMProcessId, nodes).then((drawingShapeResult: DrawingShape) => {
+            super.addShape(id, type, definition, title, left, top, processStepId, customLinkId, externalProcessStepId, nodes).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);

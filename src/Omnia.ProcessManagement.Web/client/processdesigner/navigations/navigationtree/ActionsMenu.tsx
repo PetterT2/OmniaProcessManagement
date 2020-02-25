@@ -63,7 +63,8 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
         this.moveProcessStepDialogData = {
             dialogTitle: this.loc.MoveProcessStep + ": " + currentReferenceData.current.processStep.multilingualTitle,
             hiddenProcessStepIdsDict: { [currentReferenceData.current.processStep.id.toString().toLowerCase()]: true },
-            disabledProcessStepIdsDict: { [currentReferenceData.current.processStep.id.toString().toLowerCase()]: true },
+            disabledProcessStepIdsDict: currentReferenceData.current.parentProcessStep ?
+                { [currentReferenceData.current.parentProcessStep.id.toString().toLowerCase()]: true } : {},
             rootProcessStep: currentReferenceData.process.rootProcessStep
         }
 

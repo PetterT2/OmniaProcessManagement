@@ -6,7 +6,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { CurrentProcessStore, ProcessStore } from '../../../../fx/stores';
-import {  Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
+import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
@@ -121,6 +121,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
     }
 
     render(h) {
+        let showNotImplementYetItem = false;
         return (
             <div>
                 <v-menu close-delay="50"
@@ -145,18 +146,26 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                             <v-list-item-title>{this.corLoc.ProcessActions.Preview}</v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
-                        </v-list-item>
+                        {
+                            showNotImplementYetItem ?
+                                <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
+                                    <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
+                                </v-list-item>
+                                : null
+                        }
                         <v-list-item onClick={() => {
                             this.openPublishDialog = true;
                         }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.corLoc.ProcessActions.Publish}</v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
-                        <v-list-item onClick={() => { }}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.WorkflowHistory}</v-list-item-title>
-                        </v-list-item>
+                        {
+                            showNotImplementYetItem ?
+                                [<v-divider></v-divider>,
+                                <v-list-item onClick={() => { }}>
+                                    <v-list-item-title>{this.corLoc.ProcessActions.WorkflowHistory}</v-list-item-title>
+                                </v-list-item>]
+                                : null
+                        }
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.openDeleteDraft(); }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-title>{this.corLoc.ProcessActions.DeleteDraft}</v-list-item-title>
