@@ -210,7 +210,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
-                    processSteps.Add(validChildProcessStep);
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
                 }
                 processStep.ProcessSteps = processSteps;
             }
@@ -667,7 +671,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
-                    processSteps.Add(validChildProcessStep);
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
                 }
                 processStep.ProcessSteps = processSteps;
             }
@@ -1310,7 +1318,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
-                    processSteps.Add(validChildProcessStep);
+
+                    if (validChildProcessStep != null)
+                    {
+                        processSteps.Add(validChildProcessStep);
+                    }
                 }
                 processStep.ProcessSteps = processSteps;
             }
