@@ -146,7 +146,7 @@ export class DrawingCanvasSettingsComponent extends VueComponentBase<DrawingCanv
                         hide-details
                         input-value={this.processDesignerStore.showGridlines.state}
                         onChange={(val) => { this.processDesignerStore.showGridlines.mutate(val) }}
-                        label={this.pdLoc.ShowGridlinnes}></v-checkbox>
+                        label={this.pdLoc.ShowGridlines}></v-checkbox>
                 </v-col>
             </v-row>
             <v-row>

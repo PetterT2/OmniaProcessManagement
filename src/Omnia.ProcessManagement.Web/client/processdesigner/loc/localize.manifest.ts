@@ -12,7 +12,7 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
         Height: "Height",
         GridX: "GridX",
         GridY: "GridY",
-        ShowGridlinnes: "Show grindlines",
+        ShowGridlines: "Show gridlines",
         HighlightShapes: "Highlight shapes",
         OnDarkBackground: "on dark background",
         OnLightBackground: "on light background",
