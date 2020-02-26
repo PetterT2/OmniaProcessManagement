@@ -43,7 +43,7 @@ ProcessNavigationNodeComponentProps>
         this.messageBusSubscriptionHandlerObj = null;
     }
 
-    mounted() {
+    created() {
         this.ensureData();
     }
 

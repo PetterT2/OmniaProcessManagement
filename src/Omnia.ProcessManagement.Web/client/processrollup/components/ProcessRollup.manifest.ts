@@ -9,8 +9,8 @@ Composer
         entryPoint: "./ProcessRollup.jsx"
     })
     .withDefinition({
-        title: "$Localize:OPM.Core.Blocks.ProcessRollup.Title;",
-        description: "$Localize:OPM.Core.Blocks.ProcessRollup.Description;",
+        title: "$Localize:OPM.Core.BlockDefinitions.ProcessRollup.Title;",
+        description: "$Localize:OPM.Core.BlockDefinitions.ProcessRollup.Description;",
         icon: new FontAwesomeIcon("fal fa-file-alt")
     })
     .registerOmniaBlock({

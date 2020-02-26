@@ -12,6 +12,8 @@
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
     <None Remove="wwwroot\omnia\**" />
+    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
+    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -549,6 +551,8 @@
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\IBreadcrumbBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\IPropertiesBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\IProcessNavigationBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />

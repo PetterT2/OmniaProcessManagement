@@ -14,7 +14,7 @@ Composer
         icon: new FontAwesomeIcon("fas fa-ellipsis-h")
     })
     .registerOmniaBlock({
-        category: "$Localize:OPM.Core.Blocks.ProcessInformation.Title;"
+        category: "$Localize:OPM.Core.BlockDefinitions.ProcessInformation.Title;"
     })
 
 Composer
