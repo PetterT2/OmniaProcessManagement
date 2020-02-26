@@ -26,6 +26,30 @@ StyleFlow.define(DrawingBlockStyles,
         canvasOverflowWrapper: {
             overflow: 'auto',
             width: '100%'
+        },
+        slide: {
+            transition: 'margin 500ms'
+        },
+        slideButtonWrapper: {
+            width: '100%',
+            position: 'absolute',
+        },
+        slideButton: {
+            position: 'absolute',
+            background: 'transparent!important',
+            zIndex: 1,
+            $nest: {
+                '&:hover': {
+                    position: 'absolute',
+                    background: '#fff!important'
+                }
+            }
+        },
+        slideLeftButton: {
+            left: '0'
+        },
+        slideRightButton: {
+            right: '0'
         }
     }
 )

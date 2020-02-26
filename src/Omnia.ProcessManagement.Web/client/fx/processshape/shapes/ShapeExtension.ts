@@ -279,11 +279,6 @@ export class ShapeExtension implements Shape {
         return { left: tleft + xAdjustment, top: ttop + yAdjustMent };
     }
 
-    setHoveredShape(isHovered: boolean) {
-        this.isHovered = isHovered;
-        this.setHover(this.shapeObject, false);
-    }
-
     setSelectedShape(isSelected: boolean) {
         this.isSelected = isSelected;
         this.setSelected(this.shapeObject);
