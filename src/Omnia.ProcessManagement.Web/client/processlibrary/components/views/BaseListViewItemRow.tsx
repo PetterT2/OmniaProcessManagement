@@ -109,10 +109,22 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
                                         {this.item.rootProcessStep.enterpriseProperties[internalName]}
                                     </td>
                                 );
-                            case ProcessLibraryFields.Published:
+                            case ProcessLibraryFields.PublishedAt:
                                 return (
                                     <td>
                                         {moment(this.item.publishedAt).isValid() ? moment(this.item.publishedAt).format(this.dateFormat) : ""}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.ModifiedAt:
+                                return (
+                                    <td>
+                                        {moment(this.item.modifiedAt).isValid() ? moment(this.item.modifiedAt).format(this.dateFormat) : ""}
+                                    </td>
+                                );
+                            case ProcessLibraryFields.ModifiedBy:
+                                return (
+                                    <td>
+                                        {this.item.modifiedByName}
                                     </td>
                                 );
                             default:

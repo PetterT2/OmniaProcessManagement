@@ -13,6 +13,8 @@ import { ProcessTasksTabRenderer } from '../processstepcomponents/tasks';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ProcessDesignerLocalization } from '../loc/localize';
 import { ProcessDesignerStore } from '../stores';
+import { ProcessVersionType } from '../../fx/models';
+import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
 
 export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase implements IProcessDesignerItem {
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
@@ -27,6 +29,7 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
     public onCheckOut() {
         return new Promise<any>((resolve, reject) => {
             this.currentProcessStore.actions.checkOut.dispatch().then(() => {
+                InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
                 this.processDesignerStore.actions.setEditorToCheckedOutMode.dispatch().then(resolve).catch(reject);
             }).catch(reject)
         });

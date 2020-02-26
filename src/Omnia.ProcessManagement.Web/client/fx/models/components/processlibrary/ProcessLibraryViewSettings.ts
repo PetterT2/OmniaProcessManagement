@@ -6,6 +6,5 @@ export interface ProcessLibraryViewSettings {
     defaultTab: Enums.ProcessViewEnums.StartPageTab,
     hideTasksTab: boolean,
     previewPageUrl: string,
-    draftTabDisplaySettings: ProcessLibraryDisplaySettings,
     publishedTabDisplaySettings: ProcessLibraryDisplaySettings
 }

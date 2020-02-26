@@ -14,6 +14,7 @@ import { TasksView } from './tasks/TasksView';
 import { BaseListViewItems } from './BaseListViewItems';
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../../fx/contexts';
+import { ProcessLibraryConfigurationFactory } from '../../factory/ProcessLibraryConfigurationFactory';
 
 @Component
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
@@ -147,7 +148,7 @@ export class ListViewComponent extends Vue implements IWebComponentInstance, ILi
                     </v-tab>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Draft}`}>
                         {this.selectingTab == ProcessLibraryListViewTabs.Draft ?
-                            <BaseListViewItems previewPageUrl={this.viewSettings.previewPageUrl} changeTab={this.changeTab} displaySettings={this.viewSettings.draftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
+                            <BaseListViewItems previewPageUrl={this.viewSettings.previewPageUrl} changeTab={this.changeTab} displaySettings={ProcessLibraryConfigurationFactory.getDraftTabDisplaySettings} versionType={ProcessVersionType.Draft} processListViewComponentKey={this.draftsViewComponentKey}></BaseListViewItems>
                             : null}
                     </v-tab-item>
                     <v-tab-item id={`${ProcessLibraryListViewTabs.Task}`} v-show={this.viewSettings ? !this.viewSettings.hideTasksTab : true}>

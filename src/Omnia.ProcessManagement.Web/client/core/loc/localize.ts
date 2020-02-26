@@ -199,6 +199,8 @@
             Edition: string,
             Revision: string,
             Published: string,
+            ModifiedAt: string,
+            ModifiedBy: string,
             ApprovedBy: string,
             WorkflowHistory: string
         },

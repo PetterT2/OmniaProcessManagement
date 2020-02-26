@@ -367,13 +367,15 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ShapeTypeCreationOption.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\DraftProcessLibraryStatus.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\ProcessLibraryStatus.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\index.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewDateTimeColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewSettings.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
-    <TypeScriptCompile Remove="client\models\processsite\index.ts" />
-    <TypeScriptCompile Remove="client\models\processsite\ProcessSite.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\index.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\ProcessSite.ts" />
     <TypeScriptCompile Remove="client\models\styles\BreadcrumbBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />

@@ -27,7 +27,9 @@
             SyncingToSharePointFailed: string,
 
             Archiving: string,
-            ArchivingFailed: string
+            ArchivingFailed: string,
+
+            CheckedOutBy: string
         },
         TaskStatus: {
             Cancel: string,
