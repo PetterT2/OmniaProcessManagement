@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Omnia.Fx.Models.Rollup;
+using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.ProcessRollup;
+using Omnia.ProcessManagement.Models.Processes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +31,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-
                 var result = await ProcessRollupService.QueryProcessRollup(setting);
                 return Ok(ApiUtils.CreateSuccessResponse(result));
             }
@@ -37,6 +38,22 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollup)}");
                 return Ok(ApiUtils.CreateErrorResponse(ex));
+            }
+        }
+
+        [HttpPost, Route("queryrollupwithoutpermission")]
+        [Authorize]
+        public async ValueTask<ApiResponse<List<LightProcess>>> QueryProcessRollupWithoutPermission([FromBody]RollupSetting setting)
+        {
+            try
+            {
+                var result = await ProcessRollupService.QueryProcessRollupWithoutPermission(setting);
+                return ApiUtils.CreateSuccessResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollup)}");
+                return ApiUtils.CreateErrorResponse<List<LightProcess>>(ex);
             }
         }
     }

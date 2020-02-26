@@ -487,6 +487,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
+        public async ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        {
+            var lightProcesses = new List<LightProcess>();
+            var processEfs = DbContext.Processes.Where(p => IdList.Contains(p.Id) && p.VersionType == ProcessVersionType.Published).ToList();
+            processEfs.ForEach(p => lightProcesses.Add(MapEfToLightModel(p)));
+            return lightProcesses;
+        }
+
         public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> titleFilters)
         {
             var result = new ItemQueryResult<Process>();
@@ -518,7 +526,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             string filterBeginStr = " WHERE ";
 
-            originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+            if(!string.IsNullOrEmpty(securityTrimmingQuery))
+                originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
 
             foreach (var filter in titleFilters)
             {
@@ -1553,6 +1562,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             model.ModifiedBy = processEf.ModifiedBy;
             model.PublishedAt = processEf.PublishedAt;
             model.PublishedBy = processEf.PublishedBy;
+            return model;
+        }
+
+        private LightProcess MapEfToLightModel(Entities.Processes.Process processEf)
+        {
+            var model = new LightProcess();
+            model.Id = processEf.Id;
+            var rootProcessData = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            model.Title = rootProcessData.Title;
             return model;
         }
 

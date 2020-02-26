@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag, RollupSetting } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, RollupProcessResult } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, RollupProcessResult, LightProcess } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
@@ -25,5 +25,24 @@ export class ProcessRollupService {
                     reject(response.data.errorMessage);
             }).catch(reject);
         });
+    }
+
+    public queryProcessesWithoutPermission = (query: RollupSetting) => {
+        return new Promise<Array<LightProcess>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processrollup/queryrollupwithoutpermission', query).then(response => {
+                if (response.data.success) {
+                    this.generateClientSideData(response.data.data);
+                    resolve(response.data.data);
+                }
+                else
+                    reject(response.data.errorMessage);
+            }).catch(reject);
+        });
+    }
+
+    private generateClientSideData = (processes: Array<LightProcess>, ) => {
+        for (let process of processes) {
+            process.multilingualTitle = this.multilingualStore.getters.stringValue(process.title);
+        }
     }
 }

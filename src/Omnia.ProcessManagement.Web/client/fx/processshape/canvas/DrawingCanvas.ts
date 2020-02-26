@@ -28,6 +28,7 @@ export class DrawingCanvas implements CanvasDefinition {
     protected showGridlines: boolean = true;
     protected darkHightlight: boolean = null;
     private selectedShape: { id: GuidValue } = null;
+    private promises: Array<Promise<DrawingShape>> = [];
 
     constructor(elementId: string, options: fabric.ICanvasOptions, definition: CanvasDefinition, isSetHover?: boolean, showGridlines?: boolean, darkHightlight?: boolean) {
         this.drawingShapes = [];
@@ -48,6 +49,17 @@ export class DrawingCanvas implements CanvasDefinition {
             if (this.canvasObject)
                 this.canvasObject.dispose();
         } catch (err) { }
+    }
+
+    setCanvasMarginLeft(marginLeft?: number) {
+        let marginLeftString = marginLeft ? marginLeft + 'px' : '';
+        this.canvasObject.getElement().style.marginLeft = marginLeftString;
+        this.canvasObject.getSelectionElement().style.marginLeft = marginLeftString;
+    }
+
+    getCanvasMarginLeft() {
+        let marginLeft = this.canvasObject.getElement().style.marginLeft;
+        return Utils.isNullOrEmpty(marginLeft) ? 0 : parseInt(marginLeft.replace('px', ''));
     }
 
     setSelectingShapeCallback(onSelectingShape: (shape: DrawingShape) => void) {
@@ -168,13 +180,21 @@ export class DrawingCanvas implements CanvasDefinition {
         }
 
         if (drawingShapes) {
-            let promises: Array<Promise<DrawingShape>> = [];
+            this.promises = [];
             drawingShapes.forEach(s => {
                 if (ShapeTemplatesDictionary[s.shape.shapeTemplateTypeName]) {
-                    promises.push(this.addShapeFromTemplateClassName(s));
+                    this.promises.push(this.addShapeFromTemplateClassName(s));
                 }
             })
         }
+    }
+
+    renderReady() {
+        return new Promise<DrawingShape>((resolve, reject) => {
+            Promise.all(this.promises).then(() => {
+                resolve();
+            }).catch(() => { reject(); })
+        })
     }
 
     private correctDefinition(definition: DrawingShapeDefinition, left: number, top: number) {
@@ -194,7 +214,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalProcessStepId?:GuidValue, nodes?: FabricShapeData[]) {
+        left?: number, top?: number, processStepId?: GuidValue, customLinkId?: GuidValue, externalProcessStepId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {

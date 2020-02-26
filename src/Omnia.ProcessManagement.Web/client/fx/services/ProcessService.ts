@@ -1,6 +1,6 @@
 ﻿import { Inject, HttpClientConstructor, HttpClient, Injectable, ServiceLocator, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
-import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, ProcessStepType, InternalProcessStep } from '../models';
+import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, ProcessStepType, InternalProcessStep, LightProcess } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessSite } from '../../models';
 
@@ -14,6 +14,22 @@ export class ProcessService {
     }) private httpClient: HttpClient;
 
     constructor() {
+    }
+
+    public getPublishedByIdsWithoutPermission = (idList: Array<string>) => {
+        return new Promise<Array<LightProcess>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedbyidswithoutpermission', idList).then((response) => {
+                if (response.data.success) {
+                    response.data.data.forEach(p => {
+                        p.multilingualTitle = this.multilingualStore.getters.stringValue(p.title);
+                    })
+                    resolve(response.data.data);
+                }
+                else {
+                    reject(response.data.errorMessage);
+                }
+            }).catch(reject);
+        })
     }
 
     public checkIfDraftExists = (opmProcessId: string) => {
