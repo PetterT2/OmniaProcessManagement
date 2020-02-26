@@ -146,7 +146,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             this.drawingCanvas.destroy();
     }
 
-    private getProcessGraphWidth() {      
+    private getProcessGraphWidth() {
         let maxWidth = 0;
         if (Utils.isNullOrEmpty(this.canvasDefinition.backgroundImageUrl)) {
             this.drawingCanvas.drawingShapes.forEach((s) => {
@@ -164,15 +164,15 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     private centralizeCanvas(selectedShape?: DrawingShape) {
         var opmDiagramEl: any = this.$refs.opmprocessgraph;
         this.containerWidth = opmDiagramEl.clientWidth;
-        this.numberOfSlides = Math.ceil(this.getProcessGraphWidth() / this.containerWidth);
+        let processGraphWidth = this.getProcessGraphWidth();
+        this.numberOfSlides = Math.ceil(processGraphWidth / this.containerWidth);
         if (selectedShape != null && this.numberOfSlides > 1 && selectedShape.shape.left > (this.containerWidth / 2)) {
             var selectedPage = Math.ceil(selectedShape.shape.left / this.containerWidth);
+            this.currentSlide = selectedShape.shape.left > ((selectedPage - 1) * this.containerWidth + this.containerWidth / 2) ? selectedPage + 1 : selectedPage;
             var marginLeft = (selectedShape.shape.left - Math.floor(this.containerWidth / 2) + Math.floor(selectedShape.shape.nodes[0].properties.width / 2));
             this.drawingCanvas.setCanvasMarginLeft(-marginLeft);
-            this.currentSlide = selectedShape.shape.left > ((selectedPage - 1) * this.containerWidth + this.containerWidth / 2) ? selectedPage + 1 : selectedPage;
             this.isShowSlideLeftBtn = true;
-            this.isShowSlideRightBtn = this.numberOfSlides > this.currentSlide ||
-                (this.numberOfSlides == this.currentSlide && selectedShape.shape.left < (this.currentSlide - 1) * this.containerWidth);
+            this.isShowSlideRightBtn = this.numberOfSlides > this.currentSlide;
         } else {
             this.setDefaultViewer();
         }
@@ -238,7 +238,10 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
     private slideRight() {
         let newSlide = this.currentSlide + 1;
         if (newSlide <= this.numberOfSlides) {
-            this.drawingCanvas.setCanvasMarginLeft(- ((this.currentSlide) * this.containerWidth));
+            let marginLeft = (this.currentSlide) * this.containerWidth;
+            if (newSlide == this.numberOfSlides)
+                marginLeft = this.getProcessGraphWidth() - this.containerWidth;
+            this.drawingCanvas.setCanvasMarginLeft(-marginLeft);
         }
         this.getShowSlideButton(this.currentSlide + 1);
     }
