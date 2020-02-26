@@ -5,6 +5,7 @@ import { ProcessService } from '../services';
 import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames, InternalProcessStep, ProcessStepType } from '../models';
 import { OPMUtils } from '../utils';
 import { ProcessSite } from '../../models';
+import { OPMSpecialRouteVersion } from '../constants';
 
 
 interface ProcessDict {
@@ -240,7 +241,7 @@ export class ProcessStore extends Store {
         }),
         loadProcessByProcessStepId: this.action((processStepId: GuidValue, version: Version) => {
             return new Promise<Process>((resolve, reject) => {
-                let dictKey = version.edition === -1 && version.revision === -1 ?
+                let dictKey = OPMSpecialRouteVersion.isPublished(version) ?
                     `${processStepId.toString()}-published`.toLowerCase() :
                     `${processStepId.toString()}-${version.edition}-${version.revision}`.toLowerCase();
 

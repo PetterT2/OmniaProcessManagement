@@ -9,6 +9,10 @@ namespace Omnia.ProcessManagement.Core.Helpers.Processes
 {
     public class ProcessVersionHelper
     {
+        internal static bool IsRelevantToPublishedVersion(int edition, int revision)
+        {
+            return edition == -1 && revision == -1;
+        }
         internal static (int, int, int) GetEditionRevisionAndOPMProcessIdNumber(Dictionary<string, JToken> processEnterpriseProperties)
         {
             if (processEnterpriseProperties.TryGetValue(OPMConstants.Features.OPMDefaultProperties.Edition.InternalName, out JToken editionJToken) &&
