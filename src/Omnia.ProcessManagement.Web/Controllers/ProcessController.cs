@@ -12,6 +12,7 @@ using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core;
+using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
@@ -362,9 +363,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     {
                         var process = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
 
-                        //If the result is archived version, then we can cache it forever.
-                        //Note do not cache published version in this case, cause published version could be changed any times!
-                        if (process.VersionType == ProcessVersionType.Archived)
+                        //If the request is not getting latest published version, then we can cache it forever.
+                        //Because the request url for latest published version could be response different data
+                        if (!ProcessVersionHelper.IsLatestPublishedVersion(edition, revision))
                         {
                             Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                             {
@@ -671,7 +672,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
         {
-            if(checkedOutProcess == null && draftProcess == null)
+            if (checkedOutProcess == null && draftProcess == null)
             {
                 return null;
             }
