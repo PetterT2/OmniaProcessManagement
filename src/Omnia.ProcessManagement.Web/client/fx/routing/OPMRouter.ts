@@ -67,7 +67,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         if (OPMSpecialRouteVersion.isPreview(version)) {
             path += '/v-preview';
         }
-        else if (!OPMSpecialRouteVersion.isPublished(version)) {
+        else if (!OPMSpecialRouteVersion.isLatestPublished(version)) {
             path += `/v-${version.edition}-${version.revision}`;
         }
         return path;
@@ -91,7 +91,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             if (route.processStepId && Guid.isValid(segment)) {
                 route.externalParents.push({
                     processStepId: route.processStepId,
-                    version: route.version !== undefined ? route.version : OPMSpecialRouteVersion.Published
+                    version: route.version !== undefined ? route.version : OPMSpecialRouteVersion.LatestPublished
                 });
                 route.processStepId = null;
                 route.version = undefined;
@@ -115,7 +115,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         }
 
         if (route.version === undefined) {
-            route.version = OPMSpecialRouteVersion.Published;
+            route.version = OPMSpecialRouteVersion.LatestPublished;
         }
 
         return route;
@@ -246,13 +246,13 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 process.versionType == ProcessVersionType.Archived ? OPMSpecialRouteVersion.generateVersion(
                     process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition],
                     process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision]
-                ) : OPMSpecialRouteVersion.Published;
+                ) : OPMSpecialRouteVersion.LatestPublished;
 
 
             if (processStep.type == ProcessStepType.External) {
                 isExternal = true;
                 processStepIdNavigateTo = (processStep as ExternalProcessStep).rootProcessStepId.toString().toLowerCase();
-                version = OPMSpecialRouteVersion.Published;
+                version = OPMSpecialRouteVersion.LatestPublished;
 
                 if (!this.routeContext.route) {
                     throw `Cannot do the first navigation to external process`;

@@ -10,9 +10,9 @@ export interface OPMRoute extends TokenBasedRoute {
     globalRenderer: boolean,
 
     /***
-     * - NULL    : Preview Version (defined in OPMSpecialRouteVersion)
-     * - -1|-1     : Latest Published Version (defined in OPMSpecialRouteVersion)
-     * - Others  : Specific Published/Archived Version
+     * - NULL    :  Preview Version (defined in OPMSpecialRouteVersion)
+     * - -1|-1   :  Latest Published Version (defined in OPMSpecialRouteVersion)
+     * - Others  :  Specific Published/Archived Version
      * */
     version?: Version
 }

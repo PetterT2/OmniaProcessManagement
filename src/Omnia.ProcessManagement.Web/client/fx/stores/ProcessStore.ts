@@ -241,7 +241,7 @@ export class ProcessStore extends Store {
         }),
         loadProcessByProcessStepId: this.action((processStepId: GuidValue, version: Version) => {
             return new Promise<Process>((resolve, reject) => {
-                let dictKey = OPMSpecialRouteVersion.isPublished(version) ?
+                let dictKey = OPMSpecialRouteVersion.isLatestPublished(version) ?
                     `${processStepId.toString()}-published`.toLowerCase() :
                     `${processStepId.toString()}-${version.edition}-${version.revision}`.toLowerCase();
 

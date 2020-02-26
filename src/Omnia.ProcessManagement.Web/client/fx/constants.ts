@@ -132,13 +132,13 @@ export const OPMSpecialRouteVersion = {
     get Preview(): Version {
         return null
     },
-    get Published(): Version {
+    get LatestPublished(): Version {
         return { edition: -1, revision: -1 }
     },
     isPreview: (version: Version) => {
         return version === null;
     },
-    isPublished: (version: Version) => {
+    isLatestPublished: (version: Version) => {
         return version && version.edition === -1 && version.revision === -1;
     },
     generateVersion: (edition: number | string, revision: number | string): Version => {
@@ -150,7 +150,7 @@ export const OPMSpecialRouteVersion = {
     },
     generateVersionLabel: (version: Version) => {
         let versionLabel = OPMSpecialRouteVersion.isPreview(version) ? 'preview' :
-            OPMSpecialRouteVersion.isPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
+            OPMSpecialRouteVersion.isLatestPublished(version) ? 'latest published' : `edition-${version.edition}-revision-${version.revision}-version`;
         return versionLabel;
     }
 }
