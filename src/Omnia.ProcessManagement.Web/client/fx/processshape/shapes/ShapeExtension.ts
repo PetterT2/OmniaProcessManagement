@@ -314,11 +314,11 @@ export class ShapeExtension implements Shape {
         objects.forEach((object) => {
             if (object.type == 'text') {
                 object.set({
-                    fill: isActive || (this.isHovered && this.definition.hoverTextColor) ? this.definition.hoverTextColor : this.definition.textColor
+                    fill: (isActive || this.isHovered) && this.definition.hoverTextColor ? this.definition.hoverTextColor : this.definition.textColor
                 });
             }
             else {
-                let stroke: string = isActive || (this.isHovered && this.definition.hoverBorderColor) ? this.definition.hoverBorderColor : this.definition.borderColor;
+                let stroke: string = (isActive || this.isHovered) && this.definition.hoverBorderColor ? this.definition.hoverBorderColor : this.definition.borderColor;
 
                 let strokeProperties = {};
                 if (!isActive || !stroke) {
@@ -326,7 +326,7 @@ export class ShapeExtension implements Shape {
                 }
 
                 object.set(Object.assign({
-                    fill: isActive || (this.isHovered && this.definition.hoverBackgroundColor) ? this.definition.hoverBackgroundColor : this.definition.backgroundColor,
+                    fill: (isActive || this.isHovered) && this.definition.hoverBackgroundColor ? this.definition.hoverBackgroundColor : this.definition.backgroundColor,
                     stroke: stroke
                 }, strokeProperties));
             }
