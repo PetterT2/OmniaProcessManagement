@@ -1,4 +1,4 @@
-﻿import { Inject, Injectable, ServiceContainer, OmniaContext } from '@omnia/fx';
+﻿import { Inject, Injectable, ServiceContainer, OmniaContext, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
 import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, OPMEnterprisePropertyInternalNames, Enums, IdDict, Version, ProcessStepType, ExternalProcessStep, ProcessReference } from '../models';
@@ -33,8 +33,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     private currentProcessId = '';
     private currentProcessStepId = '';
 
+    private readyPromise: ResolvablePromise<void> = new ResolvablePromise<void>();
+
     constructor() {
         super('pm')
+
+        this.readyPromise.resolve();
     }
 
     /**
@@ -137,36 +141,54 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
     public navigate(process: Process, processStep: ProcessStep, rendererOption: ProcessRendererOptions = ProcessRendererOptions.CurrentRenderer): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            let currentReadyPromise = this.readyPromise.promise;
+            let newReadyPromise = new ResolvablePromise<void>();
 
-            let title = this.multilingualStore.getters.stringValue(processStep.title);
+            this.readyPromise = newReadyPromise;
 
-            if (this.currentProcessId == process.id.toString().toLowerCase() &&
-                this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
-                this.currentTitle == title) {
+            currentReadyPromise.then(() => {
+                let title = this.multilingualStore.getters.stringValue(processStep.title);
 
-                resolve();
-            }
-            else {
-                //let processIdChanged = this.currentProcessId && this.currentProcessId.toString().toLowerCase() != process.id.toString().toLowerCase();
+                if (this.currentProcessId == process.id.toString().toLowerCase() &&
+                    this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
+                    this.currentTitle == title) {
 
-                this.currentProcessId = process.id.toString().toLowerCase();
-                this.currentProcessStepId = processStep.id.toString().toLowerCase();
-                this.currentTitle = title;
+                    newReadyPromise.resolve();
+                    resolve();
+                }
+                else {
+                    //let processIdChanged = this.currentProcessId && this.currentProcessId.toString().toLowerCase() != process.id.toString().toLowerCase();
 
-                this.generateOPMRouteData(process, processStep, rendererOption).then(({ opmRoute, processReference }) => {
-                    if (processReference) {
-                        this.protectedNavigate(title, opmRoute, { processId: process.id });
-                        this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
-                            resolve();
-                        }).catch(reject);
-                    }
-                    else {
-                        let reason = `Cannot find process step with id: ${processStep.id} in the process with id: ${process.id}`;
-                        console.warn(reason);
-                        reject(reason);
-                    }
-                }).catch(reject)
-            }
+                    this.currentProcessId = process.id.toString().toLowerCase();
+                    this.currentProcessStepId = processStep.id.toString().toLowerCase();
+                    this.currentTitle = title;
+
+                    this.generateOPMRouteData(process, processStep, rendererOption).then(({ opmRoute, processReference }) => {
+                        if (processReference) {
+                            this.protectedNavigate(title, opmRoute, { processId: process.id });
+                            this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
+
+                                newReadyPromise.resolve();
+                                resolve();
+                            }).catch((err) => {
+                                newReadyPromise.resolve();
+                                reject(err);
+                            });
+                        }
+                        else {
+                            let reason = `Cannot find process step with id: ${processStep.id} in the process with id: ${process.id}`;
+                            console.warn(reason);
+
+                            newReadyPromise.resolve();
+                            reject(reason);
+                        }
+                    }).catch((err) => {
+                        newReadyPromise.resolve();
+                        reject(err);
+                    })
+                }
+            });
+            this.readyPromise
         })
     }
 
