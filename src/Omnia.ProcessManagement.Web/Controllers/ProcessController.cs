@@ -289,8 +289,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
 
-                        //For published version, we can cache the value like forever
-                        //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time
+                        //For published/archived version, we can cache the value like forever
+                        //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time. 
+                        //Note that the hash will be changed if draft/checked-out data change so its safe to cache them in a short time
                         Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                         {
                             Public = true,
@@ -450,6 +451,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);
+
+                        //For published/archived version, we can cache the value like forever
+                        if (process.VersionType == ProcessVersionType.Archived || process.VersionType == ProcessVersionType.Published)
+                        {
+                            Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                            {
+                                Public = true,
+                                MaxAge = TimeSpan.FromDays(365)
+                            };
+                        }
                         return process.AsApiResponse();
                     });
             }
@@ -607,9 +618,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     Name = ctx.Web.Title,
                     Url = webUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName
                 };
+
                 return siteInfo.AsApiResponse();
-
-
             }
             catch (Exception ex)
             {
