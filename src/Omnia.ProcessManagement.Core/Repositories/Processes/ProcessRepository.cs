@@ -270,7 +270,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     opmProcessIdNumber = latestOPMProcessIdNumber;
                 }
 
-                if(opmProcessIdNumber == 0)
+                if (opmProcessIdNumber == 0)
                 {
                     var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = opmProcessId };
                     DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
@@ -345,6 +345,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
             var (edition, revision, opmProcessIdNumber) = ProcessVersionHelper.GetEditionRevisionAndOPMProcessIdNumber(rootProcessStep.EnterpriseProperties);
+
+            //BEGIN - Temporary for existing old data. should be remove after a sprint (after the end of March/2020)
+            if ((edition != 0 || revision != 0) && opmProcessIdNumber == 0)
+            {
+                var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = actionModel.Process.OPMProcessId };
+                DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
+                await DbContext.SaveChangesAsync();
+                opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+            }
+            //END
+
             EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
