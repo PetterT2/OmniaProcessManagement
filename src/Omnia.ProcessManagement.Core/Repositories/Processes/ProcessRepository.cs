@@ -738,14 +738,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public async ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision)
         {
             Entities.Processes.Process process = null;
-            if (edition != 0 || revision != 0)
+            if (edition == -1 && revision == -1)
             {
-                var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
-                process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
+                process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
             }
             else
             {
-                process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
+                var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
+                process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
             }
 
             if (process == null)

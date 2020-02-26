@@ -138,7 +138,6 @@ export class ProcessStore extends Store {
         }
     }
 
-
     public actions = {
         createDraft: this.action((actionModel: ProcessActionModel) => {
             return this.processService.createDraftProcess(actionModel).then((process) => {
@@ -180,6 +179,17 @@ export class ProcessStore extends Store {
                 this.internalMutations.addOrUpdateProcess(process);
 
                 return process;
+            })
+        }),
+        refreshPublishedProcess: this.action((opmProcessId: GuidValue) => {
+            return new Promise<null>((resolve, reject) => {
+                this.processService.getPublishedProcess(opmProcessId).then((process) => {
+                    this.internalMutations.addOrUpdateProcess(process);
+                    resolve();
+                }).catch(err => {
+                    console.warn(`Cannot refresh the published process with OPMProcessId: ${opmProcessId} in ProcessStore. ${err}`);
+                    resolve();
+                })
             })
         }),
         ensureProcessCheckoutInfo: this.action((opmProcessId: GuidValue) => {
@@ -230,7 +240,10 @@ export class ProcessStore extends Store {
         }),
         loadProcessByProcessStepId: this.action((processStepId: GuidValue, version: Version) => {
             return new Promise<Process>((resolve, reject) => {
-                let dictKey = `${processStepId.toString()}-${version.edition}-${version.revision}`.toLowerCase();
+                let dictKey = version.edition === -1 && version.revision === -1 ?
+                    `${processStepId.toString()}-published`.toLowerCase() :
+                    `${processStepId.toString()}-${version.edition}-${version.revision}`.toLowerCase();
+
                 let processId = this.processStepIdAndProcessIdDict[dictKey];
                 if (processId) {
                     this.ensureProcess(processId).then(() => {
@@ -278,7 +291,7 @@ export class ProcessStore extends Store {
                     this.actions.checkoutProcess.dispatch(process.opmProcessId).then((process) => {
                         this.internalMutations.addOrUpdateProcess(process);
                         resolve(process);
-                    }).catch(reject);                    
+                    }).catch(reject);
                 }).catch(reject);
             })
         })
@@ -291,13 +304,34 @@ export class ProcessStore extends Store {
             let newState = Object.assign({}, currentState, { [key]: process });
             this.processDict.mutate(newState);
 
-            let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
-            for (let stepId of stepIds) {
-                let edition = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
-                let revision = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision];
-                let dictKey = `${stepId.toString()}-${edition}-${revision}`.toLowerCase();
+            if (process.versionType == ProcessVersionType.Published || process.versionType == ProcessVersionType.Archived) {
+                let stepIds = OPMUtils.getAllProcessStepIds(process.rootProcessStep);
 
-                this.processStepIdAndProcessIdDict[dictKey] = process.id.toString().toLowerCase()
+                if (process.versionType == ProcessVersionType.Published) {
+                    //Clean the old published data if exists
+
+                    let publishedRootProcessStepIdKey = `${process.rootProcessStep.id.toString()}-published`.toLowerCase();
+                    let processId = this.processStepIdAndProcessIdDict[publishedRootProcessStepIdKey];
+                    if (processId) {
+                        Object.keys(this.processStepIdAndProcessIdDict).forEach(key => {
+                            if (this.processStepIdAndProcessIdDict[key] === processId && key.endsWith('-published'))
+                                delete this.processStepIdAndProcessIdDict[key];
+                        })
+                    }
+                }
+
+                for (let stepId of stepIds) {
+                    let edition = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition];
+                    let revision = process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision];
+                    let dictKey = `${stepId.toString()}-${edition}-${revision}`.toLowerCase();
+
+                    this.processStepIdAndProcessIdDict[dictKey] = process.id.toString().toLowerCase();
+
+                    if (process.versionType == ProcessVersionType.Published) {
+                        let publishedProcessStepIdKey = `${stepId.toString()}-published`.toLowerCase();
+                        this.processStepIdAndProcessIdDict[publishedProcessStepIdKey] = process.id.toString().toLowerCase();
+                    }
+                }
             }
 
             let resolvablePromise = this.getProcessLoadResolvablePromise(process.id);

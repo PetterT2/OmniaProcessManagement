@@ -133,13 +133,13 @@ export const OPMSpecialRouteVersion = {
         return null
     },
     get Published(): Version {
-        return { edition: 0, revision: 0 }
+        return { edition: -1, revision: -1 }
     },
     isPreview: (version: Version) => {
         return version === null;
     },
     isPublished: (version: Version) => {
-        return version && version.edition === 0 && version.revision === 0;
+        return version && version.edition === -1 && version.revision === -1;
     },
     generateVersion: (edition: number | string, revision: number | string): Version => {
         let version: Version = { edition: parseInt(edition as string), revision: parseInt(revision as string) };

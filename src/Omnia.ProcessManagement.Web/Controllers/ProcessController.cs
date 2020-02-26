@@ -360,8 +360,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .OrRequireReader()
                     .DoAsync(async (teamAppId, opmProcessId, processVersionType) =>
                     {
-                        var processData = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
-                        return processData.AsApiResponse();
+                        var process = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
+
+                        //If the result is archived version, then we can cache it forever.
+                        //Note do not cache published version in this case, cause published version could be changed any times!
+                        if (process.VersionType == ProcessVersionType.Archived)
+                        {
+                            Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                            {
+                                Public = true,
+                                MaxAge = TimeSpan.FromDays(365)
+                            };
+                        }
+
+                        return process.AsApiResponse();
                     });
             }
             catch (Exception ex)
@@ -628,6 +640,32 @@ namespace Omnia.ProcessManagement.Web.Controllers
             {
                 Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<List<Process>>(ex);
+            }
+        }
+
+        [HttpGet, Route("published/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> GetPublishedProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireApprover()
+                   .OrRequireReviewer()
+                   .OrRequireReader()
+                   .DoAsync(async () =>
+                   {
+                       var process = (await ProcessService.GetProcessesByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published)).FirstOrDefault();
+                       return ApiUtils.CreateSuccessResponse(process);
+                   });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
 

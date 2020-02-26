@@ -73,49 +73,6 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         return path;
     }
 
-    ///**
-    //* Implement abstract function
-    //*/
-    //protected resolveRouteFromPath(path: string): OPMRoute {
-    //    let context: OPMRoute = {} as OPMRoute;
-
-    //    path = path.toLowerCase();
-
-    //    if (path.endsWith('/preview/g')) {
-    //        path = path.replace('/preview/g', '');
-    //        context.version = OPMSpecialRouteVersion.Preview;
-    //        context.globalRenderer = true;
-    //    }
-    //    else if (path.endsWith('/preview')) {
-    //        path = path.replace('/preview', '');
-    //        context.version = OPMSpecialRouteVersion.Preview;
-    //        context.globalRenderer = false;
-    //    }
-    //    else if (/^[^\/]+\/\d\/\d(\/g)?$/.test(path)) {
-    //        let segments = path.split('/');
-    //        path = segments[0];
-    //        context.version = OPMSpecialRouteVersion.generateVersion(segments[1], segments[2])
-    //        context.globalRenderer = segments.length == 4;
-    //    }
-    //    else if (path.endsWith('/g')) {
-    //        path = path.replace('/g', '');
-    //        context.version = OPMSpecialRouteVersion.Published;
-    //        context.globalRenderer = true;
-    //    }
-    //    else {
-    //        context.version = OPMSpecialRouteVersion.Published;
-    //        context.globalRenderer = false;
-    //    }
-
-    //    if (path) {
-    //        context.processStepId = (new Guid(path)).toString();
-    //    }
-    //    else {
-    //        context = null;
-    //    }
-
-    //    return context;
-    //}
 
     /**
       * Implement abstract function

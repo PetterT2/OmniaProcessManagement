@@ -338,6 +338,20 @@ export class ProcessService {
         });
     }
 
+    public getPublishedProcess = (opmProcessId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/published/${opmProcessId}`).then(response => {
+                if (response.data.success) {
+                    let process = response.data.data;
+                    this.generateClientSideData([process]);
+                    resolve(process);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
     public getProcessHistory = (opmProcessId: GuidValue) => {
         return new Promise<Array<Process>>((resolve, reject) => {
 
