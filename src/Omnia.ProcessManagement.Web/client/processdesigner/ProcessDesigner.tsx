@@ -3,7 +3,7 @@ import * as tsx from 'vue-tsx-support';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
-import { JourneyInstance, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessDesignerStyles } from './ProcessDesigner.css';
 import { ContentNavigationComponent } from './navigations/ContentNavigation';
 import { CurrentProcessStore, OPMUtils } from '../fx';
@@ -46,7 +46,7 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
             this.processDesignerStore.actions.setProcessToShow.dispatch(currentReferenceData.process, currentReferenceData.current.parentProcessStep).then(() => {
                 this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
             })
-        })
+        });
     }
 
     mounted() {

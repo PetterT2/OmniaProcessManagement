@@ -2,29 +2,35 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, GuidValue, Guid } from '@omnia/fx/models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { StyleFlow, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
-import { TitleBlockData, ProcessReferenceData, Enums } from '../../fx/models';
-import { CurrentProcessStore } from '../../fx';
+import { DocumentsBlockData, ProcessReferenceData, Enums } from '../../fx/models';
+import { CurrentProcessStore, DocumentRollupSettingsProvider } from '../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
+import { DocumentRollupBlockData } from '@omnia/dm/models';
+import { DocumentsBlockDataSettingsKey } from '../../fx/constants';
 
 @Component
-export class TitleBlockComponent extends VueComponentBase implements IWebComponentInstance {
+export class DocumentsBlockComponent extends VueComponentBase implements IWebComponentInstance {
     @Prop() settingsKey: string;
     //@Prop() styles: typeof TitleBlockStyles | any;
 
     @Localize(OPMCoreLocalization.namespace) corLoc: OPMCoreLocalization.locInterface;
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
-    @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<TitleBlockData>;
+    @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<DocumentsBlockData>;
+    @Inject<SettingsServiceConstructor>(DocumentRollupSettingsProvider) private documentSettingsProvider: DocumentRollupSettingsProvider;
+
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(CurrentProcessStore) private currentProcessStore: CurrentProcessStore;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
 
-    blockData: TitleBlockData = null;
+    blockData: DocumentsBlockData = null;
     subscriptionHandler: IMessageBusSubscriptionHandler = null;
-    content: string = "";
+    documentsBlockData: DocumentRollupBlockData = null;
+    //documentRollupSettingsKey: string = '';
+    tempKey: GuidValue = Guid.newGuid().toString();
 
     created() {
         this.init();
@@ -44,13 +50,13 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
             .onKeyValueUpdated(this.settingsKey)
             .subscribe(this.setBlockData);
 
-        this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-title-block-settings");
+        this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-documents-block-settings");
+        this.settingsService.registerKeyProvider(DocumentsBlockDataSettingsKey.CurrentProcess, this.documentSettingsProvider);
         this.settingsService.getValue(this.settingsKey).then((blockData) => {
             this.setBlockData(blockData || {
                 data: {},
                 settings: {
-                    title: { isMultilingualString: true },
-                    formatting: Enums.ProcessViewEnums.HeadingFormatting.Heading1
+                    title: { isMultilingualString: true }
                 }
             });
         });
@@ -62,39 +68,16 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
     }
 
     initContent() {
+        this.documentsBlockData = null;
         let currentReferenceData = this.currentProcessStore.getters.referenceData();
-        if (currentReferenceData && currentReferenceData.current.processStep.title) {
-            this.content = this.multilingualStore.getters.stringValue(currentReferenceData.current.processStep.title);
+        if (currentReferenceData && currentReferenceData.current) {
+            this.documentsBlockData = currentReferenceData.current.processData.documentBlockData;
         }
+        this.tempKey = Guid.newGuid().toString();
     }
 
-    setBlockData(blockData: TitleBlockData) {
+    setBlockData(blockData: DocumentsBlockData) {
         this.blockData = blockData;
-    }
-
-    private hasContentValue() {
-        if (!this.content || this.content.trim() == "")
-            return false;
-        return true;
-    }
-
-    renderContent(h) {
-        let result: JSX.Element = null;
-        switch (this.blockData.settings.formatting) {
-            case Enums.ProcessViewEnums.HeadingFormatting.Normal:
-                result = <div>{this.content}</div>;
-                break;
-            case Enums.ProcessViewEnums.HeadingFormatting.Heading1:
-                result = <h1>{this.content}</h1>;
-                break;
-            case Enums.ProcessViewEnums.HeadingFormatting.Heading2:
-                result = <h2>{this.content}</h2>;
-                break;
-            case Enums.ProcessViewEnums.HeadingFormatting.Heading3:
-                result = <h3>{this.content}</h3>;
-                break;
-        }
-        return result;
     }
 
     render(h) {
@@ -104,7 +87,7 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
             )
         }
 
-        if (!this.hasContentValue()) {
+        if (!this.documentsBlockData) {
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
@@ -112,16 +95,17 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
                 </aside>
             )
         }
-        return (
-            <aside>
-                <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                {this.renderContent(h)}
-            </aside>
-        );
+
+        return <aside>
+            <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
+
+            <odm-document-rollup key={this.tempKey} settingsKey={DocumentsBlockDataSettingsKey.CurrentProcess}></odm-document-rollup>
+        </aside>;       
+       
     }
 }
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, TitleBlockComponent);
+    vueCustomElement(manifest.elementName, DocumentsBlockComponent);
 });
 

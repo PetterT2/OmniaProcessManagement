@@ -1,22 +1,24 @@
-﻿import { important } from 'csx';
-import { StyleFlow, OmniaTheming } from '@omnia/fx/ux';
-import { ProcessStepDrawingStyles } from '../../../fx/models';
+﻿import { StyleFlow, OmniaTheming } from "@omnia/fx/ux";
+import { ProcessDesignerStyles } from "../../../fx/models";
+import { important } from 'csx';
 
-StyleFlow.define(ProcessStepDrawingStyles, {
-    canvasWrapper: (theme: OmniaTheming) => {
+StyleFlow.define(ProcessDesignerStyles.BlockWithToolbarStyles, {
+    blockWrapper: (theme: OmniaTheming, width?: number) => {
+        let blockWidth = width ? width + 'px' : 'auto';
         return {
             position: "relative" as any,
             padding: '0px',
             overflow: 'hidden',
             maxWidth: '100%',
+            width: blockWidth,
             boxShadow: important("inset 0px 2px 0px 0px " + theme.promoted.body.primary.base + "," + "inset 0px -2px 0px 0px " + theme.promoted.body.primary.base)
         }
     },
-    canvasOverflowWrapper: {
+    blockOverflowWrapper: {
         overflow: 'auto',
         width: '100%'
     },
-    canvasToolbar: (theme: OmniaTheming) => {
+    toolbarWrapper: (theme: OmniaTheming) => {
         return {
             position: "absolute" as any,
             borderRadius: "0px 4px 4px 4px",
@@ -29,5 +31,4 @@ StyleFlow.define(ProcessStepDrawingStyles, {
         }
     }
 });
-
 

@@ -141,6 +141,10 @@
             Breadcrumb: {
                 Title: string,
                 Description: string
+            },
+            Documents: {
+                Title: string,
+                Description: string
             }
         },
         Blocks: {

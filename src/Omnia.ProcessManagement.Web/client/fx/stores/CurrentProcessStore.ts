@@ -324,7 +324,7 @@ export class CurrentProcessStore extends Store {
                     let processData: ProcessData = {
                         content: { isMultilingualString: true },
                         canvasDefinition: null,
-                        documents: null,
+                        documentBlockData: null,
                         links: null,
                         tasks: null
                     } as ProcessData

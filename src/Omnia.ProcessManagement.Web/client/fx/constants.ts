@@ -154,3 +154,8 @@ export const OPMSpecialRouteVersion = {
         return versionLabel;
     }
 }
+
+export const DocumentsBlockDataSettingsKey = {
+    get CurrentProcess() { return "processdocumentrollupsettings" },
+    get ShortcutProcess() { return "shortcutprocessdocumentrollupsettings" }
+}
