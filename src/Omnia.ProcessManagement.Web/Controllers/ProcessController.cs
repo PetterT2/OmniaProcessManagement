@@ -12,6 +12,7 @@ using Omnia.Fx.SharePoint.Client;
 using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core;
+using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
@@ -288,8 +289,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
 
-                        //For published version, we can cache the value like forever
-                        //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time
+                        //For published/archived version, we can cache the value like forever
+                        //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time. 
+                        //Note that the hash will be changed if draft/checked-out data change so its safe to cache them in a short time
                         Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
                         {
                             Public = true,
@@ -360,8 +362,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .OrRequireReader()
                     .DoAsync(async (teamAppId, opmProcessId, processVersionType) =>
                     {
-                        var processData = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
-                        return processData.AsApiResponse();
+                        var process = await ProcessService.GetProcessByVersionAsync(opmProcessId, edition, revision);
+
+                        //If the request is not getting latest published version, then we can cache it forever.
+                        //Because the request url for latest published version could be response different data
+                        if (!ProcessVersionHelper.IsLatestPublishedVersion(edition, revision))
+                        {
+                            Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                            {
+                                Public = true,
+                                MaxAge = TimeSpan.FromDays(365)
+                            };
+                        }
+
+                        return process.AsApiResponse();
                     });
             }
             catch (Exception ex)
@@ -437,6 +451,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);
+
+                        //For published/archived version, we can cache the value like forever
+                        if (process.VersionType == ProcessVersionType.Archived || process.VersionType == ProcessVersionType.Published)
+                        {
+                            Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                            {
+                                Public = true,
+                                MaxAge = TimeSpan.FromDays(365)
+                            };
+                        }
                         return process.AsApiResponse();
                     });
             }
@@ -594,9 +618,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     Name = ctx.Web.Title,
                     Url = webUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName
                 };
+
                 return siteInfo.AsApiResponse();
-
-
             }
             catch (Exception ex)
             {
@@ -631,9 +654,35 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpGet, Route("published/{opmProcessId:guid}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<Process>> GetPublishedProcessAsync(Guid opmProcessId)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published);
+
+                return await securityResponse
+                   .RequireAuthor()
+                   .OrRequireApprover()
+                   .OrRequireReviewer()
+                   .OrRequireReader()
+                   .DoAsync(async () =>
+                   {
+                       var process = (await ProcessService.GetProcessesByOPMProcessIdAsync(opmProcessId, ProcessVersionType.Published)).FirstOrDefault();
+                       return ApiUtils.CreateSuccessResponse(process);
+                   });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<Process>(ex);
+            }
+        }
+
         private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
         {
-            if(checkedOutProcess == null && draftProcess == null)
+            if (checkedOutProcess == null && draftProcess == null)
             {
                 return null;
             }

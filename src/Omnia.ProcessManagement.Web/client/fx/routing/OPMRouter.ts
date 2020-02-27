@@ -1,4 +1,4 @@
-﻿import { Inject, Injectable, ServiceContainer, OmniaContext } from '@omnia/fx';
+﻿import { Inject, Injectable, ServiceContainer, OmniaContext, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, TokenBasedRouteStateData, Guid, GuidValue } from '@omnia/fx-models';
 import { TokenBasedRouter } from '@omnia/fx/ux';
 import { OPMRoute, ProcessStep, Process, ProcessVersionType, OPMRouteStateData, OPMEnterprisePropertyInternalNames, Enums, IdDict, Version, ProcessStepType, ExternalProcessStep, ProcessReference } from '../models';
@@ -33,8 +33,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
     private currentProcessId = '';
     private currentProcessStepId = '';
 
+    private readyPromise: ResolvablePromise<void> = new ResolvablePromise<void>();
+
     constructor() {
         super('pm')
+
+        this.readyPromise.resolve();
     }
 
     /**
@@ -67,55 +71,12 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         if (OPMSpecialRouteVersion.isPreview(version)) {
             path += '/v-preview';
         }
-        else if (!OPMSpecialRouteVersion.isPublished(version)) {
+        else if (!OPMSpecialRouteVersion.isLatestPublished(version)) {
             path += `/v-${version.edition}-${version.revision}`;
         }
         return path;
     }
 
-    ///**
-    //* Implement abstract function
-    //*/
-    //protected resolveRouteFromPath(path: string): OPMRoute {
-    //    let context: OPMRoute = {} as OPMRoute;
-
-    //    path = path.toLowerCase();
-
-    //    if (path.endsWith('/preview/g')) {
-    //        path = path.replace('/preview/g', '');
-    //        context.version = OPMSpecialRouteVersion.Preview;
-    //        context.globalRenderer = true;
-    //    }
-    //    else if (path.endsWith('/preview')) {
-    //        path = path.replace('/preview', '');
-    //        context.version = OPMSpecialRouteVersion.Preview;
-    //        context.globalRenderer = false;
-    //    }
-    //    else if (/^[^\/]+\/\d\/\d(\/g)?$/.test(path)) {
-    //        let segments = path.split('/');
-    //        path = segments[0];
-    //        context.version = OPMSpecialRouteVersion.generateVersion(segments[1], segments[2])
-    //        context.globalRenderer = segments.length == 4;
-    //    }
-    //    else if (path.endsWith('/g')) {
-    //        path = path.replace('/g', '');
-    //        context.version = OPMSpecialRouteVersion.Published;
-    //        context.globalRenderer = true;
-    //    }
-    //    else {
-    //        context.version = OPMSpecialRouteVersion.Published;
-    //        context.globalRenderer = false;
-    //    }
-
-    //    if (path) {
-    //        context.processStepId = (new Guid(path)).toString();
-    //    }
-    //    else {
-    //        context = null;
-    //    }
-
-    //    return context;
-    //}
 
     /**
       * Implement abstract function
@@ -134,7 +95,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
             if (route.processStepId && Guid.isValid(segment)) {
                 route.externalParents.push({
                     processStepId: route.processStepId,
-                    version: route.version !== undefined ? route.version : OPMSpecialRouteVersion.Published
+                    version: route.version !== undefined ? route.version : OPMSpecialRouteVersion.LatestPublished
                 });
                 route.processStepId = null;
                 route.version = undefined;
@@ -158,7 +119,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
         }
 
         if (route.version === undefined) {
-            route.version = OPMSpecialRouteVersion.Published;
+            route.version = OPMSpecialRouteVersion.LatestPublished;
         }
 
         return route;
@@ -180,36 +141,54 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
     public navigate(process: Process, processStep: ProcessStep, rendererOption: ProcessRendererOptions = ProcessRendererOptions.CurrentRenderer): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            let currentReadyPromise = this.readyPromise.promise;
+            let newReadyPromise = new ResolvablePromise<void>();
 
-            let title = this.multilingualStore.getters.stringValue(processStep.title);
+            this.readyPromise = newReadyPromise;
 
-            if (this.currentProcessId == process.id.toString().toLowerCase() &&
-                this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
-                this.currentTitle == title) {
+            currentReadyPromise.then(() => {
+                let title = this.multilingualStore.getters.stringValue(processStep.title);
 
-                resolve();
-            }
-            else {
-                //let processIdChanged = this.currentProcessId && this.currentProcessId.toString().toLowerCase() != process.id.toString().toLowerCase();
+                if (this.currentProcessId == process.id.toString().toLowerCase() &&
+                    this.currentProcessStepId == processStep.id.toString().toLowerCase() &&
+                    this.currentTitle == title) {
 
-                this.currentProcessId = process.id.toString().toLowerCase();
-                this.currentProcessStepId = processStep.id.toString().toLowerCase();
-                this.currentTitle = title;
+                    newReadyPromise.resolve();
+                    resolve();
+                }
+                else {
+                    //let processIdChanged = this.currentProcessId && this.currentProcessId.toString().toLowerCase() != process.id.toString().toLowerCase();
 
-                this.generateOPMRouteData(process, processStep, rendererOption).then(({ opmRoute, processReference }) => {
-                    if (processReference) {
-                        this.protectedNavigate(title, opmRoute, { processId: process.id });
-                        this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
-                            resolve();
-                        }).catch(reject);
-                    }
-                    else {
-                        let reason = `Cannot find process step with id: ${processStep.id} in the process with id: ${process.id}`;
-                        console.warn(reason);
-                        reject(reason);
-                    }
-                }).catch(reject)
-            }
+                    this.currentProcessId = process.id.toString().toLowerCase();
+                    this.currentProcessStepId = processStep.id.toString().toLowerCase();
+                    this.currentTitle = title;
+
+                    this.generateOPMRouteData(process, processStep, rendererOption).then(({ opmRoute, processReference }) => {
+                        if (processReference) {
+                            this.protectedNavigate(title, opmRoute, { processId: process.id });
+                            this.currentProcessStore.actions.setProcessToShow.dispatch(processReference).then(() => {
+
+                                newReadyPromise.resolve();
+                                resolve();
+                            }).catch((err) => {
+                                newReadyPromise.resolve();
+                                reject(err);
+                            });
+                        }
+                        else {
+                            let reason = `Cannot find process step with id: ${processStep.id} in the process with id: ${process.id}`;
+                            console.warn(reason);
+
+                            newReadyPromise.resolve();
+                            reject(reason);
+                        }
+                    }).catch((err) => {
+                        newReadyPromise.resolve();
+                        reject(err);
+                    })
+                }
+            });
+            this.readyPromise
         })
     }
 
@@ -289,13 +268,13 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                 process.versionType == ProcessVersionType.Archived ? OPMSpecialRouteVersion.generateVersion(
                     process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMEdition],
                     process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMRevision]
-                ) : OPMSpecialRouteVersion.Published;
+                ) : OPMSpecialRouteVersion.LatestPublished;
 
 
             if (processStep.type == ProcessStepType.External) {
                 isExternal = true;
                 processStepIdNavigateTo = (processStep as ExternalProcessStep).rootProcessStepId.toString().toLowerCase();
-                version = OPMSpecialRouteVersion.Published;
+                version = OPMSpecialRouteVersion.LatestPublished;
 
                 if (!this.routeContext.route) {
                     throw `Cannot do the first navigation to external process`;

@@ -121,6 +121,11 @@ export class ApprovalTaskComponent extends VueComponentBase<ApprovalTaskComponen
     private completeApprovalTask() {
         this.publishProcessService.completeApprovalTask(this.task)
             .then(() => {
+
+                if (this.task.taskOutCome == TaskOutcome.Approved && this.task.workflow) {
+                    this.processStore.actions.refreshPublishedProcess.dispatch(this.task.workflow.opmProcessId)
+                }
+
                 this.hasError = false;
                 this.isApproving = false;
                 this.isRejecting = false;
