@@ -15,7 +15,6 @@ import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
-import { CopyToNewProcessDialog } from '../../copytonewprocess_dialog/CopyToNewProcess';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -135,7 +134,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 if (selectedShape) {
                     setTimeout(() => {
                         this.drawingParentCanvas.setSelectedShapeItemId(selectedShape.processStepId)
-                    }, 20)
+                    }, 200)
                 }
             })
         }
@@ -262,26 +261,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             </v-navigation-drawer>
         );
         components.push(this.renderAddShapePanel(h));
-        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
-
-        components.push(
-            <v-navigation-drawer
-                app
-                float
-                right
-                clipped
-                dark={this.omniaTheming.promoted.body.dark}
-                width="340"
-                temporary={false}
-                disable-resize-watcher
-                hide-overlay
-                class={this.panelStyles.settingsPanel(backgroundColor)}
-                v-model={this.processDesignerStore.panels.changeProcessTypePanel.state.show}>
-                {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
-            </v-navigation-drawer >
-        );
-
-        components.push(<CopyToNewProcessDialog></CopyToNewProcessDialog>);
+        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));       
 
         return components;
     }
