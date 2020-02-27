@@ -1182,7 +1182,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessDraftVersionNotFoundException(processStepId);
             }
             
-            //EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0);
+            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0);
             sourceProcess.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
 
             var clonedProcess = new Entities.Processes.Process();
