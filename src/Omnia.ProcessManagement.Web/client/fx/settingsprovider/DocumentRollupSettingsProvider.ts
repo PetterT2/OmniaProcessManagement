@@ -30,13 +30,13 @@ export class DocumentRollupSettingsProvider implements ISettingsKeyProvider {
             //    columns: [{ internalName: ODMDocumentRollupDisplayFields.IconTitleLink.toString(), isShowHeading: true }, { internalName: ODMDocumentRollupDisplayFields.InfoIcon.toString(), isShowHeading: true }]
             //} as any,
             viewSettings: {
-                selectProperties: ["title", "cbc0ab3a-fc36-4ebe-97d2-75cc450ed2be"],
+                selectProperties: ["FileName", "cbc0ab3a-fc36-4ebe-97d2-75cc450ed2be"],
                 columns: [
                     {
-                        internalName: "cd49fdbc-ea98-4bfd-ad97-f471b68c4505", isShowHeading: true
+                        internalName: "b18ac29d-b579-4971-ac5e-c0f71ad33ae1", isShowHeading: false
                     },
                     {
-                        internalName: "cbc0ab3a-fc36-4ebe-97d2-75cc450ed2be", isShowHeading: true
+                        internalName: "cbc0ab3a-fc36-4ebe-97d2-75cc450ed2be", isShowHeading: false
                     }]
             } as any,
             selectedViewId: "0573c149-cac2-461e-818a-e6011ca60cc1",//todo

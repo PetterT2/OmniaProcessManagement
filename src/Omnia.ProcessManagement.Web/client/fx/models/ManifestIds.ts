@@ -81,8 +81,8 @@ export class OPMWebComponentManifests {
     public static get TitleBlock(): Guid { return new Guid('3d5e86a2-8f75-4928-85a0-8a7d1e7414b4'); }
     public static get TitleBlockSettings(): Guid { return new Guid('87c0e638-1418-4388-acff-91747fb81f00'); }
 
-    public static get DocumentsBlock(): Guid { return new Guid('cd2c2092-0c7c-461c-aac6-691d87f939a6'); }
-    public static get DocumentsBlockSettings(): Guid { return new Guid('f7cf7498-4e00-4c7b-9f54-17b18363dae9'); }
+    public static get DocumentsBlock(): Guid { return new Guid('1bbb910b-55f9-4fca-8df3-378dc247421a'); }
+    public static get DocumentsBlockSettings(): Guid { return new Guid('440bce2f-7c07-431b-8e0d-344e166f26d2'); }
 
     public static get ChangeProcessType(): Guid { return new Guid("620a862b-bc33-46c0-b5c8-2896be4d902f"); }
 

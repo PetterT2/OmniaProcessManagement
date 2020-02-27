@@ -11,7 +11,7 @@ Composer
     .withDefinition({
         title: "$Localize:OPM.Core.BlockDefinitions.Documents.Title;",
         description: "$Localize:OPM.Core.BlockDefinitions.Documents.Description;",
-        icon: new FontAwesomeIcon("fa fa-font")//todo
+        icon: new FontAwesomeIcon("fa fa-file-alt")
     })
     .registerOmniaBlock({
         category: "$Localize:OPM.Core.BlockDefinitions.ProcessInformation.Title;"

@@ -91,7 +91,7 @@ export class DocumentsBlockComponent extends VueComponentBase implements IWebCom
             return (
                 <aside>
                     <wcm-block-title domProps-multilingualtitle={this.blockData.settings.title} settingsKey={this.settingsKey}></wcm-block-title>
-                    <wcm-empty-block-view dark={false} icon={"fa fa-font"} text={this.corLoc.BlockDefinitions.Title.Title}></wcm-empty-block-view>
+                    <wcm-empty-block-view dark={false} icon={"fa fa-file-alt"} text={this.corLoc.BlockDefinitions.Documents.Title}></wcm-empty-block-view>
                 </aside>
             )
         }
