@@ -6,7 +6,7 @@ import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
 import { CurrentProcessStore, ProcessStore } from '../../../../fx/stores';
-import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
+import { Process, Enums, ProcessWorkingStatus, ProcessVersionType } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
@@ -14,6 +14,7 @@ import { DisplayModes } from '../../../../models/processdesigner';
 import { PublishDialog } from './PublishDialog';
 import { DeletedDialog } from './DeleteDialog';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 
 interface DraftsMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
@@ -76,6 +77,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         let checkoutProcess = this.processStore.actions.checkoutProcess.dispatch(this.process.opmProcessId);
 
         checkoutProcess.then(process => {
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
             this.openProcessDesigner(process, DisplayModes.contentEditing);
         }).catch(() => {
             loadPreviewProcessPromise.then(processWithCheckoutInfo => {

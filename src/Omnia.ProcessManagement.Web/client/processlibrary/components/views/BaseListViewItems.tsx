@@ -3,10 +3,10 @@ import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { ProcessLibraryDisplaySettings, Enums, Process, ProcessVersionType, ProcessListViewComponentKey, ProcessWorkingStatus, Security, IdDict } from '../../../fx/models';
-import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
+import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse, DraftProcessLibraryStatus } from '../../../models';
 import { SharePointContext, TermStore } from '@omnia/fx-sp';
 import { OmniaContext, Inject, Localize, Utils, ResolvablePromise, SubscriptionHandler } from '@omnia/fx';
-import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding, Guid } from '@omnia/fx-models';
+import { TenantRegionalSettings, EnterprisePropertyDefinition, PropertyIndexedType, User, TaxonomyPropertySettings, MultilingualScopes, LanguageTag, IMessageBusSubscriptionHandler, RoleDefinitions, Parameters, PermissionBinding, Guid, GuidValue } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessService, OPMUtils, OPMRouter, ProcessStore, ProcessRendererOptions } from '../../../fx';
@@ -15,13 +15,15 @@ import { FiltersAndSorting } from '../../filtersandsorting';
 import { EnterprisePropertyStore, UserStore, MultilingualStore } from '@omnia/fx/store';
 import { FilterDialog } from './dialogs/FilterDialog';
 import { OPMContext } from '../../../fx/contexts';
-import { SecurityService } from '@omnia/fx/services';
+import { SecurityService, UserService } from '@omnia/fx/services';
 import { InternalOPMTopics } from '../../../fx/messaging/InternalOPMTopics';
 import { ProcessDesignerStore } from '../../../processdesigner/stores';
 import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
 import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
 import { DisplayModes } from '../../../models/processdesigner';
 import { BaseListViewItemRow } from './BaseListViewItemRow';
+import { ProcessLibraryStatus } from '../../../models';
+import { DraftsProcessingStatus } from './drafts/DraftsProcessingStatus';
 declare var moment;
 
 interface BaseListViewItemsProps {
@@ -58,6 +60,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Inject(SubscriptionHandler) subcriptionHandler: SubscriptionHandler;
     @Inject(ProcessStore) processStore: ProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(UserService) userService: UserService;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     openFilterDialog: boolean = false;
@@ -66,7 +69,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     refreshStatusInterval: any;
     isSettingInterval: boolean = false;
-    refreshStatusPromise: ResolvablePromise<IdDict<ProcessWorkingStatus>> = null;
+    refreshStatusPromise: ResolvablePromise<IdDict<ProcessLibraryStatus>> = null;
 
     dateFormat: string = DefaultDateFormat;
     isLoading: boolean = false;
@@ -145,6 +148,41 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
         })
     }
 
+    private getCheckedOutBys(statusDict: IdDict<DraftProcessLibraryStatus>) {
+        let identities: string[] = [];
+        for (var key in statusDict) {
+            if (!Utils.isNullOrEmpty(statusDict[key].checkedOutBy) && identities.find(i => i == statusDict[key].checkedOutBy) == null)
+                identities.push(statusDict[key].checkedOutBy);
+        }
+        return identities;
+    }
+
+    private updateProcessStatus(statusDict: IdDict<ProcessLibraryStatus>, opmProcessIds: GuidValue[], users?: User[]) {
+        for (let opmProcessId of opmProcessIds) {
+            let filterProcess = this.filterAndSortProcesses.processes.find(p => p.opmProcessId == opmProcessId);
+            let process = this.allProcesses.find(p => p.opmProcessId == opmProcessId);
+            let status = statusDict[opmProcessId.toString()];
+            if (process == null) {
+                this.allProcesses = this.allProcesses.filter(p => p != process);
+                this.filterAndSortProcesses.processes = this.filterAndSortProcesses.processes.filter(p => p != process);
+            }
+            else if (filterProcess && status != null) {
+                filterProcess.processWorkingStatus = status.processWorkingStatus;
+                process.processWorkingStatus = status.processWorkingStatus;
+                if (users && this.versionType == ProcessVersionType.Draft) {
+                    let user = users.find(us => us.uid == (status as DraftProcessLibraryStatus).checkedOutBy);
+                    filterProcess.checkedOutByName = user ? user.displayName : "";
+                    process.checkedOutByName = filterProcess.checkedOutByName;
+                }
+            }
+        }
+    }
+
+    private loadProcessStatus(opmProcessIds: GuidValue[], isGetAll: boolean) {
+        return this.versionType == ProcessVersionType.Draft ?
+            this.processService.getDraftProcessWorkingStatus(this.request.teamAppId, opmProcessIds, isGetAll) : this.processService.getPublishedProcessWorkingStatus(this.request.teamAppId, opmProcessIds);
+    }
+
     private refreshStatus(force?: boolean) {
         if (!Utils.isArrayNullOrEmpty(this.filterAndSortProcesses.processes) &&
             (force || !this.refreshStatusPromise || !this.refreshStatusPromise.resolving)) {
@@ -153,33 +191,22 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                 this.refreshStatusPromise.reject('force refreshing new status');
             }
 
-            this.refreshStatusPromise = new ResolvablePromise<IdDict<ProcessWorkingStatus>>();
+            this.refreshStatusPromise = new ResolvablePromise<IdDict<ProcessLibraryStatus>>();
             this.refreshStatusPromise.resolving = true;
 
             let opmProcessIds = this.filterAndSortProcesses.processes.map(p => p.opmProcessId);
 
-            if (this.versionType == ProcessVersionType.Draft) {
-                this.processService.getDraftProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
-                    .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
-            }
-            else {
-                this.processService.getPublishedProcessWorkingStatus(this.request.teamAppId, opmProcessIds)
-                    .then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
-            }
+            this.loadProcessStatus(opmProcessIds, false).then(this.refreshStatusPromise.resolve).catch(this.refreshStatusPromise.reject);
 
             this.refreshStatusPromise.promise.then((statusDict) => {
-                for (let opmProcessId of opmProcessIds) {
-                    let process = this.allProcesses.find(p => p.opmProcessId == opmProcessId);
-                    let status = statusDict[opmProcessId.toString()];
-
-                    if (process && status != null) {
-                        process.processWorkingStatus = status;
-                    } else if (process) {
-                        this.allProcesses = this.allProcesses.filter(p => p != process);
-                        this.filterAndSortProcesses.processes = this.filterAndSortProcesses.processes.filter(p => p != process);
-                    }
+                if (this.versionType == ProcessVersionType.Draft) {
+                    let identities: string[] = this.getCheckedOutBys(statusDict as IdDict<DraftProcessLibraryStatus>);
+                    this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities).then((users) => {
+                        this.updateProcessStatus(statusDict, opmProcessIds, users);
+                    })
                 }
-
+                else
+                    this.updateProcessStatus(statusDict, opmProcessIds);
             }).catch((errMsg) => {
                 console.warn(errMsg);
             })
@@ -193,39 +220,46 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     }
 
     private loadProcesses() {
-        let getProcesses = () => this.versionType == ProcessVersionType.Draft ?
-            this.processService.getDraftProcessesBySite(this.request.teamAppId) :
-            this.processService.getPublishedProcessesBySite(this.request.teamAppId)
+        let allPromises: Array<Promise<any>> = this.versionType == ProcessVersionType.Draft ?
+            [this.processService.getDraftProcessesBySite(this.request.teamAppId), this.loadProcessStatus([], true)] :
+            [this.processService.getPublishedProcessesBySite(this.request.teamAppId)]
+        Promise.all(allPromises)
+            .then((results) => {
+                this.allProcesses = results[0] as Array<DisplayProcess>;
+                this.allProcesses.forEach(p => p.sortValues = {});
+                let draftProcessStatuses: IdDict<DraftProcessLibraryStatus> = results[1] ? results[1] as IdDict<DraftProcessLibraryStatus> : {};
+                let personFields = [];
+                let termSetIds = [];
+                this.displaySettings.selectedFields.forEach(f => {
+                    let field = this.getEnterpriseProperty(f);
+                    if (field) {
+                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
+                            personFields.push(f);
+                        if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
+                            termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
+                    }
+                })
 
-        getProcesses().then((processes) => {
-            this.allProcesses = processes as Array<DisplayProcess>;
-            this.allProcesses.forEach(p => p.sortValues = {});
-            let personFields = [];
-            let termSetIds = [];
-            this.displaySettings.selectedFields.forEach(f => {
-                let field = this.getEnterpriseProperty(f);
-                if (field) {
-                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Person)
-                        personFields.push(f);
-                    if (field.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy)
-                        termSetIds.push((field.settings as TaxonomyPropertySettings).termSetId);
+                let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
+                if (this.versionType == ProcessVersionType.Draft) {
+                    let checkedOutBys = this.getCheckedOutBys(draftProcessStatuses);
+                    checkedOutBys.forEach(us => { if (identities.find(id => id == us) == null) identities.push(us); });
                 }
-            })
-            let identities = this.filtersAndSorting.ensurePersonField(this.allProcesses, personFields);
-            let promises: Array<Promise<any>> = [
-                this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
-            ];
-            termSetIds.forEach(t => {
-                promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
-            })
+                let promises: Array<Promise<any>> = [
+                    this.userStore.actions.ensureUsersByPrincipalNames.dispatch(identities)
+                ];
+                termSetIds.forEach(t => {
+                    promises.push(this.termStore.actions.ensureTermSetWithAllTerms.dispatch(t))
+                })
 
-            Promise.all(promises).then((result) => {
-                this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
-                this.applyFilterAndSort();
+                Promise.all(promises).then((result) => {
+                    this.allProcesses.forEach(p => p.checkedOutByName = this.filtersAndSorting.getUserDisplayName(draftProcessStatuses[p.opmProcessId.toString()].checkedOutBy));
+                    this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
+                    this.applyFilterAndSort();
+                });
+            }).catch(() => {
+                this.isLoading = false;
             });
-        }).catch(() => {
-            this.isLoading = false;
-        });
     }
 
     private initProcesses() {
@@ -352,12 +386,28 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                     internalName: ProcessLibraryFields.Revision
                 } as EnterprisePropertyDefinition;
                 break;
-            case ProcessLibraryFields.Published:
+            case ProcessLibraryFields.PublishedAt:
                 field = {
                     multilingualTitle: this.coreLoc.Columns.Published, enterprisePropertyDataType: {
                         indexedType: PropertyIndexedType.DateTime
                     },
-                    internalName: ProcessLibraryFields.Published
+                    internalName: ProcessLibraryFields.PublishedAt
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.ModifiedAt:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.ModifiedAt, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.DateTime
+                    },
+                    internalName: ProcessLibraryFields.ModifiedAt
+                } as EnterprisePropertyDefinition;
+                break;
+            case ProcessLibraryFields.ModifiedBy:
+                field = {
+                    multilingualTitle: this.coreLoc.Columns.ModifiedBy, enterprisePropertyDataType: {
+                        indexedType: PropertyIndexedType.Text
+                    },
+                    internalName: ProcessLibraryFields.ModifiedBy
                 } as EnterprisePropertyDefinition;
                 break;
         }

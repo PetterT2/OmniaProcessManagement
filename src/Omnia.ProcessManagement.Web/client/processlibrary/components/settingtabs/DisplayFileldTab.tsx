@@ -14,7 +14,6 @@ import { LibrarySystemFieldsConstants, ProcessLibraryFields } from '../../Consta
 import { CurrentProcessStore } from '../../../fx';
 
 interface DisplayFieldsTabProps {
-    isPublished: boolean;
     settingsKey: string;
 }
 
@@ -22,10 +21,8 @@ interface DisplayFieldsTabProps {
 export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
 {
     @Prop() settingsKey: string;
-    @Prop() isPublished: boolean;
-
+   
     @Inject<SettingsServiceConstructor>(SettingsService) private settingsService: SettingsService<ProcessLibraryBlockData>;
-    @Inject(SharePointContext) private spContext: SharePointContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(LocalizationService) private localizationService: LocalizationService;
@@ -62,12 +59,12 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
         this.loadProperties();
 
         this.isLoadingSettings = true;
-        this.defaultFields = this.isPublished ? ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields() : ProcessLibraryConfigurationFactory.getDefaultDraftDisplayFields();
+        this.defaultFields = ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields();
 
         this.settingsService.getValue(this.settingsKey).then((blockData) => {
             if (blockData) {
                 this.blockData = Utils.clone(blockData);
-                this.libraryDisplaySettings = this.isPublished ? this.blockData.settings.viewSettings.publishedTabDisplaySettings : this.blockData.settings.viewSettings.draftTabDisplaySettings;
+                this.libraryDisplaySettings = this.blockData.settings.viewSettings.publishedTabDisplaySettings;
             }
             else {
                 blockData = ProcessLibraryConfigurationFactory.create();
@@ -95,21 +92,21 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                     internalName: LibrarySystemFieldsConstants.Title,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Title)
                 } as EnterprisePropertyDefinition)
-            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Edition) == null) {
+            if (this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Edition) == null) {
                 this.enterpriseProperties.push({
                     internalName: ProcessLibraryFields.Edition,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Edition)
                 } as EnterprisePropertyDefinition)
             }
-            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Revision) == null) {
+            if (this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Revision) == null) {
                 this.enterpriseProperties.push({
                     internalName: ProcessLibraryFields.Revision,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Revision)
                 } as EnterprisePropertyDefinition)
             }
-            if (this.isPublished && this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.Published) == null) {
+            if (this.enterpriseProperties.find(p => p.internalName == ProcessLibraryFields.PublishedAt) == null) {
                 this.enterpriseProperties.push({
-                    internalName: ProcessLibraryFields.Published,
+                    internalName: ProcessLibraryFields.PublishedAt,
                     multilingualTitle: this.localizationService.get(this.coreLoc.Columns.Published)
                 } as EnterprisePropertyDefinition)
             }
@@ -218,7 +215,7 @@ export class DisplayFieldsTab extends tsx.Component<DisplayFieldsTabProps>
                                 </v-btn>
                             </v-layout>
 
-                            <h4>{this.isPublished ? this.loc.ProcessLibrarySettings.DisplayColumnsInPublishedView : this.loc.ProcessLibrarySettings.DisplayColumnsInDraftView}</h4>
+                            <h4>{this.loc.ProcessLibrarySettings.DisplayColumnsInPublishedView}</h4>
                             {this.renderSelectedColumns(h)}
 
                         </div>

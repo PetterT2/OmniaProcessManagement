@@ -70,19 +70,12 @@ export class ProcessLibrarySettingsComponent extends Vue implements IWebComponen
                     <v-expansion-panel-content>
                         <DisplayTab settingsKey={this.settingsKey}></DisplayTab>
                     </v-expansion-panel-content>
-                </v-expansion-panel>
-
-                <v-expansion-panel>
-                    <v-expansion-panel-header>{this.loc.ProcessLibrarySettings.Tabs.Drafts}</v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                        <DisplayFieldsTab settingsKey={this.settingsKey} isPublished={false}></DisplayFieldsTab>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
+                </v-expansion-panel>              
 
                 <v-expansion-panel>
                     <v-expansion-panel-header>{this.loc.ProcessLibrarySettings.Tabs.Published}</v-expansion-panel-header>
                     <v-expansion-panel-content>
-                        <DisplayFieldsTab settingsKey={this.settingsKey} isPublished={true}></DisplayFieldsTab>
+                        <DisplayFieldsTab settingsKey={this.settingsKey}></DisplayFieldsTab>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
             </v-expansion-panels>

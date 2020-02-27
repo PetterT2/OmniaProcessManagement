@@ -17,4 +17,8 @@ export interface Process {
     modifiedAt: Date;
     publishedAt?: Date;
     publishedBy?: string;
+
+    //client-side
+    modifiedByName?: string;
+    checkedOutByName?: string;
 }
