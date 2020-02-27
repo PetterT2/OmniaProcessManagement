@@ -16,9 +16,9 @@ export class ProcessService {
     constructor() {
     }
 
-    public getPublishedByIdsWithoutPermission = (idList: Array<string>) => {
+    public getPublishedWithoutPermission = () => {
         return new Promise<Array<LightProcess>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedbyidswithoutpermission', idList).then((response) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedwithoutpermission').then((response) => {
                 if (response.data.success) {
                     response.data.data.forEach(p => {
                         p.multilingualTitle = this.multilingualStore.getters.stringValue(p.title);

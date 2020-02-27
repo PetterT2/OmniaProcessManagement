@@ -5,7 +5,6 @@ import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, Journe
 import { OPMAdminLocalization } from '../../../loc/localize';
 import { SettingsStore } from '../../../../fx';
 import { Setting, GlobalSettings } from '../../../../fx/models';
-import { GuidValue, Guid } from '@omnia/fx-models';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -25,25 +24,17 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     isSaving = false;
     isLoading = true;
     globalSettings: GlobalSettings = new GlobalSettings();
-    originalSettings: GlobalSettings = new GlobalSettings();
 
     created() {
         Promise.all([
             this.settingsStore.actions.ensureSettings.dispatch(GlobalSettings).then(() => {
                 let globalSettings = this.settingsStore.getters.getByModel(GlobalSettings);
-                if (globalSettings) {
+                if (globalSettings)
                     this.globalSettings = Object.assign(this.globalSettings, globalSettings);
-                    this.originalSettings = Object.assign(this.originalSettings, globalSettings);
-                }
-                    
             })
         ]).then(() => {
             this.isLoading = false;
         })
-    }
-
-    onTermSetChanged(termSetId: GuidValue) {
-        this.globalSettings.processTermSetId = termSetId ? termSetId.toString() : null
     }
 
     addOrUpdate() {
@@ -54,7 +45,10 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     }
 
     render(h) {
-        let disabled = this.originalSettings && this.originalSettings.processTermSetId != null && this.originalSettings.processTermSetId != Guid.empty;
+        var model = [
+            "69262df1-aa9d-44e9-95b3-2651e2221f65",
+            "397f426c-25c0-4d85-9453-7cec911be98b"
+        ]
 
         return (
             <div>
@@ -71,12 +65,6 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
                             :
                             <div>
                                 <v-text-field dark={this.omniaTheming.promoted.body.dark} label={this.loc.ArchiveSiteUrl} v-model={this.globalSettings.archiveSiteUrl}></v-text-field>
-                                <omfx-termset-picker
-                                    scrollableMaxHeight={300}
-                                    label={this.loc.ProcessTermSetId}
-                                    disabled={disabled}
-                                    termSetId={this.globalSettings && this.globalSettings.processTermSetId && this.originalSettings.processTermSetId != Guid.empty ? this.globalSettings.processTermSetId : null}
-                                    onChanged={(termSetId) => { this.onTermSetChanged(termSetId); }}></omfx-termset-picker>
                                 <div class='text-right'>
                                     <v-btn dark={this.omniaTheming.promoted.body.dark} loading={this.isSaving} text onClick={() => { this.addOrUpdate() }}>{this.omniaUxLoc.Common.Buttons.Save}</v-btn>
                                 </div>

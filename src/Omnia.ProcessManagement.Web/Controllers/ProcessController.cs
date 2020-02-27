@@ -230,13 +230,13 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("getpublishedbyidswithoutpermission")]
+        [HttpPost, Route("getpublishedwithoutpermission")]
         [Authorize]
-        public async ValueTask<ApiResponse<List<LightProcess>>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        public async ValueTask<ApiResponse<List<LightProcess>>> GetPublishedWithoutPermission()
         {
             try
             {
-                var result = await ProcessService.GetPublishedByIdsWithoutPermission(IdList);
+                var result = await ProcessService.GetPublishedWithoutPermission();
                 return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)

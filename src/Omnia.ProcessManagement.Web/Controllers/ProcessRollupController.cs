@@ -52,7 +52,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollup)}");
+                Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollupWithoutPermission)}");
                 return ApiUtils.CreateErrorResponse<List<LightProcess>>(ex);
             }
         }
