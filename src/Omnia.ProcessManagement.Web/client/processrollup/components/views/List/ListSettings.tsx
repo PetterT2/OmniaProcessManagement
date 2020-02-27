@@ -6,11 +6,11 @@ import { Prop } from 'vue-property-decorator';
 import { EnterprisePropertyDefinition, PropertyIndexedType } from '@omnia/fx/models';
 import './ListSettings.css';
 import { OmniaTheming, StyleFlow } from '@omnia/fx/ux';
-import { ListViewDateTimeColumn } from '@omnia/wcm/models';
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { ProcessRollupListViewSettings, IProcessRollupViewSettingsInterface, ProcessRollupBlockListViewSettingsStyles, ProcessRollupListViewColumn } from '../../../../models';
 import { Enums } from '../../../../fx/models';
 import { ProcessRollupConstants } from '../../../../fx';
+import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
 
 interface ListViewPropertyExtension extends ProcessRollupListViewColumn {
     removed?: boolean;
@@ -95,10 +95,10 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
                 } as ProcessRollupListViewColumn)
             }
             else if (prop.type === PropertyIndexedType.DateTime) {
-                let dateTimeProperty: ListViewDateTimeColumn = {
+                let dateTimeProperty: ProcessRollupListViewDateTimeColumn = {
                     internalName: prop.internalName,
-                    format: (prop as ListViewDateTimeColumn).format,
-                    mode: (prop as ListViewDateTimeColumn).mode,
+                    format: (prop as ProcessRollupListViewDateTimeColumn).format,
+                    mode: (prop as ProcessRollupListViewDateTimeColumn).mode,
                     type: PropertyIndexedType.DateTime,
                     width: prop.width,
                     showHeading: prop.showHeading === undefined ? true : prop.showHeading
@@ -128,8 +128,8 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
         if (contentProperty) {
             property.type = contentProperty.enterprisePropertyDataType.indexedType;
 
-            if (property.type === PropertyIndexedType.DateTime && !(property as ListViewDateTimeColumn).mode) {
-                (property as ListViewDateTimeColumn).mode = Enums.ProcessViewEnums.DateTimeMode.Social
+            if (property.type === PropertyIndexedType.DateTime && !(property as ProcessRollupListViewDateTimeColumn).mode) {
+                (property as ProcessRollupListViewDateTimeColumn).mode = Enums.ProcessViewEnums.DateTimeMode.Social
             }
         }
 
@@ -173,7 +173,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
 
     }
 
-    renderDateTimeProperty(property: ListViewDateTimeColumn) {
+    renderDateTimeProperty(property: ProcessRollupListViewDateTimeColumn) {
         let h = this.$createElement;
 
         return (
@@ -208,7 +208,7 @@ export class ListSettings extends Vue implements IWebComponentInstance, IProcess
                         <v-layout align-center>
                             {
                                 this.modifyColumnMode ? this.renderOrderUI(property, index) :
-                                    property.type === PropertyIndexedType.DateTime ? this.renderDateTimeProperty(property as ListViewDateTimeColumn) :
+                                    property.type === PropertyIndexedType.DateTime ? this.renderDateTimeProperty(property as ProcessRollupListViewDateTimeColumn) :
                                         this.renderPropertySelection(property)
                             }
                         </v-layout>

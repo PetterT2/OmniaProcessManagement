@@ -52,7 +52,7 @@ namespace Omnia.ProcessManagement.Core
                 {
                     return new EnterprisePropertyDataType() 
                     { 
-                        Id = new Guid("323e96a4-1e6b-4744-8e87-ece171b36e54"),
+                        Id = new Guid("7491ec1a-9cf5-4c49-b102-2f84f89795eb"),
                         OmniaServiceId = OPMService.WebApp.Id,
                         Title = "$Localize:OPM.Core.EnterprisePropertyDataType.Process.Title;",
                         UIOptions = new EnterprisePropertyUIOptions()
@@ -61,7 +61,7 @@ namespace Omnia.ProcessManagement.Core
                             DisplayModeElementName = "opm-enterpriseproperties-process-display",
                             ValueDefinitionElementName = "opm-enterpriseproperties-process-value-definition"
                         },
-                        IndexedType = PropertyIndexedType.Taxonomy
+                        IndexedType = PropertyIndexedType.Text
                     };
                 }
             }
@@ -422,7 +422,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");
             public static readonly string ReadersGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.ReaderGroupSuffix");
-            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.Blocks.ProcessLibrary.Title");
+            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.BlockDefinitions.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
             public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");

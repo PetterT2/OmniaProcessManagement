@@ -16,9 +16,9 @@ export class ProcessService {
     constructor() {
     }
 
-    public getPublishedByIdsWithoutPermission = (idList: Array<string>) => {
+    public getPublishedWithoutPermission = () => {
         return new Promise<Array<LightProcess>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedbyidswithoutpermission', idList).then((response) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedwithoutpermission').then((response) => {
                 if (response.data.success) {
                     response.data.data.forEach(p => {
                         p.multilingualTitle = this.multilingualStore.getters.stringValue(p.title);
@@ -332,6 +332,20 @@ export class ProcessService {
             this.httpClient.get<IHttpApiOperationResult<ProcessSite>>(`/api/processes/processsite/${teamAppId}`).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
+                }
+                else reject(response.data.errorMessage)
+            });
+        });
+    }
+
+    public getPublishedProcess = (opmProcessId: GuidValue) => {
+        return new Promise<Process>((resolve, reject) => {
+
+            this.httpClient.get<IHttpApiOperationResult<Process>>(`/api/processes/published/${opmProcessId}`).then(response => {
+                if (response.data.success) {
+                    let process = response.data.data;
+                    this.generateClientSideData([process]);
+                    resolve(process);
                 }
                 else reject(response.data.errorMessage)
             });

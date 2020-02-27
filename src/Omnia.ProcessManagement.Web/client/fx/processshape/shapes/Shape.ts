@@ -14,7 +14,6 @@ export declare abstract class Shape implements ShapeObject {
     constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean);
     setAllowHover(allowSetHover: boolean);
-    setHoveredShape(isHovered: boolean);
     setSelectedShape(isSelected: boolean);
     isHover(): boolean;
     abstract ready(): Promise<boolean>;

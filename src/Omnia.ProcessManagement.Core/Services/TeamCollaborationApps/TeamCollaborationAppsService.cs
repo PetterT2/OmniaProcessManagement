@@ -91,7 +91,7 @@ namespace Omnia.ProcessManagement.Core.Services.TeamCollaborationApps
                         }
                         else
                         {
-                            _appIdAndUrlDict.TryAdd(teamAppId, siteUrl);
+                            _appIdAndUrlDict.TryAdd(teamAppId, teamAppInstance.OutputInfo.AbsoluteAppUrl);
                         }
                     }
 

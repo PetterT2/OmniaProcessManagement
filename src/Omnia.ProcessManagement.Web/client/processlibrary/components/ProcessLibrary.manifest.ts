@@ -9,12 +9,12 @@ Composer
         entryPoint: "./ProcessLibrary.jsx"
     })
     .withDefinition({
-        title: "$Localize:OPM.Core.Blocks.ProcessLibrary.Title;",
-        description: "$Localize:OPM.Core.Blocks.ProcessLibrary.Description;",
+        title: "$Localize:OPM.Core.BlockDefinitions.ProcessLibrary.Title;",
+        description: "$Localize:OPM.Core.BlockDefinitions.ProcessLibrary.Description;",
         icon: new FontAwesomeIcon("fal fa-angle-double-right")
     })
     .registerSpfxWebpart({
-        category: "$Localize:OPM.Core.Blocks.ProcessLibrary.Title;"
+        category: "$Localize:OPM.Core.BlockDefinitions.ProcessLibrary.Title;"
     })
 
 Composer

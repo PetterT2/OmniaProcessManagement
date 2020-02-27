@@ -72,7 +72,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var processDataDict = actionModel.ProcessData;
             actionModel.Process.RootProcessStep = (RootProcessStep)AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
-
+            
             process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -270,7 +270,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     opmProcessIdNumber = latestOPMProcessIdNumber;
                 }
 
-                if(opmProcessIdNumber == 0)
+                if (opmProcessIdNumber == 0)
                 {
                     var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = opmProcessId };
                     DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
@@ -345,6 +345,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
 
             var (edition, revision, opmProcessIdNumber) = ProcessVersionHelper.GetEditionRevisionAndOPMProcessIdNumber(rootProcessStep.EnterpriseProperties);
+
+            //BEGIN - Temporary for existing old data. should be remove after a sprint (after the end of March/2020)
+            if ((edition != 0 || revision != 0) && opmProcessIdNumber == 0)
+            {
+                var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = actionModel.Process.OPMProcessId };
+                DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
+                await DbContext.SaveChangesAsync();
+                opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+            }
+            //END
+
             EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
@@ -476,10 +487,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
         {
             var lightProcesses = new List<LightProcess>();
-            var processEfs = DbContext.Processes.Where(p => IdList.Contains(p.Id) && p.VersionType == ProcessVersionType.Published).ToList();
+            var processEfs = DbContext.Processes.Where(p => p.VersionType == ProcessVersionType.Published).ToList();
             processEfs.ForEach(p => lightProcesses.Add(MapEfToLightModel(p)));
             return lightProcesses;
         }
@@ -727,14 +738,14 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public async ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision)
         {
             Entities.Processes.Process process = null;
-            if (edition != 0 || revision != 0)
+            if (ProcessVersionHelper.IsLatestPublishedVersion(edition,revision))
             {
-                var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
-                process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
+                process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
             }
             else
             {
-                process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
+                var rawSql = GenerateQueryProcessByVersionRawSql(opmProcessId, edition, revision);
+                process = await DbContext.Processes.FromSqlRaw(rawSql).FirstOrDefaultAsync();
             }
 
             if (process == null)
@@ -1164,20 +1175,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         }
         private async ValueTask<Entities.Processes.Process> CloneToNewProcessAsync(Entities.Processes.Process process, List<Entities.Processes.ProcessData> processDataEfs, Guid processStepId)
         {
-            var draftProcess = MapEfToModel(process);
-            var processStep = FindProcessStepRecursive(draftProcess.RootProcessStep, processStepId);
+            var sourceProcess = MapEfToModel(process);
+            var processStep = FindProcessStepRecursive(sourceProcess.RootProcessStep, processStepId);
             if (processStep == null)
             {
                 throw new ProcessDraftVersionNotFoundException(processStepId);
             }
-            Dictionary<string, JToken> enterpriseProperties = draftProcess.RootProcessStep.EnterpriseProperties;
-            EnsureSystemEnterpriseProperties(enterpriseProperties, 0, 0, 0);
-            enterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
+            
+            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0);
+            sourceProcess.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
 
             var clonedProcess = new Entities.Processes.Process();
             clonedProcess.Id = Guid.NewGuid();
             clonedProcess.OPMProcessId = Guid.NewGuid();
-            clonedProcess.EnterpriseProperties = JsonConvert.SerializeObject(enterpriseProperties);
+            clonedProcess.EnterpriseProperties = JsonConvert.SerializeObject(sourceProcess.RootProcessStep.EnterpriseProperties);
             clonedProcess.TeamAppId = process.TeamAppId;
             clonedProcess.VersionType = ProcessVersionType.Draft;
             clonedProcess.CreatedBy = OmniaContext.Identity.LoginName;
@@ -1194,15 +1205,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 Id = newProcessStep.Id,
                 Title = processStep.Title,
-                ProcessTemplateId = draftProcess.RootProcessStep.ProcessTemplateId,
-                EnterpriseProperties = enterpriseProperties,
+                ProcessTemplateId = sourceProcess.RootProcessStep.ProcessTemplateId,
+                EnterpriseProperties = sourceProcess.RootProcessStep.EnterpriseProperties,
                 ProcessSteps = newProcessStep.ProcessSteps
             };
-            InternalProcessStep internalProcessStep = rootProcessStep;
+
             List<Entities.Processes.ProcessData> clonedProcessDatas = new List<Entities.Processes.ProcessData>();
             List<int> imageIds = new List<int>();
             CloneNewProcessDataRecursive(clonedProcess.Id, rootProcessStep, processStepDataDict, newOldProcessDataStepIdsMapping, clonedProcessDatas, imageIds, process.OPMProcessId, clonedProcess.OPMProcessId);
-            clonedProcess.JsonValue = JsonConvert.SerializeObject((RootProcessStep)internalProcessStep);
+            clonedProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
 
             DbContext.Processes.Add(clonedProcess);
             await DbContext.SaveChangesAsync();
@@ -1559,7 +1570,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var model = new LightProcess();
             model.Id = processEf.Id;
             var rootProcessData = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            int.TryParse(rootProcessData.EnterpriseProperties["OPMProcessIdNumber"].ToString(), out int opmProcessIdNumber);
             model.Title = rootProcessData.Title;
+            model.OPMProcessIdNumber = opmProcessIdNumber;
             return model;
         }
 

@@ -102,9 +102,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             {
                 if (process != null)
                 {
+                    int.TryParse(process.RootProcessStep.EnterpriseProperties["OPMProcessIdNumber"].ToString(), out int opmProcessIdNumber);
                     result.Add(new LightProcess() { 
                         Id = process.Id,
-                        Title = process.RootProcessStep.Title
+                        Title = process.RootProcessStep.Title,
+                        OPMProcessIdNumber = opmProcessIdNumber
                     });
                 }
             }

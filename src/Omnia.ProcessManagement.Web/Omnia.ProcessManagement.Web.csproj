@@ -12,6 +12,8 @@
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
     <None Remove="wwwroot\omnia\**" />
+    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
+    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -578,6 +580,8 @@
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\IBreadcrumbBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlock.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlockSettings.tsx" />
@@ -639,8 +643,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.64-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.64-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.74-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.74-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 
