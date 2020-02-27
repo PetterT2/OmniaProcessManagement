@@ -29,6 +29,9 @@ export class ProcessDesignerPanelStore extends Store {
     copyToNewProcessTypePanel: StoreState<IPanelState> = this.state<IPanelState>({
         show: false
     });
+    documentsSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
+        show: false
+    });
 
     constructor() {
         super({
@@ -59,6 +62,7 @@ export class ProcessDesignerPanelStore extends Store {
             this.mutations.toggleEditShapeSettingsPanel.commit(false);
             this.mutations.toggleChangeProcessTypePanel.commit(false);
             this.mutations.toggleCopyToNewProcessPanel.commit(false);
+            this.mutations.toggleDocumentsSettingsPanel.commit(false);
         }),
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
@@ -101,6 +105,11 @@ export class ProcessDesignerPanelStore extends Store {
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.editShapeSettingsPanel.mutate({ show: false });
             this.changeProcessTypePanel.mutate({ show: false });
+        }),
+        toggleDocumentsSettingsPanel: this.mutation((show: boolean) => {
+            this.documentsSettingsPanel.mutate({
+                show: show
+            });
         })
     }
 }

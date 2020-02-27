@@ -87,9 +87,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
         {
-            return await ProcessRepository.GetPublishedByIdsWithoutPermission(IdList);
+            return await ProcessRepository.GetPublishedWithoutPermission();
         }
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)

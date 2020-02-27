@@ -338,7 +338,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
                 let position = this.getLeftTop();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, null, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
             })
         }
     }

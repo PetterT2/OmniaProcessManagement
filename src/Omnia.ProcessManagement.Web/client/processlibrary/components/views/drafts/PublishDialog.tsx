@@ -14,7 +14,7 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid, PropertyIndexedType } from '@omnia/fx-models';
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
-import { ProcessTypeStore, OPMUtils } from '../../../../fx';
+import { ProcessTypeStore, OPMUtils, ProcessStore } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 
@@ -34,6 +34,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     @Inject(TermStore) termStore: TermStore;
     @Inject(UserService) private omniaUserService: UserService;
     @Inject(PublishProcessService) private publishProcessService: PublishProcessService;
+    @Inject(ProcessStore) private processStore: ProcessStore;
     @Inject(OmniaContext) omniaCtx: OmniaContext;
     @Inject(EnterprisePropertySetStore) enterprisePropertySetStore: EnterprisePropertySetStore;
     @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
@@ -221,6 +222,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
+            this.processStore.actions.refreshPublishedProcess.dispatch(request.opmProcessId);
+
             InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
 
             this.isPublishingOrSending = false;

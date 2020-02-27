@@ -197,7 +197,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
             this.initDrawingCanvas();
             var shapeDefinition = this.getShapeDefinitionToDraw();
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, shapeDefinition, null, 0, 0, null, null,
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, shapeDefinition, null, 0, 0, null, null, null,
                 (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes ? (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes : null)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.updateAfterRenderImage(readyDrawingShape);

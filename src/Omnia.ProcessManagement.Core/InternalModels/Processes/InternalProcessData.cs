@@ -9,7 +9,7 @@ namespace Omnia.ProcessManagement.Core.InternalModels.Processes
         public InternalProcessData(ProcessData processData)
         {
             CanvasDefinition = processData.CanvasDefinition;
-            Documents = processData.Documents;
+            DocumentBlockData = processData.DocumentBlockData;
             Content = processData.Content;
             Links = processData.Links;
             Tasks = processData.Tasks;

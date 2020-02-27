@@ -47,7 +47,7 @@ export class FreeformPickerComponent extends VueComponentBase implements IWebCom
             this.drawingCanvas.destroy();
         setTimeout(() => {
             this.drawingCanvas = new DrawingCanvasFreeForm(this.canvasId.toString(), {},
-                this.canvasDefinition, true, null, null, this.processDesignerStore.showGridlines.state, this.processDesignerStore.getters.darkHightlight());
+                this.canvasDefinition, true, null, null, true, this.processDesignerStore.getters.darkHightlight());
             (this.drawingCanvas as DrawingCanvasFreeForm).setSelectingShapeCallback((selectedShape) => {
                 this.isFinished = selectedShape != null;
                 if (this.isFinished)

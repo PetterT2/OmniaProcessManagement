@@ -7,7 +7,9 @@ import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefault
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
-import { ProcessStepDrawingStyles } from '../../../fx/models';
+import '../../core/styles/PanelStyles.css';
+
+import { ProcessStepDrawingStyles, ProcessDesignerStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
@@ -36,6 +38,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private drawingParentCanvas: DrawingCanvas = null;
     private shapeSettingsPanelComponentKey = Utils.generateGuid();
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
+    panelStyles = StyleFlow.use(ProcessDesignerStyles.PanelStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private parentCanvasId = 'parentcanvas_' + Utils.generateGuid().toString();
 
@@ -253,7 +256,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 temporary={false}
                 disable-resize-watcher
                 hide-overlay
-                class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+                class={this.panelStyles.settingsPanel(backgroundColor)}
                 v-model={this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show}>
                 {this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show ? <opm-processdesigner-drawingcanvas-settings></opm-processdesigner-drawingcanvas-settings> : null}
             </v-navigation-drawer>
@@ -272,7 +275,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 temporary={false}
                 disable-resize-watcher
                 hide-overlay
-                class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+                class={this.panelStyles.settingsPanel(backgroundColor)}
                 v-model={this.processDesignerStore.panels.changeProcessTypePanel.state.show}>
                 {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
             </v-navigation-drawer >
@@ -313,7 +316,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             temporary={false}
             disable-resize-watcher
             hide-overlay
-            class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+            class={this.panelStyles.settingsPanel(backgroundColor)}
             v-model={this.processDesignerStore.panels.editShapeSettingsPanel.state.show}>
             {this.processDesignerStore.panels.editShapeSettingsPanel.state.show ? <opm-processdesigner-shape-settings key={this.shapeSettingsPanelComponentKey}></opm-processdesigner-shape-settings> : null}
         </v-navigation-drawer>;

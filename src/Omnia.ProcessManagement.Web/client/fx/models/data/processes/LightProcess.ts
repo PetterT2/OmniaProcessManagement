@@ -3,6 +3,7 @@
 export interface LightProcess {
     id: GuidValue;
     title: MultilingualString;
+    opmProcessIdNumber: number;
 
     // client-side
     multilingualTitle?: string;
