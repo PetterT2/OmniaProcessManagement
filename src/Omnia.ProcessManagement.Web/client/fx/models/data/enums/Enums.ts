@@ -63,7 +63,7 @@ export enum WorkflowCompletedType {
 export enum TaskOutcome {
     Approved = 1,
     Rejected = 2
-} 
+}
 
 export enum ShapeTemplateType {
     CircleShape = 1,

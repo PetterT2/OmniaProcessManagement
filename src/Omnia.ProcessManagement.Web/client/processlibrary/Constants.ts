@@ -21,12 +21,13 @@ export enum ProcessLibraryListViewTabs {
 export const LibrarySystemFieldsConstants = {
     get Menu() { return "Menu" },
     get Title() { return "Title" },
-    get Status() { return "Status" },
+    get Status() { return "Status" }
 }
 
 export const ProcessLibraryFields = {
     get Edition() { return OPMEnterprisePropertyInternalNames.OPMEdition },
     get Revision() { return OPMEnterprisePropertyInternalNames.OPMRevision },
-    get Published() { return "Published" },
-    get ModifiedAt() { return "ModifiedAt" }
+    get PublishedAt() { return "PublishedAt" },
+    get ModifiedAt() { return "ModifiedAt" },
+    get ModifiedBy() { return "ModifiedBy" }
 }

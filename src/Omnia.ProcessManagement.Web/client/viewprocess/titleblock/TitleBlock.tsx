@@ -70,7 +70,6 @@ export class TitleBlockComponent extends VueComponentBase implements IWebCompone
 
     setBlockData(blockData: TitleBlockData) {
         this.blockData = blockData;
-        this.$forceUpdate();
     }
 
     private hasContentValue() {

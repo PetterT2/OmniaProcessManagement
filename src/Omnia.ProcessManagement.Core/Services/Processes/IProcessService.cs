@@ -4,6 +4,7 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,7 +24,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
-        ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList);
+        ValueTask<List<LightProcess>> GetPublishedWithoutPermission();
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
@@ -38,7 +39,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<List<Process>> GetAuthorizedProcessesAsync(IAuthorizedProcessQuery processQuery);
         ValueTask<List<Process>> GetProcessesByWorkingStatusAsync(ProcessWorkingStatus processWorkingStatus, DraftOrPublishedVersionType versionType);
         ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds);
-        ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery);
+        ValueTask<Dictionary<Guid, ProcessStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery);
         ValueTask<bool> CheckIfDraftExist(Guid opmProcessId);
         internal ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         internal ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);

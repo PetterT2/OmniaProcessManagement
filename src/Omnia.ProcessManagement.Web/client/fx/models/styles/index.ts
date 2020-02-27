@@ -14,3 +14,4 @@ export * from './TitleBlockStyles';
 export * from './UnpublishProcessDialogStyles';
 export * from './ProcessPickerStyles';
 export * from './ProcessFieldDisplayStyles';
+export * from './ProcessDesignerStyles';

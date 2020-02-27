@@ -18,6 +18,7 @@ using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Services.Processes
 {
@@ -82,9 +83,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
         {
-            return await ProcessRepository.GetPublishedByIdsWithoutPermission(IdList);
+            return await ProcessRepository.GetPublishedWithoutPermission();
         }
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
@@ -132,13 +133,17 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetProcessesByWorkingStatusAsync(processWorkingStatus, vesionType);
         }
 
-        public async ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery)
+        public async ValueTask<Dictionary<Guid, ProcessStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery)
         {
             var internalProcessQuery = processQuery.ConvertToAuthorizedInternalProcessQuery();
             var internalProcesses = await ProcessRepository.GetAuthorizedInternalProcessesAsync(internalProcessQuery);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
 
-            var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => p.ProcessWorkingStatus);
+            var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => new ProcessStatus
+            {
+                ProcessWorkingStatus = p.ProcessWorkingStatus,
+                CheckedOutBy = p.CheckedOutBy
+            });
             return workingStatusDict;
         }
 

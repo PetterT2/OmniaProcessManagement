@@ -176,6 +176,10 @@
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\propertiesblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
@@ -302,6 +306,7 @@
     <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\MediaPickerStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\ProcessDesignerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessFieldDisplayStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessStepPickerStyles.ts" />
@@ -328,6 +333,8 @@
     <TypeScriptCompile Remove="client\fx\services\SettingsService.ts" />
     <TypeScriptCompile Remove="client\fx\services\ShapeTemplateService.ts" />
     <TypeScriptCompile Remove="client\fx\services\SharePointTaskService.ts" />
+    <TypeScriptCompile Remove="client\fx\settingsprovider\DocumentRollupSettingsProvider.ts" />
+    <TypeScriptCompile Remove="client\fx\settingsprovider\index.ts" />
     <TypeScriptCompile Remove="client\fx\stores\CurrentProcessStore.ts" />
     <TypeScriptCompile Remove="client\fx\stores\index.ts" />
     <TypeScriptCompile Remove="client\fx\stores\ProcessStore.ts" />
@@ -367,13 +374,15 @@
     <TypeScriptCompile Remove="client\models\processdesigner\ShapeTypeCreationOption.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRegistration.ts" />
     <TypeScriptCompile Remove="client\models\processdesigner\TabRenderer.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\DraftProcessLibraryStatus.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\ProcessLibraryStatus.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\index.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewDateTimeColumn.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupListViewSettings.ts" />
     <TypeScriptCompile Remove="client\models\processrollup\ProcessRollupViewInterface.ts" />
-    <TypeScriptCompile Remove="client\models\processsite\index.ts" />
-    <TypeScriptCompile Remove="client\models\processsite\ProcessSite.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\index.ts" />
+    <TypeScriptCompile Remove="client\models\processlibrary\ProcessSite.ts" />
     <TypeScriptCompile Remove="client\models\styles\BreadcrumbBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\ContentBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\DrawingBlockStyles.ts" />
@@ -404,12 +413,15 @@
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\copytonewprocess_dialog\CopyToNewProcess.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\core\index.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\core\styles\BlockStyles.css.ts" />
+    <TypeScriptCompile Remove="client\processdesigner\core\styles\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\ExternalProcessStepDesignerItem.ts" />
     <TypeScriptCompile Remove="client\processdesigner\designeritems\ProcessStepShortcutDesignerItem.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\devicepreviewer\DevicePreviewer.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\factory\BreakPointFactory.ts" />
     <TypeScriptCompile Remove="client\processdesigner\navigations\navigationtree\ActionsMenu.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\PanelStyles.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\content\ProcessContent.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\processstepcomponents\documents\index.ts" />
@@ -572,6 +584,10 @@
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\IBreadcrumbBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlockSettings.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\documentsblock\IDocumentsBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\IPropertiesBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\IProcessNavigationBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
@@ -612,6 +628,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="client\fx\models\components\viewprocess\documentsblock - Copy\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -669,6 +686,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\breadcrumbblock\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\documentsblock\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockDataData.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockSettings.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\propertiesblock\index.ts">
@@ -1029,6 +1058,18 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\searchtemplate\registration\Registration.manifest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\viewprocess\documentsblock\IDocumentsBlockSettings.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\viewprocess\documentsblock\DocumentsBlock.manifest.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\viewprocess\documentsblock\DocumentsBlock.tsx">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\viewprocess\documentsblock\DocumentsBlockSettings.tsx">
       <SubType>Code</SubType>
     </None>
   </ItemGroup>

@@ -2,7 +2,7 @@
 import { InstanceLifetimes, IHttpApiOperationResult, GuidValue, LanguageTag } from '@omnia/fx/models';
 import { OPMService, ProcessActionModel, Process, ProcessVersionType, ProcessStep, Enums, ProcessData, IdDict, ProcessWorkingStatus, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, ProcessStepType, InternalProcessStep, LightProcess } from '../models';
 import { MultilingualStore } from '@omnia/fx/store';
-import { ProcessSite } from '../../models';
+import { ProcessLibraryStatus, ProcessSite } from '../../models';
 
 @Injectable({ lifetime: InstanceLifetimes.Transient })
 export class ProcessService {
@@ -16,9 +16,9 @@ export class ProcessService {
     constructor() {
     }
 
-    public getPublishedByIdsWithoutPermission = (idList: Array<string>) => {
+    public getPublishedWithoutPermission = () => {
         return new Promise<Array<LightProcess>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedbyidswithoutpermission', idList).then((response) => {
+            this.httpClient.post<IHttpApiOperationResult<Array<LightProcess>>>('/api/processes/getpublishedwithoutpermission').then((response) => {
                 if (response.data.success) {
                     response.data.data.forEach(p => {
                         p.multilingualTitle = this.multilingualStore.getters.stringValue(p.title);
@@ -261,12 +261,13 @@ export class ProcessService {
         })
     }
 
-    public getDraftProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>) => {
+    public getDraftProcessWorkingStatus = (teamAppId: GuidValue, opmProcessIds: Array<GuidValue>, isGetAll: boolean) => {
         let params = {
-            teamAppId: teamAppId
+            teamAppId: teamAppId,
+            isGetAll: isGetAll
         };
-        return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, { params: params }).then(response => {
+        return new Promise<IdDict<ProcessLibraryStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessLibraryStatus>>>(`/api/processes/draft/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
@@ -279,8 +280,8 @@ export class ProcessService {
         let params = {
             teamAppId: teamAppId
         };
-        return new Promise<IdDict<ProcessWorkingStatus>>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessWorkingStatus>>>(`/api/processes/published/workingstatus`, opmProcessIds, { params: params }).then(response => {
+        return new Promise<IdDict<ProcessLibraryStatus>>((resolve, reject) => {
+            this.httpClient.post<IHttpApiOperationResult<IdDict<ProcessLibraryStatus>>>(`/api/processes/published/workingstatus`, opmProcessIds, { params: params }).then(response => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }

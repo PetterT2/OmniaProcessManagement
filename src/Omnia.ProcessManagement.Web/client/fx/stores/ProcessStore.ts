@@ -2,7 +2,7 @@
 import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
-import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames, InternalProcessStep, ProcessStepType } from '../models';
+import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames, InternalProcessStep, ProcessStepType, LightProcess } from '../models';
 import { OPMUtils } from '../utils';
 import { ProcessSite } from '../../models';
 import { OPMSpecialRouteVersion } from '../constants';
@@ -28,6 +28,10 @@ interface ProcessCheckoutInfoDict {
     [opmProcessId: string]: ProcessCheckoutInfo;
 }
 
+interface LightProcessDict {
+    [opmProcessId: string]: LightProcess
+}
+
 
 @Injectable({
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Singelton) }
@@ -40,9 +44,11 @@ export class ProcessStore extends Store {
     private processCheckoutInfoDict = this.state<ProcessCheckoutInfoDict>({});
     private processDataDict = this.state<ProcessDataDict>({});
     private processSiteDict = this.state<ProcessSiteDict>({});
+    private lightProcessDict = this.state<LightProcessDict>({});
 
 
     //internal properties
+    private ensureLightProcessesLoadedPromise: Promise<null> = null;
     private processLoadPromises: { [processLoadPromiseKey: string]: ResolvablePromise<null> } = {};
     private processDataLoadPromises: { [processDataLoadPromiseKey: string]: ResolvablePromise<null> } = {};
     private processSiteLoadPromises: { [processSiteLoadPromiseKey: string]: ResolvablePromise<null> } = {};
@@ -136,10 +142,32 @@ export class ProcessStore extends Store {
         },
         process: (processId: GuidValue) => {
             return this.processDict.state[processId.toString()];
+        },
+        lightProcess: (opmProcessIds: Array<GuidValue>) => {
+            if (!opmProcessIds || opmProcessIds.length == 0) return [];
+            else {
+                var result: Array<LightProcess> = [];
+                opmProcessIds.forEach(id => {
+                    var existedProcess = this.lightProcessDict.state[id.toString()];
+                    if (existedProcess)
+                        result.push(this.lightProcessDict.state[id.toString()]);
+                })
+
+                return result;
+            }
         }
     }
 
     public actions = {
+        ensureLightProcessLoaded: this.action(() => {
+            if (!this.ensureLightProcessesLoadedPromise) {
+                this.ensureLightProcessesLoadedPromise = this.processService.getPublishedWithoutPermission().then((processes: Array<LightProcess>) => {
+                    this.internalMutations.addOrUpdateLightProcess(processes);
+                    return null;
+                })
+            }
+            return this.ensureLightProcessesLoadedPromise;
+        }),
         createDraft: this.action((actionModel: ProcessActionModel) => {
             return this.processService.createDraftProcess(actionModel).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
@@ -299,6 +327,13 @@ export class ProcessStore extends Store {
     }
 
     private internalMutations = {
+        addOrUpdateLightProcess: (processes: Array<LightProcess>) => {
+            processes.forEach(process => {
+                let currentState = this.lightProcessDict.state;
+                let newState = Object.assign({}, currentState, { [process.id.toString()]: process });
+                this.lightProcessDict.mutate(newState);
+            })
+        },
         addOrUpdateProcess: (process: Process) => {
             let currentState = this.processDict.state;
             let key = this.getProcessCacheKey(process.id);

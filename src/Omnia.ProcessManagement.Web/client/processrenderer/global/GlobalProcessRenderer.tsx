@@ -11,7 +11,8 @@ import { OPMCoreLocalization } from '../../core/loc/localize';
 const TabNames = {
     Content: 'content',
     Links: 'links',
-    Tasks: 'taks'
+    Tasks: 'taks',
+    Documents: 'documents'
 }
 
 @Component
@@ -28,6 +29,7 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
     breadcrumbBlockSettingsKey = '1BCCF2E4-6702-4560-8209-92E04033D2C4';
     drawingBlockSettingsKey = '1A0DA029-68D5-48AC-91B9-E4B939A09D79';
     contentBlockSettingsKey = 'A4AD7AA5-2050-406B-BC0A-949E29276B61';
+    documentsBlockSettingsKey = '5e9bedc3-6f72-4b35-a4d9-f14e636d81fb';
     linkBlockSettingsKey = 'C526C872-0837-4315-AAEE-AB7DC6D5BB31';
     taskBlockSettingsKey = 'B15B8194-F13E-45D9-81C2-C7D64CDD27B5'
 
@@ -83,11 +85,15 @@ export class GlobalProcessRendererComponent extends Vue implements IWebComponent
                                     <v-tabs dark color="white" background-color={this.omniaTheming.themes.primary.base} v-model={this.selectedTab}
                                         onChange={(selectedTab) => { this.selectedTab = selectedTab; }}>
                                         <v-tab href={`#${TabNames.Content}`}>{this.loc.Process.Content}</v-tab>
+                                        <v-tab href={`#${TabNames.Documents}`}>{this.loc.Process.Documents}</v-tab>
                                         <v-tab href={`#${TabNames.Links}`}>{this.loc.Process.Links}</v-tab>
                                         <v-tab href={`#${TabNames.Tasks}`}>{this.loc.Process.Tasks}</v-tab>
 
                                         <v-tab-item id={TabNames.Content}>
                                             {this.selectedTab == TabNames.Content && <opm-content-block settingsKey={this.contentBlockSettingsKey}></opm-content-block>}
+                                        </v-tab-item>
+                                        <v-tab-item id={TabNames.Documents}>
+                                            {this.selectedTab == TabNames.Documents && <opm-documents-block settingsKey={this.documentsBlockSettingsKey}></opm-documents-block>}
                                         </v-tab-item>
                                         <v-tab-item id={TabNames.Links}>
                                             {this.selectedTab == TabNames.Links && <opm-links-block settingsKey={this.linkBlockSettingsKey}></opm-links-block>}

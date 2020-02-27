@@ -52,7 +52,7 @@ namespace Omnia.ProcessManagement.Core
                 {
                     return new EnterprisePropertyDataType() 
                     { 
-                        Id = new Guid("323e96a4-1e6b-4744-8e87-ece171b36e54"),
+                        Id = new Guid("7491ec1a-9cf5-4c49-b102-2f84f89795eb"),
                         OmniaServiceId = OPMService.WebApp.Id,
                         Title = "$Localize:OPM.Core.EnterprisePropertyDataType.Process.Title;",
                         UIOptions = new EnterprisePropertyUIOptions()
@@ -61,7 +61,7 @@ namespace Omnia.ProcessManagement.Core
                             DisplayModeElementName = "opm-enterpriseproperties-process-display",
                             ValueDefinitionElementName = "opm-enterpriseproperties-process-value-definition"
                         },
-                        IndexedType = PropertyIndexedType.Taxonomy
+                        IndexedType = PropertyIndexedType.Text
                     };
                 }
             }

@@ -3,12 +3,12 @@ import Component from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, IValidator, FieldValueValidation, VueComponentBase, StyleFlow } from "@omnia/fx/ux";
-import { ValueDefinitionSetting, EnterprisePropertyDefinition, BuiltInEnterprisePropertyInternalNames, RollupSetting, PropertyIndexedType } from '@omnia/fx-models';
+import { ValueDefinitionSetting, EnterprisePropertyDefinition, BuiltInEnterprisePropertyInternalNames, RollupSetting, PropertyIndexedType, GuidValue, Guid } from '@omnia/fx-models';
 import { IProcessPicker } from './IProcessPicker';
 import './ProcessPicker.css';
 import { ProcessPickerStyles, ProcessVersionType, LightProcess } from '../../fx/models';
 import { ProcessPickerLocalization } from './loc/localize';
-import { ProcessRollupService, ProcessTableColumnsConstants, SharePointFieldsConstants } from '../../fx';
+import { ProcessRollupService, ProcessTableColumnsConstants, SharePointFieldsConstants, ProcessStore } from '../../fx';
 
 @Component
 export class ProcessPickerComponent extends VueComponentBase implements IWebComponentInstance, IProcessPicker {
@@ -20,11 +20,12 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     @Prop({ default: true }) filled: boolean;
     @Prop() disabled: boolean;
     @Prop() multiple: boolean;
-    @Prop() model: Array<LightProcess>;
-    @Prop() onModelChange: (process: Array<LightProcess>) => void;
+    @Prop() model: Array<GuidValue>;
+    @Prop() onModelChange: (opmProcessIds: Array<GuidValue>) => void;
     @Prop({ default: null }) validator?: IValidator;
 
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
+    @Inject(ProcessStore) processStore: ProcessStore;
 
     @Localize(ProcessPickerLocalization.namespace) private loc: ProcessPickerLocalization.locInterface;
 
@@ -32,12 +33,22 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     private instanceId = Utils.generateGuid();
     private selectedItem: Array<LightProcess> | LightProcess = [];
     private searchInput = null;
+    private backupModel: Array<GuidValue> = [];
     private processResult: Array<LightProcess> = [];
+    private isInitialized: boolean = false;
+    private isResolvingSelectedItem = false;
     private isSearching: boolean = false;
     private isPendingToSearch: boolean = false;
 
     $refs: {
         processPicker: any,
+    }
+
+    @Watch('model', { deep: true })
+    dialogModelChange(model: Array<GuidValue>) {
+        if (!this.isInitialized) return;
+        if (JSON.stringify(model) == JSON.stringify(this.backupModel)) return;
+        this.init();
     }
 
     created() {
@@ -57,6 +68,36 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
 
         if (this.$refs.processPicker)
             this.$refs.processPicker.reset();
+
+        this.isInitialized = true;
+        this.isSearching = true;
+        this.isResolvingSelectedItem = true;
+
+        this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
+            if (this.model && this.model.length > 0) {
+                var existedProcesses = this.processStore.getters.lightProcess(this.model);
+
+                if (this.multiple) {
+                    this.selectedItem = existedProcesses;
+                    this.searchCallback(this.selectedItem, true);
+                }
+                else {
+                    this.selectedItem = existedProcesses ? existedProcesses[0] : null;
+                    this.searchCallback(this.selectedItem ? [this.selectedItem] : null, true);
+                }
+
+                this.backupModel = existedProcesses ? JSON.parse(JSON.stringify(existedProcesses.map(p => { return p.id; }))) : null;
+            }
+            this.isSearching = false;
+            this.isResolvingSelectedItem = false;
+        })
+    }
+
+    searchCallback(result: Array<LightProcess>, isInit: boolean = false) {
+        result = result.filter(r => isInit || !this.checkIfAdded(r.id.toString()));
+        this.processResult = isInit ? result : this.processResult.filter(u => this.checkIfAdded(u.id.toString())).concat(result);
+        this.isSearching = false;
+        this.updateDimensions();
     }
 
     search(text: string) {
@@ -64,6 +105,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
         if (this.searchInput !== text) {
             this.searchInput = text;
             if (Utils.isNullOrEmpty(this.searchInput)) {
+                this.searchCallback([]);
                 return;
             }
             this.isSearching = false;
@@ -77,9 +119,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                     this.processRollupService.queryProcessesWithoutPermission(query).then((data) => {
                         // ensure return result for current search text
                         if (this.searchInput === trackingSearchText) {
-                            this.processResult = data;
-                            this.isSearching = false;
-                            this.updateDimensions();
+                            this.searchCallback(data);
                             this.isPendingToSearch = false;
                         }
                     })
@@ -129,20 +169,35 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
 
     onInput(newValue: Array<LightProcess> | LightProcess) {
         this.selectedItem = newValue
-        let result: Array<LightProcess> = [];
+        let resultProcesses: Array<LightProcess> = [];
 
         if (this.multiple) {
             newValue = newValue || [];
-            result = (newValue as Array<LightProcess>).map<LightProcess>(item => { return item });
+            resultProcesses = (newValue as Array<LightProcess>).map<LightProcess>(item => { return item });
         }
         else if (newValue) {
-            result = [newValue as LightProcess];
+            resultProcesses = [newValue as LightProcess];
         }
+
+        var result = resultProcesses.map(p => { return p.id; });
+
+        this.backupModel = JSON.parse(JSON.stringify(result));
 
         if (this.onModelChange) {
             this.onModelChange(result);
         }
         this.$forceUpdate();
+    }
+
+    filter(item: LightProcess, queryText: string, itemText: string) {
+        return !this.checkIfAdded(item.id.toString()) && itemText && (!queryText || itemText.toLowerCase().indexOf(queryText.toLowerCase()) >= 0);
+    }
+
+    checkIfAdded(id: string) {
+        if (this.multiple)
+            return this.selectedItem && (this.selectedItem as Array<LightProcess>).filter(e => e.id == id).length > 0 ? true : false;
+        else
+            return this.selectedItem && (this.selectedItem as LightProcess).id == id ? true : false;
     }
 
     remove(item: LightProcess) {
@@ -169,7 +224,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                 <v-avatar class={this.styles.avatarStyle}>
                     <omfx-letter-avatar name={p.item.multilingualTitle} size={45}></omfx-letter-avatar>
                 </v-avatar>
-                {p.item.multilingualTitle}
+                {p.item.multilingualTitle + ' (' + p.item.opmProcessIdNumber.toString() + ')'}
             </v-chip>
         ];
     }
@@ -181,7 +236,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                     <omfx-letter-avatar name={p.item.multilingualTitle} size={45}></omfx-letter-avatar>
                 </v-list-item-avatar>,
                 <v-list-item-content dark={this.dark}>
-                    <v-list-item-title>{p.item.multilingualTitle}</v-list-item-title>
+                    <v-list-item-title>{p.item.multilingualTitle + '(' + p.item.opmProcessIdNumber.toString() + ')'}</v-list-item-title>
                 </v-list-item-content>
             ])
     }
@@ -209,7 +264,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                     filled={this.filled}
                     dark={this.dark}
                     ref="processPicker"
-                    readonly={this.disabled}
+                    readonly={this.disabled || this.isResolvingSelectedItem}
                     loading={this.isSearching ? this.styles.loadingColor : false}
                     label={label}
                     items={this.processResult}
@@ -223,6 +278,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                     hide-no-data={Utils.isNullOrEmpty(this.searchInput) || this.isPendingToSearch}
                     no-data-text={this.loc.NoProcessFound}
                     hide-selected={this.hideSelected}
+                    filter={this.filter}
                     rules={rules}
                     {...this.transformVSlot({
                         item: p => this.renderItem(h, p),

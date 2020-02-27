@@ -3,7 +3,7 @@ import * as tsx from 'vue-tsx-support';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
-import { JourneyInstance, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, StyleFlow } from '@omnia/fx/ux';
 import { ProcessDesignerStyles } from './ProcessDesigner.css';
 import { ContentNavigationComponent } from './navigations/ContentNavigation';
 import { CurrentProcessStore, OPMUtils } from '../fx';
@@ -13,7 +13,9 @@ import { ActionToolbarComponent } from './actionstoolbar/ActionToolbar';
 import { DisplayModes } from '../models/processdesigner';
 import DevicePreviewerComponent from './devicepreviewer/DevicePreviewer';
 import { ProcessDesignerItemFactory } from './designeritems';
-
+import { CopyToNewProcessDialog } from './copytonewprocess_dialog/CopyToNewProcess';
+import './core/styles/PanelStyles.css';
+import { ProcessDesignerStyles as ProcessDesignerStylesModel} from '../fx/models';
 
 export interface ContentNavigationProps {
 }
@@ -32,6 +34,8 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
 
+    panelStyles = StyleFlow.use(ProcessDesignerStylesModel.PanelStyles);
+
     private teamSiteName: string = "";
     public editorModel = {
         visible: true
@@ -46,7 +50,7 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
             this.processDesignerStore.actions.setProcessToShow.dispatch(currentReferenceData.process, currentReferenceData.current.parentProcessStep).then(() => {
                 this.processDesignerStore.actions.editCurrentProcess.dispatch(new ProcessDesignerItemFactory(), DisplayModes.contentEditing);
             })
-        })
+        });
     }
 
     mounted() {
@@ -143,6 +147,24 @@ export class ProcessDesignerComponent extends VueComponentBase implements IWebCo
         /* Action Toolbar */
         result.push(<ActionToolbarComponent key={1}></ActionToolbarComponent>);
 
+        result.push(
+            <v-navigation-drawer
+                app
+                float
+                right
+                clipped
+                dark={this.omniaTheming.promoted.body.dark}
+                width="340"
+                temporary={false}
+                disable-resize-watcher
+                hide-overlay
+                class={this.panelStyles.settingsPanel(this.omniaTheming.promoted.body.background.base)}
+                v-model={this.processDesignerStore.panels.changeProcessTypePanel.state.show}>
+                {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
+            </v-navigation-drawer >
+        );
+
+        result.push(<CopyToNewProcessDialog></CopyToNewProcessDialog>);
         ///*Dialog*/
         //result.push(<DeletedPageDialog></DeletedPageDialog>);
         return result;

@@ -1,5 +1,6 @@
 ﻿import { LightProcess } from '../../fx/models';
 import { IValidator } from '@omnia/fx/ux';
+import { GuidValue } from '@omnia/fx-models';
 
 export interface IProcessPickerProperties {
     /**Required */
@@ -28,10 +29,10 @@ export interface IProcessPickerProperties {
 export interface IProcessPicker extends IProcessPickerProperties {
 
     /*@DomProperty*/
-    model: Array<LightProcess>;
+    model: Array<GuidValue>;
 
     /*@DomProperty*/
-    onModelChange: (process: Array<LightProcess>) => void;
+    onModelChange: (opmProcessIds: Array<GuidValue>) => void;
 
     /*@DomProperty*/
     validator?: IValidator;

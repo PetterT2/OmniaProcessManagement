@@ -5,7 +5,7 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
-import { Enums, Process, ProcessWorkingStatus } from '../../../../fx/models';
+import { Enums, Process, ProcessWorkingStatus, ProcessVersionType } from '../../../../fx/models';
 import { ApprovalPublishDialog } from './ApprovalPublishDialog';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
 
@@ -55,7 +55,10 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
     }
 
     renderStatus(h) {
-        let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]];
+        let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]] || '';
+        let checkedOutBy = "";
+        if (this.process.processWorkingStatus == ProcessWorkingStatus.None && !Utils.isNullOrEmpty(this.process.checkedOutByName))
+            checkedOutBy = this.process.checkedOutByName;
         let className = this.redLabel ? "red--text" : "";
         switch (this.process.processWorkingStatus) {
             case ProcessWorkingStatus.SentForApproval:
@@ -65,7 +68,9 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
                     this.openApprovalPublishDialog = true;
                 }}>{statusName}</a>;
             default:
-                return <div class={className}>{statusName}</div>;
+                return <div class={className}>
+                    {statusName}{!Utils.isNullOrEmpty(checkedOutBy) ? this.loc.ProcessStatuses.CheckedOutBy + " " + checkedOutBy : ""}
+                </div>;
         }
     }
 

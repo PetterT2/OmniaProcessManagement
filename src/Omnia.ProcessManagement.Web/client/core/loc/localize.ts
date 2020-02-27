@@ -141,6 +141,10 @@
             Breadcrumb: {
                 Title: string,
                 Description: string
+            },
+            Documents: {
+                Title: string,
+                Description: string
             }
         },
         Blocks: {
@@ -199,6 +203,8 @@
             Edition: string,
             Revision: string,
             Published: string,
+            ModifiedAt: string,
+            ModifiedBy: string,
             ApprovedBy: string,
             WorkflowHistory: string
         },

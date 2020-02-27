@@ -487,10 +487,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<List<LightProcess>> GetPublishedByIdsWithoutPermission(List<Guid> IdList)
+        public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
         {
             var lightProcesses = new List<LightProcess>();
-            var processEfs = DbContext.Processes.Where(p => IdList.Contains(p.Id) && p.VersionType == ProcessVersionType.Published).ToList();
+            var processEfs = DbContext.Processes.Where(p => p.VersionType == ProcessVersionType.Published).ToList();
             processEfs.ForEach(p => lightProcesses.Add(MapEfToLightModel(p)));
             return lightProcesses;
         }
@@ -1572,7 +1572,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var model = new LightProcess();
             model.Id = processEf.Id;
             var rootProcessData = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
+            int.TryParse(rootProcessData.EnterpriseProperties["OPMProcessIdNumber"].ToString(), out int opmProcessIdNumber);
             model.Title = rootProcessData.Title;
+            model.OPMProcessIdNumber = opmProcessIdNumber;
             return model;
         }
 

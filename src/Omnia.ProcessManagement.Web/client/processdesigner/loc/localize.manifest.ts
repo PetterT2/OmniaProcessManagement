@@ -82,5 +82,6 @@ Composer.registerManifest("7991752d-426a-4ff6-8fb1-53bd7f911af2")
             AddTitle: "Add Linked Process",
             ProcessNotFound: " Process is not found.",
             Process: "Process"
-        }
+        },
+        DocumentSettings: "Document Settings"
     });

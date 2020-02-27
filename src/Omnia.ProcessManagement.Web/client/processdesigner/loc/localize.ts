@@ -78,6 +78,7 @@
             AddTitle: string;
             ProcessNotFound: string;
             Process: string;
-        }
+        },
+        DocumentSettings: string;
     }
 }
