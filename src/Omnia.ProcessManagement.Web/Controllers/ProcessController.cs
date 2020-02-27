@@ -278,6 +278,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
+                var processDataValueTask = ProcessService.GetProcessDataAsync(processStepId, hash);
 
                 return await securityResponse
                     .RequireAuthor()
@@ -286,8 +287,8 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .OrRequireReader()
                     .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
-                        var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
 
+                        var processData = await processDataValueTask;
 
                         //For published/archived version, we can cache the value like forever
                         //For the draft/checked-out version, since it could be changed frequently so we just need to cache the value in a short time. 

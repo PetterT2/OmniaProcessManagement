@@ -72,7 +72,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var processDataDict = actionModel.ProcessData;
             actionModel.Process.RootProcessStep = (RootProcessStep)AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
-
+            
             process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -1175,20 +1175,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         }
         private async ValueTask<Entities.Processes.Process> CloneToNewProcessAsync(Entities.Processes.Process process, List<Entities.Processes.ProcessData> processDataEfs, Guid processStepId)
         {
-            var draftProcess = MapEfToModel(process);
-            var processStep = FindProcessStepRecursive(draftProcess.RootProcessStep, processStepId);
+            var sourceProcess = MapEfToModel(process);
+            var processStep = FindProcessStepRecursive(sourceProcess.RootProcessStep, processStepId);
             if (processStep == null)
             {
                 throw new ProcessDraftVersionNotFoundException(processStepId);
             }
-            Dictionary<string, JToken> enterpriseProperties = draftProcess.RootProcessStep.EnterpriseProperties;
-            EnsureSystemEnterpriseProperties(enterpriseProperties, 0, 0, 0);
-            enterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
+            
+            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0);
+            sourceProcess.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
 
             var clonedProcess = new Entities.Processes.Process();
             clonedProcess.Id = Guid.NewGuid();
             clonedProcess.OPMProcessId = Guid.NewGuid();
-            clonedProcess.EnterpriseProperties = JsonConvert.SerializeObject(enterpriseProperties);
+            clonedProcess.EnterpriseProperties = JsonConvert.SerializeObject(sourceProcess.RootProcessStep.EnterpriseProperties);
             clonedProcess.TeamAppId = process.TeamAppId;
             clonedProcess.VersionType = ProcessVersionType.Draft;
             clonedProcess.CreatedBy = OmniaContext.Identity.LoginName;
@@ -1205,15 +1205,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 Id = newProcessStep.Id,
                 Title = processStep.Title,
-                ProcessTemplateId = draftProcess.RootProcessStep.ProcessTemplateId,
-                EnterpriseProperties = enterpriseProperties,
+                ProcessTemplateId = sourceProcess.RootProcessStep.ProcessTemplateId,
+                EnterpriseProperties = sourceProcess.RootProcessStep.EnterpriseProperties,
                 ProcessSteps = newProcessStep.ProcessSteps
             };
-            InternalProcessStep internalProcessStep = rootProcessStep;
+
             List<Entities.Processes.ProcessData> clonedProcessDatas = new List<Entities.Processes.ProcessData>();
             List<int> imageIds = new List<int>();
             CloneNewProcessDataRecursive(clonedProcess.Id, rootProcessStep, processStepDataDict, newOldProcessDataStepIdsMapping, clonedProcessDatas, imageIds, process.OPMProcessId, clonedProcess.OPMProcessId);
-            clonedProcess.JsonValue = JsonConvert.SerializeObject((RootProcessStep)internalProcessStep);
+            clonedProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
 
             DbContext.Processes.Add(clonedProcess);
             await DbContext.SaveChangesAsync();
