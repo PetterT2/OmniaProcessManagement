@@ -422,7 +422,7 @@ namespace Omnia.ProcessManagement.Core
         {
             public static readonly string AuthorsGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.AuthorGroupSuffix");
             public static readonly string ReadersGroupSuffix = CommonUtils.GetLocalizedText("OPM.Core.Features.SharePointGroups.ReaderGroupSuffix");
-            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.Blocks.ProcessLibrary.Title");
+            public static readonly string ProcessLibraryQuickLauch = CommonUtils.GetLocalizedText("OPM.Core.BlockDefinitions.ProcessLibrary.Title");
             public static readonly string ContentTypeGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.ContentTypes.GroupName");
             public static readonly string FieldGroupName = CommonUtils.GetLocalizedText("OPM.Core.Features.Fields.GroupName");
             public static readonly string ApprovalTaskTitlePrefix = CommonUtils.GetLocalizedText("OPM.ProcessLibrary.TaskTitle.ApprovalTaskPrefix");
