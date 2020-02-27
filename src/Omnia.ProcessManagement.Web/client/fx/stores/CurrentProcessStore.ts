@@ -339,7 +339,6 @@ export class CurrentProcessStore extends Store {
 
 
                     let actionModel: ProcessActionModel = {
-                        processStepTitle: title,
                         process: currentProcessReferenceData.process,
                         processData: { [processStep.id.toString()]: processData }
                     }
@@ -382,7 +381,6 @@ export class CurrentProcessStore extends Store {
 
 
                     let actionModel: ProcessActionModel = {
-                        processStepTitle: title,
                         process: currentProcessReferenceData.process,
                         processData: {}
                     }
@@ -426,7 +424,6 @@ export class CurrentProcessStore extends Store {
 
                     if (processChanged || currentProcessStepDataChanged || shortcutProcessStepDataChanged) {
                         let actionModel: ProcessActionModel = {
-                            processStepTitle: currentProcessReferenceData.current.processStep.title,
                             process: currentProcess,
                             processData: {}
                         }

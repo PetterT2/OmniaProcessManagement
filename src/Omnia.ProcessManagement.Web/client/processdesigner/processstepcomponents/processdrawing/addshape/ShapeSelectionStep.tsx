@@ -48,7 +48,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
 
     private goToNext(shapeDefinition: DrawingShapeDefinition) {
         this.addShapeWizardStore.mutations.setSelectedShape.commit(shapeDefinition);
-        this.addShapeWizardStore.actions.goToNextStep.dispatch();
+        this.addShapeWizardStore.mutations.goToNextStep.commit();
     }    
    
     private renderActionButtons(h) {

@@ -84,7 +84,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     private changeShape() {
-        this.addShapeWizardStore.actions.goToPreviousStep.dispatch();
+        this.addShapeWizardStore.mutations.goToPreviousStep.commit();
     }
 
     private onClose() {

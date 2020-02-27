@@ -635,7 +635,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             var newProcesData = newProcessDataDict.GetValueOrDefault(processStep.Id);
             var existingProcessDataIdHash = existingProcessDataIdHashDict.GetValueOrDefault(processStep.Id);
 
-
+            processStep.ValidateTitle();
+            CleanModel(processStep);
             if (newProcesData == null)
             {
                 if (existingProcessDataIdHash == null)
@@ -698,6 +699,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     else if (childProcessStep.Type == ProcessStepType.External)
                     {
                         validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        validChildProcessStep.ValidateTitle();
                         CleanModel(validChildProcessStep);
                     }
 

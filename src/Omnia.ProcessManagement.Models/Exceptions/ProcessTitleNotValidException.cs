@@ -6,7 +6,7 @@ namespace Omnia.ProcessManagement.Models.Exceptions
 {
     public class ProcessTitleNotValidException : Exception
     {
-        public ProcessTitleNotValidException(Exception? innerException = null) : base($"Process title is required", innerException)
+        public ProcessTitleNotValidException(Exception? innerException = null) : base($"Process step title is required", innerException)
         {
         }
     }

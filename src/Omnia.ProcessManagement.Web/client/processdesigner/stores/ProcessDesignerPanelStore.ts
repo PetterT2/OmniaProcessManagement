@@ -2,6 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes } from '@omnia/fx-models';
 import { DisplayBreakPoint } from '@omnia/wcm/models';
+import { AddShapeWizardStore } from './AddShapeWizardStore';
 
 export interface IPanelState {
     show: boolean;
@@ -11,6 +12,7 @@ export interface IPanelState {
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
 })
 export class ProcessDesignerPanelStore extends Store {
+    @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore
     /**
      * State
      */
@@ -74,6 +76,7 @@ export class ProcessDesignerPanelStore extends Store {
             this.addShapePanel.mutate({
                 show: show
             });
+            this.addShapeWizardStore.currentStepIndex.mutate(1);
             this.editShapeSettingsPanel.mutate({ show: false });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.copyToNewProcessTypePanel.mutate({ show: false });

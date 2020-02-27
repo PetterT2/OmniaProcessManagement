@@ -34,10 +34,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
-            if (actionModel.ProcessStepTitle != null && (actionModel.ProcessStepTitle.Count == 0 || actionModel.ProcessStepTitle.Values.Where(value => string.IsNullOrEmpty(value)).Count() > 0))
-            {
-                throw new ProcessTitleNotValidException();
-            }
             var process = await ProcessRepository.SaveCheckedOutProcessAsync(actionModel);
             return process;
         }

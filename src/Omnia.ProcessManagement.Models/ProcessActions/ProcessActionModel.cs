@@ -8,7 +8,6 @@ namespace Omnia.ProcessManagement.Models.ProcessActions
 {
     public class ProcessActionModel
     {
-        public MultilingualString ProcessStepTitle { get; set; }
         public Process Process { get; set; }
         public Dictionary<Guid, ProcessData> ProcessData { get; set; }
     }
