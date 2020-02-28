@@ -347,8 +347,8 @@ export class ShapeExtension implements Shape {
                 var currPos = canvas.getPointer(e.e),
                     moveX = currPos.x - this.startPoint.x,
                     moveY = currPos.y - this.startPoint.y;
-                let tleft = gridX ? Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x : this.originPos.x + moveX;
-                let ttop = gridY ? Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y : this.originPos.y + moveY;
+                let tleft = gridX && enableGrid ? Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x : this.originPos.x + moveX;
+                let ttop = gridY && enableGrid ? Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y : this.originPos.y + moveY;
                 this.shapeObject[1].set({
                     left: tleft,
                     top: ttop
@@ -387,23 +387,23 @@ export class ShapeExtension implements Shape {
                     moveY = currPos.y - this.startPoint.y;
                 let left = this.originShapePos.x + moveX;
                 let top = this.originShapePos.y + moveY;
-                let tleft = gridX ? Math.round(left / gridX) * gridX : left;
-                let ttop = gridY ? Math.round(top / gridY) * gridY : top;
+                let tleft = gridX && enableGrid ? Math.round(left / gridX) * gridX : left;
+                let ttop = gridY && enableGrid ? Math.round(top / gridY) * gridY : top;
                 this.shapeObject[0].set({
                     left: tleft,
                     top: ttop
                 });
-                if (gridX) {
+                if (gridX && enableGrid) {
                     this.shapeObject[1].set({
                         left: Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x,
                     });
                 }
-                if (gridY) {
+                if (gridY && enableGrid) {
                     this.shapeObject[1].set({
                         top: Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y
                     });
                 }
-                if (gridX || gridY)
+                if ((gridX || gridY) && enableGrid)
                     this.shapeObject[1].setCoords();
                 this.shapeObject[0].setCoords();
             },
