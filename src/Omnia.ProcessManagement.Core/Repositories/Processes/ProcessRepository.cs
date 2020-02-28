@@ -22,6 +22,7 @@ using Omnia.ProcessManagement.Core.Helpers.ImageHerlpers;
 using Omnia.ProcessManagement.Core.Helpers.Processes;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Models.CanvasDefinitions;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
@@ -64,7 +65,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
         {
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0, 0);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0, 0, null);
 
             var process = new Entities.Processes.Process();
             process.Id = actionModel.Process.Id;
@@ -72,7 +73,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var processDataDict = actionModel.ProcessData;
             actionModel.Process.RootProcessStep = (RootProcessStep)AddProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, processDataDict);
-            
+
             process.OPMProcessId = Guid.NewGuid();
             process.EnterpriseProperties = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep.EnterpriseProperties);
             process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -109,24 +110,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                     EnsureNoActiveWorkflow(publishedProcess);
 
-
-                    await InvalidatePendingReviewReminderQueueAsync(opmProcessId);
                     draftProcess = await CloneProcessAsync(publishedProcess, ProcessVersionType.Draft);
                 }
 
                 var model = MapEfToModel(draftProcess);
                 return model;
             });
-        }
-
-        private async ValueTask InvalidatePendingReviewReminderQueueAsync(Guid opmProcessId)
-        {
-            var pendingQueue = await DbContext.ReviewReminderQueues.AsTracking().FirstOrDefaultAsync(r => r.OPMProcessId == opmProcessId && r.Pending);
-            if (pendingQueue != null)
-            {
-                pendingQueue.Pending = false;
-                pendingQueue.Log = "Invalidated this queue because of creating a new draft";
-            }
         }
 
         public async ValueTask DeleteDraftProcessAsync(Guid opmProcessId)
@@ -228,7 +217,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 omniaJsonBase.AdditionalProperties.Clear();
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService)
         {
             return await InitConcurrencyLockForActionAsync(opmProcessId, async () =>
             {
@@ -278,7 +267,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
                 }
 
-                EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
+                var reviewDate = await reviewReminderDelegateService.EnsureReviewReminderAsync(opmProcessId, rootProcessStep.EnterpriseProperties);
+                EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber, reviewDate);
 
                 rootProcessStep.Comment = comment;
                 draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
@@ -356,7 +346,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             //END
 
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber, null);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
@@ -487,6 +477,31 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
+        public async ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService)
+        {
+            await InitConcurrencyLockForActionAsync<bool>(opmProcessId, async () =>
+            {
+                var publishedProcess = await GetProcessAsync(opmProcessId, ProcessVersionType.Published, true);
+                RootProcessStep rootProcessStep = JsonConvert.DeserializeObject<RootProcessStep>(publishedProcess.JsonValue);
+
+                if (publishedProcess == null)
+                {
+                    throw new ProcessPublishedVersionNotFoundException(opmProcessId);
+                }
+                EnsureNoActiveWorkflow(publishedProcess);
+
+                await reviewReminderDelegateService.EnsureReviewReminderAsync(opmProcessId, rootProcessStep.EnterpriseProperties, reviewDate);
+                EnsureSystemReviewDateEnterpriseProperty(rootProcessStep.EnterpriseProperties, reviewDate);
+
+                publishedProcess.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
+                publishedProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
+                publishedProcess.EnterpriseProperties = JsonConvert.SerializeObject(rootProcessStep.EnterpriseProperties);
+                await DbContext.SaveChangesAsync();
+
+                return true;
+            });
+        }
+
         public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
         {
             var lightProcesses = new List<LightProcess>();
@@ -526,7 +541,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             string filterBeginStr = " WHERE ";
 
-            if(!string.IsNullOrEmpty(securityTrimmingQuery))
+            if (!string.IsNullOrEmpty(securityTrimmingQuery))
                 originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
 
             foreach (var filter in titleFilters)
@@ -740,7 +755,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         public async ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision)
         {
             Entities.Processes.Process process = null;
-            if (ProcessVersionHelper.IsLatestPublishedVersion(edition,revision))
+            if (ProcessVersionHelper.IsLatestPublishedVersion(edition, revision))
             {
                 process = await DbContext.Processes.Where(p => p.OPMProcessId == opmProcessId && p.VersionType == ProcessVersionType.Published).FirstOrDefaultAsync();
             }
@@ -1183,8 +1198,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 throw new ProcessDraftVersionNotFoundException(processStepId);
             }
-            
-            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0);
+
+            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0, null);
             sourceProcess.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
 
             var clonedProcess = new Entities.Processes.Process();
@@ -1582,14 +1597,15 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             if (property.InternalName == OPMConstants.Features.OPMDefaultProperties.Edition.InternalName ||
                 property.InternalName == OPMConstants.Features.OPMDefaultProperties.Revision.InternalName ||
-                property.InternalName == OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName)
+                property.InternalName == OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName ||
+                property.InternalName == OPMConstants.Features.OPMDefaultProperties.ReviewDate.InternalName)
                 return true;
 
             return property.OmniaSearchable && (!property.BuiltIn || property.Id == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.Id);
         }
 
 
-        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision, int opmProcessIdNumber)
+        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision, int opmProcessIdNumber, DateTime? reviewDate)
         {
             if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
                 !Guid.TryParse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid _))
@@ -1605,7 +1621,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new Exception("Invalid OPMProcessIdNumber: " + opmProcessIdNumber);
             }
 
+            EnsureSystemReviewDateEnterpriseProperty(enterpriseProperties, reviewDate);
             enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName] = opmProcessIdNumber;
+        }
+
+        private void EnsureSystemReviewDateEnterpriseProperty(Dictionary<string, JToken> enterpriseProperties, DateTime? reviewDate)
+        {
+            if (reviewDate.HasValue)
+            {
+                enterpriseProperties[OPMConstants.SharePoint.OPMFields.Fields_ReviewDate] = reviewDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd\\THH:mm:ss.fffK"); //The same format as client-side javascript ISO-8601
+            }
+            else if (enterpriseProperties.ContainsKey(OPMConstants.SharePoint.OPMFields.Fields_ReviewDate))
+            {
+                enterpriseProperties.Remove(OPMConstants.SharePoint.OPMFields.Fields_ReviewDate);
+            }
         }
 
         private void EnsureValidProcessWorkingStatusForPublishedProcess(Guid opmProcessId, ProcessWorkingStatus oldProcessWorkingStatus, ProcessWorkingStatus newProcessWorkingStatus)

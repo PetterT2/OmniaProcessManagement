@@ -59,8 +59,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(teamAppId, request.OPMProcessId, request.IsLimitedAccess);
 
-                var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId);
-                await ReviewReminderService.EnsureReviewReminderAsync(process);
+                var process = await ProcessService.PublishProcessAsync(request.OPMProcessId, request.Comment, request.IsRevisionPublishing, securityResourceId, ReviewReminderService);
 
                 await ProcessSecurityService.AddOrUpdateOPMReaderPermissionAsync(teamAppId, request.OPMProcessId, GetLimitedUsers(request.IsLimitedAccess, request.LimitedUsers));
             });
@@ -152,8 +151,11 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 {
                     await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
                     
-                    var publishedProcess = await ProcessService.PublishProcessAsync(process.OPMProcessId, approvalTask.Workflow.WorkflowData.Comment, approvalData.IsRevisionPublishing, securityResourceId);
-                    await ReviewReminderService.EnsureReviewReminderAsync(publishedProcess);
+                    var publishedProcess = await ProcessService.PublishProcessAsync(process.OPMProcessId, 
+                        approvalTask.Workflow.WorkflowData.Comment, 
+                        approvalData.IsRevisionPublishing, 
+                        securityResourceId,
+                        ReviewReminderService);
                 }
                 else
                 {

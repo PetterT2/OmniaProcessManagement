@@ -14,6 +14,7 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -76,9 +77,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService)
         {
-            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId, reviewReminderDelegateService);
             await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.SyncingToSharePoint);
             return process;
         }
@@ -168,6 +169,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             await ProcessRepository.UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
             await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
+        }
+
+        public async ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService)
+        {
+            await ProcessRepository.UpdateNewReviewDateAsync(opmProcessId, reviewDate, reviewReminderDelegateService);
+            await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.SyncingToSharePoint);
         }
 
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)

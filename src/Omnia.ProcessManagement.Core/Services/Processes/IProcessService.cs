@@ -1,6 +1,8 @@
-﻿using Omnia.Fx.Models.Queries;
+﻿using Newtonsoft.Json.Linq;
+using Omnia.Fx.Models.Queries;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
@@ -23,14 +25,13 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
         ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
-        ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
+        ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService);
         ValueTask<List<LightProcess>> GetPublishedWithoutPermission();
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
-
-
+        ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService);
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash);
         ValueTask<Process> GetProcessByVersionAsync(Guid opmProcessId, int edition, int revision);
         ValueTask<Process> GetProcessByIdAsync(Guid processId);

@@ -41,6 +41,13 @@ namespace Omnia.ProcessManagement.Core.Services.Features.Artifacts
     {
     }
 
+    [DateTimeField(id: "cc41f50b-65cc-40c4-896b-b45cb2b3c391", internalName: OPMConstants.SharePoint.OPMFields.Fields_ReviewDate,
+    Title = "$Localize:OPM.Core.Features.Fields.OPMReviewDate.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMReviewDate.Description;",
+    Group = "$Localize:OPM.Core.Features.Fields.GroupName;", Required = false)]
+    public class OPMReviewDate: FieldBase
+    {
+    }
+
     [NoteField(id: "9d23f99a-207d-47aa-8794-fc7a5b56ddd6", internalName: OPMConstants.SharePoint.OPMFields.Fields_ProcessData,
     Title = "$Localize:OPM.Core.Features.Fields.OPMProcessData.Name;", Description = "$Localize:OPM.Core.Features.Fields.OPMProcessData.Description;",
     Group = "$Localize:OPM.Core.Features.Fields.GroupName;", Required = false,

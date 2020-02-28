@@ -80,6 +80,10 @@
                     Name: string,
                     Description: string,
                 },
+                OPMReviewDate: {
+                    Name: string,
+                    Description: string,
+                },
                 OPMProcessData: {
                     Name: string,
                     Description: string,

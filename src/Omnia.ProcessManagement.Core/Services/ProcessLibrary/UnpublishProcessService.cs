@@ -7,6 +7,7 @@ using Omnia.Fx.SharePoint.Client.Core;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Core.Services.Settings;
 using Omnia.ProcessManagement.Core.Services.SharePoint;
 using Omnia.ProcessManagement.Core.Services.TeamCollaborationApps;
@@ -32,14 +33,15 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
         ISettingsService SettingsService { get; }
         ISharePointClientContextProvider SharePointClientContextProvider { get; }
         ISharePointListService SharePointListService { get; }
-
-        public UnpublishProcessService(ITransactionRepository transactionRepositiory, 
+        IReviewReminderService ReviewReminderService { get; }
+        public UnpublishProcessService(ITransactionRepository transactionRepositiory,
             IProcessService processService,
             ITeamCollaborationAppsService teamCollaborationAppsService,
             IProcessTypeService processTypeService,
             ISettingsService settingsService,
             ISharePointClientContextProvider sharePointClientContextProvider,
-            ISharePointListService sharePointListService)
+            ISharePointListService sharePointListService,
+            IReviewReminderService reviewReminderService)
         {
             ProcessService = processService;
             TransactionRepository = transactionRepositiory;
@@ -48,11 +50,16 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             SettingsService = settingsService;
             SharePointClientContextProvider = sharePointClientContextProvider;
             SharePointListService = sharePointListService;
+            ReviewReminderService = reviewReminderService;
         }
 
         public async ValueTask UnpublishProcessAsync(Guid opmProcessId)
         {
-            await ProcessService.UnpublishProcessAsync(opmProcessId);
+            await TransactionRepository.InitTransactionAsync(async () =>
+            {
+                await ProcessService.UnpublishProcessAsync(opmProcessId);
+                await ReviewReminderService.InvalidateExistingQueueAsync(opmProcessId);
+            });
         }
 
         public async ValueTask ProcessUnpublishingAsync(Process process)
@@ -79,7 +86,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 ProcessType processType = processTypes.FirstOrDefault();
                 var archiveSetting = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>().Archive;
                 GlobalSettings globalSettings = await SettingsService.GetAsync<GlobalSettings>();
-                if(archiveSetting != null && (!string.IsNullOrEmpty(globalSettings.ArchiveSiteUrl) || !string.IsNullOrEmpty(archiveSetting.Url)))
+                if (archiveSetting != null && (!string.IsNullOrEmpty(globalSettings.ArchiveSiteUrl) || !string.IsNullOrEmpty(archiveSetting.Url)))
                 {
                     var publishedFile = await SharePointListService.GetFirstFileInFolder(processCtx, opmProcessIdFolder);
                     string archiveSiteUrl = !string.IsNullOrEmpty(archiveSetting.Url) ? archiveSetting.Url : globalSettings.ArchiveSiteUrl;
@@ -109,7 +116,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             return int.Parse(listItem[propertyName].ToString());
         }
 
-        private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder, 
+        private async ValueTask CopyContentToArchive(PortableClientContext sourceCtx, PortableClientContext archiveCtx, Folder opmProcessIdFolder,
             Microsoft.SharePoint.Client.File publishedFile, Folder imageFolder, Folder archivedProcessIdFolder)
         {
 
