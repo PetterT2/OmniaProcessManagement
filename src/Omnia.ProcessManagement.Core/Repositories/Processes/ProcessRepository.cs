@@ -360,10 +360,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
-
+            var deletedReferencesProcessDataDict = await GetReferenceDeletedProcessStepDict(actionModel.Process.Id, actionModel.DeletedProcessId);
             var usingProcessDataIdHashSet = new HashSet<Guid>();
 
-            actionModel.Process.RootProcessStep = (RootProcessStep)UpdateProcessDataRecursive(actionModel.Process.Id, actionModel.Process.RootProcessStep, existingProcessDataDict, newProcessDataDict, usingProcessDataIdHashSet);
+            actionModel.Process.RootProcessStep = (RootProcessStep)UpdateProcessDataRecursive(actionModel.Process.Id,
+                actionModel.Process.RootProcessStep, existingProcessDataDict,
+                newProcessDataDict, deletedReferencesProcessDataDict, actionModel.DeletedProcessId, usingProcessDataIdHashSet);
             RemoveOldProcessData(actionModel.Process.Id, existingProcessDataDict, usingProcessDataIdHashSet);
 
             checkedOutProcessWithProcessDataIdHash.Process.JsonValue = JsonConvert.SerializeObject(actionModel.Process.RootProcessStep);
@@ -625,12 +627,24 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         }
 
-        private string GetReferenceProcessStepIds(ProcessData processData)
+        private string GetReferenceProcessStepIds(ProcessData processData, Guid? deletedProcessStepId = null)
         {
             var referenceProcessStepIds = "";
 
             if (processData.CanvasDefinition != null && processData.CanvasDefinition.DrawingShapes != null)
             {
+                if (deletedProcessStepId.HasValue)
+                {
+                    var index = processData.CanvasDefinition.DrawingShapes
+                        .FindIndex(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep
+                        && s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId == deletedProcessStepId.Value);
+                    if (index > -1)
+                    {
+                        var undefinedDrawingShape = processData.CanvasDefinition.DrawingShapes[index].Cast<DrawingShape, UndefinedDrawingShape>();
+                        undefinedDrawingShape.AdditionalProperties.Clear();
+                        processData.CanvasDefinition.DrawingShapes[index] = undefinedDrawingShape;
+                    }
+                }
                 var processStepIds =
                     processData.CanvasDefinition.DrawingShapes.Where(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep)
                     .Select(s => s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
@@ -652,23 +666,45 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
         }
 
+        private async ValueTask<Dictionary<Guid, ProcessData>> GetReferenceDeletedProcessStepDict(Guid processId, Guid? deletedProcessStepId)
+        {
+            if (!deletedProcessStepId.HasValue)
+                return new Dictionary<Guid, ProcessData>();
+
+            var dict = new Dictionary<Guid, ProcessData>();
+            var remaningReferenceProcessSteps = await DbContext.ProcessData
+                 .Where(p => p.ProcessId == processId && p.ProcessStepId != deletedProcessStepId.Value)
+                 .ToListAsync();
+            foreach (var processDataEf in remaningReferenceProcessSteps)
+            {
+                if (!string.IsNullOrWhiteSpace(processDataEf.ReferenceProcessStepIds)
+                    && processDataEf.ReferenceProcessStepIds.Split(',').ToList().Any(id => deletedProcessStepId.Value.ToString() == id))
+                {
+                    dict.Add(processDataEf.ProcessStepId, MapEfToModel(processDataEf));
+                }
+            }
+            return dict;
+        }
         private InternalProcessStep UpdateProcessDataRecursive(Guid processId, InternalProcessStep processStep,
                 Dictionary<Guid, ProcessDataIdHash> existingProcessDataIdHashDict,
                 Dictionary<Guid, ProcessData> newProcessDataDict,
+                Dictionary<Guid, ProcessData> deletedReferencesProcessDataDict,
+                Guid? deletedProcessStepId,
                 HashSet<Guid> usingProcessDataIdHashSet)
         {
-            var newProcesData = newProcessDataDict.GetValueOrDefault(processStep.Id);
+            var updatedProcessData = newProcessDataDict.GetValueOrDefault(processStep.Id);
+            if (updatedProcessData == null)
+                updatedProcessData = deletedReferencesProcessDataDict.GetValueOrDefault(processStep.Id);
             var existingProcessDataIdHash = existingProcessDataIdHashDict.GetValueOrDefault(processStep.Id);
 
             processStep.ValidateTitle();
             CleanModel(processStep);
-            if (newProcesData == null)
+            if (updatedProcessData == null)
             {
                 if (existingProcessDataIdHash == null)
                 {
                     throw new ProcessDataNotFoundException(processStep.Id);
                 }
-
                 processStep.ProcessDataHash = existingProcessDataIdHash.Hash;
             }
             else
@@ -694,10 +730,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     processDataEf = new Entities.Processes.ProcessData { ProcessStepId = processStep.Id, ProcessId = processId };
                     DbContext.ProcessData.Attach(processDataEf);
                 }
-                var referenceProcessStepIds = GetReferenceProcessStepIds(newProcesData);
+
+                var referenceProcessStepIds = GetReferenceProcessStepIds(updatedProcessData, deletedProcessStepId);
 
                 processDataEf.ReferenceProcessStepIds = referenceProcessStepIds;
-                processDataEf.JsonValue = JsonConvert.SerializeObject(new InternalProcessData(newProcesData));
+                processDataEf.JsonValue = JsonConvert.SerializeObject(new InternalProcessData(updatedProcessData));
                 processDataEf.Hash = CommonUtils.CreateMd5Hash(processDataEf.JsonValue);
                 processStep.ProcessDataHash = processDataEf.Hash;
 
@@ -719,7 +756,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     if (childProcessStep.Type == ProcessStepType.Internal)
                     {
                         var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
-                        validChildProcessStep = UpdateProcessDataRecursive(processId, childInternalProcessStep, existingProcessDataIdHashDict, newProcessDataDict, usingProcessDataIdHashSet);
+                        validChildProcessStep = UpdateProcessDataRecursive(processId, childInternalProcessStep,
+                            existingProcessDataIdHashDict, newProcessDataDict, deletedReferencesProcessDataDict, deletedProcessStepId, usingProcessDataIdHashSet);
                     }
                     else if (childProcessStep.Type == ProcessStepType.External)
                     {

@@ -293,7 +293,8 @@ export class CurrentProcessStore extends Store {
 
                     let actionModel: ProcessActionModel = {
                         process: currentProcessReferenceData.process,
-                        processData: {}
+                        processData: {},
+                        deletedProcessId: currentProcessReferenceData.current.processStep.id
                     }
 
                     this.processStore.actions.saveCheckedOutProcess.dispatch(actionModel).then((process) => {
