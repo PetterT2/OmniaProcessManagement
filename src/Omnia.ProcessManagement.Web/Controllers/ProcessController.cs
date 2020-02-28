@@ -271,20 +271,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{processStepId:guid}/{hash}")]
+        [HttpGet, Route("{opmProcessId:guid}/processdata/{processStepId:guid}/{hash}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid opmProcessId, Guid processStepId, string hash)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(opmProcessId, processStepId, hash);
                 var processDataValueTask = ProcessService.GetProcessDataAsync(processStepId, hash);
 
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer()
                     .OrRequireApprover()
-                    .OrRequireReader()
+                    .OrRequireReader(ProcessVersionType.Archived, ProcessVersionType.Published)
                     .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
 
@@ -381,7 +381,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByPublishedProcessStepIdAsync(processStepId);
 
                 return await securityResponse
                     .RequireAuthor()
@@ -473,7 +473,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer()
                     .OrRequireApprover()
-                    .OrRequireReader()
+                    .OrRequireReader(ProcessVersionType.Archived, ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);

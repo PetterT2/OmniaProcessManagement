@@ -132,12 +132,12 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
 
     private controlGettingWorkingStatus(isSettingInterval: boolean) {
         this.isSettingInterval = isSettingInterval;
-        if (isSettingInterval)
-            this.refreshStatusInterval = setInterval(() => {
-                this.refreshStatus();
-            }, 5000);
-        else
-            clearInterval(this.refreshStatusInterval);
+        //if (isSettingInterval)
+        //    this.refreshStatusInterval = setInterval(() => {
+        //        this.refreshStatus();
+        //    }, 5000);
+        //else
+        //    clearInterval(this.refreshStatusInterval);
     }
 
     private loadPermisison() {

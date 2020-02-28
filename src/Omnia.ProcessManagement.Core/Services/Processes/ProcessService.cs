@@ -203,9 +203,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             return await ProcessRepository.GetInternalPublishedProcessByProcessStepIdAsync(processStepId);
         }
-        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash)
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid opmProcessId, Guid processId, string hash)
         {
-            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash);
+            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(opmProcessId, processId, hash);
         }
 
         async ValueTask<Dictionary<Guid, ProcessData>> IProcessService.GetAllProcessDataAsync(Guid processId)

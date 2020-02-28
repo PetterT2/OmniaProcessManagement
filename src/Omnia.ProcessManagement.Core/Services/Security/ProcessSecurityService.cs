@@ -113,15 +113,15 @@ namespace Omnia.ProcessManagement.Core.Services.Security
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByPublishedProcessStepIdAsync(Guid processStepId)
         {
             var process = await ProcessService.GetInternalPublishedProcessByProcessStepIdAsync(processStepId);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 
-        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid processStepId, string hash)
+        public async ValueTask<ISecurityResponse> InitSecurityResponseByProcessStepIdAsync(Guid opmProcessId, Guid processStepId, string hash)
         {
-            var process = await ProcessService.GetInternalProcessByProcessStepIdAsync(processStepId, hash);
+            var process = await ProcessService.GetInternalProcessByProcessStepIdAsync(opmProcessId, processStepId, hash);
             return new SecurityResponse(process, DynamicScopedContextProvider, SecurityProvider, OmniaContext);
         }
 

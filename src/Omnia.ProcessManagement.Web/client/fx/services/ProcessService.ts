@@ -170,9 +170,9 @@ export class ProcessService {
         })
     }
 
-    public getProcessData = (processStepId: GuidValue, hash: string) => {
+    public getProcessData = (opmProcessId: GuidValue, processStepId: GuidValue, hash: string) => {
         return new Promise<ProcessData>((resolve, reject) => {
-            this.httpClient.get<IHttpApiOperationResult<ProcessData>>(`/api/processes/processdata/${processStepId}/${hash}`).then((response) => {
+            this.httpClient.get<IHttpApiOperationResult<ProcessData>>(`/api/processes/${opmProcessId}/processdata/${processStepId}/${hash}`).then((response) => {
                 if (response.data.success) {
                     resolve(response.data.data);
                 }
