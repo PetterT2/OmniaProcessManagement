@@ -3,20 +3,21 @@ import * as tsx from 'vue-tsx-support';
 import { Inject, Localize, Utils } from '@omnia/fx';
 import { Prop } from 'vue-property-decorator';
 import { OmniaTheming, OmniaUxLocalization, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, DialogModel } from '@omnia/fx/ux';
-import { ProcessService } from '../../../../fx';
+import { ProcessStore } from '../../../../fx';
 import { GuidValue } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
+import { Process } from '../../../../fx/models';
 
 interface DeletedDialogProps {
-    opmProcessId: GuidValue;
+    process: Process;
     closeCallback: (hasUpdate: boolean) => void;
 }
 
 @Component
 export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
-    @Prop() opmProcessId: GuidValue;
+    @Prop() process: Process;
     @Prop() closeCallback: (hasUpdate: boolean) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -24,7 +25,7 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;
     @Localize(OPMCoreLocalization.namespace) coreLoc: OPMCoreLocalization.locInterface;
 
-    @Inject(ProcessService) processService: ProcessService;
+    @Inject(ProcessStore) processStore: ProcessStore;
 
     private classes = StyleFlow.use(ProcessLibraryStyles);
     private dialogModel: DialogModel = { visible: false };
@@ -42,7 +43,7 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
 
     private onDelete() {
         this.isSaving = true;
-        this.processService.deleteDraftProcess(this.opmProcessId).then(p => {
+        this.processStore.actions.deleteDraftProcess.dispatch(this.process).then(p => {
             this.isSaving = false;
             this.dialogModel.visible = false;
             this.closeCallback(true);

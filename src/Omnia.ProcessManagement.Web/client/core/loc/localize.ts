@@ -247,7 +247,7 @@
             DiscardChanges: string,
             Design: string,
             Preview: string,
-            SaveAsDraft: string,
+            CheckIn: string,
             DrawShape: string,
             RedrawShape: string,
             AddImage: string,
