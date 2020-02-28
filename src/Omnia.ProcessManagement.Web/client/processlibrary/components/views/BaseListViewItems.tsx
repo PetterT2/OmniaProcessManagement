@@ -253,7 +253,12 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                 })
 
                 Promise.all(promises).then((result) => {
-                    this.allProcesses.forEach(p => p.checkedOutByName = this.filtersAndSorting.getUserDisplayName(draftProcessStatuses[p.opmProcessId.toString()].checkedOutBy));
+                    if (this.versionType == ProcessVersionType.Draft && draftProcessStatuses) {
+                        this.allProcesses.forEach(p => {
+                            if (draftProcessStatuses[p.opmProcessId.toString()])
+                                p.checkedOutByName = this.filtersAndSorting.getUserDisplayName(draftProcessStatuses[p.opmProcessId.toString()].checkedOutBy);
+                        })
+                    }
                     this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);
                     this.applyFilterAndSort();
                 });

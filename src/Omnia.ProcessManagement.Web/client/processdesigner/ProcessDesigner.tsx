@@ -14,7 +14,6 @@ import { DisplayModes } from '../models/processdesigner';
 import DevicePreviewerComponent from './devicepreviewer/DevicePreviewer';
 import { ProcessDesignerItemFactory } from './designeritems';
 import { CopyToNewProcessDialog } from './copytonewprocess_dialog/CopyToNewProcess';
-import './core/styles/PanelStyles.css';
 import { ProcessDesignerStyles as ProcessDesignerStylesModel} from '../fx/models';
 
 export interface ContentNavigationProps {
