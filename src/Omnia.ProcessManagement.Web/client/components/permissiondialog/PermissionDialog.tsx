@@ -134,24 +134,18 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
         return [
             <v-card class="mb-4">
                 <v-card-text>
-                    <div class={[this.styles.label, 'mb-3']}>{this.loc.Authors}</div>
                     <omfx-people-picker
                         multiple
                         showSpecialIdentities
-                        label=' '
+                        label={this.loc.Authors}
                         disabled={this.isSaving}
                         model={this.authors}
                         onModelChange={(model) => { this.authors = model }}></omfx-people-picker>
-                </v-card-text>
-            </v-card>,
-            <v-card class="mb-4">
-                <v-card-text>
-                    <div class={[this.styles.label, 'mb-3']}>{this.loc.DefaultReaders}</div>
                     <omfx-people-picker
                         multiple
                         showSpecialIdentities
                         disabled={this.isSaving}
-                        label=' '
+                        label={this.loc.DefaultReaders}
                         model={this.defaultReaders}
                         onModelChange={(model) => { this.defaultReaders = model }}></omfx-people-picker>
                 </v-card-text>
