@@ -261,10 +261,20 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
                 if (opmProcessIdNumber == 0)
                 {
-                    var processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = opmProcessId };
-                    DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
-                    await DbContext.SaveChangesAsync();
-                    opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+                    //BEGIN - Temporary for existing old data. should be remove after a sprint (after the end of March/2020)
+                    var processIdNumberEntity = await DbContext.ProcessIdNumbers.FirstOrDefaultAsync(p => p.OPMProcessId == opmProcessId);
+                    if (processIdNumberEntity != null)
+                    {
+                        opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+                    }
+                    //End
+                    else
+                    {
+                        processIdNumberEntity = new Entities.Processes.ProcessIdNumber { OPMProcessId = opmProcessId };
+                        DbContext.ProcessIdNumbers.Add(processIdNumberEntity);
+                        await DbContext.SaveChangesAsync();
+                        opmProcessIdNumber = processIdNumberEntity.OPMProcessIdNumber;
+                    }
                 }
 
                 var reviewDate = await reviewReminderDelegateService.EnsureReviewReminderAsync(opmProcessId, rootProcessStep.EnterpriseProperties);
