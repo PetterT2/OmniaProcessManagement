@@ -34,16 +34,16 @@ export class ActionButtonFactory {
         } as ActionButton
     }
 
-    static saveAsDraftButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
+    static checkInButton(editorItem: ProcessStepDesignerItemBase, highLighted: boolean): ActionItem {
         return {
             type: ActionItemType.Button,
             loading: false,
             disabled: false,
-            id: ActionButtonIds.saveasdraft,
-            actionCallback: editorItem.onSaveAsDraft.bind(editorItem),
+            id: ActionButtonIds.checkin,
+            actionCallback: editorItem.onCheckIn.bind(editorItem),
             highLighted: highLighted,
             icon: "",
-            title: this.opmCoreLoc.Buttons.SaveAsDraft,
+            title: this.opmCoreLoc.Buttons.CheckIn,
             visibilityCallBack: () => { return true; }
         } as ActionButton
     }
@@ -94,7 +94,7 @@ export class ActionButtonFactory {
     static createDefaultCheckoutedButtons(editorItem: ProcessStepDesignerItemBase): Array<ActionItem> {
         return [
             this.discardChangesButton(editorItem, false),
-            this.saveAsDraftButton(editorItem, true),
+            this.checkInButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]
     }

@@ -170,9 +170,11 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                 filterProcess.processWorkingStatus = status.processWorkingStatus;
                 process.processWorkingStatus = status.processWorkingStatus;
                 if (users && this.versionType == ProcessVersionType.Draft) {
-                    let user = users.find(us => us.uid == (status as DraftProcessLibraryStatus).checkedOutBy);
+                    let checkedOutBy = (status as DraftProcessLibraryStatus).checkedOutBy;
+                    let user = users.find(us => us.uid == checkedOutBy);
                     filterProcess.checkedOutByName = user ? user.displayName : "";
                     process.checkedOutByName = filterProcess.checkedOutByName;
+                    process.checkedOutBy = checkedOutBy;
                 }
             }
         }
@@ -255,8 +257,10 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                 Promise.all(promises).then((result) => {
                     if (this.versionType == ProcessVersionType.Draft && draftProcessStatuses) {
                         this.allProcesses.forEach(p => {
-                            if (draftProcessStatuses[p.opmProcessId.toString()])
-                                p.checkedOutByName = this.filtersAndSorting.getUserDisplayName(draftProcessStatuses[p.opmProcessId.toString()].checkedOutBy);
+                            if (draftProcessStatuses[p.opmProcessId.toString()]) {
+                                p.checkedOutBy = draftProcessStatuses[p.opmProcessId.toString()].checkedOutBy;
+                                p.checkedOutByName = this.filtersAndSorting.getUserDisplayName(p.checkedOutBy);
+                            }
                         })
                     }
                     this.filtersAndSorting.setInformation(result[0], this.lcid, this.dateFormat);

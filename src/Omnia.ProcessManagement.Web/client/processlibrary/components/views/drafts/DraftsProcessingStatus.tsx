@@ -56,9 +56,9 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
 
     renderStatus(h) {
         let statusName = this.loc.ProcessStatuses[ProcessWorkingStatus[this.process.processWorkingStatus]] || '';
-        let checkedOutBy = "";
+        let checkedOutByName = "";
         if (this.process.processWorkingStatus == ProcessWorkingStatus.None && !Utils.isNullOrEmpty(this.process.checkedOutByName))
-            checkedOutBy = this.process.checkedOutByName;
+            checkedOutByName = this.process.checkedOutByName;
         let className = this.redLabel ? "red--text" : "";
         switch (this.process.processWorkingStatus) {
             case ProcessWorkingStatus.SentForApproval:
@@ -69,7 +69,7 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
                 }}>{statusName}</a>;
             default:
                 return <div class={className}>
-                    {statusName}{!Utils.isNullOrEmpty(checkedOutBy) ? this.loc.ProcessStatuses.CheckedOutBy + " " + checkedOutBy : ""}
+                    {statusName}{!Utils.isNullOrEmpty(checkedOutByName) ? this.loc.ProcessStatuses.CheckedOutBy + " " + checkedOutByName : ""}
                 </div>;
         }
     }
