@@ -4,11 +4,16 @@ import { Prop } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { VueComponentBase, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
 import { IProcessFieldValueDefinition } from './IProcessFieldValueDefinition';
-import { ValueDefinitionMultipleValueSetting } from '@omnia/fx-models';
+import { EnterprisePropertyItemSettings } from '@omnia/fx-models';
+
+interface EnterprisePropertyProcessItemSettings extends EnterprisePropertyItemSettings {
+    allowMultipleValues?: boolean;
+}
 
 @Component
 export class ProcessFieldValueDefinition extends VueComponentBase implements IWebComponentInstance, IProcessFieldValueDefinition {
-    @Prop() model: ValueDefinitionMultipleValueSetting;
+    @Prop() model: EnterprisePropertyProcessItemSettings;
+    @Prop() onModelChanged: (model: EnterprisePropertyProcessItemSettings) => void;
     @Prop() disabled: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -28,12 +33,19 @@ export class ProcessFieldValueDefinition extends VueComponentBase implements IWe
 
     private onRequiredChanged() {
         this.model.required = !this.model.required;
+        this.onValueChanged();
         this.$forceUpdate();
     }
 
     private onAllowMultiValuesChanged() {
         this.model.allowMultipleValues = !this.model.allowMultipleValues;
+        this.onValueChanged();
         this.$forceUpdate();
+    }
+
+    private onValueChanged() {
+        if (this.onModelChanged)
+            this.onModelChanged(this.model);
     }
 
     public render(h) {
