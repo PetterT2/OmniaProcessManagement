@@ -29,8 +29,8 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             SyncingToSharePoint: "Syncing to SharePoint",
             SyncingToSharePointFailed: "Syncing To SharePoint failed",
             Archiving: "Archiving",
-            ArchivingFailed: "Archiving failed"
-
+            ArchivingFailed: "Archiving failed",
+            CheckedOutBy: "Checked out by"
         },
         TaskStatus: {
             Cancel: "Cancel",
@@ -76,7 +76,7 @@ Composer.registerManifest("64102160-1db4-44f8-a1a7-18f9a7b5a4a3")
             Drafts: "Drafts",
             Tasks: "Tasks",
             Published: "Published"
-        },      
+        },
         SortText: {
             Direction: "Sort Direction",
             Ascending: "Ascending",

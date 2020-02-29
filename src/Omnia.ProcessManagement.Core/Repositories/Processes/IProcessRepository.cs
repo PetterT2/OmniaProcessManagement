@@ -3,6 +3,7 @@ using Omnia.Fx.NetCore.EnterpriseProperties.ComputedColumnMappings;
 using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.ProcessManagement.Core.Helpers.ProcessQueries;
 using Omnia.ProcessManagement.Core.InternalModels.Processes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Images;
 using Omnia.ProcessManagement.Models.ProcessActions;
@@ -26,11 +27,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
 
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
-        ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId);
+        ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService);
         ValueTask<Process> UnpublishProcessAsync(Guid opmProcessId);
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
+        ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService);
         ValueTask<List<LightProcess>> GetPublishedWithoutPermission();
 
 
@@ -53,7 +55,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask<InternalProcess> GetInternalProcessByOPMProcessIdAsync(Guid opmProcessId, ProcessVersionType versionType);
         ValueTask<InternalProcess> GetInternalProcessByProcessIdAsync(Guid processId);
         ValueTask<InternalProcess> GetInternalPublishedProcessByProcessStepIdAsync(Guid processStepId);
-        ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid processStepId, string hash);
+        ValueTask<InternalProcess> GetInternalProcessByProcessStepIdAsync(Guid opmProcessId, Guid processStepId, string hash);
         ValueTask<Dictionary<Guid, ProcessData>> GetAllProcessDataAsync(Guid processId);
 
         /// <summary>

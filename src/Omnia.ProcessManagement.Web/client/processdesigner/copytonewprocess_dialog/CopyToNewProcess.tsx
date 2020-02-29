@@ -10,7 +10,7 @@ import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
 import { ProcessVersionType } from '../../fx/models';
 
 export interface CopyToNewProcessDialogProps {
-
+   
 }
 
 @Component
@@ -40,6 +40,7 @@ export class CopyToNewProcessDialog extends VueComponentBase<CopyToNewProcessDia
             InternalOPMTopics.onProcessChanged.publish(ProcessVersionType.Draft);
             this.isSaving = false;
             this.onCloseDialog();
+            this.processDesignerStore.item.state.onClose();
         }).catch((err) => {
             this.isSaving = false;
         })

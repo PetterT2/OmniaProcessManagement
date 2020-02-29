@@ -452,7 +452,23 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
                 // Archive previos edition
                 if (existedFolder.Files.Count > 0)
-                    await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
+                {
+                    ctx.Load(existedFolder.Files[0], f => f.ListItemAllFields);
+                    await ctx.ExecuteQueryAsync();
+                    var file = existedFolder.Files[0];
+                    if (file.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Edition] != null && file.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Revision] != null &&
+                        int.TryParse(file.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Edition].ToString(),out int edition) &&
+                        int.TryParse(file.ListItemAllFields[OPMConstants.SharePoint.OPMFields.Fields_Revision].ToString(), out int revision)) {
+
+                        var newEdition = int.Parse(process.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.OPMFields.Fields_Edition].ToString());
+                        var newRevision = int.Parse(process.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.OPMFields.Fields_Revision].ToString());
+
+                        if (newEdition != edition || newRevision != revision)
+                        {
+                            await UnpublishProcessService.ProcessUnpublishingAsync(ctx.Web.Url, process);
+                        }
+                    }
+                }
 
                 existedFolder.DeleteObject();
                 await ctx.ExecuteQueryAsync();

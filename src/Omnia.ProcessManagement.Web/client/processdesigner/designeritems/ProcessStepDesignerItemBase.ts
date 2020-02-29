@@ -21,12 +21,12 @@ export class ProcessStepDesignerItemBase {
 
     //@Localize(EditorLocalization.namespace) editorLoc: EditorLocalization.locInterface;
 
-    public onSaveAsDraft() {
+    public onCheckIn() {
         if (this.formValidator.validateAll()) {
-            TabManager.addLoadingToButton(this as any, ActionButtonIds.saveasdraft);
+            TabManager.addLoadingToButton(this as any, ActionButtonIds.checkin);
             this.processDesignerStore.actions.saveState.dispatch(false).then(() => {
                 this.currentProcessStore.actions.checkIn.dispatch().then(() => {
-                    TabManager.removeLoadingFromButton(this as any, ActionButtonIds.saveasdraft);
+                    TabManager.removeLoadingFromButton(this as any, ActionButtonIds.checkin);
                     this.handleCloseDesinger();
                     ProcessDesignerUtils.closeProcessDesigner();
                 });

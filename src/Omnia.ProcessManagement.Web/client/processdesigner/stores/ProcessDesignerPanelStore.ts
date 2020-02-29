@@ -2,6 +2,7 @@
 import { Injectable, Inject } from '@omnia/fx';
 import { InstanceLifetimes } from '@omnia/fx-models';
 import { DisplayBreakPoint } from '@omnia/wcm/models';
+import { AddShapeWizardStore } from './AddShapeWizardStore';
 
 export interface IPanelState {
     show: boolean;
@@ -11,6 +12,7 @@ export interface IPanelState {
     onStartup: (storeType) => { Store.register(storeType, InstanceLifetimes.Scoped) }
 })
 export class ProcessDesignerPanelStore extends Store {
+    @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore
     /**
      * State
      */
@@ -27,6 +29,9 @@ export class ProcessDesignerPanelStore extends Store {
         show: false
     });
     copyToNewProcessTypePanel: StoreState<IPanelState> = this.state<IPanelState>({
+        show: false
+    });
+    documentsSettingsPanel: StoreState<IPanelState> = this.state<IPanelState>({
         show: false
     });
 
@@ -59,6 +64,7 @@ export class ProcessDesignerPanelStore extends Store {
             this.mutations.toggleEditShapeSettingsPanel.commit(false);
             this.mutations.toggleChangeProcessTypePanel.commit(false);
             this.mutations.toggleCopyToNewProcessPanel.commit(false);
+            this.mutations.toggleDocumentsSettingsPanel.commit(false);
         }),
                 
         toggleDrawingCanvasSettingsPanel: this.mutation((show: boolean) => {
@@ -74,6 +80,7 @@ export class ProcessDesignerPanelStore extends Store {
             this.addShapePanel.mutate({
                 show: show
             });
+            this.addShapeWizardStore.currentStepIndex.mutate(1);
             this.editShapeSettingsPanel.mutate({ show: false });
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.copyToNewProcessTypePanel.mutate({ show: false });
@@ -101,6 +108,11 @@ export class ProcessDesignerPanelStore extends Store {
             this.drawingCanvasSettingsPanel.mutate({ show: false });
             this.editShapeSettingsPanel.mutate({ show: false });
             this.changeProcessTypePanel.mutate({ show: false });
+        }),
+        toggleDocumentsSettingsPanel: this.mutation((show: boolean) => {
+            this.documentsSettingsPanel.mutate({
+                show: show
+            });
         })
     }
 }

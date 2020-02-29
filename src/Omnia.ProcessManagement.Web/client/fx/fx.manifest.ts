@@ -11,6 +11,7 @@ Composer
             "./routing/**/*.js",
             "./messaging/**/*.js",
             "./services/**/*.js",
+            "./settingsprovider/**/*.js",
             "./stores/**/*.js",
             "./constants.js",
             "./utils.js",

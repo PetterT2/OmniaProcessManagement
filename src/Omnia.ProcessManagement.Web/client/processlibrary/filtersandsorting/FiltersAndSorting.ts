@@ -40,8 +40,8 @@ export class FiltersAndSorting {
                     let label = '';
                     value.forEach((identity, index) => {
                         let separate = index == 0 ? '' : ', ';
-                        let person = this.users.find(us => us.uid == identity.uid)
-                        label += person ? separate + person.displayName : '';
+                        let displayName = this.getUserDisplayName(identity.uid)
+                        label += displayName != '' ? separate + displayName : '';
                     });
                     return label;
                 case PropertyIndexedType.Taxonomy:
@@ -74,6 +74,7 @@ export class FiltersAndSorting {
                     value.forEach(i => { if (allIdentities.findIndex(uid => uid == i.uid) == -1) allIdentities.push(i.uid) });
                 }
             })
+            if (allIdentities.findIndex(uid => uid == p.modifiedBy) == -1) allIdentities.push(p.modifiedBy)
         })
         return allIdentities;
     }
@@ -102,6 +103,7 @@ export class FiltersAndSorting {
                     && p.sortValues[key].toString().split(',').filter(f => request.filters[key].find(v => v.trim() == f.trim()) != null).length > 0)
             });
         }
+        result.processes.forEach(p => p.modifiedByName = this.getUserDisplayName(p.modifiedBy));
         result.processes = this.applySorting(result.processes, request.sortBy, request.sortAsc);
         result.total = result.processes.length;
         if (pageSize > 0) {
@@ -143,6 +145,13 @@ export class FiltersAndSorting {
         return filterOptions;
     }
 
+    public getUserDisplayName(uid: string) {
+        if (Utils.isNullOrEmpty(uid))
+            return "";
+        let user = this.users.find(us => us.uid == uid);
+        return user ? user.displayName : '';
+    }
+
     private applySorting(processes: Array<DisplayProcess>, sortBy: string, sortAsc: boolean) {
         if (!Utils.isNullOrEmpty(sortBy) && !Utils.isNullOrEmpty(sortAsc)) {
             if (sortBy == LibrarySystemFieldsConstants.Title) {
@@ -158,10 +167,26 @@ export class FiltersAndSorting {
                 return processes.sort((a, b) => sortAsc ? (a.sortValues[sortBy] - b.sortValues[sortBy]) : (b.sortValues[sortBy] - a.sortValues[sortBy]));
             }
 
-            if (sortBy == ProcessLibraryFields.Published) {
+            if (sortBy == ProcessLibraryFields.PublishedAt) {
+                processes.forEach(p => p.sortValues[sortBy] = moment(p.publishedAt).format(this.dateFormat));
+                return processes.sort((a, b) => {
+                    var comparer = this.dateComparer(a.publishedAt, b.publishedAt);
+                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
+                });
+            }
+
+            if (sortBy == ProcessLibraryFields.ModifiedAt) {
                 processes.forEach(p => p.sortValues[sortBy] = moment(p.modifiedAt).format(this.dateFormat));
                 return processes.sort((a, b) => {
                     var comparer = this.dateComparer(a.modifiedAt, b.modifiedAt);
+                    return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
+                });
+            }
+
+            if (sortBy == ProcessLibraryFields.ModifiedBy) {
+                processes.forEach(p => p.sortValues[sortBy] = p.modifiedByName);
+                return processes.sort((a, b) => {
+                    var comparer = a.sortValues[sortBy].localeCompare(b.sortValues[sortBy]);
                     return sortAsc ? comparer : (comparer == 1 ? -1 : comparer == 1 ? -1 : 0);
                 });
             }
@@ -214,8 +239,8 @@ export class FiltersAndSorting {
         var a = new Date(dateA);
         var b = new Date(dateB);
 
-        var msDateA = Date.UTC(a.getFullYear(), a.getMonth() + 1, a.getDate()).toString();
-        var msDateB = Date.UTC(b.getFullYear(), b.getMonth() + 1, b.getDate()).toString();
+        var msDateA = Date.UTC(a.getFullYear(), a.getMonth() + 1, a.getDate(), a.getHours(), a.getMinutes(), a.getSeconds()).toString();
+        var msDateB = Date.UTC(b.getFullYear(), b.getMonth() + 1, b.getDate(), b.getHours(), b.getMinutes(), b.getSeconds()).toString();
 
         if (parseFloat(msDateA) < parseFloat(msDateB))
             return -1;

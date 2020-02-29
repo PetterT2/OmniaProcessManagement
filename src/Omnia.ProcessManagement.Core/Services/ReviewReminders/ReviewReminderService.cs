@@ -106,16 +106,17 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             await ReviewReminderRepository.DoneQueueAsync(queue.Id, log);
         }
 
-        public async ValueTask EnsureReviewReminderAsync(Process process, DateTime? reviewDate = null)
+        public async ValueTask InvalidateExistingQueueAsync(Guid opmProcessId)
+        {
+            await ReviewReminderRepository.InvalidateExistingQueueAsync(opmProcessId);
+        }
+
+        async ValueTask<DateTime?> IReviewReminderDelegateService.EnsureReviewReminderAsync(Guid opmProcessId, Dictionary<string, JToken> enterpriseProperties, DateTime? reviewDate = null)
         {
             DateTime? reviewReminderDate = null;
 
-            var rootProcessStep = process.RootProcessStep;
-            var processEnterpriseProperties = rootProcessStep.EnterpriseProperties;
-
-            var processTypeId = Guid.Parse(processEnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString());
+            var processTypeId = Guid.Parse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString());
             var processType = (await ProcessTypeService.GetByIdsAsync(processTypeId)).FirstOrDefault();
-
 
             if (processType != null && processType.Settings.Type == ProcessTypeSettingsTypes.Item)
             {
@@ -141,7 +142,7 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                         if (schedule.DateTimeEnterprisePropertyDefinitionId != null)
                         {
                             var enterpriseProperty = await EnterprisePropertyService.GetByIdAsync(schedule.DateTimeEnterprisePropertyDefinitionId);
-                            if (processEnterpriseProperties.TryGetValue(enterpriseProperty.InternalName, out JToken tokenValue) &&
+                            if (enterpriseProperties.TryGetValue(enterpriseProperty.InternalName, out JToken tokenValue) &&
                                 tokenValue != null &&
                                 DateTimeOffset.TryParse(tokenValue.ToString(), out DateTimeOffset dateTimeValue))
                             {
@@ -158,11 +159,17 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
             {
                 await ReviewReminderRepository.AddPendingQueueAsync(new ReviewReminderQueue
                 {
-                    OPMProcessId = process.OPMProcessId,
+                    OPMProcessId = opmProcessId,
                     ReviewDate = new DateTimeOffset(reviewDate.Value.Date),
                     ReviewReminderDate = new DateTimeOffset(reviewReminderDate.Value.Date)
-                });
+                }, true);
             }
+            else
+            {
+                await ReviewReminderRepository.InvalidateExistingQueueAsync(opmProcessId);
+            }
+
+            return reviewDate;
         }
 
         public async ValueTask<string> ProcessQueueAsync(ReviewReminderQueue queue, Process process, ReviewReminder reviewReminder)

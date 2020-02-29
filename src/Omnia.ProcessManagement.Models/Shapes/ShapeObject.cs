@@ -11,7 +11,7 @@ namespace Omnia.ProcessManagement.Models.Shapes
         public string ShapeTemplateTypeName { get; set; }
         public List<FabricShapeData> Nodes { get; set; }
         public DrawingShapeDefinitionProperties Definition { get; set; }
-        public int Left { get; set; }
-        public int Top { get; set; }
+        public double Left { get; set; }
+        public double Top { get; set; }
     }
 }

@@ -6,3 +6,4 @@ export * from './processnavigation';
 export * from './propertiesblock';
 export * from './titleblock';
 export * from './breadcrumbblock';
+export * from './documentsblock';

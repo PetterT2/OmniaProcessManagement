@@ -16,12 +16,31 @@ namespace Omnia.ProcessManagement.Core.Repositories.ReviewReminders
             DBContext = databaseContext;
         }
 
-        public async ValueTask AddPendingQueueAsync(ReviewReminderQueue queue)
+        public async ValueTask InvalidateExistingQueueAsync(Guid opmProcessId)
         {
-            var pendingQueueExists = await DBContext.ReviewReminderQueues.AnyAsync(r => r.OPMProcessId == queue.OPMProcessId && r.Pending);
-            if (pendingQueueExists)
+            var pendingQueue = await DBContext.ReviewReminderQueues.AsTracking().FirstOrDefaultAsync(r => r.OPMProcessId == opmProcessId && r.Pending);
+            if (pendingQueue != null)
             {
-                throw new Exception($"There is already a pending review-reminder queue for this process with OPMProcessId: {queue.OPMProcessId}");
+                pendingQueue.Pending = false;
+                pendingQueue.Log = "Invalidated this queue because of publishing a new process version";
+            }
+            await DBContext.SaveChangesAsync();
+        }
+
+        public async ValueTask AddPendingQueueAsync(ReviewReminderQueue queue, bool invalidateExistingQueue)
+        {
+            var pendingQueue = await DBContext.ReviewReminderQueues.AsTracking().FirstOrDefaultAsync(r => r.OPMProcessId == queue.OPMProcessId && r.Pending);
+            if (pendingQueue != null)
+            {
+                if (invalidateExistingQueue)
+                {
+                    pendingQueue.Pending = false;
+                    pendingQueue.Log = "Invalidated this queue because of publishing a new process version";
+                }
+                else
+                {
+                    throw new Exception($"There is already a pending review-reminder queue for this process with OPMProcessId: {queue.OPMProcessId}");
+                }
             }
 
             DBContext.ReviewReminderQueues.Add(new Entities.ReviewReminders.ReviewReminderQueue
@@ -37,7 +56,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ReviewReminders
         public async ValueTask DoneQueueAsync(int queueId, string log)
         {
             var pendingQueue = await DBContext.ReviewReminderQueues.AsTracking().FirstOrDefaultAsync(r => r.Id == queueId);
-           
+
             pendingQueue.Pending = false;
             pendingQueue.Log = log;
             await DBContext.SaveChangesAsync();

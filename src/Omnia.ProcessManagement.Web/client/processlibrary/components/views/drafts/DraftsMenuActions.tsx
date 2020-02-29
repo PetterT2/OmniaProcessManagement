@@ -5,8 +5,8 @@ import { StyleFlow, OmniaTheming, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ProcessLibraryStyles, ProcessLibraryListViewStyles, DisplayProcess } from '../../../../models';
-import { CurrentProcessStore, ProcessStore } from '../../../../fx/stores';
-import { Process, Enums, ProcessWorkingStatus } from '../../../../fx/models';
+import { ProcessStore } from '../../../../fx/stores';
+import { Process, Enums, ProcessWorkingStatus, ProcessVersionType } from '../../../../fx/models';
 import { ProcessDesignerItemFactory } from '../../../../processdesigner/designeritems';
 import { ProcessDesignerUtils } from '../../../../processdesigner/Utils';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
@@ -14,6 +14,7 @@ import { DisplayModes } from '../../../../models/processdesigner';
 import { PublishDialog } from './PublishDialog';
 import { DeletedDialog } from './DeleteDialog';
 import { ProcessLibraryListViewTabs } from '../../../Constants';
+import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 
 interface DraftsMenuActionsProps {
     closeCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
@@ -35,17 +36,21 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(ProcessStore) processStore: ProcessStore;
-
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     disableButtonUpdateAction: boolean = false;
     openDeleteDialog: boolean = false;
-    openPublishDialog: boolean = false
+    openPublishDialog: boolean = false;
+    currentUser: string = "";
+    showMenu: boolean = false;
+    isSavingCheckin: boolean = false;
 
     created() {
+        this.omniaContext.user.then((user) => {
+            this.currentUser = user.loginName;
+        });
     }
 
     mounted() {
@@ -76,6 +81,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         let checkoutProcess = this.processStore.actions.checkoutProcess.dispatch(this.process.opmProcessId);
 
         checkoutProcess.then(process => {
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
             this.openProcessDesigner(process, DisplayModes.contentEditing);
         }).catch(() => {
             loadPreviewProcessPromise.then(processWithCheckoutInfo => {
@@ -99,6 +105,16 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         this.openDeleteDialog = true;
     }
 
+    private checkIn(e: Event) {
+        e.stopPropagation();
+        this.isSavingCheckin = true;
+        this.processStore.actions.checkInProcess.dispatch(this.process.opmProcessId).then(() => {
+            this.showMenu = false;
+            this.isSavingCheckin = false;
+            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
+        });
+    }
+
     renderPublishDialog(h) {
         return (
             <PublishDialog
@@ -115,7 +131,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                     this.openDeleteDialog = false;
                     this.closeCallback(hasUpdate);
                 }}
-                opmProcessId={this.process.opmProcessId}>
+                process={this.process}>
             </DeletedDialog>
         )
     }
@@ -124,7 +140,7 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
         let showNotImplementYetItem = false;
         return (
             <div>
-                <v-menu close-delay="50"
+                <v-menu close-delay="50" v-model={this.showMenu}
                     {
                     ...this.transformVSlot({
                         activator: (ref) => {
@@ -150,6 +166,15 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                             showNotImplementYetItem ?
                                 <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
                                     <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
+                                </v-list-item>
+                                : null
+                        }
+                        {
+                            !Utils.isNullOrEmpty(this.process.checkedOutBy) && this.process.checkedOutBy == this.currentUser ?
+                                <v-list-item onClick={(e: Event) => {
+                                    this.checkIn(e);
+                                }} disabled={this.disableButtonUpdateAction || this.isSavingCheckin}>
+                                    <v-list-item-title>{this.corLoc.Buttons.CheckIn}</v-list-item-title>
                                 </v-list-item>
                                 : null
                         }

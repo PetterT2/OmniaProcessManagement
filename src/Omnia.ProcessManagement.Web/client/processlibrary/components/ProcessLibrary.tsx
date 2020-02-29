@@ -83,7 +83,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
 
             this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-process-library-settings");
             this.settingsService.getValue(this.settingsKey).then((blockData) => {
-                if (blockData && blockData.settings && blockData.settings.viewSettings && blockData.settings.viewSettings.draftTabDisplaySettings &&
+                if (blockData && blockData.settings && blockData.settings.viewSettings && 
                     blockData.settings.viewSettings.publishedTabDisplaySettings) {
                     this.setBlockData(blockData)
                 }

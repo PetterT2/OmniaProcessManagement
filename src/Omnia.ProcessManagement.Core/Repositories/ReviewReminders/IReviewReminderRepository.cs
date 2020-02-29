@@ -8,7 +8,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.ReviewReminders
 {
     internal interface IReviewReminderRepository
     {
-        ValueTask AddPendingQueueAsync(ReviewReminderQueue queue);
+        ValueTask InvalidateExistingQueueAsync(Guid opmProcessId);
+        ValueTask AddPendingQueueAsync(ReviewReminderQueue queue, bool invalidateExistingQueue);
         ValueTask DoneQueueAsync(int queueId, string log);
         ValueTask<List<ReviewReminderQueue>> GetActiveQueuesAsync();
     }

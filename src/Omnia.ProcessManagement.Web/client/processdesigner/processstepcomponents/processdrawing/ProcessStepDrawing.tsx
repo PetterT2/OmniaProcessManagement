@@ -3,17 +3,19 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData, OPMUtils } from '../../../fx';
+import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData, OPMUtils, ShapeTemplateStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape } from '../../../fx/models';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape } from '../../../fx/models';
 import './ProcessStepDrawing.css';
-import { ProcessStepDrawingStyles } from '../../../fx/models';
+import '../../core/styles/PanelStyles.css';
+
+import { ProcessStepDrawingStyles, ProcessDesignerStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
 import { TabRenderer } from '../../core';
 import { setTimeout, setInterval } from 'timers';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { DrawingShapeOptions } from '../../../models/processdesigner';
-import { CopyToNewProcessDialog } from '../../copytonewprocess_dialog/CopyToNewProcess';
+import { AddShapeWizardStore } from '../../stores/AddShapeWizardStore';
 
 export class ProcessStepDrawingTabRenderer extends TabRenderer {
     generateElement(h): JSX.Element {
@@ -29,6 +31,8 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
+    @Inject(AddShapeWizardStore) addShapeWizardStore: AddShapeWizardStore;
+    @Inject(ShapeTemplateStore) shapeTemplateStore: ShapeTemplateStore;
     @Localize(ProcessDesignerLocalization.namespace) pdLoc: ProcessDesignerLocalization.locInterface;
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;
@@ -36,6 +40,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private drawingParentCanvas: DrawingCanvas = null;
     private shapeSettingsPanelComponentKey = Utils.generateGuid();
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
+    panelStyles = StyleFlow.use(ProcessDesignerStyles.PanelStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private parentCanvasId = 'parentcanvas_' + Utils.generateGuid().toString();
 
@@ -70,7 +75,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     get parentProcessData() {
         let referenceData = this.currentProcessStore.getters.referenceData();
-        if (referenceData) 
+        if (referenceData)
             return referenceData.current.parentProcessData;
         return null;
     }
@@ -132,7 +137,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 if (selectedShape) {
                     setTimeout(() => {
                         this.drawingParentCanvas.setSelectedShapeItemId(selectedShape.processStepId)
-                    }, 20)
+                    }, 200)
                 }
             })
         }
@@ -227,6 +232,16 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         });
     }
 
+    private cloneShape() {
+        this.shapeTemplateStore.actions.ensureLoadShapeTemplates.dispatch().then(() => {
+            this.processDesignerStore.panels.mutations.hideAllPanels.commit();
+            let shape = this.processDesignerStore.getters.shapeToEditSettings();
+            this.processDesignerStore.panels.mutations.toggleAddShapePanel.commit(true);
+            this.addShapeWizardStore.mutations.setSelectedShape.commit(Utils.clone(shape.shape.definition));
+            this.addShapeWizardStore.currentStepIndex.mutate(2);
+        })
+    }
+
     /**
         * Render 
         * @param h
@@ -253,32 +268,13 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 temporary={false}
                 disable-resize-watcher
                 hide-overlay
-                class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+                class={this.panelStyles.settingsPanel(backgroundColor)}
                 v-model={this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show}>
                 {this.processDesignerStore.panels.drawingCanvasSettingsPanel.state.show ? <opm-processdesigner-drawingcanvas-settings></opm-processdesigner-drawingcanvas-settings> : null}
             </v-navigation-drawer>
         );
         components.push(this.renderAddShapePanel(h));
-        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
-
-        components.push(
-            <v-navigation-drawer
-                app
-                float
-                right
-                clipped
-                dark={this.omniaTheming.promoted.body.dark}
-                width="340"
-                temporary={false}
-                disable-resize-watcher
-                hide-overlay
-                class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
-                v-model={this.processDesignerStore.panels.changeProcessTypePanel.state.show}>
-                {this.processDesignerStore.panels.changeProcessTypePanel.state.show ? <opm-process-changeprocesstype></opm-process-changeprocesstype> : null}
-            </v-navigation-drawer >
-        );
-
-        components.push(<CopyToNewProcessDialog></CopyToNewProcessDialog>);
+        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));       
 
         return components;
     }
@@ -313,7 +309,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             temporary={false}
             disable-resize-watcher
             hide-overlay
-            class={this.processStepDrawingStyles.settingsPanel(backgroundColor)}
+            class={this.panelStyles.settingsPanel(backgroundColor)}
             v-model={this.processDesignerStore.panels.editShapeSettingsPanel.state.show}>
             {this.processDesignerStore.panels.editShapeSettingsPanel.state.show ? <opm-processdesigner-shape-settings key={this.shapeSettingsPanelComponentKey}></opm-processdesigner-shape-settings> : null}
         </v-navigation-drawer>;
@@ -355,9 +351,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                                     }}>{this.pdLoc.AddShape}</v-btn>
                                     {
                                         this.processDesignerStore.getters.shapeToEditSettings() ?
-                                            <v-btn text onClick={() => {
-                                                this.deleteShape();
-                                            }}>{this.pdLoc.DeleteShape}</v-btn>
+                                            [
+                                                <v-btn text onClick={() => { this.cloneShape() }}>{this.pdLoc.CloneShape}</v-btn>,
+                                                <v-btn text onClick={() => { this.deleteShape() }}>{this.pdLoc.DeleteShape}</v-btn>
+                                            ]
                                             : null
                                     }
                                 </div>

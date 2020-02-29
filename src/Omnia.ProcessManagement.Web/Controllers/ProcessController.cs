@@ -271,20 +271,20 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpGet, Route("processdata/{processStepId:guid}/{hash}")]
+        [HttpGet, Route("{opmProcessId:guid}/processdata/{processStepId:guid}/{hash}")]
         [Authorize]
-        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid processStepId, string hash)
+        public async ValueTask<ApiResponse<ProcessData>> GetProcessDataAsync(Guid opmProcessId, Guid processStepId, string hash)
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId, hash);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(opmProcessId, processStepId, hash);
                 var processDataValueTask = ProcessService.GetProcessDataAsync(processStepId, hash);
 
                 return await securityResponse
                     .RequireAuthor()
                     .OrRequireReviewer()
                     .OrRequireApprover()
-                    .OrRequireReader()
+                    .OrRequireReader(ProcessVersionType.Archived, ProcessVersionType.Published)
                     .DoAsync(async (teamAppId, opmProcessId, versionType) =>
                     {
 
@@ -312,27 +312,52 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("draft/workingstatus")]
         [Authorize]
-        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
+        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId, bool isGetAll)
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
-                     limitedTeamAppIds: new List<Guid> { teamAppId },
-                     limitedOPMProcessIds: opmProcessIds);
+                IAuthorizedProcessQuery authorizedProcessQuery;
+                IAuthorizedProcessQuery authorizedCheckedoutProcessQuery;
+
+                if (opmProcessIds.Count == 0 && isGetAll)
+                {
+                    authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
+                  limitedTeamAppIds: new List<Guid> { teamAppId });
+                    authorizedCheckedoutProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.CheckedOut,
+                  limitedTeamAppIds: new List<Guid> { teamAppId });
+                }
+                else
+                {
+                    authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
+                    limitedTeamAppIds: new List<Guid> { teamAppId },
+                    limitedOPMProcessIds: opmProcessIds);
+                    authorizedCheckedoutProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.CheckedOut,
+                        limitedTeamAppIds: new List<Guid> { teamAppId },
+                        limitedOPMProcessIds: opmProcessIds);
+                }
 
                 var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
+                var checkedOutProcessWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedCheckedoutProcessQuery);
+                foreach (var status in processWorkingStatus)
+                {
+                    if (checkedOutProcessWorkingStatus.ContainsKey(status.Key))
+                    {
+                        var checkedOutStatus = checkedOutProcessWorkingStatus.FirstOrDefault(p => p.Key == status.Key);
+                        status.Value.CheckedOutBy = checkedOutStatus.Value.CheckedOutBy;
+                    }
+                }
                 return processWorkingStatus.AsApiResponse();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessWorkingStatus>>(ex);
+                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessStatus>>(ex);
             }
         }
 
         [HttpPost, Route("published/workingstatus")]
         [Authorize]
-        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessWorkingStatus>>> GetPublishedProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
+        public async ValueTask<ApiResponse<Dictionary<Guid, ProcessStatus>>> GetPublishedProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId)
         {
             try
             {
@@ -346,7 +371,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessWorkingStatus>>(ex);
+                return ApiUtils.CreateErrorResponse<Dictionary<Guid, ProcessStatus>>(ex);
             }
         }
 
@@ -356,7 +381,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(processStepId);
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByPublishedProcessStepIdAsync(processStepId);
 
                 return await securityResponse
                     .RequireAuthor()
@@ -448,7 +473,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .RequireAuthor()
                     .OrRequireReviewer()
                     .OrRequireApprover()
-                    .OrRequireReader()
+                    .OrRequireReader(ProcessVersionType.Archived, ProcessVersionType.Published)
                     .DoAsync(async () =>
                     {
                         var process = await ProcessService.GetProcessByIdAsync(processId);

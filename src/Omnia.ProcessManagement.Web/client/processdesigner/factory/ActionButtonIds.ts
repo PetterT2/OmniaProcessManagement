@@ -1,5 +1,5 @@
 ﻿export const ActionButtonIds = {
-    saveasdraft: "SaveAsDraft",
+    checkin: "CheckIn",
     edit: "Edit",
     close: "Close",
     discardchanges: "DiscardChanges"

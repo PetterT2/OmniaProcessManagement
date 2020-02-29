@@ -84,6 +84,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Name: "Revision",
                     Description: "System column in Omnia Process Management for Revision.",
                 },
+                OPMReviewDate: {
+                    Name: "Review Date",
+                    Description: "System column in Omnia Process Management for Review Date.",
+                },
                 OPMProcessData: {
                     Name: "Process Data",
                     Description: "System column in Omnia Process Management for Process Data.",
@@ -145,6 +149,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Breadcrumb: {
                 Title: "Process Breadcrumb",
                 Description: ""
+            },
+            Documents: {
+                Title: "Process Documents",
+                Description: ""
             }
         },
         Blocks: {
@@ -203,6 +211,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             Edition: "Edition",
             Revision: "Revision",
             Published: "Published",
+            ModifiedAt: "Modified",
+            ModifiedBy: "Modified By",
             ApprovedBy: "Approved By",
             WorkflowHistory: "Workflow History"
         },
@@ -241,7 +251,7 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             DiscardChanges: "Discard changes",
             Design: "Design",
             Preview: "Preview",
-            SaveAsDraft: "Save As Draft",
+            CheckIn: "Check In",
             DrawShape: "Draw Shape",
             RedrawShape: "Redraw Shape",
             AddImage: "Add Image",

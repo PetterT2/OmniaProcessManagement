@@ -54,25 +54,18 @@ export class AddShapeWizardStore extends Store {
     mutations = {
         setSelectedShape: this.mutation((shapeDefinition: ShapeDefinition) => {
             this.selectedShape.mutate(shapeDefinition);
+        }),
+        goToNextStep: this.mutation(() => {
+            var stepperIndex = this.currentStepIndex.state;
+            this.currentStepIndex.mutate(stepperIndex + 1);
+        }),
+        goToPreviousStep: this.mutation(() => {
+            var stepperIndex = this.currentStepIndex.state;
+            this.currentStepIndex.mutate(stepperIndex - 1);
         })
     }
 
     actions = {
-        goToNextStep: this.action(() => {
-            return new Promise<null>((resolve, reject) => {
-                var stepperIndex = this.currentStepIndex.state;
-                this.currentStepIndex.mutate(stepperIndex + 1);
-				//this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state - 1]);
-				resolve();
-            });
-        }),
-        goToPreviousStep: this.action(() => {
-            return new Promise<null>((resolve, reject) => {
-				var stepperIndex = this.currentStepIndex.state;
-                this.currentStepIndex.mutate(stepperIndex - 1);
-				//this.currentStep.mutate(this.wizardSteps[this.currentStepIndex.state - 1]);
-				resolve();
-            });
-        })
+
     }
 }

@@ -20,6 +20,7 @@
         RedrawShape: string;
         DrawShape: string;
         DeleteShape: string;
+        CloneShape: string;
         DeleteDrawing: string;
         SelectShape: string;
         ShapeType: string;
@@ -77,6 +78,7 @@
             AddTitle: string;
             ProcessNotFound: string;
             Process: string;
-        }
+        },
+        DocumentSettings: string;
     }
 }

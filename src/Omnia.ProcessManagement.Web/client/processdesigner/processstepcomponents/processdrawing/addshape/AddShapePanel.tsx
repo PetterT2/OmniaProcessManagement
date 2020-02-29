@@ -28,11 +28,6 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
     private addShapePanelStyles = StyleFlow.use(AddShapePanelStyles);
 
     created() {
-        this.init();
-    }
-
-    init() {
-        this.addShapeWizardStore.currentStepIndex.mutate(1);
     }
 
     mounted() {

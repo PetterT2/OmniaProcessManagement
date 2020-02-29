@@ -98,7 +98,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         public DbSet<ProcessIdNumber> ProcessIdNumbers { get; set; }
         //Views
         public DbSet<ProcessTypeChildCount> ProcessTypeChildCountView { get; set; }
-        public DbSet<AlternativeProcessEF> AlternativeProcessEFView { get; set; }
+        //public DbSet<AlternativeProcessEF> AlternativeProcessEFView { get; set; }
         public DbSet<AlternativeProcessEFWithoutData> AlternativeProcessEFWithoutDataView { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -163,7 +163,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
                .IsUnique();
 
             modelBuilder.Entity<ProcessTypeChildCount>().ToView(nameof(ProcessTypeChildCountView)).HasNoKey();
-            modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();
+            //modelBuilder.Entity<AlternativeProcessEF>().ToView(nameof(AlternativeProcessEFView)).HasNoKey();
             modelBuilder.Entity<AlternativeProcessEFWithoutData>().ToView(nameof(AlternativeProcessEFWithoutDataView)).HasNoKey();
         }
 

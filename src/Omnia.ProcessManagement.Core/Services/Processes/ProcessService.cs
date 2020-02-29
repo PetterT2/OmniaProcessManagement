@@ -14,10 +14,12 @@ using Omnia.ProcessManagement.Core.InternalModels.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Processes;
 using Omnia.ProcessManagement.Core.Repositories.Transaction;
 using Omnia.ProcessManagement.Core.Services.ProcessTypes;
+using Omnia.ProcessManagement.Core.Services.ReviewReminders;
 using Omnia.ProcessManagement.Models.Enums;
 using Omnia.ProcessManagement.Models.Exceptions;
 using Omnia.ProcessManagement.Models.ProcessActions;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessLibrary;
 
 namespace Omnia.ProcessManagement.Core.Services.Processes
 {
@@ -34,10 +36,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
 
         public async ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel)
         {
-            if (actionModel.ProcessStepTitle != null && (actionModel.ProcessStepTitle.Count == 0 || actionModel.ProcessStepTitle.Values.Where(value => string.IsNullOrEmpty(value)).Count() > 0))
-            {
-                throw new ProcessTitleNotValidException();
-            }
             var process = await ProcessRepository.SaveCheckedOutProcessAsync(actionModel);
             return process;
         }
@@ -79,9 +77,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId)
+        public async ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService)
         {
-            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId);
+            var process = await ProcessRepository.PublishProcessAsync(opmProcessId, comment, isRevision, securityResourceId, reviewReminderDelegateService);
             await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.SyncingToSharePoint);
             return process;
         }
@@ -136,13 +134,17 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return await ProcessRepository.GetProcessesByWorkingStatusAsync(processWorkingStatus, vesionType);
         }
 
-        public async ValueTask<Dictionary<Guid, ProcessWorkingStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery)
+        public async ValueTask<Dictionary<Guid, ProcessStatus>> GetProcessWorkingStatusAsync(IAuthorizedProcessQuery processQuery)
         {
             var internalProcessQuery = processQuery.ConvertToAuthorizedInternalProcessQuery();
             var internalProcesses = await ProcessRepository.GetAuthorizedInternalProcessesAsync(internalProcessQuery);
             List<ProcessWorkingStatus> workingStatus = new List<ProcessWorkingStatus>();
 
-            var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => p.ProcessWorkingStatus);
+            var workingStatusDict = internalProcesses.ToDictionary(p => p.OPMProcessId, p => new ProcessStatus
+            {
+                ProcessWorkingStatus = p.ProcessWorkingStatus,
+                CheckedOutBy = p.CheckedOutBy
+            });
             return workingStatusDict;
         }
 
@@ -167,6 +169,12 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             await ProcessRepository.UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(opmProcessId, newProcessWorkingStatus, newVersionType);
             await TransactionRepository.PublishWorkingStatusChangedAsync(newProcessWorkingStatus);
+        }
+
+        public async ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService)
+        {
+            await ProcessRepository.UpdateNewReviewDateAsync(opmProcessId, reviewDate, reviewReminderDelegateService);
+            await TransactionRepository.PublishWorkingStatusChangedAsync(ProcessWorkingStatus.SyncingToSharePoint);
         }
 
         public async ValueTask<bool> CheckIfDeletingProcessStepsAreBeingUsedAsync(Guid processId, List<Guid> deletingProcessStepIds)
@@ -195,9 +203,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         {
             return await ProcessRepository.GetInternalPublishedProcessByProcessStepIdAsync(processStepId);
         }
-        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid processId, string hash)
+        async ValueTask<InternalProcess> IProcessService.GetInternalProcessByProcessStepIdAsync(Guid opmProcessId, Guid processId, string hash)
         {
-            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(processId, hash);
+            return await ProcessRepository.GetInternalProcessByProcessStepIdAsync(opmProcessId, processId, hash);
         }
 
         async ValueTask<Dictionary<Guid, ProcessData>> IProcessService.GetAllProcessDataAsync(Guid processId)

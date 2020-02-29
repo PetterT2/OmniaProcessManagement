@@ -124,7 +124,7 @@ export class DrawingBlockComponent extends VueComponentBase implements IWebCompo
             if (selectedShape) {
                 this.setSelectedShapeItemIdTimeOut = setTimeout(() => {
                     this.drawingCanvas.setSelectedShapeItemId(selectedShape.processStepId);
-                }, 20)
+                }, 200)
             }
         })
 

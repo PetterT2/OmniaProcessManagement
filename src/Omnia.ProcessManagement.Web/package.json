@@ -13,6 +13,7 @@
     "@omnia/tooling-vue": "4.0.88-dev",
     "@omnia/wcm": "4.0.2-dev",
     "@omnia/workplace": "4.0.2-dev",
+    "@omnia/dm": "4.0.3-dev",
     "fabric": "3.4.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.2.0"

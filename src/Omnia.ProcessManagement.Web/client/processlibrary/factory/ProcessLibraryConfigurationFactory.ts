@@ -11,19 +11,11 @@ export const ProcessLibraryConfigurationFactory = {
                     defaultTab: Enums.ProcessViewEnums.StartPageTab.Drafts,
                     hideTasksTab: false,
                     defaultDocumentTypes: [],
-                    draftTabDisplaySettings: {
-                        pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
-                        itemLimit: 0,
-                        orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
-                        defaultOrderingFieldName: LibrarySystemFieldsConstants.Title,
-                        selectedFields: ProcessLibraryConfigurationFactory.getDefaultDraftDisplayFields(),
-                        showSearchBox: true
-                    },
                     publishedTabDisplaySettings: {
                         pagingType: Enums.ProcessViewEnums.PagingType.NoPaging,
-                        itemLimit: 0,
+                        pageSize: 0,
                         orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
-                        defaultOrderingFieldName: ProcessLibraryFields.Published,
+                        defaultOrderingFieldName: ProcessLibraryFields.PublishedAt,
                         selectedFields: ProcessLibraryConfigurationFactory.getDefaultPublishedDisplayFields(),
                         showSearchBox: true
                     },
@@ -39,15 +31,21 @@ export const ProcessLibraryConfigurationFactory = {
             LibrarySystemFieldsConstants.Menu,
             ProcessLibraryFields.Edition,
             ProcessLibraryFields.Revision,
-            ProcessLibraryFields.Published,
+            ProcessLibraryFields.PublishedAt,
             LibrarySystemFieldsConstants.Status
         ]
     },
-    getDefaultDraftDisplayFields() {
-        return [
+    getDraftTabDisplaySettings: {
+        pagingType: Enums.ProcessViewEnums.PagingType.Classic,
+        pageSize: 50,
+        orderDirection: Enums.ProcessViewEnums.OrderDirection.Descending,
+        defaultOrderingFieldName: ProcessLibraryFields.ModifiedAt,
+        selectedFields: [
             LibrarySystemFieldsConstants.Title,
             LibrarySystemFieldsConstants.Menu,
-            LibrarySystemFieldsConstants.Status
+            LibrarySystemFieldsConstants.Status,
+            ProcessLibraryFields.ModifiedAt,
+            ProcessLibraryFields.ModifiedBy
         ]
     }
 }

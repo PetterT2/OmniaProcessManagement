@@ -125,9 +125,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 var securityResponse = await ProcessSecurityService.InitSecurityResponseByOPMProcessIdAsync(sharePointTask.OPMProcessId, ProcessVersionType.Published);
                 return await securityResponse.RequireAuthor().DoAsync(async () =>
                 {
-                    var process = (await ProcessService.GetProcessesByOPMProcessIdAsync(sharePointTask.OPMProcessId, ProcessVersionType.Published)).FirstOrDefault();
-                    await ReviewReminderService.EnsureReviewReminderAsync(process, newReviewDate);
-
+                    await ProcessService.UpdateNewReviewDateAsync(sharePointTask.OPMProcessId, newReviewDate, ReviewReminderService);
                     await ReviewReminderService.CompleteTaskAsync(webUrl, spItemId, ReviewReminderTaskOutcome.SetNewReviewDate);
 
                     return ApiUtils.CreateSuccessResponse();

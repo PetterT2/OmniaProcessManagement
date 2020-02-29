@@ -178,7 +178,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static IList<EnterprisePropertyDefinition> Properties => new List<EnterprisePropertyDefinition>()
                     {
-                        ProcessType, Revision, Edition, OPMProcessIdNumber
+                        ProcessType, Revision, Edition, OPMProcessIdNumber, ReviewDate
                     };
                 public static EnterprisePropertyDefinition ProcessType
                 {
@@ -238,6 +238,28 @@ namespace Omnia.ProcessManagement.Core
                                 [LanguageTag.EnUs] = "Edition"
                             },
                             EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.Number.Id,
+                            Settings = null,
+                            SPSearchable = false,
+                            ManagedPropertySettings = null,
+                            BuiltIn = true
+                        };
+                    }
+                }
+
+                public static EnterprisePropertyDefinition ReviewDate
+                {
+                    get
+                    {
+                        return new EnterprisePropertyDefinition()
+                        {
+                            Id = new Guid("cc41f50b-65cc-40c4-896b-b45cb2b3c391"),
+                            InternalName = SharePoint.OPMFields.Fields_ReviewDate,
+                            OmniaSearchable = false,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Review Date"
+                            },
+                            EnterprisePropertyDataTypeId = Omnia.Fx.Constants.EnterprisePropertyDataTypes.DateTime.Id,
                             Settings = null,
                             SPSearchable = false,
                             ManagedPropertySettings = null,
@@ -347,6 +369,7 @@ namespace Omnia.ProcessManagement.Core
                 public const string Fields_IsArchived = "OPMIsArchived";
                 public const string Fields_ProcessIdNumber = "OPMProcessIdNumber";
                 public const string Fields_Edition = "OPMEdition";
+                public const string Fields_ReviewDate = "OPMReviewDate";
                 public const string Fields_Revision = "OPMRevision";
                 public const string Fields_ProcessData = "OPMProcessData";
                 public const string Fields_TaskOutcome = "OPMTaskOutcome";

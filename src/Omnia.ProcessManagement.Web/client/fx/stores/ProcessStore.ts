@@ -467,7 +467,7 @@ export class ProcessStore extends Store {
 
             if (!resolvablePromise.resolved && !resolvablePromise.resolving) {
                 resolvablePromise.resolving = true;
-                this.processService.getProcessData(desiredProcessStep.id, desiredProcessStep.processDataHash).then((processData) => {
+                this.processService.getProcessData(process.opmProcessId, desiredProcessStep.id, desiredProcessStep.processDataHash).then((processData) => {
                     this.internalMutations.addOrUpdateProcessData(process.id, desiredProcessStep, processData);
                 }).catch((reason) => {
                     resolvablePromise.reject(reason);
