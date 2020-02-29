@@ -1,11 +1,11 @@
 ﻿import { types } from 'typestyle';
-import { Theming, SpacingSetting } from '@omnia/fx-models';
+import { Theming, SpacingSettings } from '@omnia/fx-models';
 
 export const ProcessNavigationBlockStyles = {} as {
     blockPadding?: types.NestedCSSProperties;
     levelIndentationIconWrapper?: types.NestedCSSProperties;
     wrapper: types.NestedCSSProperties;
-    headerWrapper: (level: number, indentation: number, isRoutePath: boolean, theming: Theming, padding: SpacingSetting) => types.NestedCSSProperties;
+    headerWrapper: (level: number, indentation: number, isRoutePath: boolean, theming: Theming, padding: SpacingSettings) => types.NestedCSSProperties;
     rightIcon: types.NestedCSSProperties;
     arrowBtnCollapsedDefault: types.NestedCSSProperties;
     arrowBtnExpanded: types.NestedCSSProperties;

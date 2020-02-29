@@ -77,7 +77,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
                 var processTypes = await ProcessTypeService.GetByIdsAsync(processTypeId);
                 ProcessType processType = processTypes.FirstOrDefault();
-                var archiveSetting = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>().Archive;
+                var archiveSetting = processType.Settings.CastTo<ProcessTypeSettings, ProcessTypeItemSettings>().Archive;
                 GlobalSettings globalSettings = await SettingsService.GetAsync<GlobalSettings>();
                 if(archiveSetting != null && (!string.IsNullOrEmpty(globalSettings.ArchiveSiteUrl) || !string.IsNullOrEmpty(archiveSetting.Url)))
                 {

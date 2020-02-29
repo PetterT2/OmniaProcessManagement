@@ -1,11 +1,11 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
 import { LinksBlockStyles } from '../../models';
 import { important } from 'csx';
-import { SpacingSetting } from '@omnia/fx-models';
+import { SpacingSettings } from '@omnia/fx-models';
 
 StyleFlow.define(LinksBlockStyles,
     {
-        blockPadding: (spacing: SpacingSetting) => {
+        blockPadding: (spacing: SpacingSettings) => {
             let paddingLeft = spacing && (spacing.left || 0)
             let paddingRight = spacing && (spacing.right || 0)
             let paddingTop = spacing && (spacing.top || 0)

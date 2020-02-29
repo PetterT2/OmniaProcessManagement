@@ -1,4 +1,4 @@
-﻿import { SpacingSetting } from '@omnia/fx-models';
+﻿import { SpacingSettings } from '@omnia/fx-models';
 import { StyleFlow } from '@omnia/fx/ux';
 import { important } from 'csx';
 import { ProcessRollupBlockListViewStyles } from '../../../../models';
@@ -49,7 +49,7 @@ StyleFlow.define(ProcessRollupBlockListViewStyles,
         clickableLink: {
             display: 'inline-block'
         },
-        getPaddingStyle: (spacing: SpacingSetting, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => {
+        getPaddingStyle: (spacing: SpacingSettings, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => {
             if (spacing) {
                 return {
                     paddingTop: skip && skip.top ? '' : `${spacing.top}px`,

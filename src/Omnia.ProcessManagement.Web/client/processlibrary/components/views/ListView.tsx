@@ -2,7 +2,7 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, WebUtils } from "@omnia/fx";
 import { ProcessLibraryViewSettings, Enums, ProcessVersionType, ProcessListViewComponentKey, Security } from '../../../fx/models';
-import { SpacingSetting, LanguageTag, RoleDefinitions, Parameters } from '@omnia/fx-models';
+import { SpacingSettings, LanguageTag, RoleDefinitions, Parameters } from '@omnia/fx-models';
 import { ProcessLibraryListViewStyles } from '../../../models';
 import { StyleFlow, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { ProcessLibraryLocalization } from '../../loc/localize';
@@ -19,7 +19,7 @@ import { OPMContext } from '../../../fx/contexts';
 export class ListViewComponent extends Vue implements IWebComponentInstance, IListViewComponent {
     @Prop() styles: typeof ProcessLibraryListViewStyles | any;
     @Prop() viewSettings: ProcessLibraryViewSettings;
-    @Prop() spacingSetting?: SpacingSetting;
+    @Prop() SpacingSettings?: SpacingSettings;
 
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(ProcessLibraryLocalization.namespace) loc: ProcessLibraryLocalization.locInterface;

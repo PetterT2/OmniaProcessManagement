@@ -4,11 +4,11 @@ import { Prop } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { VueComponentBase, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
 import { IProcessFieldValueDefinition } from './IProcessFieldValueDefinition';
-import { ValueDefinitionSetting } from '@omnia/fx-models';
+import { ValueDefinitionMultipleValueSetting } from '@omnia/fx-models';
 
 @Component
 export class ProcessFieldValueDefinition extends VueComponentBase implements IWebComponentInstance, IProcessFieldValueDefinition {
-    @Prop() model: ValueDefinitionSetting;
+    @Prop() model: ValueDefinitionMultipleValueSetting;
     @Prop() disabled: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -31,18 +31,35 @@ export class ProcessFieldValueDefinition extends VueComponentBase implements IWe
         this.$forceUpdate();
     }
 
+    private onAllowMultiValuesChanged() {
+        this.model.allowMultipleValues = !this.model.allowMultipleValues;
+        this.$forceUpdate();
+    }
+
     public render(h) {
         return (
-            <v-flex xs12>
-                <v-checkbox
-                    dark={this.omniaTheming.promoted.body.dark}
-                    disabled={this.disabled}
-                    color={this.omniaTheming.promoted.body.primary.base}
-                    label={this.omniaUxLoc.EnterpriseProperties.ValueDefinition.Required}
-                    input-value={this.model.required}
-                    onChange={() => { this.onRequiredChanged(); }}>
-                </v-checkbox>
-            </v-flex>
+            <div>
+                <v-flex xs12>
+                    <v-checkbox
+                        dark={this.omniaTheming.promoted.body.dark}
+                        disabled={this.disabled}
+                        color={this.omniaTheming.promoted.body.primary.base}
+                        label={this.omniaUxLoc.EnterpriseProperties.ValueDefinition.Required}
+                        input-value={this.model.required}
+                        onChange={() => { this.onRequiredChanged(); }}>
+                    </v-checkbox>
+                </v-flex>
+                <v-flex xs12>
+                    <v-checkbox
+                        dark={this.omniaTheming.promoted.body.dark}
+                        disabled={this.disabled}
+                        color={this.omniaTheming.promoted.body.primary.base}
+                        label={this.omniaUxLoc.EnterpriseProperties.ValueDefinition.AllowMultipleValues}
+                        input-value={this.model.allowMultipleValues}
+                        onChange={() => { this.onAllowMultiValuesChanged(); }}>
+                    </v-checkbox>
+                </v-flex>
+            </div>
         )
     }
 }

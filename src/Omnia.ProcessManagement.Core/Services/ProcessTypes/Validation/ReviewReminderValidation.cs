@@ -22,7 +22,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 {
                     if (id != ProcessTypeItemSettings.ApproverGroupId)
                     {
-                        var personDefinition = set.Settings.Items?.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == id && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person);
+                        var personDefinition = set.Settings.Items?.FirstOrDefault(i => i.Id == id && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person);
 
                         if (personDefinition == null)
                             throw new Exception("ReviewReminder.PersonEnterprisePropertyDefinitionIds is invalid");

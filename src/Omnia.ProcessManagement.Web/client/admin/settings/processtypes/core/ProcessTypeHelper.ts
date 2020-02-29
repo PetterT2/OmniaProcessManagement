@@ -1,5 +1,13 @@
-﻿import { ProcessType, ProcessTypeItemSettings, PublishingApprovalSettingsTypes, TermDrivenPublishingApprovalSettings, PersonPropertyPublishingApprovalSettings, ApproverId, ReviewReminderScheduleTypes, PropertySchedule, PropertySetItemSettings, PropertySetBooleanItemSettings, PropertySetDateTimeItemSettings, PropertySetNumberItemSettings, PropertySetPersonItemSettings, PropertySetTaxonomyItemSettings, PropertySetRichTextItemSettings, PropertySetTextItemSettings, LimitedUsersPublishingApprovalSettings, ProcessTemplate } from '../../../../fx/models';
-import { EnterprisePropertyDefinition, EnterprisePropertySet, PropertyIndexedType, GuidValue, EnterprisePropertySetItem, PropertySetPersonItem, PropertySetTaxonomyItem, PropertySetDateTimeItem, MultilingualScopes, LanguageTag } from '@omnia/fx-models';
+﻿import {
+    ProcessType, ProcessTypeItemSettings, PublishingApprovalSettingsTypes, TermDrivenPublishingApprovalSettings, PersonPropertyPublishingApprovalSettings,
+    ApproverId, ReviewReminderScheduleTypes, PropertySchedule, PropertySetItemSettings, PropertySetBooleanItemSettings, PropertySetDateTimeItemSettings,
+    PropertySetNumberItemSettings, PropertySetPersonItemSettings, PropertySetTaxonomyItemSettings, PropertySetRichTextItemSettings, PropertySetTextItemSettings,
+    LimitedUsersPublishingApprovalSettings, ProcessTemplate
+} from '../../../../fx/models';
+import {
+    EnterprisePropertyDefinition, EnterprisePropertySet, PropertyIndexedType, GuidValue, EnterprisePropertyItemSettings, EnterprisePropertyTaxonomyItemSettings,
+    MultilingualScopes, LanguageTag, EnterprisePropertyPersonItemSettings, EnterprisePropertyDateTimeItemSettings
+} from '@omnia/fx-models';
 import { TermData } from '@omnia/fx-sp';
 
 export const TabNames = {
@@ -27,7 +35,7 @@ export module ProcessTypeHelper {
             [id: string]: EnterprisePropertyDefinition
         },
         setItemDict: {
-            [id: string]: EnterprisePropertySetItem
+            [id: string]: EnterprisePropertyItemSettings
         }
     }
 
@@ -36,10 +44,10 @@ export module ProcessTypeHelper {
         let isMultiple = false;
         let setItem = _setPropertyDictInSelectedSet.setItemDict[id.toString()];
         if (setItem.type == PropertyIndexedType.Person) {
-            isMultiple = (setItem as PropertySetPersonItem).multiple;
+            isMultiple = (setItem as EnterprisePropertyPersonItemSettings).allowMultipleValues;
 
         } else if (setItem.type == PropertyIndexedType.Taxonomy) {
-            isMultiple = (setItem as PropertySetTaxonomyItem).multiple;
+            isMultiple = (setItem as EnterprisePropertyTaxonomyItemSettings).allowMultipleValues;
         }
         else {
             console.warn(`There is no multiple settings for property with id ${id}`)
@@ -54,7 +62,7 @@ export module ProcessTypeHelper {
         let isDateOnly = false;
         let setItem = _setPropertyDictInSelectedSet.setItemDict[id.toString()];
         if (setItem.type == PropertyIndexedType.DateTime) {
-            isDateOnly = (setItem as PropertySetDateTimeItem).dateOnly;
+            isDateOnly = (setItem as EnterprisePropertyDateTimeItemSettings).dateOnly;
         }
         else {
             console.warn(`There is no date-only settings for property with id ${id}`)
@@ -179,7 +187,7 @@ export module ProcessTypeHelper {
             let set = _setDict[_availablePropertiesInSelectedSet.propertySetId.toString()];
             var availableTypeProperties = set.settings.items
                 .filter(i => type == 0 || i.type == type)
-                .map(i => _propertyDict[i.enterprisePropertyDefinitionId.toString()])
+                .map(i => _propertyDict[i.id.toString()])
                 .filter(i => i);
 
             _availablePropertiesInSelectedSet[type as any] = availableTypeProperties;
@@ -191,12 +199,12 @@ export module ProcessTypeHelper {
         if (!_setPropertyDictInSelectedSet || _setPropertyDictInSelectedSet.propertySetId != _settings.enterprisePropertySetId) {
 
             let propertyDictInSelectedSet: { [id: string]: EnterprisePropertyDefinition } = {}
-            let setItemDict: { [id: string]: EnterprisePropertySetItem } = {};
+            let setItemDict: { [id: string]: EnterprisePropertyItemSettings } = {};
             if (_settings.enterprisePropertySetId && _setDict[_settings.enterprisePropertySetId.toString()]) {
                 let set = _setDict[_settings.enterprisePropertySetId.toString()];
                 set.settings.items.forEach(item => {
-                    propertyDictInSelectedSet[item.enterprisePropertyDefinitionId.toString()] = _propertyDict[item.enterprisePropertyDefinitionId.toString()];
-                    setItemDict[item.enterprisePropertyDefinitionId.toString()] = item;
+                    propertyDictInSelectedSet[item.id.toString()] = _propertyDict[item.id.toString()];
+                    setItemDict[item.id.toString()] = item;
                 })
             }
             else {
@@ -233,13 +241,13 @@ export module ProcessTypeHelper {
                 //ensure fixed value to match with multiple/single settings in property set
                 let setItem = _setPropertyDictInSelectedSet.setItemDict[key];
                 if (propertySetItemSettings.type == PropertyIndexedType.Person) {
-                    let multiple = (setItem as PropertySetPersonItem).multiple;
+                    let multiple = (setItem as EnterprisePropertyPersonItemSettings).allowMultipleValues;
                     if (!multiple && (propertySetItemSettings as PropertySetPersonItemSettings).fixedDefaultValues
                         && (propertySetItemSettings as PropertySetPersonItemSettings).fixedDefaultValues.length > 1)
                         (propertySetItemSettings as PropertySetPersonItemSettings).fixedDefaultValues.length = 1;;
                 }
                 else if (propertySetItemSettings.type == PropertyIndexedType.Taxonomy) {
-                    let multiple = (setItem as PropertySetTaxonomyItem).multiple;
+                    let multiple = (setItem as EnterprisePropertyTaxonomyItemSettings).allowMultipleValues;
                     if (!multiple && (propertySetItemSettings as PropertySetTaxonomyItemSettings).fixedDefaultValues
                         && (propertySetItemSettings as PropertySetTaxonomyItemSettings).fixedDefaultValues.length > 1)
                         (propertySetItemSettings as PropertySetTaxonomyItemSettings).fixedDefaultValues.length = 1;;

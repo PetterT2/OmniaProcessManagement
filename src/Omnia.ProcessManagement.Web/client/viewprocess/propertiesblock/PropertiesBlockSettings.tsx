@@ -134,7 +134,7 @@ export class PropertiesBlockSettingsComponent extends Vue implements IWebCompone
     private getAvailableProperties(): DisplaySettingProperty[] {
         let availableProperties: EnterprisePropertyDefinition[] = this.propertyStore.getters.enterprisePropertyDefinitions();
         if (this.selectedPropertySet) {
-            availableProperties = availableProperties.filter(p => this.selectedPropertySet.settings.items.findIndex(i => i.enterprisePropertyDefinitionId == p.id) > -1);
+            availableProperties = availableProperties.filter(p => this.selectedPropertySet.settings.items.findIndex(i => i.id == p.id) > -1);
         }
         let publishedSystemProperty: EnterprisePropertyDefinition = {
             multilingualTitle: "[" + this.coreLoc.Blocks.Properties.Properties.Published + "]",

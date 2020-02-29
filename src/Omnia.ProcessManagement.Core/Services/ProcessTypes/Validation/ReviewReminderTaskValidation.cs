@@ -16,7 +16,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 throw new Exception("ReviewReminderTask.PersonEnterprisePropertyDefinitionIds cannot be null or empty");
             }
 
-            var personDefinition = set.Settings.Items.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == task.PersonEnterprisePropertyDefinitionId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person);
+            var personDefinition = set.Settings.Items.FirstOrDefault(i => i.Id == task.PersonEnterprisePropertyDefinitionId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person);
 
             if (personDefinition == null)
             {

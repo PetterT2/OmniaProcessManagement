@@ -25,7 +25,7 @@ export class MediaPickerEditorExtension implements RichTextEditorExtension {
 
     getDefition(): RichTextEditorExtensionDefinition {
         let def: RichTextEditorExtensionDefinition = {
-            Nodes: [new MediaPickerNode(),
+            nodes: [new MediaPickerNode(),
                 new ScalableVectorGraphics(),
                 new ScalableVectorGraphicsDefinition(),
                 new ScalableVectorGraphicsImage(),
@@ -36,7 +36,7 @@ export class MediaPickerEditorExtension implements RichTextEditorExtension {
                 new ScalableVectorGraphicsFuncG(),
                 new ScalableVectorGraphicsFuncB(),
             ],
-            ToolbarItems: this.configuration
+            toolbarItems: this.configuration
         }
         return def;
     }

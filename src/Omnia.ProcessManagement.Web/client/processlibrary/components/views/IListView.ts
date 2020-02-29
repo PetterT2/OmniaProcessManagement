@@ -1,5 +1,5 @@
 ﻿import { TsxAllowUnknowProperties } from '@omnia/fx/ux';
-import { SpacingSetting, LanguageTag } from '@omnia/fx-models';
+import { SpacingSettings, LanguageTag } from '@omnia/fx-models';
 import { ProcessLibraryViewSettings } from '../../../fx/models';
 
 /*@WebComponentInterface("opm-process-library-list-view")*/
@@ -8,7 +8,7 @@ export interface IListViewComponent {
     viewSettings: ProcessLibraryViewSettings;
 
     /*@DomProperty*/
-    spacingSetting?: SpacingSetting;
+    SpacingSettings?: SpacingSettings;
 }
 
 declare global {

@@ -2,11 +2,17 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Prop } from 'vue-property-decorator';
-import { Guid, EnterprisePropertyDefinition, GuidValue, PropertySetPersonItem, PropertySetTaxonomyItem, TaxonomyPropertySettings, PropertySetDateTimeItem, TenantRegionalSettings, LanguageTag, TimeFormats, MultilingualScopes, PropertyIndexedType, UserPrincipalType } from '@omnia/fx-models';
+import {
+    Guid, EnterprisePropertyDefinition, GuidValue, EnterprisePropertyPersonItemSettings, EnterprisePropertyTaxonomyItemSettings, TaxonomyPropertySettings,
+    EnterprisePropertyDateTimeItemSettings, TenantRegionalSettings, LanguageTag, TimeFormats, MultilingualScopes, PropertyIndexedType, UserPrincipalType
+} from '@omnia/fx-models';
 import { CurrentProcessStore, ProcessTypeStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase, FieldValueValidation, IValidator, IDatetimePickerFormatter } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
-import { ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, PropertySetPersonItemSettings, ProcessTaxonomyPropertyInfo, ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
+import {
+    ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, ProcessTaxonomyPropertyInfo,
+    ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData, OPMEnterprisePropertyInternalNames
+} from '../../../fx/models';
 import { EnterprisePropertyStore, EnterprisePropertySetStore, MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { ProcessDesignerStore } from '../../stores';
@@ -142,7 +148,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 let propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == enterprisePropertySetId)
                 let availableProperties: Array<EnterprisePropertyDefinition> = this.propertyStore.getters.enterprisePropertyDefinitions();
                 propertySet.settings.items.forEach(item => {
-                    let property = availableProperties.find(p => p.id == item.enterprisePropertyDefinitionId);
+                    let property = availableProperties.find(p => p.id == item.id);
                     if (property != null) {
                         let propertyInfo: ProcessPropertyInfo = {
                             id: property.id,
@@ -160,17 +166,17 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                                 (propertyInfo as ProcessBooleanPropertyInfo).value = value;
                                 break;
                             case PropertyIndexedType.Person:
-                                (propertyInfo as ProcessPersonPropertyInfo).multiple = (item as PropertySetPersonItem).multiple;
+                                (propertyInfo as ProcessPersonPropertyInfo).multiple = (item as EnterprisePropertyPersonItemSettings).allowMultipleValues;
                                 (propertyInfo as ProcessPersonPropertyInfo).identities = value || [];
                                 break;
                             case PropertyIndexedType.Taxonomy:
-                                (propertyInfo as ProcessTaxonomyPropertyInfo).multiple = (item as PropertySetTaxonomyItem).multiple;
+                                (propertyInfo as ProcessTaxonomyPropertyInfo).multiple = (item as EnterprisePropertyTaxonomyItemSettings).allowMultipleValues;
                                 (propertyInfo as ProcessTaxonomyPropertyInfo).termIds = value;
                                 (propertyInfo as ProcessTaxonomyPropertyInfo).termSetId = (property.settings as TaxonomyPropertySettings).termSetId;
                                 break;
                             case PropertyIndexedType.DateTime:
                                 (propertyInfo as ProcessDatetimePropertyInfo).value = value;
-                                (propertyInfo as ProcessDatetimePropertyInfo).isDateOnly = (item as PropertySetDateTimeItem).dateOnly;
+                                (propertyInfo as ProcessDatetimePropertyInfo).isDateOnly = (item as EnterprisePropertyDateTimeItemSettings).dateOnly;
                                 break;
                             case PropertyIndexedType.Number:
                                 (propertyInfo as ProcessNumberPropertyInfo).value = value;
