@@ -1,7 +1,7 @@
 ﻿import Vue from 'vue'
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
-import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
+import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement } from '@omnia/fx';
 import { VueComponentBase, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
 import { IProcessFieldValueDefinition } from './IProcessFieldValueDefinition';
 import { EnterprisePropertyItemSettings } from '@omnia/fx-models';
