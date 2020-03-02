@@ -52,23 +52,10 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
         }
         let stepsElement: JSX.Element = null;
         if (wizardSteps.length > 0) {
-            stepsElement =
-                <v-stepper value={this.addShapeWizardStore.currentStepIndex.state} class={[this.omniaTheming.promoted.body.class]}>
-                    {this.renderStepContents(h, wizardSteps)}
-                </v-stepper>;
+            let wizardStep = wizardSteps[this.addShapeWizardStore.currentStepIndex.state - 1];
+            stepsElement = h(wizardStep.elementToRender)
         }
         return stepsElement;
-    }
-
-    private renderStepContents(h, wizardSteps: Array<AddShapeStep>) {
-        return wizardSteps.map((stepItem, idx) =>
-            <v-stepper-content step={idx + 1} class={this.addShapePanelStyles.stepWrapper}>
-                {
-                    idx == this.addShapeWizardStore.currentStepIndex.state - 1 ?
-                        h(stepItem.elementToRender) : null
-                }
-            </v-stepper-content>
-        );        
     }
 
     get dialogTitle() {
@@ -86,7 +73,7 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
                     <v-icon>close</v-icon>
                 </v-btn>
             </v-toolbar>
-            <v-container class="pa-0">
+            <v-container class="pa-4">
                 {this.renderSteps()}
             </v-container>
         </div>;      
