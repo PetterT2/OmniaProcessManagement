@@ -13,6 +13,7 @@ import { Enums, Security, AuthorAndDefaultReaderUpdateInput } from '../../fx/mod
 import { SecurityService } from '@omnia/fx/services';
 import { OPMContext } from '../../fx/contexts';
 import { PermissionService } from '../../fx';
+import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
 
 declare var Zepto: any;
 
@@ -36,7 +37,6 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
     };
 
     errMsg: string = '';
-    hasPermission: boolean = false;
     isLoading: boolean = false;
     isSaving: boolean = false;
     showSaveBtn: boolean = false;
@@ -50,17 +50,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
 
     created() {
         this.isLoading = true;
-
-        this.securityService.hasPermissionForRoles([RoleDefinitions.AppInstanceAdmin, Security.OPMRoleDefinitions.Author], {
-            [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
-        }).then((hasPermission) => {
-            this.hasPermission = hasPermission;
-            if (this.hasPermission) {
-                this.loadData();
-            } else {
-                this.isLoading = false;
-            }
-        })
+        this.loadData();
     }
 
 
@@ -107,7 +97,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
         return [permissionBinding.identity];
     }
 
-    save() {  
+    save() {
         this.isSaving = true;
 
         let updateInput: AuthorAndDefaultReaderUpdateInput = {
@@ -119,9 +109,11 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
         this.errMsg = "";
         this.permissionService.updateOPMPermissions(updateInput).then(() => {
             this.isSaving = false;
+            InternalOPMTopics.onPermissionChanged.publish();
             this.close();
         }).catch(errMsg => {
             this.isSaving = false;
+            InternalOPMTopics.onPermissionChanged.publish();
             this.errMsg = errMsg;
         })
     }
@@ -175,7 +167,7 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
                                     {
 
                                         this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="card"></v-skeleton-loader> :
-                                            !this.hasPermission ? this.loc.NoPermissionMsg : this.renderPermissions()
+                                            this.renderPermissions()
                                     }
                                 </v-container>
                             </div>
@@ -199,7 +191,6 @@ export default class PermissionDialog extends VueComponentBase implements IWebCo
                                 </v-tooltip>
                             }
                             {
-                                this.hasPermission &&
                                 <v-btn
                                     loading={this.isSaving}
                                     disabled={this.isLoading}
