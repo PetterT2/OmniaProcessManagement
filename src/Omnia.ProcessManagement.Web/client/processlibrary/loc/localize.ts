@@ -29,7 +29,7 @@
             Archiving: string,
             ArchivingFailed: string,
 
-            CheckedOutBy: string
+            CheckedOutTo: string
         },
         TaskStatus: {
             Cancel: string,
