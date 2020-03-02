@@ -182,8 +182,8 @@ export class ProcessStore extends Store {
                 return process;
             })
         }),
-        checkoutProcess: this.action((opmProcessId: GuidValue) => {
-            return this.processService.checkoutProcess(opmProcessId).then((process) => {
+        checkoutProcess: this.action((opmProcessId: GuidValue, takeControl: boolean = false) => {
+            return this.processService.checkoutProcess(opmProcessId, takeControl).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
 
                 return process;

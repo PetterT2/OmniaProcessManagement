@@ -114,9 +114,10 @@ export class ProcessService {
         })
     }
 
-    public checkoutProcess = (opmProcessId: GuidValue) => {
+    public checkoutProcess = (opmProcessId: GuidValue, takeControl: boolean = false) => {
         return new Promise<Process>((resolve, reject) => {
-            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkout/' + opmProcessId).then((response) => {
+            let params = { takeControl: takeControl };
+            this.httpClient.post<IHttpApiOperationResult<Process>>('/api/processes/checkout/' + opmProcessId, null, { params: params }).then((response) => {
                 if (response.data.success) {
                     this.generateClientSideData([response.data.data]);
                     resolve(response.data.data);
