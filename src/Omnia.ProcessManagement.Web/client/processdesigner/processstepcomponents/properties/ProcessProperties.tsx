@@ -229,6 +229,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             property: foundEnterpriseProperty,
             onModelChange: (value: string) => {
                 (field as any).value = value;
+                this.onPropertiesChanged(field);
             },
             useValidator: this.useValidator,
             settings: {
