@@ -4,7 +4,7 @@ import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Prop } from 'vue-property-decorator';
 import { IconSize, StyleFlow, OmniaTheming } from '@omnia/fx/ux';
-import { PropertyIndexedType, BuiltInEnterprisePropertyInternalNames, EnterprisePropertyDefinition, SpacingSetting, UserIdentity, IMessageBusSubscriptionHandler, Guid, TenantRegionalSettings } from '@omnia/fx-models';
+import { PropertyIndexedType, BuiltInEnterprisePropertyInternalNames, EnterprisePropertyDefinition, SpacingSettings, UserIdentity, IMessageBusSubscriptionHandler, Guid, TenantRegionalSettings } from '@omnia/fx-models';
 import { EnterprisePropertyStore, FeatureStore } from '@omnia/fx/store';
 import { ContentProperty } from 'csstype';
 import {
@@ -26,7 +26,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
     @Prop() viewPageUrl: string;
     @Prop() processes: Array<RollupProcess>;
     @Prop() viewSettings: ProcessRollupListViewSettings;
-    @Prop() spacingSetting: SpacingSetting;
+    @Prop() SpacingSettings: SpacingSettings;
     @Prop() openInNewWindow: boolean;
     @Prop() sortByCallback?: (sortKey: string, descending: boolean) => void;
     @Localize(ProcessRollupLocalization.namespace) loc: ProcessRollupLocalization.locInterface;
@@ -223,7 +223,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     render(h) {
         return (
-            <div class={this.listViewClasses.getPaddingStyle(this.spacingSetting)}>
+            <div class={this.listViewClasses.getPaddingStyle(this.SpacingSettings)}>
                 {
                     !this.processes || this.processes.length == 0 ?
                         <div>{this.loc.Common.NoProcessToShow}</div> :

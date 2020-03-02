@@ -191,12 +191,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     ProcessStep validChildProcessStep = null;
                     if (childProcessStep.Type == ProcessStepType.Internal)
                     {
-                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        var childInternalProcessStep = childProcessStep.CastTo<ProcessStep, InternalProcessStep>();
                         validChildProcessStep = AddProcessDataRecursive(processId, childInternalProcessStep, processDataDict);
                     }
                     else if (childProcessStep.Type == ProcessStepType.External)
                     {
-                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        validChildProcessStep = childProcessStep.CastTo<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
 
@@ -637,17 +637,17 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 {
                     var index = processData.CanvasDefinition.DrawingShapes
                         .FindIndex(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep
-                        && s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId == deletedProcessStepId.Value);
+                        && s.CastTo<DrawingShape, ProcessStepDrawingShape>().ProcessStepId == deletedProcessStepId.Value);
                     if (index > -1)
                     {
-                        var undefinedDrawingShape = processData.CanvasDefinition.DrawingShapes[index].Cast<DrawingShape, UndefinedDrawingShape>();
+                        var undefinedDrawingShape = processData.CanvasDefinition.DrawingShapes[index].CastTo<DrawingShape, UndefinedDrawingShape>();
                         undefinedDrawingShape.AdditionalProperties.Clear();
                         processData.CanvasDefinition.DrawingShapes[index] = undefinedDrawingShape;
                     }
                 }
                 var processStepIds =
                     processData.CanvasDefinition.DrawingShapes.Where(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep)
-                    .Select(s => s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
+                    .Select(s => s.CastTo<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
 
                 referenceProcessStepIds = string.Join(',', processStepIds);
             }
@@ -755,13 +755,13 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     ProcessStep validChildProcessStep = null;
                     if (childProcessStep.Type == ProcessStepType.Internal)
                     {
-                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        var childInternalProcessStep = childProcessStep.CastTo<ProcessStep, InternalProcessStep>();
                         validChildProcessStep = UpdateProcessDataRecursive(processId, childInternalProcessStep,
                             existingProcessDataIdHashDict, newProcessDataDict, deletedReferencesProcessDataDict, deletedProcessStepId, usingProcessDataIdHashSet);
                     }
                     else if (childProcessStep.Type == ProcessStepType.External)
                     {
-                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        validChildProcessStep = childProcessStep.CastTo<ProcessStep, ExternalProcessStep>();
                         validChildProcessStep.ValidateTitle();
                         CleanModel(validChildProcessStep);
                     }
@@ -1227,7 +1227,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 {
                     foreach (var childProcessStep in processStep.ProcessSteps)
                     {
-                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        var childInternalProcessStep = childProcessStep.CastTo<ProcessStep, InternalProcessStep>();
                         child = FindProcessStepRecursive(childInternalProcessStep, processStepId);
                         if (child != null)
                             return child;
@@ -1263,7 +1263,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             processDataEfs.ForEach(p => processStepDataDict.Add(p.ProcessStepId, MapEfToModel(p)));
             Dictionary<Guid, Guid> newOldProcessDataStepIdsMapping = new Dictionary<Guid, Guid>();
 
-            var newProcessStep = CloneNewProcessStepRecursive(processStep.Cast<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping);
+            var newProcessStep = CloneNewProcessStepRecursive(processStep.CastTo<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping);
             RootProcessStep rootProcessStep = new RootProcessStep
             {
                 Id = newProcessStep.Id,
@@ -1313,7 +1313,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             {
                 var processStepIds =
                     processData.CanvasDefinition.DrawingShapes.Where(s => s.Type == Models.CanvasDefinitions.DrawingShapeTypes.ProcessStep)
-                    .Select(s => s.Cast<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
+                    .Select(s => s.CastTo<DrawingShape, ProcessStepDrawingShape>().ProcessStepId);
 
                 List<DrawingShape> drawingShapes = new List<DrawingShape>();
                 List<Guid> newProcessIds = new List<Guid>();
@@ -1326,7 +1326,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     }
                     if (drawingShape.Type == DrawingShapeTypes.ProcessStep)
                     {
-                        var newDrawingShape = drawingShape.Cast<DrawingShape, ProcessStepDrawingShape>();
+                        var newDrawingShape = drawingShape.CastTo<DrawingShape, ProcessStepDrawingShape>();
                         if (newOldProcessDataStepIdsMapping.ContainsValue(newDrawingShape.ProcessStepId))
                         {
                             newDrawingShape.ProcessStepId = newOldProcessDataStepIdsMapping.FirstOrDefault(v => v.Value == newDrawingShape.ProcessStepId).Key;
@@ -1335,7 +1335,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                         }
                         else
                         {
-                            var undefinedDrawingShape = drawingShape.Cast<DrawingShape, UndefinedDrawingShape>();
+                            var undefinedDrawingShape = drawingShape.CastTo<DrawingShape, UndefinedDrawingShape>();
                             undefinedDrawingShape.AdditionalProperties.Clear();
                             drawingShapes.Add(undefinedDrawingShape);
                         }
@@ -1401,12 +1401,12 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     ProcessStep validChildProcessStep = null;
                     if (childProcessStep.Type == ProcessStepType.Internal)
                     {
-                        var childInternalProcessStep = childProcessStep.Cast<ProcessStep, InternalProcessStep>();
+                        var childInternalProcessStep = childProcessStep.CastTo<ProcessStep, InternalProcessStep>();
                         validChildProcessStep = CloneNewProcessDataRecursive(processId, childInternalProcessStep, processStepDataDict, newOldProcessDataStepIdsMapping, clonedProcessDatas, imageIds, oldOpmProcessId, newOpmProcessId);
                     }
                     else if (childProcessStep.Type == ProcessStepType.External)
                     {
-                        validChildProcessStep = childProcessStep.Cast<ProcessStep, ExternalProcessStep>();
+                        validChildProcessStep = childProcessStep.CastTo<ProcessStep, ExternalProcessStep>();
                         CleanModel(validChildProcessStep);
                     }
 
@@ -1431,7 +1431,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 var processSteps = new List<ProcessStep>();
                 foreach (var childProcessStep in processStep.ProcessSteps)
                 {
-                    processSteps.Add(CloneNewProcessStepRecursive(childProcessStep.Cast<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping));
+                    processSteps.Add(CloneNewProcessStepRecursive(childProcessStep.CastTo<ProcessStep, InternalProcessStep>(), newOldProcessDataStepIdsMapping));
                 }
                 processStep.ProcessSteps = processSteps;
             }

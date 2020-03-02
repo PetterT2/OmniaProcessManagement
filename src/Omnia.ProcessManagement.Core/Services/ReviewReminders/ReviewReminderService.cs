@@ -91,7 +91,7 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                 }
                 else
                 {
-                    var processTypeSettings = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>();
+                    var processTypeSettings = processType.Settings.CastTo<ProcessTypeSettings, ProcessTypeItemSettings>();
                     if (processTypeSettings.ReviewReminder == null)
                     {
                         log = $"ProcessType with id: {processTypeId} is no longer setup review-reminder.";
@@ -120,7 +120,7 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
 
             if (processType != null && processType.Settings.Type == ProcessTypeSettingsTypes.Item)
             {
-                var processTypeSettings = processType.Settings.Cast<ProcessTypeSettings, ProcessTypeItemSettings>();
+                var processTypeSettings = processType.Settings.CastTo<ProcessTypeSettings, ProcessTypeItemSettings>();
 
                 if (reviewDate.HasValue)
                 {
@@ -132,13 +132,13 @@ namespace Omnia.ProcessManagement.Core.Services.ReviewReminders
                 {
                     if (processTypeSettings.ReviewReminder.Schedule.Type == ReviewReminderScheduleTypes.TimeAfterPublishing)
                     {
-                        var schedule = processTypeSettings.ReviewReminder.Schedule.Cast<ReviewReminderSchedule, TimeAfterPublishingSchedule>();
+                        var schedule = processTypeSettings.ReviewReminder.Schedule.CastTo<ReviewReminderSchedule, TimeAfterPublishingSchedule>();
                         reviewDate = schedule.Settings.After(DateTime.UtcNow);
                         reviewReminderDate = processTypeSettings.ReviewReminder.ReminderInAdvance.Before(reviewDate.Value);
                     }
                     else if (processTypeSettings.ReviewReminder.Schedule.Type == ReviewReminderScheduleTypes.Property)
                     {
-                        var schedule = processTypeSettings.ReviewReminder.Schedule.Cast<ReviewReminderSchedule, PropertySchedule>();
+                        var schedule = processTypeSettings.ReviewReminder.Schedule.CastTo<ReviewReminderSchedule, PropertySchedule>();
                         if (schedule.DateTimeEnterprisePropertyDefinitionId != null)
                         {
                             var enterpriseProperty = await EnterprisePropertyService.GetByIdAsync(schedule.DateTimeEnterprisePropertyDefinitionId);

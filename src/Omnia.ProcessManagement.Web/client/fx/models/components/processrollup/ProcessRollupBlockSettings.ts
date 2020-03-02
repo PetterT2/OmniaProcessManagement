@@ -1,6 +1,6 @@
 ﻿import { ProcessRollupViewSettings, ProcessRollupFilter } from '..';
 import { Enums } from '../..';
-import { SpacingSetting, MultilingualString, RollupSetting } from '@omnia/fx-models';
+import { SpacingSettings, MultilingualString, RollupSetting } from '@omnia/fx-models';
 
 export interface ProcessRollupBlockSettings extends RollupSetting {
     title: MultilingualString;
@@ -8,7 +8,7 @@ export interface ProcessRollupBlockSettings extends RollupSetting {
     selectedViewId: string;
     viewSettings: ProcessRollupViewSettings;
     uiFilters?: Array<ProcessRollupFilter>;
-    spacing?: SpacingSetting;
+    spacing?: SpacingSettings;
     searchScope: Enums.ProcessViewEnums.QueryScope;
     viewPageUrl: string;
     openInNewWindow: boolean;

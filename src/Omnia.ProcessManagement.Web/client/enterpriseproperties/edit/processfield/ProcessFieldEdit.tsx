@@ -8,8 +8,9 @@ import { EnterprisePropertyDefinition, ValueDefinitionMultipleValueSetting } fro
 import { Process, LightProcess } from '../../../fx/models';
 
 @Component
-export class NumberFieldEdit extends VueComponentBase implements IWebComponentInstance, IProcessFieldEdit {
-    @Prop() model: any;
+export class ProcessFieldEdit extends VueComponentBase implements IWebComponentInstance, IProcessFieldEdit {
+    @Prop() model: { [propertyInternalName: string]: string };
+    @Prop() onModelChange: (value: string) => void;
     @Prop() disabled: boolean;
     @Prop() property: EnterprisePropertyDefinition;
     @Prop({ default: false }) dark?: boolean;
@@ -32,8 +33,10 @@ export class NumberFieldEdit extends VueComponentBase implements IWebComponentIn
     beforeDestroy() {
     }
 
-    private onProcessInputChange(value: Array<LightProcess>) {
-        this.model[this.property.internalName] = value;
+    private onProcessInputChange(value: Array<string>) {
+        this.model[this.property.internalName] = JSON.stringify(value);
+        if (this.onModelChange)
+            this.onModelChange(this.model[this.property.internalName]);
         this.$forceUpdate();
     }
 
@@ -56,5 +59,5 @@ export class NumberFieldEdit extends VueComponentBase implements IWebComponentIn
 }
 
 WebComponentBootstrapper.registerElement((manifest) => {
-    vueCustomElement(manifest.elementName, NumberFieldEdit);
+    vueCustomElement(manifest.elementName, ProcessFieldEdit);
 });

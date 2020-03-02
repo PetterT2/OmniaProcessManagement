@@ -1,6 +1,6 @@
 ﻿using Omnia.Fx.Models.EnterpriseProperties;
+using Omnia.Fx.Models.EnterpriseProperties.EnterprisePropertyItemSettings;
 using Omnia.Fx.Models.EnterprisePropertySets;
-using Omnia.Fx.Models.EnterprisePropertySets.PropertySetItem;
 using Omnia.Fx.Models.Extensions;
 using Omnia.ProcessManagement.Models.ProcessTypes;
 using Omnia.ProcessManagement.Models.ProcessTypes.PropertySetItemSettings;
@@ -27,7 +27,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                     foreach (var key in keys)
                     {
                         var propertySetItemSettings = processTypeItemSettings.PropertySetItemSettings[key];
-                        var propertySetItem = set.Settings.Items.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == key);
+                        var propertySetItem = set.Settings.Items.FirstOrDefault(i => i.Id == key);
                         var appProperty = properties.FirstOrDefault(p => p.Id == propertySetItemSettings.DefaultValueFromAppPropertyDefinitionId);
 
                         propertySetItemSettings = ValidateSetItemSettings(propertySetItem, propertySetItemSettings, appProperty);
@@ -52,7 +52,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                     if (id != ProcessTypeItemSettings.ApproverGroupId)
                     {
                         var personPropertyDefinition = set.Settings.Items != null ?
-                            set.Settings.Items.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == id && i.Type == PropertyIndexedType.Person) : null;
+                            set.Settings.Items.FirstOrDefault(i => i.Id == id && i.Type == PropertyIndexedType.Person) : null;
                         if (personPropertyDefinition == null)
                             throw new Exception("Invalid FeedbackRecipientsPropertyDefinitionIds, there is invalid property definition for using as recipients");
                     }
@@ -61,9 +61,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
         }
 
 
-        private static PropertySetItemSettings ValidateSetItemSettings(EnterprisePropertySetItem setItem, PropertySetItemSettings setItemSettings, EnterprisePropertyDefinition appPropertyDefinition)
+        private static PropertySetItemSettings ValidateSetItemSettings(EnterprisePropertyItemSettings propertyItemSettings, PropertySetItemSettings setItemSettings, EnterprisePropertyDefinition appPropertyDefinition)
         {
-            if (setItem == null || setItemSettings == null || setItemSettings.Type != setItem.Type)
+            if (propertyItemSettings == null || setItemSettings == null || setItemSettings.Type != propertyItemSettings.Type)
             {
                 throw new Exception("ProcessTypeItemSettings.PropertySetItemSettings is invalid, settings does not match with property set");
             }
@@ -83,39 +83,39 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 throw new Exception("PropertySetItemSettings.DefaultValueFromAppPropertyId is invalid, it does not match with process type's type");
             }
 
-            if (setItem.Type == PropertyIndexedType.Person)
+            if (propertyItemSettings.Type == PropertyIndexedType.Person)
             {
-                var personSetItem = setItem.Cast<EnterprisePropertySetItem, PropertySetPersonItem>();
+                var personSetItem = propertyItemSettings.CastTo<EnterprisePropertyItemSettings, EnterprisePropertyPersonItemSettings>();
                 var personSetItemSettigns = PropertySetItemSettingsValidation.CleanModel<PropertySetPersonItemSettings>(setItemSettings);
 
                 setItemSettings = personSetItemSettigns;
                 PropertySetItemSettingsValidation.Validate(personSetItemSettigns, personSetItem);
             }
-            else if (setItem.Type == PropertyIndexedType.Taxonomy)
+            else if (propertyItemSettings.Type == PropertyIndexedType.Taxonomy)
             {
-                var taxonomySetItem = setItem.Cast<EnterprisePropertySetItem, PropertySetTaxonomyItem>();
+                var taxonomySetItem = propertyItemSettings.CastTo<EnterprisePropertyItemSettings, EnterprisePropertyTaxonomyItemSettings>();
                 var taxonomySetItemSettigns = PropertySetItemSettingsValidation.CleanModel<PropertySetTaxonomyItemSettings>(setItemSettings);
 
                 setItemSettings = taxonomySetItemSettigns;
                 PropertySetItemSettingsValidation.Validate(taxonomySetItemSettigns, taxonomySetItem);
             }
-            else if (setItem.Type == PropertyIndexedType.Boolean)
+            else if (propertyItemSettings.Type == PropertyIndexedType.Boolean)
             {
                 setItemSettings = PropertySetItemSettingsValidation.CleanModel<PropertySetBooleanItemSettings>(setItemSettings);
             }
-            else if (setItem.Type == PropertyIndexedType.Text)
+            else if (propertyItemSettings.Type == PropertyIndexedType.Text)
             {
                 setItemSettings = PropertySetItemSettingsValidation.CleanModel<PropertySetTextItemSettings>(setItemSettings);
             }
-            else if (setItem.Type == PropertyIndexedType.RichText)
+            else if (propertyItemSettings.Type == PropertyIndexedType.RichText)
             {
                 setItemSettings = PropertySetItemSettingsValidation.CleanModel<PropertySetRichTextItemSettings>(setItemSettings);
             }
-            else if (setItem.Type == PropertyIndexedType.DateTime)
+            else if (propertyItemSettings.Type == PropertyIndexedType.DateTime)
             {
                 setItemSettings = PropertySetItemSettingsValidation.CleanModel<PropertySetDateTimeItemSettings>(setItemSettings);
             }
-            else if (setItem.Type == PropertyIndexedType.Number)
+            else if (propertyItemSettings.Type == PropertyIndexedType.Number)
             {
                 setItemSettings = PropertySetItemSettingsValidation.CleanModel<PropertySetNumberItemSettings>(setItemSettings);
             }

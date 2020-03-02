@@ -1,10 +1,8 @@
-﻿
-/*@WebComponentInterface("opm-enterpriseproperties-process-value-definition")*/
-export interface IProcessFieldValueDefinition {
-    /*@DomProperty*/
-    model: any;
+﻿import { EnterprisePropertyValueDefinitionProps } from '@omnia/fx/ux';
 
-    disabled: boolean;
+/*@WebComponentInterface("opm-enterpriseproperties-process-value-definition")*/
+export interface IProcessFieldValueDefinition extends EnterprisePropertyValueDefinitionProps {
+
 }
 
 declare global {

@@ -20,8 +20,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     @Prop({ default: true }) filled: boolean;
     @Prop() disabled: boolean;
     @Prop() multiple: boolean;
-    @Prop() model: Array<GuidValue>;
-    @Prop() onModelChange: (opmProcessIds: Array<GuidValue>) => void;
+    @Prop() model: string;
+    @Prop() onModelChange: (opmProcessIds: Array<string>) => void;
     @Prop({ default: null }) validator?: IValidator;
 
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
@@ -33,7 +33,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     private instanceId = Utils.generateGuid();
     private selectedItem: Array<LightProcess> | LightProcess = [];
     private searchInput = null;
-    private backupModel: Array<GuidValue> = [];
+    private backupModel: string = "";
     private processResult: Array<LightProcess> = [];
     private isInitialized: boolean = false;
     private isResolvingSelectedItem = false;
@@ -45,9 +45,9 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     }
 
     @Watch('model', { deep: true })
-    dialogModelChange(model: Array<GuidValue>) {
+    dialogModelChange(model: string) {
         if (!this.isInitialized) return;
-        if (JSON.stringify(model) == JSON.stringify(this.backupModel)) return;
+        if (model == this.backupModel) return;
         this.init();
     }
 
@@ -74,8 +74,9 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
         this.isResolvingSelectedItem = true;
 
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-            if (this.model && this.model.length > 0) {
-                var existedProcesses = this.processStore.getters.lightProcess(this.model);
+            var resolvedModel: Array<string> = JSON.parse(this.model);
+            if (resolvedModel && resolvedModel.length > 0) {
+                var existedProcesses = this.processStore.getters.lightProcess(resolvedModel);
 
                 if (this.multiple) {
                     this.selectedItem = existedProcesses;
@@ -179,9 +180,9 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             resultProcesses = [newValue as LightProcess];
         }
 
-        var result = resultProcesses.map(p => { return p.id; });
+        var result = resultProcesses.map(p => { return p.id.toString(); });
 
-        this.backupModel = JSON.parse(JSON.stringify(result));
+        this.backupModel = JSON.stringify(result);
 
         if (this.onModelChange) {
             this.onModelChange(result);

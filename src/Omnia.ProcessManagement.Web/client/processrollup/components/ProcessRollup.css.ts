@@ -1,6 +1,6 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
 import { ProcessRollupBlockStyles, ProcessRollupBlockSettingsStyles } from '../../models';
-import { SpacingSetting } from '@omnia/fx-models';
+import { SpacingSettings } from '@omnia/fx-models';
 
 StyleFlow.define(ProcessRollupBlockStyles,
     {
@@ -21,7 +21,7 @@ StyleFlow.define(ProcessRollupBlockStyles,
         uiFilterDateTimePicker: {
             width: '50%'
         },
-        getPaddingStyle: (spacing: SpacingSetting, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => {
+        getPaddingStyle: (spacing: SpacingSettings, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => {
             if (spacing) {
                 return {
                     paddingTop: skip && skip.top ? '' : `${spacing.top}px`,

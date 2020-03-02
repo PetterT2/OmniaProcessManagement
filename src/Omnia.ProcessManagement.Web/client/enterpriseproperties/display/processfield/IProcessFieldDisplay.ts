@@ -1,15 +1,9 @@
 ﻿import { EnterprisePropertyDefinition } from '@omnia/fx-models';
+import { EnterprisePropertyDisplayProps } from '@omnia/fx/ux';
 
 /*@WebComponentInterface("opm-enterpriseproperties-process-display")*/
-export interface IProcessFieldDisplay {
-    /*@DomProperty*/
-    property: EnterprisePropertyDefinition;
+export interface IProcessFieldDisplay extends EnterprisePropertyDisplayProps {
 
-    /*@DomProperty*/
-    model: any;
-
-    /*@DomProperty*/
-    wrapWithParentContent: (h: any, internalName: string, propertyContent: JSX.Element) => JSX.Element;
 }
 
 declare global {

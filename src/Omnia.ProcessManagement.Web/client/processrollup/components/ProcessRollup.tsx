@@ -6,7 +6,7 @@ import { ProcessRollupBlockStyles } from '../../models';
 import { ProcessRollupLocalization } from '../loc/localize';
 import { MultilingualStore, EnterprisePropertyStore, TargetingPropertyStore } from '@omnia/fx/store';
 import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration, ProcessRollupDatePeriodsPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupTextPropFilterValue } from '../../fx/models';
-import { PropertyIndexedType, SpacingSetting, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, Constants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery } from '@omnia/fx-models';
+import { PropertyIndexedType, SpacingSettings, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, Constants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery } from '@omnia/fx-models';
 import { FilterExtension, SearchBoxFilterExtension, FilterComponent } from './FilterComponent';
 import { SharePointFieldsConstants, ProcessRollupConstants, ProcessRollupService } from '../../fx';
 import { classes } from 'typestyle';
@@ -450,7 +450,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
                 domProps: {
                     processes: this.processes,
                     viewSettings: Utils.clone(this.blockData.settings.viewSettings),
-                    spacingSetting: this.blockData.settings.spacing,
+                    SpacingSettings: this.blockData.settings.spacing,
                     viewPageUrl: this.blockData.settings.viewPageUrl,
                     openInNewWindow: this.blockData.settings.openInNewWindow,
                     styles: this.styles,

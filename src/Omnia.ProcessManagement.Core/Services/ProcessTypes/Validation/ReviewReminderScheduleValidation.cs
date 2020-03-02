@@ -30,14 +30,14 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 propertySchedule.DateTimeEnterprisePropertyDefinitionId == Guid.Empty ||
                 set.Settings.Items == null ||
                 set.Settings.Items.Count == 0 ||
-                set.Settings.Items.FirstOrDefault(i => i.EnterprisePropertyDefinitionId == propertySchedule.DateTimeEnterprisePropertyDefinitionId &&
+                set.Settings.Items.FirstOrDefault(i => i.Id == propertySchedule.DateTimeEnterprisePropertyDefinitionId &&
                 i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.DateTime) == null)
                 throw new Exception("Invalid DateTimeEnterprisePropertyDefinitionId in PropertySchedule");
         }
 
         private static T CleanModel<T>(ReviewReminderSchedule schedule) where T : ReviewReminderSchedule, new()
         {
-            var scheduleSettings = schedule.Cast<ReviewReminderSchedule, T>();
+            var scheduleSettings = schedule.CastTo<ReviewReminderSchedule, T>();
             if (scheduleSettings.AdditionalProperties != null)
             {
                 scheduleSettings.AdditionalProperties.Clear();

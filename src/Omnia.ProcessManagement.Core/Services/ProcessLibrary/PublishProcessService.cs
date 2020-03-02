@@ -80,7 +80,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
             {
                 var webUrl = await TeamCollaborationAppsService.GetSharePointSiteUrlAsync(process.TeamAppId);
                 var workflow = await WorkflowService.GetByProcessAsync(process.OPMProcessId, WorkflowType.Approval);
-                var workflowApprovalData = workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
+                var workflowApprovalData = workflow.WorkflowData.CastTo<WorkflowData, WorkflowApprovalData>();
                 await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.SentForApproval, false);
 
                 var spTaskItemId = await ApprovalTaskService.AddSharePointTaskAndSendEmailAsync(workflow, workflowApprovalData, process, webUrl);
@@ -141,7 +141,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
 
             await TransactionRepositiory.InitTransactionAsync(async () =>
             {
-                var approvalData = approvalTask.Workflow.WorkflowData.Cast<WorkflowData, WorkflowApprovalData>();
+                var approvalData = approvalTask.Workflow.WorkflowData.CastTo<WorkflowData, WorkflowApprovalData>();
                 var securityResourceId = SecurityResourceIdResourceHelper.GetSecurityResourceIdForReader(process.TeamAppId, process.OPMProcessId, approvalData.IsLimitedAccess);
 
                 await WorkflowService.CompleteAsync(approvalTask.Workflow.Id, WorkflowCompletedType.AllTasksDone);

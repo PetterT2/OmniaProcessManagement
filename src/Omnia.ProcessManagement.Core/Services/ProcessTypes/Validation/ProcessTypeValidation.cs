@@ -59,7 +59,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
 
         private T CleanSettingsModel<T>(ProcessType processType) where T : ProcessTypeSettings, new()
         {
-            var settings = processType.Settings.Cast<ProcessTypeSettings, T>();
+            var settings = processType.Settings.CastTo<ProcessTypeSettings, T>();
             if (settings.AdditionalProperties != null)
             {
                 settings.AdditionalProperties.Clear();

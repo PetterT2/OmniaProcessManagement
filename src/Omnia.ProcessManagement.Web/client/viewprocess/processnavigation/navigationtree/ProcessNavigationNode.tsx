@@ -2,7 +2,7 @@
 import * as tsx from 'vue-tsx-support';
 import { Component, Prop } from 'vue-property-decorator';
 import { Inject, OmniaContext } from "@omnia/fx";
-import { IMessageBusSubscriptionHandler, SpacingSetting } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, SpacingSettings } from '@omnia/fx/models';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessNavigationBlockStyles } from '../../../models';
 import { classes } from 'typestyle';
@@ -14,7 +14,7 @@ export interface ProcessNavigationNodeComponentProps {
     indentation: number;
     level: number;
     processStep: ProcessStep;
-    spacingSetting: SpacingSetting;
+    SpacingSettings: SpacingSettings;
     expandState: { [id: string]: boolean };
 }
 
@@ -26,7 +26,7 @@ ProcessNavigationNodeComponentProps>
     @Prop() private indentation: number;
     @Prop() private processStep: ProcessStep;
     @Prop() private expandState: { [id: string]: boolean };
-    @Prop() private spacingSetting: SpacingSetting;
+    @Prop() private SpacingSettings: SpacingSettings;
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
@@ -74,7 +74,7 @@ ProcessNavigationNodeComponentProps>
             result.push(
                 <ProcessNavigationNodeComponent
                     indentation={this.indentation}
-                    spacingSetting={this.spacingSetting}
+                    SpacingSettings={this.SpacingSettings}
                     level={this.level + 1}
                     processStep={childProcessStep}
                     expandState={this.expandState}
@@ -111,7 +111,7 @@ ProcessNavigationNodeComponentProps>
         return (
             <div class={classes(this.styles.wrapper)}>
                 <a tabindex={0}
-                    class={[this.styles.headerWrapper(this.level, this.indentation, isSelectedNode, this.omniaContext.theming, this.spacingSetting)]}
+                    class={[this.styles.headerWrapper(this.level, this.indentation, isSelectedNode, this.omniaContext.theming, this.SpacingSettings)]}
                     onClick={(e) => this.onHeaderClick(e, true, false)}
                 >
                     <div class={[this.styles.title]}>

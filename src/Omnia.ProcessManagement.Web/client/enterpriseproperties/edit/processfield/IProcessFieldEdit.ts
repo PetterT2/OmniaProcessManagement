@@ -1,23 +1,9 @@
 ﻿import { EnterprisePropertyDefinition } from '@omnia/fx-models';
-import { IValidator } from '@omnia/fx/ux';
+import { IValidator, EnterprisePropertyEditProps } from '@omnia/fx/ux';
 
 /*@WebComponentInterface("opm-enterpriseproperties-process-edit")*/
-export interface IProcessFieldEdit {
-    /*@DomProperty*/
-    property: EnterprisePropertyDefinition;
+export interface IProcessFieldEdit extends EnterprisePropertyEditProps {
 
-    /*@DomProperty*/
-    model: any;
-
-    disabled: boolean;
-
-    dark?: boolean;
-
-    required?: boolean;
-
-    useValidator?: IValidator;
-
-    includeTime?: boolean;
 }
 
 declare global {

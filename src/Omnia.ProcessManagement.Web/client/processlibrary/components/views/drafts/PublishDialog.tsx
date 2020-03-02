@@ -12,7 +12,7 @@ import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, Proces
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertySetItem, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid, PropertyIndexedType } from '@omnia/fx-models';
+import { UserIdentity, User, TenantRegionalSettings, GuidValue, EnterprisePropertyItemSettings, UserPrincipalType, EnterprisePropertyDefinition, TaxonomyPropertySettings, Guid, PropertyIndexedType } from '@omnia/fx-models';
 import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/store';
 import { ProcessTypeStore, OPMUtils, ProcessStore } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
@@ -107,10 +107,10 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         })
     }
 
-    private ensureAllRequiredPropertiesAreFilledIn(requiredProperties: Array<EnterprisePropertySetItem>) {
+    private ensureAllRequiredPropertiesAreFilledIn(requiredProperties: Array<EnterprisePropertyItemSettings>) {
         var enterpriseProperties = this.propertyStore.getters.enterprisePropertyDefinitions();
         requiredProperties.filter(p => p.type != PropertyIndexedType.Boolean).forEach(p => {
-            var foundEnterpriseProperty = enterpriseProperties.find(ep => ep.id == p.enterprisePropertyDefinitionId);
+            var foundEnterpriseProperty = enterpriseProperties.find(ep => ep.id == p.id);
             var foundFieldValue = this.process.rootProcessStep.enterpriseProperties[foundEnterpriseProperty.internalName];
             if (Utils.isNullOrEmpty(foundFieldValue) || Utils.isNullOrEmpty(foundFieldValue))
                 this.needToUpdateProcessProperties = true;

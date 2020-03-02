@@ -1,6 +1,6 @@
 ﻿import { types } from 'typestyle';
 import { OmniaTheming } from '@omnia/fx/ux';
-import { SpacingSetting } from '@omnia/fx-models';
+import { SpacingSettings } from '@omnia/fx-models';
 
 export const ProcessRollupBlockStyles = {} as
     {
@@ -11,7 +11,7 @@ export const ProcessRollupBlockStyles = {} as
         uiFilterDateTimePicker?: types.NestedCSSProperties;
         uiFilterItem?: types.NestedCSSProperties;
         uiFilterDateTimeItem?: types.NestedCSSProperties;
-        getPaddingStyle?: (spacing: SpacingSetting, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => types.NestedCSSProperties;
+        getPaddingStyle?: (spacing: SpacingSettings, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => types.NestedCSSProperties;
     }
 
 export const ProcessRollupBlockSettingsStyles = {} as
@@ -39,7 +39,7 @@ export const ProcessRollupBlockListViewStyles = {} as
         customOmfxPeoplePicker?: types.NestedCSSProperties;
         titleLink?: types.NestedCSSProperties;
         clickableLink?: types.NestedCSSProperties;
-        getPaddingStyle?: (spacing: SpacingSetting, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => types.NestedCSSProperties;
+        getPaddingStyle?: (spacing: SpacingSettings, skip?: { top?: boolean, right?: boolean, left?: boolean, bottom?: boolean }) => types.NestedCSSProperties;
     }
 
 export const ProcessRollupBlockListViewSettingsStyles = {} as

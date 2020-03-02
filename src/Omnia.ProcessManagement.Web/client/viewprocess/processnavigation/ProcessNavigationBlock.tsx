@@ -2,7 +2,7 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, Topics } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { IMessageBusSubscriptionHandler, SpacingSetting, GuidValue } from '@omnia/fx/models';
+import { IMessageBusSubscriptionHandler, SpacingSettings, GuidValue } from '@omnia/fx/models';
 import './ProcessNavigationBlock.css';
 import { ProcessNavigationBlockStyles } from '../../models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
@@ -33,7 +33,7 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
 
     currentProcessStepId: GuidValue = '';
     indentation: number = 0;
-    spacingSetting: SpacingSetting = null;
+    SpacingSettings: SpacingSettings = null;
     expandState: { [id: string]: true } = {};
 
     created() {
@@ -94,9 +94,9 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
         if (this.blockData.settings.levelIndentation)
             this.indentation = this.blockData.settings.levelIndentation;
 
-        this.spacingSetting = this.blockData.settings.spacing;
+        this.SpacingSettings = this.blockData.settings.spacing;
         if (this.mobileView) {
-            this.spacingSetting = {
+            this.SpacingSettings = {
                 top: 0,
                 right: 10,
                 bottom: 0,
@@ -112,7 +112,7 @@ export class ProcessNavigationBlockComponent extends Vue implements IWebComponen
             <ProcessNavigationNodeComponent
                 key={this.componentUniqueKey}
                 indentation={this.indentation}
-                spacingSetting={this.spacingSetting}
+                SpacingSettings={this.SpacingSettings}
                 level={1}
                 processStep={rootNavigationNode}
                 expandState={this.expandState}

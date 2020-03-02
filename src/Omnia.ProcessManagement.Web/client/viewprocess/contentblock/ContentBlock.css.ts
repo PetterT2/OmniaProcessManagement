@@ -1,10 +1,10 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
 import { ContentBlockStyles } from '../../models';
-import { SpacingSetting } from '@omnia/fx-models';
+import { SpacingSettings } from '@omnia/fx-models';
 
 StyleFlow.define(ContentBlockStyles,
     {
-        blockPadding: (spacing: SpacingSetting) => {
+        blockPadding: (spacing: SpacingSettings) => {
             let paddingLeft = spacing && (spacing.left || 0)
             let paddingRight = spacing && (spacing.right || 0)
             let paddingTop = spacing && (spacing.top || 0)

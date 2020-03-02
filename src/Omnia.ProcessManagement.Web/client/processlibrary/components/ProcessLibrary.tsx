@@ -130,7 +130,7 @@ export class ProcessLibraryComponent extends Vue implements IWebComponentInstanc
             <opm-process-library-list-view
                 desiredLanguage={this.desiredLanguage}
                 viewSettings={this.blockData.settings.viewSettings}
-                spacingSetting={this.blockData.settings.spacing}
+                SpacingSettings={this.blockData.settings.spacing}
             ></opm-process-library-list-view>
         )
     }

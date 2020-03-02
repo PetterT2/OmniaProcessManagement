@@ -1,6 +1,6 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
 import { ProcessNavigationBlockStyles } from '../../models';
-import { SpacingSetting, Theming } from '@omnia/fx-models';
+import { SpacingSettings, Theming } from '@omnia/fx-models';
 import { important } from 'csx';
 
 const getColorsFromTheming = (theming: Theming) => {
@@ -16,7 +16,7 @@ const getColorsFromTheming = (theming: Theming) => {
 
 StyleFlow.define(ProcessNavigationBlockStyles,
     {
-        blockPadding: (spacing: SpacingSetting) => {
+        blockPadding: (spacing: SpacingSettings) => {
             let paddingLeft = spacing && (spacing.left || 0)
             let paddingRight = spacing && (spacing.right || 0)
             let paddingTop = spacing && (spacing.top || 0)
@@ -32,7 +32,7 @@ StyleFlow.define(ProcessNavigationBlockStyles,
         wrapper: {
             width: "100%"
         },
-        headerWrapper: (level: number, indentation: number, isRoutePath: boolean, theming: Theming, padding: SpacingSetting) => {
+        headerWrapper: (level: number, indentation: number, isRoutePath: boolean, theming: Theming, padding: SpacingSettings) => {
             let colors = getColorsFromTheming(theming);
             let top = (padding && padding.top || 0);
             let bottom = (padding && padding.bottom || 0);

@@ -19,7 +19,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 var personPropertyId = personPropertyPublishingApprovalSettings.PersonEnterprisePropertyDefinitionId;
 
                 if (personPropertyId == Guid.Empty ||
-                    !set.Settings.Items.Any(i => i.EnterprisePropertyDefinitionId == personPropertyId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person))
+                    !set.Settings.Items.Any(i => i.Id == personPropertyId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Person))
                 {
                     throw new Exception("PersonPropertyPublishingApprovalSettings.PersonEnterprisePropertyDefinitionId in is invalid");
                 }
@@ -31,7 +31,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
                 var taxonomyPropertyId = termDrivenPublishingApprovalSettings.TaxonomyEnterprisePropertyDefinitionId;
 
                 if (taxonomyPropertyId == Guid.Empty ||
-                    !set.Settings.Items.Any(i => i.EnterprisePropertyDefinitionId == taxonomyPropertyId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Taxonomy))
+                    !set.Settings.Items.Any(i => i.Id == taxonomyPropertyId && i.Type == Fx.Models.EnterpriseProperties.PropertyIndexedType.Taxonomy))
                 {
                     throw new Exception("TermDrivenPublishingApprovalSettings.TaxonomyEnterprisePropertyDefinitionId is invalid");
                 }
@@ -55,7 +55,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessTypes.Validation
 
         private static T CleanModel<T>(PublishingApprovalSettings settings) where T : PublishingApprovalSettings, new()
         {
-            var publishingSettings = settings.Cast<PublishingApprovalSettings, T>();
+            var publishingSettings = settings.CastTo<PublishingApprovalSettings, T>();
             if (publishingSettings.AdditionalProperties != null)
             {
                 publishingSettings.AdditionalProperties.Clear();

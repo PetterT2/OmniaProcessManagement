@@ -29,10 +29,10 @@ export interface IProcessPickerProperties {
 export interface IProcessPicker extends IProcessPickerProperties {
 
     /*@DomProperty*/
-    model: Array<GuidValue>;
+    model: string;
 
     /*@DomProperty*/
-    onModelChange: (opmProcessIds: Array<GuidValue>) => void;
+    onModelChange: (opmProcessIds: Array<string>) => void;
 
     /*@DomProperty*/
     validator?: IValidator;
