@@ -7,11 +7,11 @@ import {
     EnterprisePropertyDateTimeItemSettings, TenantRegionalSettings, LanguageTag, TimeFormats, MultilingualScopes, PropertyIndexedType, UserPrincipalType
 } from '@omnia/fx-models';
 import { CurrentProcessStore, ProcessTypeStore } from '../../../fx';
-import { OmniaTheming, VueComponentBase, FieldValueValidation, IValidator, IDatetimePickerFormatter } from '@omnia/fx/ux';
+import { OmniaTheming, VueComponentBase, FieldValueValidation, IValidator, IDatetimePickerFormatter, EnterprisePropertyEditProps } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 import {
     ProcessPropertyInfo, ProcessTextPropertyInfo, ProcessBooleanPropertyInfo, ProcessPersonPropertyInfo, ProcessTaxonomyPropertyInfo,
-    ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData, OPMEnterprisePropertyInternalNames
+    ProcessDatetimePropertyInfo, ProcessTypeItemSettings, ProcessNumberPropertyInfo, ProcessReferenceData, OPMEnterprisePropertyInternalNames, OPMProcessProperty
 } from '../../../fx/models';
 import { EnterprisePropertyStore, EnterprisePropertySetStore, MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerLocalization } from '../../loc/localize';
@@ -41,7 +41,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(EnterprisePropertySetStore) enterprisePropertySetStore: EnterprisePropertySetStore;
-    @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
+    @Inject(EnterprisePropertyStore) enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(ProcessTypeStore) processTypeStore: ProcessTypeStore;
     @Inject(OmniaContext) private omniaContext: OmniaContext;
     @Inject(MultilingualStore) private multilingualStore: MultilingualStore;
@@ -135,7 +135,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     private loadProcessTypeData() {
         let processTypeId = this.referenceData.process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessType];
         let promises: Array<Promise<any>> = [
-            this.propertyStore.actions.ensureLoadData.dispatch(),
+            this.enterprisePropertyStore.actions.ensureLoadData.dispatch(),
             this.enterprisePropertySetStore.actions.ensureLoadAllSets.dispatch(),
             this.processTypeStore.actions.ensureProcessTypes.dispatch([processTypeId])
         ];
@@ -146,7 +146,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             if (processType) {
                 let enterprisePropertySetId = (processType.settings as ProcessTypeItemSettings).enterprisePropertySetId;
                 let propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == enterprisePropertySetId)
-                let availableProperties: Array<EnterprisePropertyDefinition> = this.propertyStore.getters.enterprisePropertyDefinitions();
+                let availableProperties: Array<EnterprisePropertyDefinition> = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions();
                 propertySet.settings.items.forEach(item => {
                     let property = availableProperties.find(p => p.id == item.id);
                     if (property != null) {
@@ -203,11 +203,47 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             });
     }
 
+    private isProcessProperty(property: ProcessPropertyInfo): boolean {
+        var foundEnterpriseProperty = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == property.internalName);
+        if (foundEnterpriseProperty && foundEnterpriseProperty.enterprisePropertyDataType.id.toString().toLowerCase() == OPMProcessProperty.Id)
+            return true;
+        else
+            return false;
+    }
 
     /**
         * Render 
         * @param h
         */
+
+    renderProcessField(field: ProcessPropertyInfo): JSX.Element {
+        let h = this.$createElement;
+        let foundEnterpriseProperty = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == field.internalName);
+
+        let model = {};
+        model[foundEnterpriseProperty.internalName] = (field as any).value;
+        let dark = this.omniaTheming.promoted.body.dark ? "true" : "false";
+        let props: EnterprisePropertyEditProps = {
+            model: model,
+            dark: dark,
+            property: foundEnterpriseProperty,
+            onModelChange: (value: string) => {
+                (field as any).value = value;
+            },
+            useValidator: this.useValidator,
+            settings: {
+                required: field.required,
+                allowMultipleValues: (field as any).multiple
+            }
+        } as any
+
+        let componentData = {
+            domProps: props,
+            attrs: { }
+        }
+
+        return h(foundEnterpriseProperty.enterprisePropertyDataType.uiOptions.editModeElementName, componentData);
+    }
 
     renderTextField(h, field: ProcessTextPropertyInfo, label: string) {
         return [
@@ -310,8 +346,6 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
     renderProperty(h, field: ProcessPropertyInfo, taxonomyProperties: Array<ProcessPropertyInfo>) {
         let label = field.required ? field.title + ' *' : field.title;
         switch (field.type) {
-            case PropertyIndexedType.Text:
-                return this.renderTextField(h, field as ProcessTextPropertyInfo, label);
             case PropertyIndexedType.Number:
                 return this.renderNumberField(h, field as ProcessNumberPropertyInfo, label);
             case PropertyIndexedType.Boolean:
@@ -322,6 +356,11 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                 return this.renderTaxonomyField(h, field as ProcessTaxonomyPropertyInfo, label, taxonomyProperties as Array<ProcessTaxonomyPropertyInfo>);
             case PropertyIndexedType.DateTime:
                 return this.renderDateTimeField(h, field as ProcessDatetimePropertyInfo);
+            case PropertyIndexedType.Text:
+                if (this.isProcessProperty(field))
+                    return this.renderProcessField(field as ProcessPropertyInfo)
+                else
+                    return this.renderTextField(h, field as ProcessTextPropertyInfo, label);
             default:
                 return null;
         }
