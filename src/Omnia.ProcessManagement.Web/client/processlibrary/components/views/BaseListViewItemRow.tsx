@@ -19,6 +19,7 @@ interface BaseListViewItemRowProps {
     previewPageUrl: string;
     closeSubComponentCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     openProcess: (item: Process) => void;
+    filtersAndSorting: FiltersAndSorting;
 }
 
 @Component
@@ -32,9 +33,8 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
     @Prop() previewPageUrl: string;
     @Prop() closeSubComponentCallback: (refreshList: boolean, tab?: ProcessLibraryListViewTabs) => void;
     @Prop() openProcess: (item: Process) => void;
-
+    @Prop() filtersAndSorting: FiltersAndSorting;
     @Inject(OmniaContext) omniaContext: OmniaContext;
-    @Inject(FiltersAndSorting) private filtersAndSorting: FiltersAndSorting;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     dateFormat: string = DefaultDateFormat;

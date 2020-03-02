@@ -430,6 +430,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     renderItems(h, item: DisplayProcess) {
         return (
             <BaseListViewItemRow item={item}
+                filtersAndSorting={this.filtersAndSorting}
                 displaySettings={this.displaySettings}
                 processListViewComponentKey={this.processListViewComponentKey}
                 isAuthor={this.isAuthor}
