@@ -23,6 +23,9 @@ namespace Omnia.ProcessManagement.Models.ShapeDefinitions
         public int Width { get; set; }
         public int Height { get; set; }
         public TextPosition TextPosition { get; set; }
+        public string TextAlignment { get; set; }
+        public int TextHorizontalAdjustment { get; set; }
+        public int TextVerticalAdjustment { get; set; }
         public int FontSize { get; set; }
         public string ImageUrl { get; set; }
         public List<FabricShapeData> Nodes { get; set; }
