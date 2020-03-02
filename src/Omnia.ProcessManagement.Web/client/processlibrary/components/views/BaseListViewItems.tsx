@@ -32,6 +32,7 @@ interface BaseListViewItemsProps {
     processListViewComponentKey: ProcessListViewComponentKey;
     changeTab: (tab: ProcessLibraryListViewTabs) => void;
     previewPageUrl: string;
+    isAuthor: boolean;
 }
 
 @Component
@@ -43,6 +44,7 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     @Prop() processListViewComponentKey: ProcessListViewComponentKey;
     @Prop() changeTab: (tab: ProcessLibraryListViewTabs) => void;
     @Prop() previewPageUrl: string;
+    @Prop() isAuthor: boolean;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
     @Inject(ProcessService) processService: ProcessService;
@@ -80,10 +82,8 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
     selectedProcess: Process;
     pageTotal: number = 1;
     lcid: number = 1033;
-    isAuthor: boolean = false;
 
     created() {
-        this.loadPermisison();
         let languageSettings = this.multilingualStore.getters.languageSetting(MultilingualScopes.Tenant);
         if (languageSettings && languageSettings.availableLanguages.length > 0) {
             let userLanguageSettings = languageSettings.availableLanguages.find(l => l.name == (languageSettings.userPreferredLanguageTag.toLowerCase() as LanguageTag));
@@ -138,14 +138,6 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
             }, 5000);
         else
             clearInterval(this.refreshStatusInterval);
-    }
-
-    private loadPermisison() {
-        this.securityService.hasPermissionForRole(Security.OPMRoleDefinitions.Author, {
-            [Parameters.AppInstanceId]: this.opmContext.teamAppId.toString()
-        }).then((hasPermission) => {
-            this.isAuthor = hasPermission;
-        })
     }
 
     private getCheckedOutBys(statusDict: IdDict<DraftProcessLibraryStatus>) {
