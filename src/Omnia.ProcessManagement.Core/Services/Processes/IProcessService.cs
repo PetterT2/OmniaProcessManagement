@@ -22,7 +22,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> CreateDraftProcessAsync(Guid opmProcessId);
         ValueTask<Process> CheckInProcessAsync(Guid opmProcessId);
         ValueTask<Process> SaveCheckedOutProcessAsync(ProcessActionModel actionModel);
-        ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId);
+        ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId, bool takeControl = false);
         ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService);

@@ -46,9 +46,9 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
             return process;
         }
 
-        public async ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId)
+        public async ValueTask<Process> CheckOutProcessAsync(Guid opmProcessId, bool takeControl = false)
         {
-            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId);
+            var process = await ProcessRepository.CheckOutProcessAsync(opmProcessId, takeControl);
             return process;
         }
 

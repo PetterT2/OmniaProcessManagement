@@ -281,6 +281,7 @@
             ArchiveProcessFailed: string,
             ShapeTemplateHasBeenDeleted: string,
             UnauthorizedOrProcessNotFound: string,
+            TakeControlConfirmation: string
         },
         ProcessActions: {
             Edit: string,
@@ -302,7 +303,8 @@
             NewProcess: string,
             SetNewReviewDate: string,
             Unpublish: string,
-            CloseTask: string
+            CloseTask: string,
+            TakeControl: string
         },
         SearchTemplates: {
             ProcessSearchTemplate: {

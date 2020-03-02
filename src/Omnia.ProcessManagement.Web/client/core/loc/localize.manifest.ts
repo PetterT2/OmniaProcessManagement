@@ -284,7 +284,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             SyncToSharePointFailed: "This process was synced to SharePoint failed.",
             ArchiveProcessFailed: "This process has been archived unsuccessfully.",
             ShapeTemplateHasBeenDeleted: "The shape template of this shape may have been deleted. Please select an alternative template.",
-            UnauthorizedOrProcessNotFound: "Unauthrozied or Not Found."
+            UnauthorizedOrProcessNotFound: "Unauthrozied or Not Found.",
+            TakeControlConfirmation: "Are you sure you want to take control this process?"
 
         },
         ProcessActions: {
@@ -307,7 +308,8 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
             NewProcess: "New Process",
             SetNewReviewDate: "Set new review date",
             Unpublish: "Unpublish",
-            CloseTask: "Close task"
+            CloseTask: "Close task",
+            TakeControl: "Take Control"
         },
         SearchTemplates: {
             ProcessSearchTemplate: {

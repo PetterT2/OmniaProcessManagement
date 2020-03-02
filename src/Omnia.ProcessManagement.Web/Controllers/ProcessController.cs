@@ -185,7 +185,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("checkout/{opmProcessId:guid}")]
         [Authorize]
-        public async ValueTask<ApiResponse<Process>> CheckOutProcessAsync(Guid opmProcessId)
+        public async ValueTask<ApiResponse<Process>> CheckOutProcessAsync(Guid opmProcessId, bool takeControl)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     .OrRequireReviewer()
                     .DoAsync(async () =>
                     {
-                        var process = await ProcessService.CheckOutProcessAsync(opmProcessId);
+                        var process = await ProcessService.CheckOutProcessAsync(opmProcessId, takeControl);
                         return process.AsApiResponse();
                     });
             }
@@ -206,6 +206,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse<Process>(ex);
             }
         }
+
 
         [HttpPost, Route("copytonewprocess/{opmProcessId:guid}/{processStepId:guid}")]
         [Authorize]
@@ -717,12 +718,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
             var teamAppId = checkedOutProcess != null ? checkedOutProcess.TeamAppId : draftProcess.TeamAppId;
             var workingStatus = checkedOutProcess != null ? checkedOutProcess.ProcessWorkingStatus : draftProcess.ProcessWorkingStatus;
 
+            var canCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
+                    (authorizedProcessQuery.IsAuthor(teamAppId) || authorizedProcessQuery.IsReviewer(teamAppId));
+
+            var noActiveWorkflow = !OPMUtilities.IsActiveWorkflow(workingStatus);
+
             var checkoutInfo = new ProcessCheckoutInfo
             {
                 CheckedOutBy = checkedOutBy,
-                CanCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
-                    (authorizedProcessQuery.IsAuthor(teamAppId) || authorizedProcessQuery.IsReviewer(teamAppId)) &&
-                    !OPMUtilities.IsActiveWorkflow(workingStatus)
+                CanCheckout = canCheckout && noActiveWorkflow,
+                CanTakeControl = authorizedProcessQuery.IsAuthor(teamAppId) && !canCheckout && noActiveWorkflow
             };
 
             return checkoutInfo;

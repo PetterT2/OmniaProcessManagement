@@ -9,6 +9,7 @@ namespace Omnia.ProcessManagement.Models.Processes
 {
     public class ProcessCheckoutInfo
     {
+        public bool CanTakeControl { get; set; }
         public bool CanCheckout { get; set; }
         public string CheckedOutBy { get; set; }
     }

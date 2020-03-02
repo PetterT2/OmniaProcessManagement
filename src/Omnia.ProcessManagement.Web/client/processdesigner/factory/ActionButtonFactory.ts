@@ -48,13 +48,28 @@ export class ActionButtonFactory {
         } as ActionButton
     }
 
+    static takeControlButton(editorItem: RootProcessStepDesignerItem, highLighted: boolean): ActionItem {
+        let checkoutInfo = editorItem.processStore.getters.processCheckoutInfo(editorItem.currentProcessStore.getters.referenceData().process.opmProcessId);
+
+        return {
+            type: ActionItemType.Button,
+            loading: false,
+            confirmationOptions: { title: this.opmCoreLoc.ProcessActions.TakeControl, message: this.opmCoreLoc.Messages.TakeControlConfirmation },
+            id: ActionButtonIds.takeControl,
+            actionCallback: editorItem.onTakeControl.bind(editorItem),
+            highLighted: highLighted,
+            icon: "",
+            title: this.opmCoreLoc.ProcessActions.TakeControl,
+            visibilityCallBack: () => { return checkoutInfo && checkoutInfo.canTakeControl ? true : false }
+        } as ActionButton
+    }
+
     static editRootProcessButton(editorItem: RootProcessStepDesignerItem, highLighted: boolean): ActionItem {
         let checkoutInfo = editorItem.processStore.getters.processCheckoutInfo(editorItem.currentProcessStore.getters.referenceData().process.opmProcessId);
 
         return {
             type: ActionItemType.Button,
             loading: false,
-            disabled: !checkoutInfo || !checkoutInfo.canCheckout,
             id: ActionButtonIds.edit,
             actionCallback: editorItem.onCheckOut.bind(editorItem),
             highLighted: highLighted,
@@ -86,6 +101,7 @@ export class ActionButtonFactory {
 
     static createDefaultRootProcessNotCheckoutedButtons(editorItem: RootProcessStepDesignerItem): Array<ActionItem> {
         return [
+            this.takeControlButton(editorItem, true),
             this.editRootProcessButton(editorItem, true),
             this.closeButton(editorItem, false),
         ]

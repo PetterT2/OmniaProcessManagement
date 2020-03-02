@@ -35,6 +35,15 @@ export class RootProcessStepDesignerItem extends ProcessStepDesignerItemBase imp
         });
     }
 
+    public onTakeControl() {
+        return new Promise<any>((resolve, reject) => {
+            this.currentProcessStore.actions.checkOut.dispatch(true).then(() => {
+                InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
+                this.processDesignerStore.actions.setEditorToCheckedOutMode.dispatch().then(resolve).catch(reject);
+            }).catch(reject)
+        });
+    }
+
     title: string;
 
     public settings = {
