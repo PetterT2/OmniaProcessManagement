@@ -29,7 +29,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     // -------------------------------------------------------------------------
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
     @Inject<SettingsServiceConstructor>(SettingsService) settingsService: SettingsService<ProcessRollupBlockData>;
-    @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
+    @Inject(EnterprisePropertyStore) enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
     @Inject(CurrentPageStore) currentPageStore: CurrentPageStore;
@@ -75,7 +75,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     }
 
     init() {
-        this.propertyStore.actions.ensureLoadData.dispatch().then(() => {
+        this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
             this.subscriptionHandler = OPMPublicTopics.registerProcessRollupView.subscribe(this.registerProcessRollupView);
 
             if (this.currentPageStore.getters.state) {
@@ -129,7 +129,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
         return new Promise((resolve, reject) => {
             this.prepareTargetingDataRejector = reject;
             let queries: Array<TargetingPropertyQuery> = [];
-            let contentProperties = this.propertyStore.getters.enterprisePropertyDefinitions()
+            let contentProperties = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions()
                 .filter(p => p.enterprisePropertyDataType.indexedType == PropertyIndexedType.Taxonomy);
             blockData.settings.resources.forEach(resource => {
                 resource.filters.filter(f =>
@@ -201,7 +201,6 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
                 let textValue = filter.valueObj as ProcessRollupTextPropFilterValue;
                 if (Utils.isNullOrEmpty(textValue.searchValue)) return null;
                 if (filter.property === 'title' || filter.property === 'Properties') {
-                    //textValue.value = `"title":"${textValue.searchValue}`;
                     filter.property = "Title";
                 }
                 textValue.value = textValue.searchValue;

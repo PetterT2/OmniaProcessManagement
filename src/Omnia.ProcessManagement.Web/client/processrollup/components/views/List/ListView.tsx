@@ -3,7 +3,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Prop } from 'vue-property-decorator';
-import { IconSize, StyleFlow, OmniaTheming } from '@omnia/fx/ux';
+import { IconSize, StyleFlow, OmniaTheming, EnterprisePropertyDisplayProps } from '@omnia/fx/ux';
 import { PropertyIndexedType, BuiltInEnterprisePropertyInternalNames, EnterprisePropertyDefinition, SpacingSettings, UserIdentity, IMessageBusSubscriptionHandler, Guid, TenantRegionalSettings } from '@omnia/fx-models';
 import { EnterprisePropertyStore, FeatureStore } from '@omnia/fx/store';
 import { ContentProperty } from 'csstype';
@@ -13,7 +13,7 @@ import {
 import { ProcessRollupLocalization } from '../../../loc/localize';
 import { classes } from 'typestyle';
 import { DefaultDateFormat, ProcessRollupConstants, OPMRouter, OPMUtils, ProcessRendererOptions } from '../../../../fx';
-import { RollupProcess, Enums } from '../../../../fx/models';
+import { RollupProcess, Enums, OPMProcessProperty } from '../../../../fx/models';
 import './List.css';
 import { ProcessRollupListViewDateTimeColumn } from '../../../../models/processrollup/ProcessRollupListViewDateTimeColumn';
 
@@ -33,7 +33,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     @Inject(OmniaContext) omniaContext: OmniaContext;
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
-    @Inject(EnterprisePropertyStore) propertyStore: EnterprisePropertyStore;
+    @Inject(EnterprisePropertyStore) enterprisePropertyStore: EnterprisePropertyStore;
     @Inject(FeatureStore) featureStore: FeatureStore;
 
     formatDate: string = DefaultDateFormat;
@@ -72,7 +72,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
             }
         });
 
-        let taxonomyProperties = this.propertyStore.getters.enterprisePropertyDefinitionsByIndexedTypes([PropertyIndexedType.Taxonomy]);
+        let taxonomyProperties = this.enterprisePropertyStore.getters.enterprisePropertyDefinitionsByIndexedTypes([PropertyIndexedType.Taxonomy]);
         taxonomyProperties.forEach(p => {
             this.$set(this.taxonomyProperties, p.internalName, p)
         })
@@ -85,7 +85,7 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     getPropertyDisplayName(): { [internalName: string]: string } {
         let result: { [internalName: string]: string } = {};
-        let contentProperties = this.propertyStore.getters.enterprisePropertyDefinitions();
+        let contentProperties = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions();
         if (contentProperties) {
             contentProperties = [
                 { internalName: ProcessRollupConstants.processTitleAndLinkInternalName, multilingualTitle: `[${this.loc.ListView.ProcessTitle}]` } as any,
@@ -151,6 +151,33 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
         return <div domProps-innerHTML={process.properties[internalName]}></div>
     }
 
+    resolveRenderText(process: RollupProcess, internalName: string) {
+        let enterprisePropertyDefinition: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
+        if (enterprisePropertyDefinition && enterprisePropertyDefinition.enterprisePropertyDataType.id == OPMProcessProperty.Id) {
+            return this.renderProcessColumn(process, internalName, enterprisePropertyDefinition)
+        }
+        else {
+            return this.renderText(process, internalName);
+        }
+    }
+
+    renderProcessColumn(process: RollupProcess, internalName: string, enterprisePropertyDefinition: EnterprisePropertyDefinition) {
+        let h = this.$createElement;
+        var processValue = process.properties[internalName];
+        let props: EnterprisePropertyDisplayProps = {
+            model: !Utils.isNullOrEmpty(processValue) ? JSON.parse(processValue) : [],
+            property: enterprisePropertyDefinition,
+            wrapWithParentContent: null
+        }
+
+        let componentData = {
+            domProps: props,
+            attrs: {}
+        }
+
+        return h(enterprisePropertyDefinition.enterprisePropertyDataType.uiOptions.displayModeElementName, componentData);
+    }
+
     renderPerson(process: RollupProcess, internalName: string) {
         let h = this.$createElement;
         let users: Array<UserIdentity> = [];
@@ -207,10 +234,11 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
                                     p.internalName === ProcessRollupConstants.processTitleAndLinkInternalName ? this.renderTitleAndLink(process) :
                                         p.type === PropertyIndexedType.DateTime ? this.renderDateTime(process, p as ProcessRollupListViewDateTimeColumn) :
                                             p.type === PropertyIndexedType.Boolean ? this.renderBoolean(process, p.internalName, propertiesTitle[p.internalName]) :
-                                                p.type === PropertyIndexedType.Text || p.type === PropertyIndexedType.RichText || p.type === PropertyIndexedType.Number ? this.renderText(process, p.internalName) :
-                                                    p.type === PropertyIndexedType.Person ? this.renderPerson(process, p.internalName) :
-                                                        p.type === PropertyIndexedType.Taxonomy ? this.renderTaxonomy(process, p.internalName) :
-                                                            "Not supported yet"
+                                                p.type === PropertyIndexedType.RichText || p.type === PropertyIndexedType.Number ? this.renderText(process, p.internalName) :
+                                                    p.type === PropertyIndexedType.Text ? this.resolveRenderText(process, p.internalName) :
+                                                        p.type === PropertyIndexedType.Person ? this.renderPerson(process, p.internalName) :
+                                                            p.type === PropertyIndexedType.Taxonomy ? this.renderTaxonomy(process, p.internalName) :
+                                                                "Not supported yet"
 
                                 }
                             </td>
