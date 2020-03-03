@@ -6,7 +6,7 @@ export module ProcessDesignerStyles {
         settingsPanel: (backgroundColor) => types.NestedCSSProperties;
     };
     export const BlockWithToolbarStyles = {} as {
-        blockWrapper?: (theme: OmniaTheming, width?: number) => types.NestedCSSProperties;
+        blockWrapper?: (theme: OmniaTheming, width?: number, minHeight?: number) => types.NestedCSSProperties;
         blockOverflowWrapper?: types.NestedCSSProperties;
         toolbarWrapper?: (theme: OmniaTheming) => types.NestedCSSProperties;
     };

@@ -3,14 +3,16 @@ import { ProcessDesignerStyles } from "../../../fx/models";
 import { important } from 'csx';
 
 StyleFlow.define(ProcessDesignerStyles.BlockWithToolbarStyles, {
-    blockWrapper: (theme: OmniaTheming, width?: number) => {
+    blockWrapper: (theme: OmniaTheming, width?: number, minHeight?: number) => {
         let blockWidth = width ? width + 'px' : 'auto';
+        let blockMinHeight = minHeight ? minHeight + 'px' : undefined;
         return {
             position: "relative" as any,
             padding: '0px',
             overflow: 'hidden',
             maxWidth: '100%',
             width: blockWidth,
+            minHeight: blockMinHeight,
             boxShadow: important("inset 0px 2px 0px 0px " + theme.promoted.body.primary.base + "," + "inset 0px -2px 0px 0px " + theme.promoted.body.primary.base)
         }
     },
