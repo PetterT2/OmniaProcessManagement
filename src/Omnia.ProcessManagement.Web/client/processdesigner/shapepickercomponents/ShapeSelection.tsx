@@ -283,7 +283,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['scaleY'] = scaleDownRate;
             }
 
-            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, 0, 0, null, null,
+            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, 0, 0, null, null, null,
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes ? (definitionToDraw as DrawingFreeformShapeDefinition).nodes : null);
         }
     }

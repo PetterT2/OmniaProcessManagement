@@ -247,7 +247,6 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
         if (Utils.isNullOrEmpty(value.searchValue)) return value;
 
         let result: ProcessRollupUISearchboxFilterValue = Utils.clone(value);
-        result.value = `"title":"${value.searchValue}`;
         result.orProperties = [];
         if (value.properties) {
             value.properties.forEach((prop) => {
