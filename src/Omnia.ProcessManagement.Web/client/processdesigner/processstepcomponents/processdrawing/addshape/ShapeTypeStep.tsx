@@ -177,6 +177,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
                         <v-skeleton-loader loading={true} height="100%" type="table-tbody"></v-skeleton-loader>
                         :
                         <ShapeTypeComponent
+                            enableShowMoreSettings
                             drawingOptions={this.drawingShapeOptions}
                             changeDrawingOptionsCallback={this.onChangedDrawingOptions}
                             changeShapeCallback={this.changeShape}
