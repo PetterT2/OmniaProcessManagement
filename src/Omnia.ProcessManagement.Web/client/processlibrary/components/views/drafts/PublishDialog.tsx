@@ -224,7 +224,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         this.publishProcessService.publishProcessWithoutApproval(request).then(() => {
             this.processStore.actions.refreshPublishedProcess.dispatch(request.opmProcessId);
 
-            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
+            InternalOPMTopics.onProcessChanged.publish(ProcessVersionType.Draft);
 
             this.isPublishingOrSending = false;
             this.closeCallback();

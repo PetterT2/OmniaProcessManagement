@@ -17,7 +17,7 @@ export interface ProcessTemplate {
 export const ProcessTemplateFactory = {
     createDefaultProcessTemplate(): ProcessTemplate {
         let processTemplate: ProcessTemplate = {
-            settings: {}
+            settings: { shapeDefinitions: [] }
         } as ProcessTemplate
 
         return processTemplate;

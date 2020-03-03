@@ -1,5 +1,5 @@
 ﻿import { Store, MultilingualStore } from '@omnia/fx/store';
-import { Injectable, Inject, ResolvablePromise } from '@omnia/fx';
+import { Injectable, Inject, ResolvablePromise, OmniaContext } from '@omnia/fx';
 import { InstanceLifetimes, GuidValue } from '@omnia/fx-models';
 import { ProcessService } from '../services';
 import { ProcessActionModel, ProcessStep, ProcessVersionType, Process, ProcessData, ProcessReference, ProcessReferenceData, ProcessCheckoutInfo, PreviewProcessWithCheckoutInfo, Version, OPMEnterprisePropertyInternalNames, InternalProcessStep, ProcessStepType, LightProcess } from '../models';
@@ -38,6 +38,7 @@ interface LightProcessDict {
 })
 export class ProcessStore extends Store {
     @Inject(ProcessService) private processService: ProcessService;
+    @Inject(OmniaContext) private omniaContext: OmniaContext;
 
     //states
     private processDict = this.state<ProcessDict>({});
@@ -185,7 +186,13 @@ export class ProcessStore extends Store {
         checkoutProcess: this.action((opmProcessId: GuidValue, takeControl: boolean = false) => {
             return this.processService.checkoutProcess(opmProcessId, takeControl).then((process) => {
                 this.internalMutations.addOrUpdateProcess(process);
-
+                if (takeControl) {
+                    this.internalMutations.addOrUpdateProcessCheckoutInfo(opmProcessId, {
+                        canCheckout: true,
+                        canTakeControl: false,
+                        checkedOutBy: process.checkedOutBy
+                    })
+                }
                 return process;
             })
         }),

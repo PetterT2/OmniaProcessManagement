@@ -311,6 +311,39 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
+        [HttpGet, Route("test1/{opmProcessId:guid}/processdata/{processStepId:guid}/{hash}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<ProcessData>> Test1Async(Guid opmProcessId, Guid processStepId, string hash)
+        {
+            try
+            {
+                var securityResponse = await ProcessSecurityService.InitSecurityResponseByProcessStepIdAsync(opmProcessId, processStepId, hash);
+                var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
+                return processData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<ProcessData>(ex);
+            }
+        }
+
+        [HttpGet, Route("test2/{opmProcessId:guid}/processdata/{processStepId:guid}/{hash}")]
+        [Authorize]
+        public async ValueTask<ApiResponse<ProcessData>> Test2Async(Guid opmProcessId, Guid processStepId, string hash)
+        {
+            try
+            {
+                var processData = await ProcessService.GetProcessDataAsync(processStepId, hash);
+                return processData.AsApiResponse();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<ProcessData>(ex);
+            }
+        }
+
         [HttpPost, Route("draft/workingstatus")]
         [Authorize]
         public async ValueTask<ApiResponse<Dictionary<Guid, ProcessStatus>>> GetDraftProcessWorkingStatusAsync(List<Guid> opmProcessIds, Guid teamAppId, bool isGetAll)

@@ -1,5 +1,5 @@
 ﻿export interface ProcessCheckoutInfo {
-    checkedOutBy: boolean;
+    checkedOutBy: string;
     canCheckout: boolean;
     canTakeControl: boolean;
 }

@@ -69,7 +69,7 @@ export class DraftsProcessingStatus extends VueComponentBase<DraftsProcessingSta
                 }}>{statusName}</a>;
             default:
                 return <div class={className}>
-                    {statusName}{!Utils.isNullOrEmpty(checkedOutByName) ? this.loc.ProcessStatuses.CheckedOutBy + " " + checkedOutByName : ""}
+                    {statusName}{!Utils.isNullOrEmpty(checkedOutByName) ? this.loc.ProcessStatuses.CheckedOutTo + " " + checkedOutByName : ""}
                 </div>;
         }
     }
