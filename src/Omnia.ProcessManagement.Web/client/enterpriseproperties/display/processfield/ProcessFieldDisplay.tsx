@@ -31,6 +31,7 @@ export class ProcessFieldDisplayComponent extends Vue implements IWebComponentIn
     created() {
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
             this.processes = this.processStore.getters.lightProcess(this.model);
+            this.$forceUpdate();
         })
     }
 
