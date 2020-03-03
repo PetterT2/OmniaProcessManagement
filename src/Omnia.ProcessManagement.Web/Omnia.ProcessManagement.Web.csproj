@@ -12,8 +12,6 @@
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
     <None Remove="wwwroot\omnia\**" />
-    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.manifest.ts" />
-    <None Remove="client\viewprocess\breadcrumbblock\WCMBreadcrumbHandler.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />

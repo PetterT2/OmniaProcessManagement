@@ -236,6 +236,7 @@
             TextAlignment: string,
             TextAdjustment: string,
             FontSize: string,
+            ShowMoreSettings: string,
             Above: string,
             On: string,
             Below: string,
