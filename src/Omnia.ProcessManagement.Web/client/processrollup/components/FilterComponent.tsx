@@ -105,7 +105,7 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
     renderSearchBoxFilter(filter: ProcessRollupFilter, label?: string) {
         let h = this.$createElement;
         let valueObj: ProcessRollupUISearchboxFilterValue = filter.valueObj as ProcessRollupUISearchboxFilterValue;
-
+        
         return (
             <div class={[this.processRollupClasses.uiFilterItem, 'mr-2']}>
                 <v-text-field label={label} disabled={this.isLoadingData} v-model={valueObj.searchValue} append-icon={label ? '' : 'search'} onChange={() => { this.onUpdateFilter() }}></v-text-field>

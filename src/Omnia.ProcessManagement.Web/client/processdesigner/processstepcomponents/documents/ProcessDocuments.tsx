@@ -51,6 +51,7 @@ export class ProcessDocumentsComponent extends VueComponentBase<ProcessDocuments
     private blockWithToolbarStyles = StyleFlow.use(ProcessDesignerStyles.BlockWithToolbarStyles);
     private settingPanelWidth: number = 500;
     private blockWidth: number = 700;
+    private blockMinHeight: number = 50;
     
     created() {
         this.documentRollupSettingsKey = this.isProcessStepShortcut ? DocumentsBlockDataSettingsKey.ShortcutProcess : DocumentsBlockDataSettingsKey.CurrentProcess;
@@ -68,7 +69,8 @@ export class ProcessDocumentsComponent extends VueComponentBase<ProcessDocuments
             this.subscriptionHandler = this.settingsService
                 .onKeyValueUpdated(this.documentRollupSettingsKey)
                 .subscribe(this.onProcessDataChanged);
-            if (!(blockData.settings.pickedDocuments && blockData.settings.pickedDocuments.length > 0)) {
+            if (blockData.settings.queryConfigurationType == 1 /*ToDo: check why import Enums from ODM cause error: Enums.DocumentViewEnums.QueryConfigurationType*/
+                && !(blockData.settings.pickedDocuments && blockData.settings.pickedDocuments.length > 0)) {
                 this.openSettingsPanel();
             }
         });
@@ -140,7 +142,7 @@ export class ProcessDocumentsComponent extends VueComponentBase<ProcessDocuments
     render(h) {
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
             <v-card-text>
-                <div class={this.blockWithToolbarStyles.blockWrapper(this.omniaTheming, this.blockWidth)}>
+                <div class={this.blockWithToolbarStyles.blockWrapper(this.omniaTheming, this.blockWidth, this.blockMinHeight)}>
                     <div class={this.blockWithToolbarStyles.blockOverflowWrapper}>
                         <odm-document-rollup settingsKey={this.documentRollupSettingsKey}></odm-document-rollup>
                     </div>

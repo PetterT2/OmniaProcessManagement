@@ -2,8 +2,10 @@
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Omnia.Fx.Models.BusinessProfiles.PropertyBag;
+using Omnia.Fx.Models.EnterpriseProperties;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
+using Omnia.Fx.Models.Rollup.FilterValues;
 using Omnia.Fx.MultilingualTexts;
 using Omnia.Fx.NetCore.Utils.Query;
 using Omnia.Fx.Queries;
@@ -121,7 +123,29 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
             {
                 titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
-                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList(); ;
+                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList();
+                var propertiesFilter = setting.CustomFilters.FirstOrDefault(f => f.Property.ToLower() == "properties");
+                if(propertiesFilter != null)
+                {
+                    bool searchValueKeyExists = propertiesFilter.ValueObj.AdditionalProperties.TryGetValue("searchValue", out var searchValueToken);
+                    if (searchValueKeyExists)
+                    {
+                        RollupFilterValue valueObj = new RollupFilterValue();
+                        valueObj.AdditionalProperties["searchValue"] = searchValueToken;
+                        valueObj.AdditionalProperties["value"] = searchValueToken;
+                        titleFilters.Add(new RollupFilter
+                        {
+                            Property = "Title",
+                            Type = PropertyIndexedType.Text,
+                            ValueObj = valueObj
+                        });
+                    }
+                    bool propertiesKeyExists = propertiesFilter.ValueObj.AdditionalProperties.TryGetValue("properties", out var propertiesValueToken);
+                    if(!propertiesKeyExists || (propertiesKeyExists && JsonConvert.DeserializeObject<List<string>>(propertiesValueToken.ToString()).Count == 0))
+                    {
+                        setting.CustomFilters = setting.CustomFilters.Where(f => f.Property.ToLower() != "properties").ToList();
+                    }
+                }
             }
 
             if (setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
