@@ -44,7 +44,7 @@ export class ProcessContextBlockComponent extends VueComponentBase implements IW
     init() {
         this.subscriptionHandler = this.settingsService
             .onKeyValueUpdated(this.settingsKey)
-            .subscribe(this.setBlockData);
+            .subscribe((data) => { this.setBlockData(data, true) });
         this.subscriptionHandler.add(Topics.onPageEditModeChanged.subscribe((obj) => this.isPageEditMode = obj && obj.editMode ? true : false));
 
         this.settingsService.suggestKeyRenderer(this.settingsKey, "opm-process-context-block-settings");
@@ -52,13 +52,15 @@ export class ProcessContextBlockComponent extends VueComponentBase implements IW
             this.setBlockData(blockData || {
                 data: {},
                 settings: { pageProperty: null }
-            });
+            }, false);
         });
     }
 
-    setBlockData(blockData: ProcessContextBlockData) {
+    setBlockData(blockData: ProcessContextBlockData, updated: boolean) {
         this.blockData = blockData;
-        this.setOPMRoute();
+        if (updated || !OPMRouter.routeContext.route) {
+            this.setOPMRoute();
+        }
     }
 
     setOPMRoute() {
