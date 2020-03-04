@@ -195,7 +195,7 @@ export class DrawingCanvasFreeForm extends DrawingCanvasEditor implements Canvas
             title: null,
             shape: new FreeformShape(this.shapeDefinition, freeNodes.nodes, this.shapeTitle, true, left, top, this.darkHightlight)
         };
-        (drawingShape.shape as ShapeExtension).addEventListener(this.canvasObject, this.gridX, this.gridY, this.showGridlines);
+        (drawingShape.shape as ShapeExtension).addEventListener(this.canvasObject, this.gridX, this.gridY);
         this.lines.forEach((value) => {
             this.canvasObject.remove(value);
         });

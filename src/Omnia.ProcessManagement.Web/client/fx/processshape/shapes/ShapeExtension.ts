@@ -94,7 +94,7 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected getScalingSnapToGridAttrs(object: fabric.Object, enableGrid: boolean) {
+    protected getScalingSnapToGridAttrs(object: fabric.Object) {
         //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
         //Don't have time to revisit this solution to improve it. its good to do that at some point.
 
@@ -122,78 +122,76 @@ export class ShapeExtension implements Shape {
                 top: target.top,
                 left: target.left
             };
-        if (enableGrid) {
-            switch (target['__corner']) {
-                case 'tl':
-                    if (dist.left < dist.top && dist.left < gridX) {
-                        attrs.scaleX = (w - (snap.left - target.left)) / target.width;
-                        attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
-                        attrs.top = target.top + (h - target.height * attrs.scaleY);
-                        attrs.left = snap.left;
-                    } else if (dist.top < gridY) {
-                        attrs.scaleY = (h - (snap.top - target.top)) / target.height;
-                        attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
-                        attrs.left = attrs.left + (w - target.width * attrs.scaleX);
-                        attrs.top = snap.top;
-                    }
-                    break;
-                case 'mt':
-                    if (dist.top < gridY) {
-                        attrs.scaleY = (h - (snap.top - target.top)) / target.height;
-                        attrs.top = snap.top;
-                    }
-                    break;
-                case 'tr':
-                    if (dist.right < dist.top && dist.right < gridX) {
-                        attrs.scaleX = (snap.right - target.left) / target.width;
-                        attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
-                        attrs.top = target.top + (h - target.height * attrs.scaleY);
-                    } else if (dist.top < gridY) {
-                        attrs.scaleY = (h - (snap.top - target.top)) / target.height;
-                        attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
-                        attrs.top = snap.top;
-                    }
-                    break;
-                case 'ml':
-                    if (dist.left < gridX) {
-                        attrs.scaleX = (w - (snap.left - target.left)) / target.width;
-                        attrs.left = snap.left;
-                    }
-                    break;
-                case 'mr':
-                    if (dist.right < gridX) attrs.scaleX = (snap.right - target.left) / target.width;
-                    break;
-                case 'bl':
-                    if (dist.left < dist.bottom && dist.left < gridX) {
-                        attrs.scaleX = (w - (snap.left - target.left)) / target.width;
-                        attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
-                        attrs.left = snap.left;
-                    } else if (dist.bottom < gridY) {
-                        attrs.scaleY = (snap.bottom - target.top) / target.height;
-                        attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
-                        attrs.left = attrs.left + (w - target.width * attrs.scaleX);
-                    }
-                    break;
-                case 'mb':
-                    if (dist.bottom < gridY) attrs.scaleY = (snap.bottom - target.top) / target.height;
-                    break;
-                case 'br':
-                    if (dist.right < dist.bottom && dist.right < gridX) {
-                        attrs.scaleX = (snap.right - target.left) / target.width;
-                        attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
-                    } else if (dist.bottom < gridY) {
-                        attrs.scaleY = (snap.bottom - target.top) / target.height;
-                        attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
-                    }
-                    break;
-            }
+        switch (target['__corner']) {
+            case 'tl':
+                if (dist.left < dist.top && dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.top = target.top + (h - target.height * attrs.scaleY);
+                    attrs.left = snap.left;
+                } else if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.left = attrs.left + (w - target.width * attrs.scaleX);
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'mt':
+                if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'tr':
+                if (dist.right < dist.top && dist.right < gridX) {
+                    attrs.scaleX = (snap.right - target.left) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.top = target.top + (h - target.height * attrs.scaleY);
+                } else if (dist.top < gridY) {
+                    attrs.scaleY = (h - (snap.top - target.top)) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.top = snap.top;
+                }
+                break;
+            case 'ml':
+                if (dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.left = snap.left;
+                }
+                break;
+            case 'mr':
+                if (dist.right < gridX) attrs.scaleX = (snap.right - target.left) / target.width;
+                break;
+            case 'bl':
+                if (dist.left < dist.bottom && dist.left < gridX) {
+                    attrs.scaleX = (w - (snap.left - target.left)) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                    attrs.left = snap.left;
+                } else if (dist.bottom < gridY) {
+                    attrs.scaleY = (snap.bottom - target.top) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                    attrs.left = attrs.left + (w - target.width * attrs.scaleX);
+                }
+                break;
+            case 'mb':
+                if (dist.bottom < gridY) attrs.scaleY = (snap.bottom - target.top) / target.height;
+                break;
+            case 'br':
+                if (dist.right < dist.bottom && dist.right < gridX) {
+                    attrs.scaleX = (snap.right - target.left) / target.width;
+                    attrs.scaleY = (attrs.scaleX / target.scaleX) * target.scaleY;
+                } else if (dist.bottom < gridY) {
+                    attrs.scaleY = (snap.bottom - target.top) / target.height;
+                    attrs.scaleX = (attrs.scaleY / target.scaleY) * target.scaleX;
+                }
+                break;
         }
         return attrs;
     }
 
-    protected onScaling(object: fabric.Object, enableGrid: boolean) {
+    protected onScaling(object: fabric.Object) {
         let target = object
-        let attrs = this.getScalingSnapToGridAttrs(object, enableGrid);
+        let attrs = this.getScalingSnapToGridAttrs(object);
         target.set(attrs);
 
         let position = this.correctPosition(attrs.left, attrs.top);
@@ -333,7 +331,7 @@ export class ShapeExtension implements Shape {
         });
     }
 
-    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number, enableGrid?: boolean) {
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
         if (this.shapeObject.length < 2 || this.shapeObject.findIndex(f => f == null) > -1)
             return;
 
@@ -347,8 +345,8 @@ export class ShapeExtension implements Shape {
                 var currPos = canvas.getPointer(e.e),
                     moveX = currPos.x - this.startPoint.x,
                     moveY = currPos.y - this.startPoint.y;
-                let tleft = gridX && enableGrid ? Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x : this.originPos.x + moveX;
-                let ttop = gridY && enableGrid ? Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y : this.originPos.y + moveY;
+                let tleft = gridX ? Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x : this.originPos.x + moveX;
+                let ttop = gridY ? Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y : this.originPos.y + moveY;
                 this.shapeObject[1].set({
                     left: tleft,
                     top: ttop
@@ -357,7 +355,7 @@ export class ShapeExtension implements Shape {
                 this.shapeObject[1].setCoords();
             },
             "scaling": (e) => {
-                this.onScaling(e.target, enableGrid);
+                this.onScaling(e.target);
             },
             "rotated": (e) => {
                 this.onRotated(e.target);
@@ -387,23 +385,23 @@ export class ShapeExtension implements Shape {
                     moveY = currPos.y - this.startPoint.y;
                 let left = this.originShapePos.x + moveX;
                 let top = this.originShapePos.y + moveY;
-                let tleft = gridX && enableGrid ? Math.round(left / gridX) * gridX : left;
-                let ttop = gridY && enableGrid ? Math.round(top / gridY) * gridY : top;
+                let tleft = gridX ? Math.round(left / gridX) * gridX : left;
+                let ttop = gridY ? Math.round(top / gridY) * gridY : top;
                 this.shapeObject[0].set({
                     left: tleft,
                     top: ttop
                 });
-                if (gridX && enableGrid) {
+                if (gridX) {
                     this.shapeObject[1].set({
                         left: Math.round(this.shapeObject[0].left / gridX) * gridX - this.originShapePos.x + this.originPos.x,
                     });
                 }
-                if (gridY && enableGrid) {
+                if (gridY) {
                     this.shapeObject[1].set({
                         top: Math.round(this.shapeObject[0].top / gridY) * gridY - this.originShapePos.y + this.originPos.y
                     });
                 }
-                if ((gridX || gridY) && enableGrid)
+                if (gridX || gridY)
                     this.shapeObject[1].setCoords();
                 this.shapeObject[0].setCoords();
             },
