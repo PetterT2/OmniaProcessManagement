@@ -12,5 +12,6 @@ namespace Omnia.ProcessManagement.Models.ShapeDefinitions
     {
         public double ArrowWidthPercent { get; set; }
         public double ArrowHeightPercent { get; set; }
+        public bool IsLine { get; set; }
     }
 }

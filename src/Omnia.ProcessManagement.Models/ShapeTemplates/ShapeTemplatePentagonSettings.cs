@@ -9,6 +9,6 @@ namespace Omnia.ProcessManagement.Models.ShapeTemplates
     {
         public double ArrowWidthPercent { get; set; }
         public double ArrowHeightPercent { get; set; }
-        public double Height { get; set; }
+        public bool IsLine { get; set; }
     }
 }

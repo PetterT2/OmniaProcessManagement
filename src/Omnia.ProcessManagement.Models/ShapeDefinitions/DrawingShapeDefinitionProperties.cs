@@ -31,6 +31,7 @@ namespace Omnia.ProcessManagement.Models.ShapeDefinitions
         public List<FabricShapeData> Nodes { get; set; }
         public double ArrowWidthPercent { get; set; }
         public double ArrowHeightPercent { get; set; }
+        public bool IsLine { get; set; }
         public double RoundX { get; set; }
         public double RoundY { get; set; }
     }
