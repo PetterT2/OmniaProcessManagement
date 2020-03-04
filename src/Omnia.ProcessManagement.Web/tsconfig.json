@@ -15,9 +15,16 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "preserve",
+    "baseUrl": "client",
+    "paths": {
+      "@omnia/pm": [ "fx/index" ],
+      "@omnia/pm/models": [ "fx/models/index" ],
+      "internal/*": [ "*" ]
+    },
     "typeRoots": [
       "./node_modules/@omnia/types",
-      "./node_modules/@types"]
+      "./node_modules/@types"
+    ]
   },
   "compileOnSave": true,
   "exclude": [

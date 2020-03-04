@@ -6,3 +6,4 @@ require("ts-node").register({
 });
 
 require("@omnia/tooling").init();
+require("./client/packages/task");

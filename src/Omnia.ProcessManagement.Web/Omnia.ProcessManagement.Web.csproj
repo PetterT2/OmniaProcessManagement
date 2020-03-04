@@ -411,6 +411,7 @@
     <TypeScriptCompile Remove="client\models\styles\PropertiesBlockStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\SearchTemplateProcessStyles.ts" />
     <TypeScriptCompile Remove="client\models\styles\TasksBlockStyles.ts" />
+    <TypeScriptCompile Remove="client\packages\pm.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
@@ -636,6 +637,10 @@
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\titleblock\TitleBlockStyles.css.ts" />
+    <None Include="client\packages\pm\index.d.ts" />
+    <None Include="client\packages\pm\index.js" />
+    <None Include="client\packages\pm\models\index.d.ts" />
+    <None Include="client\packages\pm\models\index.js" />
     <None Include="gulpfile.js" />
   </ItemGroup>
 
