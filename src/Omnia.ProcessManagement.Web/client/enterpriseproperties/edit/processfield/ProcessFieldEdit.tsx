@@ -1,11 +1,10 @@
 ﻿import Vue from 'vue'
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
-import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
-import { VueComponentBase, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, IValidator, FieldValueValidation } from "@omnia/fx/ux";
+import { WebComponentBootstrapper, IWebComponentInstance, vueCustomElement } from '@omnia/fx';
+import { VueComponentBase, IValidator } from "@omnia/fx/ux";
 import { IProcessFieldEdit } from './IProcessFieldEdit';
 import { EnterprisePropertyDefinition, ValueDefinitionMultipleValueSetting } from '@omnia/fx-models';
-import { Process, LightProcess } from '../../../fx/models';
 
 @Component
 export class ProcessFieldEdit extends VueComponentBase implements IWebComponentInstance, IProcessFieldEdit {
