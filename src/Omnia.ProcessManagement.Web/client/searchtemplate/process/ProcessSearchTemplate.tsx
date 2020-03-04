@@ -21,6 +21,7 @@ interface ProcessItem {
     person?: string;
     date?: string;
     previewIframeUrl?: string;
+    url?: string;
 }
 
 @Component
@@ -55,7 +56,8 @@ export class ProcessSearchTemplate extends VueComponentBase implements IWebCompo
             title: this.dataRow.customPropertiesResult["Title"],
             person: this.dataRow.customPropertiesResult["Person"],
             date: this.dataRow.customPropertiesResult["Date"],
-            previewIframeUrl: `${url}?preview=true`
+            previewIframeUrl: `${url}?preview=true`,
+            url: url
         }
     }
 
@@ -108,7 +110,7 @@ export class ProcessSearchTemplate extends VueComponentBase implements IWebCompo
                                     <v-col cols="12">
                                         <a
                                             class={this.cssClasses.title(this.omniaTheming.promoted.body.text.base)}
-                                            href={this.processItem.previewIframeUrl}
+                                            href={this.processItem.url}
                                             target="_blank"
                                             domProps-innerHTML={this.processItem.title}>
                                         </a>

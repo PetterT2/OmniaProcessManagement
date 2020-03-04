@@ -6,7 +6,7 @@ import { FabricShape } from './FabricShape';
 
 export class FabricPolygonShape extends FabricShapeExtension implements FabricShape {
     constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; }) {
-        super(definition, properties);
+        super(definition, properties);        
         this.fabricObject = new fabric.Polygon(this.properties['points'] || [], this.properties);
     }
 

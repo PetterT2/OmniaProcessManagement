@@ -70,6 +70,7 @@ export enum ShapeTemplateType {
     PentagonShape = 2,
     DiamondShape = 3,
     FreeformShape = 4,
-    MediaShape = 5
+    MediaShape = 5,
+    RectShape = 6
 }
 
