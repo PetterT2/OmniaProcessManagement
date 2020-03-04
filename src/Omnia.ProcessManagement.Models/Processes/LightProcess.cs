@@ -7,7 +7,7 @@ namespace Omnia.ProcessManagement.Models.Processes
 {
     public class LightProcess
     {
-        public Guid Id { get; set; }
+        public Guid OPMProcessId { get; set; }
         public int OPMProcessIdNumber { get; set; }
         public MultilingualString Title { get; set; }
     }

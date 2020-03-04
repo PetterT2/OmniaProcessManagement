@@ -87,7 +87,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                     this.searchCallback(this.selectedItem ? [this.selectedItem] : null, true);
                 }
 
-                this.backupModel = existedProcesses ? JSON.parse(JSON.stringify(existedProcesses.map(p => { return p.id; }))) : null;
+                this.backupModel = existedProcesses ? JSON.parse(JSON.stringify(existedProcesses.map(p => { return p.opmProcessId; }))) : null;
             }
             this.isSearching = false;
             this.isResolvingSelectedItem = false;
@@ -95,8 +95,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     }
 
     searchCallback(result: Array<LightProcess>, isInit: boolean = false) {
-        result = result.filter(r => isInit || !this.checkIfAdded(r.id.toString()));
-        this.processResult = isInit ? result : this.processResult.filter(u => this.checkIfAdded(u.id.toString())).concat(result);
+        result = result.filter(r => isInit || !this.checkIfAdded(r.opmProcessId.toString()));
+        this.processResult = isInit ? result : this.processResult.filter(u => this.checkIfAdded(u.opmProcessId.toString())).concat(result);
         this.isSearching = false;
         this.updateDimensions();
     }
@@ -180,7 +180,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             resultProcesses = [newValue as LightProcess];
         }
 
-        var result = resultProcesses.map(p => { return p.id.toString(); });
+        var result = resultProcesses.map(p => { return p.opmProcessId.toString(); });
 
         this.backupModel = JSON.stringify(result);
 
@@ -191,21 +191,21 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     }
 
     filter(item: LightProcess, queryText: string, itemText: string) {
-        return !this.checkIfAdded(item.id.toString()) && itemText && (!queryText || itemText.toLowerCase().indexOf(queryText.toLowerCase()) >= 0);
+        return !this.checkIfAdded(item.opmProcessId.toString()) && itemText && (!queryText || itemText.toLowerCase().indexOf(queryText.toLowerCase()) >= 0);
     }
 
     checkIfAdded(id: string) {
         if (this.multiple)
-            return this.selectedItem && (this.selectedItem as Array<LightProcess>).filter(e => e.id == id).length > 0 ? true : false;
+            return this.selectedItem && (this.selectedItem as Array<LightProcess>).filter(e => e.opmProcessId == id).length > 0 ? true : false;
         else
-            return this.selectedItem && (this.selectedItem as LightProcess).id == id ? true : false;
+            return this.selectedItem && (this.selectedItem as LightProcess).opmProcessId == id ? true : false;
     }
 
     remove(item: LightProcess) {
         if (this.isSearching) return;
 
         if (this.multiple)
-            this.selectedItem = (this.selectedItem as Array<LightProcess>).filter(e => e.id != item.id);
+            this.selectedItem = (this.selectedItem as Array<LightProcess>).filter(e => e.opmProcessId != item.opmProcessId);
         else
             this.selectedItem = null;
 

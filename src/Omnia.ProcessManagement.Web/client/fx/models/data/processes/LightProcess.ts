@@ -1,7 +1,7 @@
 ﻿import { GuidValue, MultilingualString } from '@omnia/fx-models';
 
 export interface LightProcess {
-    id: GuidValue;
+    opmProcessId: GuidValue;
     title: MultilingualString;
     opmProcessIdNumber: number;
 
