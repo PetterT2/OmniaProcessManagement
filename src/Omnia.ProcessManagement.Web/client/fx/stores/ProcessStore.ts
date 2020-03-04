@@ -349,7 +349,7 @@ export class ProcessStore extends Store {
         addOrUpdateLightProcess: (processes: Array<LightProcess>) => {
             processes.forEach(process => {
                 let currentState = this.lightProcessDict.state;
-                let newState = Object.assign({}, currentState, { [process.id.toString()]: process });
+                let newState = Object.assign({}, currentState, { [process.opmProcessId.toString()]: process });
                 this.lightProcessDict.mutate(newState);
             })
         },

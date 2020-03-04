@@ -29,5 +29,9 @@ namespace Omnia.ProcessManagement.Models.ShapeDefinitions
         public int FontSize { get; set; }
         public string ImageUrl { get; set; }
         public List<FabricShapeData> Nodes { get; set; }
+        public double ArrowWidthPercent { get; set; }
+        public double ArrowHeightPercent { get; set; }
+        public double RoundX { get; set; }
+        public double RoundY { get; set; }
     }
 }

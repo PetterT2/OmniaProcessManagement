@@ -1642,7 +1642,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         private LightProcess MapEfToLightModel(Entities.Processes.Process processEf)
         {
             var model = new LightProcess();
-            model.Id = processEf.Id;
+            model.OPMProcessId = processEf.OPMProcessId;
             var rootProcessData = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
             if(rootProcessData.EnterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName) &&
                 int.TryParse(rootProcessData.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName].ToString(), out int opmProcessIdNumber))

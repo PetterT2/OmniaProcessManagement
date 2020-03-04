@@ -1,5 +1,5 @@
 ﻿import { fabric } from 'fabric';
-import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension } from '../shapes';
+import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension, RectShape } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape } from '../../models/data/drawingdefinitions';
 import { DrawingShapeDefinition, TextPosition, ShapeTemplateType } from '../../models';
@@ -405,5 +405,6 @@ const ShapeTemplatesDictionary = {
     DiamondShape,
     PentagonShape,
     MediaShape,
-    FreeformShape
+    FreeformShape,
+    RectShape
 }

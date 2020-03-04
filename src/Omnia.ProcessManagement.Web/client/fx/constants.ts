@@ -60,6 +60,17 @@ export const ShapeTemplatesConstants = {
             },
             multilingualTitle: ""
         }
+    },
+    get RoundedRect(): ShapeTemplate {
+        return {
+            id: "06edea01-fc29-48eb-b25b-8ba1eff8265f",
+            title: { isMultilingualString: true, "en-us": "Rect" },
+            builtIn: true,
+            settings: {
+                type: ShapeTemplateType.RectShape
+            },
+            multilingualTitle: ""
+        }
     }
 }
 

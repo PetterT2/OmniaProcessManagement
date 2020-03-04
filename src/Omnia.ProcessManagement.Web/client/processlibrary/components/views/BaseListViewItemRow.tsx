@@ -1,13 +1,14 @@
 ﻿import Component from 'vue-class-component';
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
-import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse } from '@omnia/fx/ux';
+import { VueComponentBase, OmniaTheming, StyleFlow, ConfirmDialogResponse, EnterprisePropertyDisplayProps } from '@omnia/fx/ux';
 import { ProcessLibraryListViewStyles, DisplayProcess, FilterOption, FilterAndSortInfo, FilterAndSortResponse } from '../../../models';
 import { LibrarySystemFieldsConstants, ProcessLibraryFields, DefaultDateFormat, ProcessLibraryListViewTabs } from '../../Constants';
 import { Utils, OmniaContext, Inject } from '@omnia/fx';
-import { TenantRegionalSettings } from '@omnia/fx-models';
-import { ProcessLibraryDisplaySettings, ProcessListViewComponentKey, ProcessWorkingStatus, Process } from '../../../fx/models';
+import { TenantRegionalSettings, EnterprisePropertyDefinition } from '@omnia/fx-models';
+import { ProcessLibraryDisplaySettings, ProcessListViewComponentKey, ProcessWorkingStatus, Process, OPMProcessProperty } from '../../../fx/models';
 import { FiltersAndSorting } from '../../filtersandsorting/FiltersAndSorting';
+import { EnterprisePropertyStore } from '@omnia/fx/store';
 
 declare var moment;
 
@@ -35,6 +36,7 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
     @Prop() openProcess: (item: Process) => void;
     @Prop() filtersAndSorting: FiltersAndSorting;
     @Inject(OmniaContext) omniaContext: OmniaContext;
+    @Inject(EnterprisePropertyStore) private enterprisePropertyStore: EnterprisePropertyStore;
 
     listViewClasses = StyleFlow.use(ProcessLibraryListViewStyles, this.styles);
     dateFormat: string = DefaultDateFormat;
@@ -70,6 +72,23 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
                 viewPageUrl: this.previewPageUrl
             }
         });
+    }
+
+    renderProcessColumn(enterprisePropertyDefinition: EnterprisePropertyDefinition) {
+        let h = this.$createElement;
+        var processValue = this.item.rootProcessStep.enterpriseProperties[enterprisePropertyDefinition.internalName]
+        let props: EnterprisePropertyDisplayProps = {
+            model: !Utils.isNullOrEmpty(processValue) ? JSON.parse(processValue) : [],
+            property: enterprisePropertyDefinition,
+            wrapWithParentContent: null
+        }
+
+        let componentData = {
+            domProps: props,
+            attrs: { }
+        }
+
+        return h(enterprisePropertyDefinition.enterprisePropertyDataType.uiOptions.displayModeElementName, componentData);
     }
 
     render(h) {
@@ -128,9 +147,17 @@ export class BaseListViewItemRow extends VueComponentBase<BaseListViewItemRowPro
                                     </td>
                                 );
                             default:
-                                return (
-                                    <td>{Utils.isNullOrEmpty(this.item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(this.item, internalName) : this.item.sortValues[internalName]}</td>
-                                )
+                                let enterprisePropertyDefinition: EnterprisePropertyDefinition = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().find(p => p.internalName == internalName);
+                                if (enterprisePropertyDefinition && enterprisePropertyDefinition.enterprisePropertyDataType.id == OPMProcessProperty.Id) {
+                                    return (
+                                        <td>{this.renderProcessColumn(enterprisePropertyDefinition)}</td>
+                                    )
+                                }  
+                                else {
+                                    return (
+                                        <td>{Utils.isNullOrEmpty(this.item.sortValues[internalName]) ? this.filtersAndSorting.parseProcessValue(this.item, internalName) : this.item.sortValues[internalName]}</td>
+                                    )
+                                }
                         };
                     })
                 }

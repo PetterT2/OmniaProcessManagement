@@ -110,7 +110,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                         int.TryParse(process.RootProcessStep.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName].ToString(), out opmProcessIdNumber);
                     }
                     result.Add(new LightProcess() { 
-                        Id = process.Id,
+                        OPMProcessId = process.OPMProcessId,
                         Title = process.RootProcessStep.Title,
                         OPMProcessIdNumber = opmProcessIdNumber
                     });
