@@ -3,7 +3,6 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils, OmniaContext, Topics } from "@omnia/fx";
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
 import { IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx/models';
-import './ContentBlock.css';
 import { ContentBlockStyles } from '../../models';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { VueComponentBase } from '@omnia/fx/ux';

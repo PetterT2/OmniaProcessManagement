@@ -46,7 +46,8 @@ export class PentagonShape extends ShapeExtension implements Shape {
             this.definition.arrowWidthPercent = 0.5;
         if (this.definition.arrowHeightPercent == undefined)
             this.definition.arrowHeightPercent = 0;
-
+        if (this.definition.isLine)
+            this.definition.height = 1;
         let position = this.correctPosition(left, top);
         let textPosition = this.getTextPosition(position);
         let highlightProperties = this.getHighlightProperties();

@@ -6,5 +6,5 @@ export interface ShapeTemplatePentagonSettings extends ShapeTemplateSettings {
     type: ShapeTemplateType.PentagonShape,
     arrowWidthPercent: number;
     arrowHeightPercent: number;
-    height: number;
+    isLine: boolean;
 }

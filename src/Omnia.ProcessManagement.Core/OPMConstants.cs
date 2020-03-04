@@ -212,7 +212,7 @@ namespace Omnia.ProcessManagement.Core
                                 Type = ShapeTemplateType.PentagonShape,
                                 ArrowWidthPercent = 0,
                                 ArrowHeightPercent = 0,
-                                Height = 1
+                                IsLine = true
                             }
                         };
                     }
@@ -235,7 +235,7 @@ namespace Omnia.ProcessManagement.Core
                                 Type = ShapeTemplateType.PentagonShape,
                                 ArrowWidthPercent = 0.5,
                                 ArrowHeightPercent = 0.5,
-                                Height = 1
+                                IsLine = true
                             }
                         };
                     }
