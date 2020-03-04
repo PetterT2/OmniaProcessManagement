@@ -54,4 +54,26 @@ export class RectShape extends ShapeExtension implements Shape {
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
+
+    private updateRound(object: fabric.Object) {
+        if ((this.definition as DrawingRectShapeDefinition).roundX) {
+            object.width = object.width * object.scaleX;
+            object.scaleX = 1;
+            object.dirty = true;
+        }
+        if ((this.definition as DrawingRectShapeDefinition).roundY) {
+            object.height = object.height * object.scaleY;
+            object.scaleY = 1;
+            object.dirty = true;
+        }
+    }
+
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+        super.addEventListener(canvas, gridX, gridY);
+        this.shapeObject[0].on({
+            "scaled": (e) => {
+                this.updateRound(e.target);
+            }
+        })
+    }
 }
