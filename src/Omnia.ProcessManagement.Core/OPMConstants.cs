@@ -48,10 +48,10 @@ namespace Omnia.ProcessManagement.Core
         {
             public static EnterprisePropertyDataType ProcessDataType
             {
-                get 
+                get
                 {
-                    return new EnterprisePropertyDataType() 
-                    { 
+                    return new EnterprisePropertyDataType()
+                    {
                         Id = new Guid("7491ec1a-9cf5-4c49-b102-2f84f89795eb"),
                         OmniaServiceId = OPMService.WebApp.Id,
                         Title = "$Localize:OPM.Core.EnterprisePropertyDataType.Process.Title;",
@@ -70,7 +70,7 @@ namespace Omnia.ProcessManagement.Core
             {
                 public static IList<ShapeTemplate> ShapeTemplates => new List<ShapeTemplate>()
                     {
-                        Circle, Pentagon, Diamond, Freeform, Media
+                        Circle, Pentagon, Diamond, Freeform, Media, RoundedRect, Rectangle, Line, LineArrow, BlockArrow
                     };
 
                 public static ShapeTemplate Circle
@@ -168,6 +168,118 @@ namespace Omnia.ProcessManagement.Core
                             Settings = new ShapeTemplateSettings()
                             {
                                 Type = ShapeTemplateType.MediaShape
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeTemplate RoundedRect
+                {
+                    get
+                    {
+                        return new ShapeTemplate()
+                        {
+                            Id = new Guid("06edea01-fc29-48eb-b25b-8ba1eff8265f"),
+                            BuiltIn = true,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Rounded Rectangle"
+                            },
+                            Settings = new ShapeTemplateRectSettings()
+                            {
+                                Type = ShapeTemplateType.RectShape,
+                                RoundX = 10,
+                                RoundY = 10
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeTemplate Line
+                {
+                    get
+                    {
+                        return new ShapeTemplate()
+                        {
+                            Id = new Guid("e428e16e-8676-4710-92ba-d80240d2fab0"),
+                            BuiltIn = true,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Line"
+                            },
+                            Settings = new ShapeTemplatePentagonSettings()
+                            {
+                                Type = ShapeTemplateType.PentagonShape,
+                                ArrowWidthPercent = 0,
+                                ArrowHeightPercent = 0,
+                                Height = 1
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeTemplate LineArrow
+                {
+                    get
+                    {
+                        return new ShapeTemplate()
+                        {
+                            Id = new Guid("4d22a2d5-a42b-45c1-8f48-1fa3b2c37e58"),
+                            BuiltIn = true,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Line Arrow"
+                            },
+                            Settings = new ShapeTemplatePentagonSettings()
+                            {
+                                Type = ShapeTemplateType.PentagonShape,
+                                ArrowWidthPercent = 0.5,
+                                ArrowHeightPercent = 0.5,
+                                Height = 1
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeTemplate BlockArrow
+                {
+                    get
+                    {
+                        return new ShapeTemplate()
+                        {
+                            Id = new Guid("9e02d0ba-647c-4558-8d20-2e74dc6d5013"),
+                            BuiltIn = true,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Block Arrow"
+                            },
+                            Settings = new ShapeTemplatePentagonSettings()
+                            {
+                                Type = ShapeTemplateType.PentagonShape,
+                                ArrowWidthPercent = 0.5,
+                                ArrowHeightPercent = 0.5
+                            }
+                        };
+                    }
+                }
+
+                public static ShapeTemplate Rectangle
+                {
+                    get
+                    {
+                        return new ShapeTemplate()
+                        {
+                            Id = new Guid("d7ccaba9-663c-457f-a01b-a014273eafdf"),
+                            BuiltIn = true,
+                            Title = new MultilingualString()
+                            {
+                                [LanguageTag.EnUs] = "Rectangle"
+                            },
+                            Settings = new ShapeTemplatePentagonSettings()
+                            {
+                                Type = ShapeTemplateType.PentagonShape,
+                                ArrowWidthPercent = 0,
+                                ArrowHeightPercent = 0
                             }
                         };
                     }

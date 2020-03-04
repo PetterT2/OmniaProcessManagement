@@ -4,7 +4,7 @@ import { Prop } from 'vue-property-decorator';
 import * as tsx from 'vue-tsx-support';
 import { JourneyInstance, OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { OPMAdminLocalization } from '../../../../loc/localize';
-import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment, ShapeTemplate, ShapeTemplateType, DrawingImageShapeDefinition, ShapeTemplateMediaSettings, DrawingFreeformShapeDefinition, ShapeTemplateFreeformSettings } from '../../../../../fx/models';
+import { ProcessTemplate, ShapeDefinition, ShapeDefinitionTypes, DrawingShapeDefinition, TextPosition, TextAlignment, ShapeTemplate, ShapeTemplateType, DrawingImageShapeDefinition, ShapeTemplateMediaSettings, DrawingFreeformShapeDefinition, ShapeTemplateFreeformSettings, DrawingPentagonShapeDefinition, ShapeTemplatePentagonSettings, DrawingRectShapeDefinition, ShapeTemplateRectSettings } from '../../../../../fx/models';
 import { ProcessTemplateJourneyStore } from '../../store';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../../../../fx/constants';
 import { ProcessTemplatesJourneyBladeIds } from '../../ProcessTemplatesJourneyConstants';
@@ -136,6 +136,15 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             }, false);
     }
 
+    private deleteSpecificProperties() {
+        delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
+        delete (this.editingShape as DrawingPentagonShapeDefinition).arrowWidthPercent;
+        delete (this.editingShape as DrawingPentagonShapeDefinition).arrowHeightPercent;
+        delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
+        delete (this.editingShape as DrawingRectShapeDefinition).roundX;
+        delete (this.editingShape as DrawingRectShapeDefinition).roundY;
+    }
+
     onShapeTemplateChanged() {
         this.hasError = false;
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
@@ -144,11 +153,13 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             (this.editingShape as DrawingShapeDefinition).shapeTemplateId = foundTemplate.id;
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType = foundTemplate.settings.type;
             this.editingShape.title = Utils.clone(foundTemplate.title);
+            (this.editingShape as DrawingShapeDefinition).width = (this.editingShape as DrawingShapeDefinition).height = 100;
+            this.deleteSpecificProperties();
+
             if (!foundTemplate.builtIn) {
                 if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.MediaShape) {
                     (this.editingShape as DrawingImageShapeDefinition).width = (this.editingShape as DrawingImageShapeDefinition).height = 200;
                     (this.editingShape as DrawingImageShapeDefinition).imageUrl = (foundTemplate.settings as ShapeTemplateMediaSettings).imageUrl;
-                    delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
                 }
                 else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.FreeformShape) {
                     (this.editingShape as DrawingFreeformShapeDefinition).nodes = (foundTemplate.settings as ShapeTemplateFreeformSettings).nodes;
@@ -156,13 +167,17 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         (this.editingShape as DrawingFreeformShapeDefinition).width = (this.editingShape as DrawingFreeformShapeDefinition).nodes[0].properties['width'];
                         (this.editingShape as DrawingFreeformShapeDefinition).height = (this.editingShape as DrawingFreeformShapeDefinition).nodes[0].properties['height'];
                     }
-                    delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
                 }
             }
-            else {
-                if ((this.editingShape as DrawingImageShapeDefinition).imageUrl) delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
-                if ((this.editingShape as DrawingFreeformShapeDefinition).nodes) delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
-                (this.editingShape as DrawingImageShapeDefinition).width = (this.editingShape as DrawingImageShapeDefinition).height = 100;
+            else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.PentagonShape) {
+                (this.editingShape as DrawingPentagonShapeDefinition).arrowWidthPercent = (foundTemplate.settings as ShapeTemplatePentagonSettings).arrowWidthPercent;
+                (this.editingShape as DrawingPentagonShapeDefinition).arrowHeightPercent = (foundTemplate.settings as ShapeTemplatePentagonSettings).arrowHeightPercent;
+                if ((foundTemplate.settings as ShapeTemplatePentagonSettings).height)
+                    (this.editingShape as DrawingPentagonShapeDefinition).height = (foundTemplate.settings as ShapeTemplatePentagonSettings).height;
+            }
+            else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.RectShape) {
+                (this.editingShape as DrawingRectShapeDefinition).roundX = (foundTemplate.settings as ShapeTemplateRectSettings).roundX;
+                (this.editingShape as DrawingRectShapeDefinition).roundY = (foundTemplate.settings as ShapeTemplateRectSettings).roundY;
             }
             this.updateTemplateShape();
         }

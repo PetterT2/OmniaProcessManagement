@@ -1,7 +1,7 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
 import { FabricShapeDataTypes, FabricTextShape, FabricShapeData, FabricPolygonShape } from '../fabricshape';
-import { DrawingShapeDefinition, ShapeTemplateType } from '../../models';
+import { DrawingShapeDefinition, ShapeTemplateType, DrawingPentagonShapeDefinition } from '../../models';
 import { ShapeObject } from './ShapeObject';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
@@ -9,7 +9,8 @@ import { ShapeTemplatesConstants, } from '../../constants';
 import { Point } from 'fabric/fabric-impl';
 
 export class PentagonShape extends ShapeExtension implements Shape {
-    constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString, selectable?: boolean,
+    definition: DrawingPentagonShapeDefinition;
+    constructor(definition: DrawingPentagonShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString, selectable?: boolean,
         left?: number, top?: number, darkHighlight?: boolean) {
         super(definition, nodes, title, selectable, left, top, darkHighlight);
     }
@@ -41,6 +42,11 @@ export class PentagonShape extends ShapeExtension implements Shape {
     }
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
+        if (this.definition.arrowWidthPercent == undefined)
+            this.definition.arrowWidthPercent = 0.5;
+        if (this.definition.arrowHeightPercent == undefined)
+            this.definition.arrowHeightPercent = 0;
+
         let position = this.correctPosition(left, top);
         let textPosition = this.getTextPosition(position);
         let highlightProperties = this.getHighlightProperties();
@@ -67,13 +73,23 @@ export class PentagonShape extends ShapeExtension implements Shape {
     }
 
     private getDefaultPoints(): Array<{ x: number; y: number }> {
-        let triangleWidth = Math.floor(this.definition.height / 2);
+        let triangleWidth = Math.floor(this.definition.height * this.definition.arrowWidthPercent);
+        let triangleHeight = Math.floor(this.definition.height * this.definition.arrowHeightPercent / 2);
+        let lineExtend = 0;
+        if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0 && triangleHeight == 0) {
+            lineExtend = 4;
+        }
         let points: Array<{ x: number; y: number }> = [
-            { x: 0, y: 0 },
-            { x: this.definition.width - triangleWidth, y: 0 },
+            { x: 0, y: triangleHeight },
+            { x: this.definition.width - triangleWidth - lineExtend, y: triangleHeight },
             { x: this.definition.width, y: this.definition.height / 2 },
-            { x: this.definition.width - triangleWidth, y: this.definition.height },
-            { x: 0, y: this.definition.height }];
+            { x: this.definition.width - triangleWidth - lineExtend, y: this.definition.height + lineExtend },
+            { x: 0, y: this.definition.height - triangleHeight }];
+
+        if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0) {
+            points.splice(2, 0, { x: this.definition.width - triangleWidth - lineExtend, y: 0 - lineExtend });
+            points.splice(5, 0, { x: this.definition.width - triangleWidth - lineExtend, y: this.definition.height - triangleHeight });
+        }
         return points;
     }
 
@@ -82,6 +98,43 @@ export class PentagonShape extends ShapeExtension implements Shape {
             return {
                 x: p.x * scaleX,
                 y: p.y * scaleY
+            }
+        })
+    }
+
+    protected onScaling(object: fabric.Object, enableGrid: boolean) {
+        super.onScaling(object, enableGrid);
+        this.updatePoints(this.shapeObject[0]);
+    }
+
+    private updatePoints(object: fabric.Object) {
+        let triangleWidth = Math.floor(object.height * object.scaleY * this.definition.arrowWidthPercent);
+        let triangleHeight = Math.floor(object.height * object.scaleY * this.definition.arrowHeightPercent / 2);
+        let lineExtend = 0;
+        if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0 && triangleHeight == 0) {
+            lineExtend = 4;
+        }
+        let scaleWidth = Math.floor(object.width * object.scaleX);
+        let points = object.toJSON()['points'];
+        if (points.length > 5) {
+            points[1].x = (scaleWidth - triangleWidth - lineExtend) / object.scaleX;
+            points[2].x = points[1].x;
+
+            points[4].x = points[1].x;
+            points[5].x = points[1].x;
+        } else {
+            points[1].x = (scaleWidth - triangleWidth) / object.scaleX;
+            points[3].x = points[1].x;           
+        }
+        (object as any).points = points;
+        object.dirty = true;
+    }
+
+    addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number) {
+        super.addEventListener(canvas, gridX, gridY);
+        this.shapeObject[0].on({
+            "scaled": (e) => {
+                this.updatePoints(e.target);
             }
         })
     }

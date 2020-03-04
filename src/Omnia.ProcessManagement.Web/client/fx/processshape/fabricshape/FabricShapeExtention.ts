@@ -32,6 +32,8 @@ export class FabricShapeExtension implements FabricShape {
             if (!this.properties["stroke"]) {
                 this.properties["stroke"] = definition.borderColor;
             }
+            else
+                this.properties["stroke"] = definition.backgroundColor;
         }
     }
 
