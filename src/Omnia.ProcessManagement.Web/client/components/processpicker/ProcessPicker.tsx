@@ -74,7 +74,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
         this.isResolvingSelectedItem = true;
 
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-            var resolvedModel: Array<string> = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
+            var resolvedModel: Array<string> = this.model && this.model !== 'undefined' ? (Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>)) : [];
+
             if (resolvedModel && resolvedModel.length > 0) {
                 var existedProcesses = this.processStore.getters.lightProcess(resolvedModel);
 
