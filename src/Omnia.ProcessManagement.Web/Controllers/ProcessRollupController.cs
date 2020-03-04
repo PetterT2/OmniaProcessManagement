@@ -6,6 +6,7 @@ using Omnia.Fx.Models.Shared;
 using Omnia.Fx.Utilities;
 using Omnia.ProcessManagement.Core.Services.ProcessRollup;
 using Omnia.ProcessManagement.Models.Processes;
+using Omnia.ProcessManagement.Models.ProcessRollup;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         ILogger<ProcessRollupController> Logger { get; }
         IProcessRollupService ProcessRollupService { get; }
 
-        public ProcessRollupController(ILogger<ProcessRollupController> logger, IProcessRollupService processRollupService) 
+        public ProcessRollupController(ILogger<ProcessRollupController> logger, IProcessRollupService processRollupService)
         {
             Logger = logger;
             ProcessRollupService = processRollupService;
@@ -27,17 +28,17 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
         [HttpPost, Route("queryrollup")]
         [Authorize]
-        public async ValueTask<IActionResult> QueryProcessRollup([FromBody]RollupSetting setting)
+        public async ValueTask<ApiResponse<RollupProcessResult>> QueryProcessRollup([FromBody]RollupSetting setting)
         {
             try
             {
                 var result = await ProcessRollupService.QueryProcessRollup(setting);
-                return Ok(ApiUtils.CreateSuccessResponse(result));
+                return ApiUtils.CreateSuccessResponse(result);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollup)}");
-                return Ok(ApiUtils.CreateErrorResponse(ex));
+                Logger.LogError(ex, ex.Message);
+                return ApiUtils.CreateErrorResponse<RollupProcessResult>(ex);
             }
         }
 
@@ -52,7 +53,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, $"Failed to {nameof(QueryProcessRollupWithoutPermission)}");
+                Logger.LogError(ex, ex.Message);
                 return ApiUtils.CreateErrorResponse<List<LightProcess>>(ex);
             }
         }

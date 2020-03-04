@@ -15,7 +15,6 @@ namespace Omnia.ProcessManagement.Models.Enums
     public enum DraftOrPublishedVersionType
     {
         Draft = ProcessVersionType.Draft,
-        Published = ProcessVersionType.Published,
-        CheckedOut = ProcessVersionType.CheckedOut
+        Published = ProcessVersionType.Published
     }
 }
