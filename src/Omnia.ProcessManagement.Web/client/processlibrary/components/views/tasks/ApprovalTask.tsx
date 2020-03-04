@@ -123,7 +123,7 @@ export class ApprovalTaskComponent extends VueComponentBase<ApprovalTaskComponen
             .then(() => {
 
                 if (this.task.taskOutCome == TaskOutcome.Approved && this.task.workflow) {
-                    this.processStore.actions.refreshPublishedProcess.dispatch(this.task.workflow.opmProcessId)
+                    this.processStore.actions.ensurePublishedProcess.dispatch(this.task.workflow.opmProcessId, true)
                 }
 
                 this.hasError = false;

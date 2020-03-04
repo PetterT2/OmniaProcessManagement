@@ -85,7 +85,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                 }
                 else {
                     this.selectedItem = existedProcesses ? existedProcesses[0] : null;
-                    this.searchCallback(this.selectedItem ? [this.selectedItem] : null, true);
+                    this.searchCallback(this.selectedItem ? [this.selectedItem] : [], true);
                 }
 
                 this.backupModel = existedProcesses ? JSON.parse(JSON.stringify(existedProcesses.map(p => { return p.opmProcessId; }))) : null;

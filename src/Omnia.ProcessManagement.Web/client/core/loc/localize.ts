@@ -130,6 +130,10 @@
                 Title: string,
                 Description: string
             },
+            ProcessContext: {
+                Title: string,
+                Description: string
+            },
             ProcessRollup: {
                 Title: string,
                 Description: string
@@ -191,6 +195,9 @@
                     Heading2: string,
                     Heading3: string
                 }
+            },
+            Context: {
+                PageProperty: string
             }
         },
         Columns: {

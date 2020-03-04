@@ -7,11 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
+    <Content Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
+    <EmbeddedResource Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
+    <None Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <None Remove="wwwroot\omnia\**" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -174,10 +179,14 @@
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processcontextblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\DocumentsBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock\index.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processcontextblock\ProcessContextBlockData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processcontextblock\ProcessContextBlockDataData.ts" />
+    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processcontextblock\ProcessContextBlockSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\propertiesblock\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\processnavigation\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\linksblock\index.ts" />
@@ -587,6 +596,10 @@
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlock.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\DocumentsBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\documentsblock\IDocumentsBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processcontext\IProcessContextBlockSettings.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processcontext\ProcessContextBlock.manifest.ts" />
+    <TypeScriptCompile Remove="client\viewprocess\processcontext\ProcessContextBlock.tsx" />
+    <TypeScriptCompile Remove="client\viewprocess\processcontext\ProcessContextBlockSettings.tsx" />
     <TypeScriptCompile Remove="client\viewprocess\propertiesblock\IPropertiesBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\processnavigation\IProcessNavigationBlockSettings.ts" />
     <TypeScriptCompile Remove="client\viewprocess\linksblock\ILinksBlockSettings.ts" />
@@ -627,7 +640,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="client\fx\models\components\viewprocess\documentsblock - Copy\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -685,6 +697,9 @@
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\breadcrumbblock\index.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="client\fx\models\components\viewprocess\processcontextblock\index.ts">
       <SubType>Code</SubType>
     </None>
     <None Update="client\fx\models\components\viewprocess\documentsblock\index.ts">
