@@ -20,7 +20,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     @Prop({ default: true }) filled: boolean;
     @Prop() disabled: boolean;
     @Prop() multiple: boolean;
-    @Prop() model: string;
+    @Prop() model: Array<string> | string;
     @Prop() onModelChange: (opmProcessIds: Array<string>) => void;
     @Prop({ default: null }) validator?: IValidator;
 
@@ -74,7 +74,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
         this.isResolvingSelectedItem = true;
 
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-            var resolvedModel: Array<string> = JSON.parse(this.model);
+            var resolvedModel: Array<string> = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
             if (resolvedModel && resolvedModel.length > 0) {
                 var existedProcesses = this.processStore.getters.lightProcess(resolvedModel);
 
