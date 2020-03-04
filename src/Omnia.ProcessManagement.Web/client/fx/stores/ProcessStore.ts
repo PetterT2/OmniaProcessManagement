@@ -217,15 +217,27 @@ export class ProcessStore extends Store {
                 return process;
             })
         }),
-        refreshPublishedProcess: this.action((opmProcessId: GuidValue) => {
-            return new Promise<null>((resolve, reject) => {
-                this.processService.getPublishedProcess(opmProcessId).then((process) => {
-                    this.internalMutations.addOrUpdateProcess(process);
-                    resolve();
-                }).catch(err => {
-                    console.warn(`Cannot refresh the published process with OPMProcessId: ${opmProcessId} in ProcessStore. ${err}`);
-                    resolve();
-                })
+        ensurePublishedProcess: this.action((opmProcessId: GuidValue, refreshCache: boolean = false) => {
+            return new Promise<Process>((resolve, reject) => {
+                let publishedProcess: Process = null;
+                if (!refreshCache) {
+                    let currentState = this.processDict.state;
+                    publishedProcess = Object.keys(currentState).map(key => currentState[key]).find(p => p.opmProcessId == opmProcessId && p.versionType == ProcessVersionType.Published);
+                }
+
+
+                if (publishedProcess) {
+                    resolve(publishedProcess)
+                }
+                else {
+                    this.processService.getPublishedProcess(opmProcessId).then((process) => {
+                        this.internalMutations.addOrUpdateProcess(process);
+                        resolve(process);
+                    }).catch(err => {
+                        console.warn(`Cannot refresh the published process with OPMProcessId: ${opmProcessId} in ProcessStore. ${err}`);
+                        reject();
+                    })
+                }
             })
         }),
         ensureProcessCheckoutInfo: this.action((opmProcessId: GuidValue) => {

@@ -134,6 +134,10 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                 Title: "Process Navigation",
                 Description: ""
             },
+            ProcessContext: {
+                Title: "Process Context",
+                Description: "Use this block to link a process to current page."
+            },
             ProcessRollup: {
                 Title: "Process Rollup",
                 Description: "Use this block to roll up processes with filter possibilities on the result."
@@ -195,6 +199,9 @@ Composer.registerManifest("523a6f8b-8ac0-4e3d-ac05-aa0b535636dd")
                     Heading2: "Heading 2",
                     Heading3: "Heading 3"
                 }
+            },
+            Context: {
+                PageProperty: "Page Property"
             }
         },
         Columns: {
