@@ -125,16 +125,14 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
                     this.canvasObject.setActiveObject(object);
                 }
             }
-            if (this.showGridlines) {
-                if (this.gridX)
-                    object.set({
-                        left: Math.round(object.left / this.gridX) * this.gridX
-                    });
-                if (this.gridY)
-                    object.set({
-                        top: Math.round(object.top / this.gridY) * this.gridY
-                    });
-            }
+            if (this.gridX)
+                object.set({
+                    left: Math.round(object.left / this.gridX) * this.gridX
+                });
+            if (this.gridY)
+                object.set({
+                    top: Math.round(object.top / this.gridY) * this.gridY
+                });
             this.isMoving = true;
             let ctx = this.canvasObject.getContext();
             ctx.font = '900 30px "Font Awesome 5 Pro"';

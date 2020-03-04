@@ -103,8 +103,8 @@ export class PentagonShape extends ShapeExtension implements Shape {
         })
     }
 
-    protected onScaling(object: fabric.Object, enableGrid: boolean) {
-        super.onScaling(object, enableGrid);
+    protected onScaling(object: fabric.Object) {
+        super.onScaling(object);
         this.updatePoints(this.shapeObject[0]);
     }
 
