@@ -52,13 +52,12 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByOPMProcessIdQueryAsync(opmProcessId, true);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByOPMProcessIdQueryAsync(opmProcessId);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
-                var checkedOutProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
                 var draftProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.Draft);
 
-                var checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
+                var checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, draftProcess);
 
                 return checkoutInfo.AsApiResponse();
             }
@@ -351,13 +350,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 IAuthorizedProcessQuery authorizedProcessQuery;
-                IAuthorizedProcessQuery authorizedCheckedoutProcessQuery;
 
                 if (opmProcessIds.Count == 0 && isGetAll)
                 {
                     authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
-                  limitedTeamAppIds: new List<Guid> { teamAppId });
-                    authorizedCheckedoutProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.CheckedOut,
                   limitedTeamAppIds: new List<Guid> { teamAppId });
                 }
                 else
@@ -365,21 +361,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
                     authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.Draft,
                     limitedTeamAppIds: new List<Guid> { teamAppId },
                     limitedOPMProcessIds: opmProcessIds);
-                    authorizedCheckedoutProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByVersionQueryAsync(DraftOrPublishedVersionType.CheckedOut,
-                        limitedTeamAppIds: new List<Guid> { teamAppId },
-                        limitedOPMProcessIds: opmProcessIds);
                 }
 
                 var processWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedProcessQuery);
-                var checkedOutProcessWorkingStatus = await ProcessService.GetProcessWorkingStatusAsync(authorizedCheckedoutProcessQuery);
-                foreach (var status in processWorkingStatus)
-                {
-                    if (checkedOutProcessWorkingStatus.ContainsKey(status.Key))
-                    {
-                        var checkedOutStatus = checkedOutProcessWorkingStatus.FirstOrDefault(p => p.Key == status.Key);
-                        status.Value.CheckedOutBy = checkedOutStatus.Value.CheckedOutBy;
-                    }
-                }
                 return processWorkingStatus.AsApiResponse();
             }
             catch (Exception ex)
@@ -451,7 +435,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(processStepId, true);
+                var authorizedProcessQuery = await ProcessSecurityService.InitAuthorizedProcessByProcessStepIdQueryAsync(processStepId);
                 var processes = await ProcessService.GetAuthorizedProcessesAsync(authorizedProcessQuery);
 
                 var checkedOutProcess = processes.FirstOrDefault(p => p.VersionType == ProcessVersionType.CheckedOut);
@@ -460,10 +444,10 @@ namespace Omnia.ProcessManagement.Web.Controllers
 
                 ProcessCheckoutInfo checkoutInfo = null;
 
-                checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, checkedOutProcess, draftProcess);
+                checkoutInfo = GenerateProcessCheckoutInfo(authorizedProcessQuery, draftProcess);
 
                 Process process = null;
-                if (checkedOutProcess != null && checkoutInfo != null && checkoutInfo.CanCheckout)
+                if (checkedOutProcess != null)
                 {
                     process = checkedOutProcess;
                 }
@@ -740,16 +724,16 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process checkedOutProcess, Process draftProcess)
+        private ProcessCheckoutInfo GenerateProcessCheckoutInfo(IAuthorizedProcessQuery authorizedProcessQuery, Process draftProcess)
         {
-            if (checkedOutProcess == null && draftProcess == null)
+            if (draftProcess == null)
             {
                 return null;
             }
 
-            var checkedOutBy = checkedOutProcess != null ? checkedOutProcess.CheckedOutBy : "";
-            var teamAppId = checkedOutProcess != null ? checkedOutProcess.TeamAppId : draftProcess.TeamAppId;
-            var workingStatus = checkedOutProcess != null ? checkedOutProcess.ProcessWorkingStatus : draftProcess.ProcessWorkingStatus;
+            var checkedOutBy = draftProcess.CheckedOutBy;
+            var teamAppId = draftProcess.TeamAppId;
+            var workingStatus = draftProcess.ProcessWorkingStatus;
 
             var canCheckout = (string.IsNullOrEmpty(checkedOutBy) || checkedOutBy.ToLower() == OmniaContext.Identity.LoginName.ToLower()) &&
                     (authorizedProcessQuery.IsAuthor(teamAppId) || authorizedProcessQuery.IsReviewer(teamAppId));
