@@ -3,5 +3,5 @@
 export interface DrawingPentagonShapeDefinition extends DrawingShapeDefinition {
     arrowWidthPercent: number;
     arrowHeightPercent: number;
-    height: number;
+    isLine: boolean;
 }

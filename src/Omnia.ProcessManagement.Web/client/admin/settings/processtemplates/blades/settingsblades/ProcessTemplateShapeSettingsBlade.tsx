@@ -140,6 +140,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         delete (this.editingShape as DrawingFreeformShapeDefinition).nodes;
         delete (this.editingShape as DrawingPentagonShapeDefinition).arrowWidthPercent;
         delete (this.editingShape as DrawingPentagonShapeDefinition).arrowHeightPercent;
+        delete (this.editingShape as DrawingPentagonShapeDefinition).isLine;
         delete (this.editingShape as DrawingImageShapeDefinition).imageUrl;
         delete (this.editingShape as DrawingRectShapeDefinition).roundX;
         delete (this.editingShape as DrawingRectShapeDefinition).roundY;
@@ -172,8 +173,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.PentagonShape) {
                 (this.editingShape as DrawingPentagonShapeDefinition).arrowWidthPercent = (foundTemplate.settings as ShapeTemplatePentagonSettings).arrowWidthPercent;
                 (this.editingShape as DrawingPentagonShapeDefinition).arrowHeightPercent = (foundTemplate.settings as ShapeTemplatePentagonSettings).arrowHeightPercent;
-                if ((foundTemplate.settings as ShapeTemplatePentagonSettings).height)
-                    (this.editingShape as DrawingPentagonShapeDefinition).height = (foundTemplate.settings as ShapeTemplatePentagonSettings).height;
+                (this.editingShape as DrawingPentagonShapeDefinition).isLine = (foundTemplate.settings as ShapeTemplatePentagonSettings).isLine;
             }
             else if ((this.editingShape as DrawingShapeDefinition).shapeTemplateType == ShapeTemplateType.RectShape) {
                 (this.editingShape as DrawingRectShapeDefinition).roundX = (foundTemplate.settings as ShapeTemplateRectSettings).roundX;

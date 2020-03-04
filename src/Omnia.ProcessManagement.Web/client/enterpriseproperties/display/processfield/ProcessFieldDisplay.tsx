@@ -1,11 +1,11 @@
 ﻿import Vue from 'vue'
 import Component from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
-import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
+import { Inject, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils } from '@omnia/fx';
 import { StyleFlow } from "@omnia/fx/ux";
 import { IProcessFieldDisplay } from './IProcessFieldDisplay';
 import { EnterprisePropertyDefinition } from '@omnia/fx-models';
-import { Process, ProcessFieldDisplayStyles, LightProcess } from '../../../fx/models';
+import { ProcessFieldDisplayStyles, LightProcess } from '../../../fx/models';
 import { ProcessStore } from '../../../fx';
 
 @Component
@@ -24,7 +24,7 @@ export class ProcessFieldDisplayComponent extends Vue implements IWebComponentIn
     filterChange(newValue: Array<string>, oldValue: Array<string>) {
         if (newValue !== oldValue) {
             this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-                this.internalModel = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
+                this.internalModel = this.model && this.model !== 'undefined' ? (Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>)) : [];
                 this.processes = this.processStore.getters.lightProcess(this.internalModel);
             })
         }
@@ -32,7 +32,7 @@ export class ProcessFieldDisplayComponent extends Vue implements IWebComponentIn
 
     created() {
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-            this.internalModel = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
+            this.internalModel = this.model && this.model !== 'undefined' ? (Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>)) : [];
             this.processes = this.processStore.getters.lightProcess(this.internalModel);
         })
     }
