@@ -10,28 +10,30 @@ import { ProcessStore } from '../../../fx';
 
 @Component
 export class ProcessFieldDisplayComponent extends Vue implements IWebComponentInstance, IProcessFieldDisplay {
-    @Prop() model: Array<string>;
+    @Prop() model: Array<string> | string;
     @Prop() property: EnterprisePropertyDefinition;
     @Prop() wrapWithParentContent: (h: any, internalName: string, propertyContent: JSX.Element) => JSX.Element;
 
     @Inject(ProcessStore) private processStore: ProcessStore;
 
     private styles = StyleFlow.use(ProcessFieldDisplayStyles);
+    private internalModel: Array<string> = []
     private processes: Array<LightProcess> = [];
 
     @Watch('model', { deep: true })
     filterChange(newValue: Array<string>, oldValue: Array<string>) {
         if (newValue !== oldValue) {
             this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-                this.processes = this.processStore.getters.lightProcess(this.model);
+                this.internalModel = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
+                this.processes = this.processStore.getters.lightProcess(this.internalModel);
             })
         }
     }
 
     created() {
         this.processStore.actions.ensureLightProcessLoaded.dispatch().then(() => {
-            this.processes = this.processStore.getters.lightProcess(this.model);
-            this.$forceUpdate();
+            this.internalModel = Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>);
+            this.processes = this.processStore.getters.lightProcess(this.internalModel);
         })
     }
 
