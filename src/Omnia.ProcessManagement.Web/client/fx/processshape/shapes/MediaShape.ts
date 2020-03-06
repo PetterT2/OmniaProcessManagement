@@ -1,11 +1,12 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { FabricShapeDataTypes, FabricShapeData, FabricImageShape } from '../fabricshape';
+import { FabricShapeDataTypes, FabricShapeData, FabricImageShape, FabricShape } from '../fabricshape';
 import { FabricTextShape } from '../fabricshape/FabricTextShape';
 import { DrawingImageShapeDefinition, ShapeTemplateType } from '../../models';
 import { ShapeExtension } from './ShapeExtension';
 import { MultilingualString } from '@omnia/fx-models';
 import { ShapeTemplatesConstants } from '../../constants';
+import { Utils } from '@omnia/fx';
 
 export class MediaShape extends ShapeExtension implements Shape {
     left: number;
@@ -26,18 +27,7 @@ export class MediaShape extends ShapeExtension implements Shape {
             if (fabricImageObj) {
                 (fabricImageObj as FabricImageShape).ready()
                     .then((result) => {
-                        let newWidth = Math.floor(fabricImageObj.properties.width * (fabricImageObj.properties.scaleX || 1));
-                        let newHeight = Math.floor(fabricImageObj.properties.height * (fabricImageObj.properties.scaleY || 1));
-                        if ((this.definition.height > newHeight - 1 && this.definition.height < newHeight + 1) ||
-                            (this.definition.width > newWidth - 1 && this.definition.width < newWidth + 1)) {
-                            this.definition.width = newWidth;
-                            this.definition.height = newHeight;
-                            let position = this.correctPosition(this.left, this.top);
-                            let textPosition = this.getTextPosition(position);
-                            this.fabricShapes[1].fabricObject.top = textPosition.top;
-                            this.fabricShapes[1].fabricObject.left = textPosition.left;
-                            this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
-                        }
+                        this.updatePosition(fabricImageObj);
                         resolve(true);
                     }).catch(() => {
                         reject();
@@ -46,12 +36,26 @@ export class MediaShape extends ShapeExtension implements Shape {
         })
     }
 
+    private updatePosition(fabricImageObj: FabricShape) {
+        let newWidth = Math.floor(fabricImageObj.properties.width * (fabricImageObj.properties.scaleX || 1));
+        let newHeight = Math.floor(fabricImageObj.properties.height * (fabricImageObj.properties.scaleY || 1));
+        if ((this.definition.height != newHeight + 1 && this.definition.height != newHeight - 1) ||
+            (this.definition.width != newWidth + 1 && this.definition.width != newWidth - 1)) {
+            this.definition.width = newWidth;
+            this.definition.height = newHeight;
+            let position = this.correctPosition(this.left, this.top);
+            let textPosition = ShapeExtension.getTextPosition(this.definition, position);
+            this.fabricShapes[1].fabricObject.top = textPosition.top;
+            this.fabricShapes[1].fabricObject.left = textPosition.left;
+            this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
+        }
+    }
+     
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.left = left;
         this.top = top;
-
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
@@ -62,13 +66,13 @@ export class MediaShape extends ShapeExtension implements Shape {
             }
             if (textNode) {
                 textPosition = this.getTextPositionAfterRotate(textPosition);
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }
         else if (this.definition) {
-            
+
             this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }

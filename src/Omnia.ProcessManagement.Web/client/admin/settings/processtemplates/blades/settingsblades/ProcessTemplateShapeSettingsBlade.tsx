@@ -119,20 +119,21 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         OPMUtils.waitForElementAvailable(this.$el, this.canvasId.toString(), () => {
             if (this.editingShape.type == ShapeDefinitionTypes.Drawing) {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, null, null, null, null, null,
-                    (this.editingShape as DrawingFreeformShapeDefinition).nodes ? (this.editingShape as DrawingFreeformShapeDefinition).nodes : null)
+                this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, (this.editingShape as DrawingShapeDefinition), null, null,
+                    (this.editingShape as DrawingFreeformShapeDefinition).nodes ? (this.editingShape as DrawingFreeformShapeDefinition).nodes : null).then((readyDrawingShape) => {
+                        this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
+                    });
             }
         });
     }
 
     initDrawingCanvas() {
         this.destroyCanvas();
-        var canvasWidth = this.getCanvasContainerWidth();
         this.drawingCanvas = new DrawingCanvas(this.canvasId.toString(), {},
             {
                 drawingShapes: [],
-                width: canvasWidth,
-                height: 230,
+                width: 0,
+                height: 0
             }, false);
     }
 
@@ -188,14 +189,8 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.startToDrawShape();
         }
         else {
-            let top = (this.editingShape as DrawingShapeDefinition).textPosition == TextPosition.Above ? (this.editingShape as DrawingShapeDefinition).fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true, null, top);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true);
         }
-    }
-
-    getCanvasContainerWidth(): number {
-        var containerElement = document.getElementById(this.canvasContainerId);
-        return containerElement ? containerElement.clientWidth : 580;
     }
 
     correctNumberField(editingProcessTemplate: ProcessTemplate) {
@@ -259,8 +254,14 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         </omfx-field-validation>
                         {this.renderTitle(h)}
                     </v-flex>
-                    <v-flex lg6 id={this.canvasContainerId} class={classes(this.needToShowCanvas() ? this.classes.shapePreviewContainer : this.classes.hidePreviewContainer, this.classes.contentPadding)}>
-                        <canvas id={this.canvasId} width="100%" height="100%" class={this.classes.canvas}></canvas>
+                    <v-flex lg6 id={this.canvasContainerId} class={classes(this.needToShowCanvas() ? "" : this.classes.hidePreviewContainer, this.classes.contentPadding)}>
+                        <div class={this.classes.shapePreviewContainer}>
+                            <div class={this.classes.webkitScrollbar}>
+                                <div class={this.classes.canvasPreviewWrapper}>
+                                    <canvas id={this.canvasId}></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </v-flex>
                 </div>
 

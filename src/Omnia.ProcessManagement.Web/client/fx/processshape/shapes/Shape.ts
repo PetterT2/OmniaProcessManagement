@@ -19,7 +19,8 @@ export declare abstract class Shape implements ShapeObject {
     abstract ready(): Promise<boolean>;
     abstract getShapeJson(): ShapeObject;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
-    abstract getTextPosition(position: { left: number, top: number }, width: number, height: number, xAdjustment?: number, yAdjustment?: number): { left: number, top: number };
+    abstract updateShapePosition(): void;
+    static getTextPosition(definition: DrawingShapeDefinition, position: { left: number, top: number }, width?: number, height?: number): { left: number, top: number };
 }
 
 interface ShapeClasses<T> {

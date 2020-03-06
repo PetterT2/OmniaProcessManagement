@@ -230,28 +230,22 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         this.isOpenFreeformPicker = true;
     }
 
-    private updateAfterRenderImage(readyDrawingShape: DrawingShape) {
-        this.drawingCanvas.updateCanvasSize(readyDrawingShape);
-        this.onDrawingShapeOptionChanged();
-    }
-
     private onImageSaved(imageUrl: string) {
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         this.$forceUpdate();
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.getLeftTop().left, top)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.updateAfterRenderImage(readyDrawingShape);
+                    this.onDrawingShapeOptionChanged();
                 });
         }
         else {
-            let position = this.getLeftTop();
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top)
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle)
                     .then((readyDrawingShape: DrawingShape) => {
-                        this.updateAfterRenderImage(readyDrawingShape);
+                        this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
+                        this.onDrawingShapeOptionChanged();
                     });
             })
         }
@@ -303,38 +297,15 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         ];
     }
 
-    private getCanvasSize(): { width: number, height: number } {
-        if (!this.selectedShapeTemplate.builtIn && this.internalShapeDefinition.shapeTemplateType == ShapeTemplateType.FreeformShape &&
-            (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes && (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes.length > 0) {
-            this.internalShapeDefinition.width = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['width'] + 10;
-            this.internalShapeDefinition.height = (this.internalShapeDefinition as DrawingFreeformShapeDefinition).nodes[0].properties['height'] + 10;
-        }
-
-        let canvasWidth = this.getNumber(this.internalShapeDefinition.width);
-        let canvasHeight = this.getNumber(this.internalShapeDefinition.height);
-
-        if (this.internalShapeDefinition.textPosition != TextPosition.On)
-            canvasHeight += this.internalShapeDefinition.fontSize + TextSpacingWithShape;
-
-        if (!Utils.isNullOrEmpty(this.internalShapeDefinition.borderColor)) {
-            canvasWidth += 2;
-            canvasHeight += 2;
-        }
-
-        return { width: canvasWidth, height: canvasHeight };
-    }
-
     initDrawingCanvas() {
         if (this.drawingCanvas)
             this.drawingCanvas.destroy();
 
-        let canvasSize = this.getCanvasSize();
-
         this.drawingCanvas = new DrawingCanvas(this.previewCanvasId.toString(), {},
             {
                 drawingShapes: [],
-                width: canvasSize.width,
-                height: canvasSize.height
+                width: this.getNumber(this.internalShapeDefinition.width),
+                height: this.getNumber(this.internalShapeDefinition.height)
             }, true, false);
     }
 
@@ -342,23 +313,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.internalShapeDefinition) {
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                let position = this.getLeftTop();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, position.left, position.top, this.drawingOptions.processStepId, this.drawingOptions.customLinkId, null, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null);
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
+                    this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
+                });
             })
         }
-    }
-
-    private getLeftTop() {
-        let left = 0;
-        let top = 0;
-        if (this.drawingOptions.shape && (this.drawingOptions.shape as ShapeExtension).shapeObject
-            && (this.drawingOptions.shape as ShapeExtension).shapeObject[0].angle != 0) {
-            var bound = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].getBoundingRect();
-            var aCoords = (this.drawingOptions.shape as ShapeExtension).shapeObject[0].aCoords;
-            left = aCoords.tl.x - bound.left;
-            top = aCoords.tl.y - bound.top;
-        }
-        return { left: left, top: top };
     }
 
     private isNewMedia() {
@@ -381,16 +340,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            let top = this.internalShapeDefinition.textPosition == TextPosition.Above ? this.internalShapeDefinition.fontSize + TextSpacingWithShape : 0;
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false, this.drawingCanvas.drawingShapes[0].shape.left || 0, top)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
                 .then((readyDrawingShape: DrawingShape) => {
                     this.shape = this.drawingCanvas.drawingShapes[0].shape;
-
-                    if (readyDrawingShape && readyDrawingShape.shape.shapeTemplateTypeName == ShapeTemplateType[ShapeTemplatesConstants.Media.settings.type])
-                        this.updateAfterRenderImage(readyDrawingShape);
-                    else {
-                        this.onDrawingShapeOptionChanged();
-                    }
+                    this.onDrawingShapeOptionChanged();
                 });
         }
         else {

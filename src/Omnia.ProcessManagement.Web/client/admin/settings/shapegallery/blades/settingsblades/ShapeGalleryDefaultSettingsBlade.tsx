@@ -160,10 +160,9 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = this.buildDataBlob(image.base64, image.format);
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             var shapeDefinition = this.getShapeDefinitionToDraw();
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false, 0, 0)
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.updateAfterRenderImage(readyDrawingShape);
-                });
+               });
         }
         else {
             this.startToDrawShape();
@@ -179,11 +178,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         }
         let blob: Blob = new Blob([new Uint8Array(array)], { type: mime });
         return window.URL.createObjectURL(blob);
-    }
-
-    updateAfterRenderImage(readyDrawingShape: DrawingShape) {
-        this.drawingCanvas.updateCanvasSize(readyDrawingShape);
-    }
+    }   
 
     addFreefromShape(shape: ShapeObject) {
         this.isOpenFreeformPicker = false;
@@ -197,10 +192,10 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
             this.initDrawingCanvas();
             var shapeDefinition = this.getShapeDefinitionToDraw();
-            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, shapeDefinition, null, 0, 0, null, null, null,
+            this.drawingCanvas.addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, shapeDefinition, null, null,
                 (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes ? (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes : null)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.updateAfterRenderImage(readyDrawingShape);
+                    this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
                 });
         });
     }

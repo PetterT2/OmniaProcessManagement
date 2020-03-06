@@ -40,7 +40,7 @@ export class CircleShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let highlightProperties = this.getHighlightProperties();
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
 
         if (this.nodes) {
             let circleNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.circle);
@@ -50,12 +50,12 @@ export class CircleShape extends ShapeExtension implements Shape {
             }
             if (textNode) {
                 textPosition = this.getTextPositionAfterRotate(textPosition);
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }), title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title));
             }
         }
         else if (this.definition) {
             this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, {originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }

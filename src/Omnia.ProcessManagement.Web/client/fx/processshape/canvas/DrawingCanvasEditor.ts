@@ -37,9 +37,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         }
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean, left?: number, top?: number) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.updateShapeDefinition(id, definition, title, isGenerateNewNodes, left, top).then((drawingShapeResult: DrawingShape) => {
+            super.updateShapeDefinition(id, definition, title, isGenerateNewNodes).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);
@@ -58,10 +58,9 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition,
-        title: MultilingualString, left?: number, top?: number,
-        processStepId?: GuidValue, customLinkId?: GuidValue, externalProcessStepId?: GuidValue, nodes?: FabricShapeData[]) {
+        title: MultilingualString, objectReferenceId?: GuidValue, nodes?: FabricShapeData[]) {
         return new Promise<DrawingShape>((resolve, reject) => {
-            super.addShape(id, type, definition, title, left, top, processStepId, customLinkId, externalProcessStepId, nodes).then((drawingShapeResult: DrawingShape) => {
+            super.addShape(id, type, definition, title, objectReferenceId, nodes).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
                 resolve();
             }).catch(reject);

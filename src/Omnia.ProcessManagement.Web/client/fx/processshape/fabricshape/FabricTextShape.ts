@@ -36,17 +36,6 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             }
         }
         this.fabricObject = new fabric.Text(text, this.properties);
-
-        if (definition.textAlignment == TextAlignment.Left) {
-            this.fabricObject.set({
-                left: this.properties['left'] + Math.floor(this.fabricObject.width / 2)
-            })
-        }
-        else if (definition.textAlignment == TextAlignment.Right) {
-            this.fabricObject.set({
-                left: this.properties['left'] - Math.floor(this.fabricObject.width / 2)
-            })
-        }
     }
 
     get fabricShapeDataType() {
