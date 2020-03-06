@@ -87,9 +87,7 @@ export class ProcessFieldDisplayComponent extends VueComponentBase implements IW
                     {
                         this.processes.map((process) =>
                             <v-chip onClick={() => { this.clickProcess(process) }} class="ma-1">
-                                <v-avatar color={this.theming.colors.primary.base} class={[this.styles.avatarStyle, 'mr-2']}>
-                                    {process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessIdNumber]}
-                                </v-avatar>
+                                <i class="fal fa-angle-double-right mr-2"></i>
                                 {process.rootProcessStep.multilingualTitle}
                             </v-chip>
                         )}

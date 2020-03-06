@@ -31,7 +31,7 @@ export interface IProcessPicker extends IProcessPickerProperties {
     model?: Array<string> | string;
 
     /*@DomProperty*/
-    onModelChange: (processes: Array<Process>) => void;
+    onModelChange: (processes: Array<Process>, unresolvedOPMProcessId: Array<string>) => void;
 
     /*@DomProperty*/
     validator?: IValidator;

@@ -33,8 +33,8 @@ export class ProcessFieldEdit extends VueComponentBase implements IWebComponentI
     beforeDestroy() {
     }
 
-    private onProcessInputChange(processes: Array<Process>) {
-        this.model[this.property.internalName] = JSON.stringify(processes.map(p => p.opmProcessId.toString()));
+    private onProcessInputChange(processes: Array<Process>, unresolvedOPMProcessIds: Array<string>) {
+        this.model[this.property.internalName] = JSON.stringify(processes.map(p => p.opmProcessId.toString()).concat(unresolvedOPMProcessIds));
         if (this.onModelChange)
             this.onModelChange(this.model[this.property.internalName]);
         this.$forceUpdate();

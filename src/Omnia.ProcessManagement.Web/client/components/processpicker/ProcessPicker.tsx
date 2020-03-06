@@ -34,7 +34,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     @Prop() disabled: boolean;
     @Prop() multiple: boolean;
     @Prop() model: Array<string> | string;
-    @Prop() onModelChange: (processes: Array<Process>) => void;
+    @Prop() onModelChange: (processes: Array<Process>, unresolvedOPMProcessId: Array<string>) => void;
     @Prop({ default: null }) validator?: IValidator;
 
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
@@ -80,7 +80,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             this.$refs.processPicker.reset();
 
         this.isInitialized = true;
-      
+
         var idsToResolve: Array<string> = this.model && this.model !== 'undefined' ? (Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>)) : [];
 
         this.selectedItem = this.multiple ? [] : null;
@@ -114,7 +114,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                 this.isSearching = false;
                 this.isResolvingSelectedItem = false;
             })
-        } 
+        }
     }
 
     searchCallback(result: Array<ProcessPickerItem>, isInit: boolean = false) {
@@ -221,14 +221,16 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             resultProcesses = [newValue as ProcessPickerItem];
         }
 
-        var processes = resultProcesses.map(p => p.process).filter(p => p);
+        var resolvedProcesses = resultProcesses.filter(p => p.process).map(p => p.process);
+        var unresolvedOPMProcessIds = resultProcesses.filter(p => !p.process).map(p => p.opmProcessId.toString());
+
         var opmProcessIds = resultProcesses.map(p => p.opmProcessId);
         let backupModel = JSON.stringify(opmProcessIds);
         let previousBackupModel = this.backupModel;
         this.backupModel = JSON.stringify(opmProcessIds);
 
         if (this.onModelChange && previousBackupModel != backupModel) {
-            this.onModelChange(processes);
+            this.onModelChange(resolvedProcesses, unresolvedOPMProcessIds);
         }
 
         this.$forceUpdate();
@@ -254,6 +256,9 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             this.selectedItem = null;
 
         this.searchInput = '';
+
+        this.processResult = this.processResult.filter(p => p.process || this.checkIfAdded(p.opmProcessId.toString()));
+
         this.onInput(this.selectedItem);
     }
 

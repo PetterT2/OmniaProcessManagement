@@ -84,7 +84,7 @@ class ExternalProcessComponent extends VueComponentBase<ExternalProcessProps, {}
                         this.opmProcessIds ?
                             <opm-process-picker
                                 model={this.opmProcessIds}
-                                onModelChange={(processes) => {
+                                onModelChange={(processes, unresolvedOPMProcessIds) => {
                                     if (processes[0]) {
                                         let process = processes[0];
                                         referenceData.processStep.title = process.rootProcessStep.title;
