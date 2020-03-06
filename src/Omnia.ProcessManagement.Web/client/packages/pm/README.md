@@ -1,6 +1,6 @@
-# Omnia Document Managemen
+# Omnia Process Management
 
-Omnia Document Management is a product from Precio Fishbone.
+Omnia Process Management is a product from Precio Fishbone.
 
 ### Documentation
 https://github.com/preciofishbone/Omnia-Foundation-Docs

@@ -1,4 +1,6 @@
-﻿export * from "./ManifestIds";
+﻿//// <omnia-transform-resource path="ba2e50ff-0a29-4c11-b7ac-165abdcaf69b" />
+
+export * from "./ManifestIds";
 export * from './data';
 export * from './route';
 export * from './processes';

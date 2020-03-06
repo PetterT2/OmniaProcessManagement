@@ -391,7 +391,7 @@ export class DrawingCanvas implements CanvasDefinition {
         if (!this.canvasObject.getContext())
             return;
         newShape.setAllowHover(this.isSetHover);
-        newShape.addEventListener(this.canvasObject, this.gridX, this.gridY, this.showGridlines);
+        newShape.addEventListener(this.canvasObject, this.gridX, this.gridY);
         newShape.shapeObject.forEach(s => {
             this.canvasObject.add(s);
         });

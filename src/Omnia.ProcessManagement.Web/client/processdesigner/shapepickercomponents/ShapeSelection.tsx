@@ -19,7 +19,7 @@ export interface ShapeSelectionProps {
 }
 
 @Component
-export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance{
+export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProps> implements IWebComponentInstance {
     @Prop() shapeSelectedCallback: (selectedShape: ShapeDefinition) => void;
 
     @Inject(OmniaTheming) omniaTheming: OmniaTheming;
@@ -40,12 +40,12 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
     private shapeFilterKeyword: string = '';
     private selectedShapeDefinition: ShapeDefinition = null;
     private selectedElementId: string = '';
-    private shapeSelectionStepStyles = StyleFlow.use(ShapeSelectionStyles);    
+    private shapeSelectionStepStyles = StyleFlow.use(ShapeSelectionStyles);
     private expandedPanels: Array<number> = [];
     private isLoading: boolean = true;
 
     created() {
-        
+
     }
 
     init() {
@@ -92,7 +92,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             }
         }
     }
-    
+
     private onFilterShapeDefinition() {
         var filterSearchKeywordTimeout = 300;
         Utils.timewatch('ShapeSelection_FilterShapeDefinition', () => {
@@ -149,15 +149,15 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         </v-container>;
     }
 
-   private renderShapeSelections(h) {
+    private renderShapeSelections(h) {
         if (!this.availableShapeDefinitions)
             return null;
 
-       return <v-container class="pa-0">
-           <div>{this.pdLoc.AllShapes}</div>
-           <v-text-field filled type="text" label={this.pdLoc.Search} v-model={this.shapeFilterKeyword} onKeyup={this.onFilterShapeDefinition}></v-text-field>
-           {this.renderAllShapes(h)}
-       </v-container>;
+        return <v-container class="pa-0">
+            <div>{this.pdLoc.AllShapes}</div>
+            <v-text-field filled type="text" label={this.pdLoc.Search} v-model={this.shapeFilterKeyword} onKeyup={this.onFilterShapeDefinition}></v-text-field>
+            {this.renderAllShapes(h)}
+        </v-container>;
     }
 
     private renderAllShapes(h) {
@@ -194,7 +194,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         return <div>
             {
                 [freeSectionElement,
-                groupSectionElement]
+                    groupSectionElement]
             }
         </div>;
     }
@@ -203,7 +203,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         if (this.availableShapeDefinitions) {
             setTimeout(() => {
                 this.drawAvailableShapes();
-               
+
                 this.recentShapeDefinitions.forEach((df) => {
                     this.drawShapeAsIcon(df, true);
                 });
@@ -232,7 +232,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         let drawingShapeDefinition = shapeDefinition as DrawingShapeDefinition;
         let foundShapeTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(t => t.id.toString() == drawingShapeDefinition.shapeTemplateId.toString());
         if (foundShapeTemplate.builtIn && (drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type ||
-            drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type)) {            
+            drawingShapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Media.settings.type)) {
             return;
         }
 
@@ -251,13 +251,13 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 if (shapeIconWidth > iconSize) {
                     shapeIconHeight = (shapeIconHeight / shapeIconWidth) * iconSize;
                     shapeIconWidth = iconSize;
-                }                
+                }
             }
             else {
                 if (shapeIconHeight > iconSize) {
                     shapeIconWidth = (shapeIconWidth / shapeIconHeight) * iconSize;
                     shapeIconHeight = iconSize;
-                }  
+                }
             }
             let fontSize = 10;
             srcDrawingCanvasListing[canvasId] = new DrawingCanvas(canvasId, {},
@@ -408,7 +408,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         }
         let retElement: JSX.Element = foundShapeTemplate ? <div id={'shape_' + shapeId}
             class={[this.shapeSelectionStepStyles.shapeDefinitionItem(100), isIcon ? '' : this.shapeSelectionStepStyles.canvasWrapper(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
-            style={{ display: shapeDefinition.visible ? 'block' : 'none' }}
+            style={{ float: 'left', display: shapeDefinition.visible ? 'block' : 'none' }}
             onClick={() => { this.selectShape(shapeDefinition, idPrefix) }}>
             {shapeDefinitionElement}
         </div> : null;
@@ -436,6 +436,6 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             <div>
                 {!this.isLoading && this.renderContent(h)}
             </div>
-        </v-skeleton-loader>; 
+        </v-skeleton-loader>;
     }
 }

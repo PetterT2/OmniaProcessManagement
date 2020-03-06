@@ -4,8 +4,7 @@ import { ShapeSelectionStyles } from '../../fx/models/styles';
 
 StyleFlow.define(ShapeSelectionStyles, {
     shapesWrapper: {
-        display: 'flex',
-        alignItems: 'center'
+        display: 'inline-block'
     },
     shapeDefinitionItem: (size: number) => {
         return {
