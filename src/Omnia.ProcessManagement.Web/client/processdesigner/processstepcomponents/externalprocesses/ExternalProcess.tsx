@@ -3,7 +3,7 @@
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
-import { CurrentProcessStore } from '../../../fx';
+import { CurrentProcessStore, ProcessStore, OPMSpecialRouteVersion } from '../../../fx';
 import { OmniaTheming, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { TabRenderer } from '../../core';
 import { ExternalProcessStep } from '../../../fx/models';
@@ -31,24 +31,34 @@ class ExternalProcessComponent extends VueComponentBase<ExternalProcessProps, {}
     @Inject(CurrentProcessStore) currentProcessStore: CurrentProcessStore;
     @Inject(ProcessDesignerStore) processDesignerStore: ProcessDesignerStore;
     @Inject(MultilingualStore) multilingualStore: MultilingualStore;
+    @Inject(ProcessStore) processStore: ProcessStore;
+
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
-    private subscriptionHandler: IMessageBusSubscriptionHandler = null;
+    private opmProcessIds: Array<string> = null;
 
     created() {
         this.init();
     }
 
     init() {
+        let referenceData = this.currentProcessStepReferenceData;
+        let rootProcessStepId = (referenceData.processStep as ExternalProcessStep).rootProcessStepId;
+        if (rootProcessStepId) {
+            this.processStore.actions.loadProcessByProcessStepId.dispatch(rootProcessStepId, OPMSpecialRouteVersion.LatestPublished).then(process => {
+                this.opmProcessIds = [process.opmProcessId.toString()];
+            }).catch(err => {
+                this.opmProcessIds = [Guid.empty.toString()];
+            })
+        }
+        else {
+            this.opmProcessIds = [];
+        }
     }
 
     mounted() {
     }
 
-    beforeDestroy() {
-        if (this.subscriptionHandler)
-            this.subscriptionHandler.unsubscribe();
-    }
 
     get currentProcessStepReferenceData() {
         let referenceData = this.currentProcessStore.getters.referenceData();
@@ -70,15 +80,28 @@ class ExternalProcessComponent extends VueComponentBase<ExternalProcessProps, {}
             <v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
                 <v-card-text>
 
-                    <opm-processdesigner-addlinkedprocess
-                        rootProcessStepId={(referenceData.processStep as ExternalProcessStep).rootProcessStepId}
-                        onChange={(title, rootProcessStepId) => {
-                            referenceData.processStep.title = title;
-                            referenceData.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(title);
-                            (referenceData.processStep as ExternalProcessStep).rootProcessStepId = rootProcessStepId;
-                            this.saveState();
-                        }}>
-                    </opm-processdesigner-addlinkedprocess>
+                    {
+                        this.opmProcessIds ?
+                            <opm-process-picker
+                                model={this.opmProcessIds}
+                                onModelChange={(processes) => {
+                                    if (processes[0]) {
+                                        let process = processes[0];
+                                        referenceData.processStep.title = process.rootProcessStep.title;
+                                        referenceData.processStep.multilingualTitle = process.rootProcessStep.multilingualTitle;
+                                        (referenceData.processStep as ExternalProcessStep).rootProcessStepId = process.rootProcessStep.id;
+
+                                        this.saveState();
+                                    }
+                                }}>
+                            </opm-process-picker> :
+                            <v-skeleton-loader
+                                loading={true}
+                                height="150"
+                                type="paragraph">
+                            </v-skeleton-loader>
+                    }
+
 
                     <omfx-multilingual-input
                         model={(referenceData.processStep as ExternalProcessStep).title}

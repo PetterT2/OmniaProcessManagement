@@ -3,12 +3,12 @@ import Component from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
 import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
 import { IValidator, FieldValueValidation, VueComponentBase, StyleFlow } from "@omnia/fx/ux";
-import { RollupSetting, PropertyIndexedType, GuidValue, BuiltInEnterprisePropertyInternalNames, RollupOtherTypes } from '@omnia/fx-models';
+import { RollupSetting, PropertyIndexedType, GuidValue, RollupOtherTypes } from '@omnia/fx-models';
 import { IProcessPicker } from './IProcessPicker';
 import './ProcessPicker.css';
 import { ProcessPickerStyles, ProcessVersionType, Process, OPMEnterprisePropertyInternalNames } from '../../fx/models';
 import { ProcessPickerLocalization } from './loc/localize';
-import { ProcessRollupService, ProcessTableColumnsConstants, SharePointFieldsConstants, ProcessStore } from '../../fx';
+import { ProcessRollupService, ProcessTableColumnsConstants, ProcessStore } from '../../fx';
 
 interface ProcessPickerItem {
     title: string,
@@ -34,7 +34,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     @Prop() disabled: boolean;
     @Prop() multiple: boolean;
     @Prop() model: Array<string> | string;
-    @Prop() onModelChange: (opmProcessIds: Array<string>) => void;
+    @Prop() onModelChange: (processes: Array<Process>) => void;
     @Prop({ default: null }) validator?: IValidator;
 
     @Inject(ProcessRollupService) processRollupService: ProcessRollupService;
@@ -76,20 +76,19 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     }
 
     init() {
-        if (Utils.isNull(this.label))
-            this.label = this.loc.DefaultLabel
-
         if (this.$refs.processPicker)
             this.$refs.processPicker.reset();
 
         this.isInitialized = true;
-        this.isSearching = true;
-        this.isResolvingSelectedItem = true;
-
-
+      
         var idsToResolve: Array<string> = this.model && this.model !== 'undefined' ? (Utils.isString(this.model) ? JSON.parse(this.model.toString()) : (this.model as Array<string>)) : [];
 
+        this.selectedItem = this.multiple ? [] : null;
+
         if (idsToResolve && idsToResolve.length > 0) {
+            this.isSearching = true;
+            this.isResolvingSelectedItem = true;
+
             let promises: Array<Promise<ResolveProcessResult>> = idsToResolve.map(id => new Promise<ResolveProcessResult>((resolve, reject) => {
                 this.processStore.actions.ensurePublishedProcess.dispatch(id).then((process) => {
                     resolve({ opmProcessId: id, process: process });
@@ -115,12 +114,12 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                 this.isSearching = false;
                 this.isResolvingSelectedItem = false;
             })
-        }
+        } 
     }
 
     searchCallback(result: Array<ProcessPickerItem>, isInit: boolean = false) {
         result = result.filter(r => isInit || !this.checkIfAdded(r.process.opmProcessId.toString()));
-        this.processResult = isInit ? result : this.processResult.filter(u => this.checkIfAdded(u.process.opmProcessId.toString())).concat(result);
+        this.processResult = isInit ? result : this.processResult.filter(u => this.checkIfAdded(u.opmProcessId.toString())).concat(result);
         this.isSearching = false;
         this.updateDimensions();
     }
@@ -145,6 +144,11 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                         // ensure return result for current search text
                         if (this.searchInput === trackingSearchText) {
                             this.searchCallback(data.items.map(i => this.mapToProcessPickerItem(i.process.opmProcessId, i.process, i.searchTitle)));
+                            this.isPendingToSearch = false;
+                        }
+                    }).catch(err => {
+                        if (this.searchInput === trackingSearchText) {
+                            this.searchCallback([]);
                             this.isPendingToSearch = false;
                         }
                     })
@@ -217,13 +221,16 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             resultProcesses = [newValue as ProcessPickerItem];
         }
 
-        var result = resultProcesses.map(p => { return p.process.opmProcessId.toString(); });
+        var processes = resultProcesses.map(p => p.process).filter(p => p);
+        var opmProcessIds = resultProcesses.map(p => p.opmProcessId);
+        let backupModel = JSON.stringify(opmProcessIds);
+        let previousBackupModel = this.backupModel;
+        this.backupModel = JSON.stringify(opmProcessIds);
 
-        this.backupModel = JSON.stringify(result);
-
-        if (this.onModelChange) {
-            this.onModelChange(result);
+        if (this.onModelChange && previousBackupModel != backupModel) {
+            this.onModelChange(processes);
         }
+
         this.$forceUpdate();
     }
 
@@ -233,16 +240,16 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
 
     checkIfAdded(id: string) {
         if (this.multiple)
-            return this.selectedItem && (this.selectedItem as Array<ProcessPickerItem>).filter(e => e.process.opmProcessId == id).length > 0 ? true : false;
+            return this.selectedItem && (this.selectedItem as Array<ProcessPickerItem>).filter(e => e.opmProcessId == id).length > 0 ? true : false;
         else
-            return this.selectedItem && (this.selectedItem as ProcessPickerItem).process.opmProcessId == id ? true : false;
+            return this.selectedItem && (this.selectedItem as ProcessPickerItem).opmProcessId == id ? true : false;
     }
 
     remove(item: ProcessPickerItem) {
         if (this.isSearching) return;
 
         if (this.multiple)
-            this.selectedItem = (this.selectedItem as Array<ProcessPickerItem>).filter(e => e.process.opmProcessId != item.process.opmProcessId);
+            this.selectedItem = (this.selectedItem as Array<ProcessPickerItem>).filter(e => e.opmProcessId != item.opmProcessId);
         else
             this.selectedItem = null;
 
@@ -251,7 +258,7 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     }
 
     renderSelectedItem(h, p: { selected: boolean, item: ProcessPickerItem }) {
-        let clickCloseSpread = { on: { "click:close": () => { this.remove(p.item) } } };
+        let clickCloseSpread = { on: { "click:close": () => { this.remove(p.item); } } };
         return [
             <v-chip
                 dark={this.dark}
@@ -259,8 +266,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
                 close={!this.disabled}
                 input-value={p.selected}
                 {...clickCloseSpread}>
-                <v-avatar class={this.styles.avatarStyle}>
-                    <omfx-letter-avatar name={p.item.opmProcessIdNumber} size={45}></omfx-letter-avatar>
+                <v-avatar color={this.theming.colors.primary.base} class={[this.styles.avatarStyle, 'mr-2']}>
+                    {p.item.opmProcessIdNumber}
                 </v-avatar>
                 {p.item.title}
             </v-chip>
@@ -270,8 +277,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
     renderItem(h, p: { item: ProcessPickerItem }) {
         return (
             [
-                <v-list-item-avatar left dark={this.dark}>
-                    <omfx-letter-avatar name={p.item.opmProcessIdNumber} size={45}></omfx-letter-avatar>
+                <v-list-item-avatar size="32" color={this.theming.colors.primary.base} class={this.styles.avatarStyle}>
+                    {p.item.opmProcessIdNumber}
                 </v-list-item-avatar>,
                 <v-list-item-content dark={this.dark}>
                     <v-list-item-title>{p.item.title}</v-list-item-title>
@@ -293,8 +300,8 @@ export class ProcessPickerComponent extends VueComponentBase implements IWebComp
             else
                 rules = new FieldValueValidation().IsRequired(true, this.loc.IsRequiredMessage).getRules();
 
-
-        let label = this.required ? this.label + '*' : this.label;
+        let label = this.label || this.loc.DefaultLabel;
+        label = this.required ? label + '*' : label;
 
         return (
             <div>

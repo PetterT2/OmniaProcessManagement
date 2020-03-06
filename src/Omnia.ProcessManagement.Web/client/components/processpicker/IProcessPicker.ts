@@ -1,4 +1,5 @@
 ﻿import { IValidator } from '@omnia/fx/ux';
+import { Process } from '../../fx/models';
 
 export interface IProcessPickerProperties {
     /**Required */
@@ -27,10 +28,10 @@ export interface IProcessPickerProperties {
 export interface IProcessPicker extends IProcessPickerProperties {
 
     /*@DomProperty*/
-    model: Array<string> | string;
+    model?: Array<string> | string;
 
     /*@DomProperty*/
-    onModelChange: (opmProcessIds: Array<string>) => void;
+    onModelChange: (processes: Array<Process>) => void;
 
     /*@DomProperty*/
     validator?: IValidator;

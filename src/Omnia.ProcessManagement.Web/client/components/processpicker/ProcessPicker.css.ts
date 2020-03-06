@@ -22,16 +22,8 @@ StyleFlow.define(ProcessPickerStyles,
             }
         },
         avatarStyle: {
-            height: '32px !important',
-            width: '32px !important',
-            background: 'rgba(177,177,177,1)',
-            marginRight: '4px',
-            $nest: {
-                '.fa': {
-                    fontSize: '20px !important',
-                    color: 'white !important'
-                }
-            }
+            justifyContent: 'center !important',
+            color: 'white !important'
         }
     }
 )

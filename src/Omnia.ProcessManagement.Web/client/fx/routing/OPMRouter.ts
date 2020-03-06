@@ -258,8 +258,8 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
 
     private generateOPMRouteData(process: Process, processStep: ProcessStep, rendererOption: ProcessRendererOptions = ProcessRendererOptions.CurrentRenderer) {
         return new Promise<{ opmRoute: OPMRoute, processReference: ProcessReference }>((resolve, reject) => {
-            let globalRenderer = rendererOption === ProcessRendererOptions.CurrentRenderer ?
-                (this.routeContext.route && this.routeContext.route.globalRenderer) : rendererOption === ProcessRendererOptions.ForceToGlobalRenderer;
+            let globalRenderer = rendererOption === ProcessRendererOptions.CurrentRenderer && this.routeContext.route ?
+                this.routeContext.route.globalRenderer : rendererOption === ProcessRendererOptions.ForceToGlobalRenderer;
 
 
             let processStepIdNavigateTo = processStep.id.toString().toLowerCase();

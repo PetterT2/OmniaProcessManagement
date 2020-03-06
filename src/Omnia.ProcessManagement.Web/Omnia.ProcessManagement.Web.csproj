@@ -7,16 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
-    <Content Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
-    <EmbeddedResource Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <None Remove="**\*.d.ts" />
     <None Remove="**\*.js" />
     <None Remove="**\*.jsx" />
     <None Remove="**\*.map" />
-    <None Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <None Remove="wwwroot\omnia\**" />
-    <TypeScriptCompile Remove="client\fx\models\components\viewprocess\documentsblock - Copy\**" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.manifest.ts" />
     <TypeScriptCompile Remove="client\admin\AdminJourney.tsx" />
     <TypeScriptCompile Remove="client\admin\AdminJourneyConstants.ts" />
@@ -409,10 +404,6 @@
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\ActionToolbar.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\actionstoolbar\DisplaySettingsToolbar.tsx" />
-    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.css.ts" />
-    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.manifest.ts" />
-    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\AddLinkedProcess.tsx" />
-    <TypeScriptCompile Remove="client\processdesigner\addlinkedprocess\IAddLinkedProcess.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.tsx" />
@@ -577,7 +568,6 @@
     <TypeScriptCompile Remove="client\fx\processshape\HeadingShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\index.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\IShapeSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\processshape\Shape - Copy.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeSettings.ts" />
     <TypeScriptCompile Remove="client\fx\processshape\ShapeTemplate.ts" />
     <TypeScriptCompile Remove="client\viewprocess\breadcrumbblock\BreadcrumbBlock.css.ts" />
@@ -655,8 +645,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.90-dev" />
-    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.90-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.SharePoint" Version="4.0.108-dev" />
+    <PackageReference Include="Omnia.Fx.NetCore.WebApp" Version="4.0.108-dev" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.20" />
   </ItemGroup>
 

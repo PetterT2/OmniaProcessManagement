@@ -510,14 +510,18 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     private renderAddLinkedProcess(h) {
         return <div>
-            <opm-processdesigner-addlinkedprocess
-                rootProcessStepId={this.selectedLinkedRootProcessStepId}
-                onChange={(title, rootProcessStepId) => {
-                    this.shapeTitle = title;
-                    this.selectedLinkedRootProcessStepId = rootProcessStepId;
-                    this.updateDrawedShape();
+            <opm-process-picker
+                required
+                validator={this.useValidator}
+                onModelChange={(processes) => {
+                    let process = processes[0];
+                    if (process) {
+                        this.shapeTitle = process.rootProcessStep.title;
+                        this.selectedLinkedRootProcessStepId = process.rootProcessStep.id;
+                        this.updateDrawedShape();
+                    }
                 }}>
-            </opm-processdesigner-addlinkedprocess>
+            </opm-process-picker>
         </div>;
     }
 

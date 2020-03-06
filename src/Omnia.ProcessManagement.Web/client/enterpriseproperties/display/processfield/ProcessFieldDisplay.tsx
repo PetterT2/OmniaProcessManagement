@@ -2,19 +2,21 @@
 import Component from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
 import { Inject, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, ResolvablePromise } from '@omnia/fx';
-import { StyleFlow } from "@omnia/fx/ux";
+import { StyleFlow, VueComponentBase } from "@omnia/fx/ux";
 import { IProcessFieldDisplay } from './IProcessFieldDisplay';
 import { EnterprisePropertyDefinition } from '@omnia/fx-models';
-import { ProcessFieldDisplayStyles, Process, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
-import { ProcessStore } from '../../../fx';
+import {  Process, OPMEnterprisePropertyInternalNames, ProcessFieldDisplayStyles } from '../../../fx/models';
+import { ProcessStore, OPMRouter, ProcessRendererOptions } from '../../../fx';
+import './ProcessFieldDisplay.css';
 
 @Component
-export class ProcessFieldDisplayComponent extends Vue implements IWebComponentInstance, IProcessFieldDisplay {
+export class ProcessFieldDisplayComponent extends VueComponentBase implements IWebComponentInstance, IProcessFieldDisplay {
     @Prop() model: Array<string> | string;
     @Prop() property: EnterprisePropertyDefinition;
     @Prop() wrapWithParentContent: (h: any, internalName: string, propertyContent: JSX.Element) => JSX.Element;
 
     @Inject(ProcessStore) private processStore: ProcessStore;
+    private styles = StyleFlow.use(ProcessFieldDisplayStyles);
 
     private internalModel: Array<string> = []
     private processes: Array<Process> = [];
@@ -43,6 +45,12 @@ export class ProcessFieldDisplayComponent extends Vue implements IWebComponentIn
     mounted() {
         WebComponentBootstrapper.registerElementInstance(this, this.$el);
     }
+
+
+    clickProcess(process: Process) {
+        OPMRouter.navigate(process, process.rootProcessStep, ProcessRendererOptions.ForceToGlobalRenderer);
+    }
+
 
     invalidatePendingResolvePromise() {
         if (this.resolvablePromise.resolving) {
@@ -78,9 +86,9 @@ export class ProcessFieldDisplayComponent extends Vue implements IWebComponentIn
                 <div>
                     {
                         this.processes.map((process) =>
-                            <v-chip class="ma-1">
-                                <v-avatar>
-                                    <omfx-letter-avatar name={process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessIdNumber]} size={45}></omfx-letter-avatar>
+                            <v-chip onClick={() => { this.clickProcess(process) }} class="ma-1">
+                                <v-avatar color={this.theming.colors.primary.base} class={[this.styles.avatarStyle, 'mr-2']}>
+                                    {process.rootProcessStep.enterpriseProperties[OPMEnterprisePropertyInternalNames.OPMProcessIdNumber]}
                                 </v-avatar>
                                 {process.rootProcessStep.multilingualTitle}
                             </v-chip>

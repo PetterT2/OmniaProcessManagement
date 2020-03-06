@@ -5,6 +5,7 @@ import { WebComponentBootstrapper, IWebComponentInstance, vueCustomElement } fro
 import { VueComponentBase, IValidator } from "@omnia/fx/ux";
 import { IProcessFieldEdit } from './IProcessFieldEdit';
 import { EnterprisePropertyDefinition, ValueDefinitionMultipleValueSetting } from '@omnia/fx-models';
+import { Process } from '../../../fx/models';
 
 @Component
 export class ProcessFieldEdit extends VueComponentBase implements IWebComponentInstance, IProcessFieldEdit {
@@ -32,8 +33,8 @@ export class ProcessFieldEdit extends VueComponentBase implements IWebComponentI
     beforeDestroy() {
     }
 
-    private onProcessInputChange(value: Array<string>) {
-        this.model[this.property.internalName] = JSON.stringify(value);
+    private onProcessInputChange(processes: Array<Process>) {
+        this.model[this.property.internalName] = JSON.stringify(processes.map(p => p.opmProcessId.toString()));
         if (this.onModelChange)
             this.onModelChange(this.model[this.property.internalName]);
         this.$forceUpdate();

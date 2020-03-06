@@ -32,7 +32,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     showCreateProcessStepDialog = false;
     showMoveProcessStepDialog = false;
     showDeleteProcessStepDialog = false;
-    externalOPMProcessId: GuidValue = null;
+    externalRootProcessStepId: GuidValue = null;
 
     loading: boolean = false;
     checkingDeletingProcessSteps: boolean = false;
@@ -140,7 +140,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
             let promise: Promise<{ process: Process, processStep: ProcessStep }> = null;
             let isExternalProcessStep = this.showAddLinkedProcessStepDialog;
             if (isExternalProcessStep) {
-                promise = this.currentProcessStore.actions.addExtenalProcessStep.dispatch(this.title, this.externalOPMProcessId)
+                promise = this.currentProcessStore.actions.addExtenalProcessStep.dispatch(this.title, this.externalRootProcessStepId)
             }
             else {
                 promise = this.currentProcessStore.actions.addProcessStep.dispatch(this.title);
@@ -298,9 +298,19 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                         <v-card-text class={this.omniaTheming.promoted.body.class}>
                             {
                                 this.showAddLinkedProcessStepDialog ?
-                                    <opm-processdesigner-addlinkedprocess
-                                        onChange={(title, opmProcessId) => { this.title = title; this.externalOPMProcessId = opmProcessId }}>
-                                    </opm-processdesigner-addlinkedprocess> :
+                                    <opm-process-picker
+                                        required
+                                        validator={this.internalValidator}
+                                        onModelChange={(processes) => {
+                                            if (processes[0]) {
+                                                this.title = processes[0].rootProcessStep.title;
+                                                this.externalRootProcessStepId = processes[0].rootProcessStep.id;
+                                            }
+                                            else {
+                                                this.externalRootProcessStepId = null;
+                                            }
+                                        }}>
+                                    </opm-process-picker> :
                                     null
                             }
                             <omfx-multilingual-input

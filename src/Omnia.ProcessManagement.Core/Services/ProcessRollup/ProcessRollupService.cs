@@ -102,7 +102,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                     throw new Exception("Invalid Process query: Process title is not supported in query, switch to use filter instead.");
                 }
 
-                if (!string.IsNullOrEmpty(resource.Id) || !int.TryParse(resource.Id, out resourceVersion) ||
+                if (string.IsNullOrEmpty(resource.Id) || !int.TryParse(resource.Id, out resourceVersion) ||
                     (resourceVersion != (int)ProcessVersionType.Published && resourceVersion != (int)ProcessVersionType.Archived))
                 {
                     throw new Exception("Invalid Process query: resources is invalid, only support query Published or Archived processes.");
@@ -111,7 +111,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 
             if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
             {
-                titleFilter = setting.CustomFilters.Where(f => f.Property == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName).First();
+                titleFilter = setting.CustomFilters.Where(f => f.Property == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName).FirstOrDefault();
 
                 var searchBoxFilter = setting.CustomFilters.FirstOrDefault(f => (int)f.Type == searchBoxType);
 
@@ -125,13 +125,13 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                     }
 
                     var searchBoxFilterValue = searchBoxFilter.ValueObj.CastTo<RollupFilterValue, TexSearchestPropFilterValue>();
-                    if (string.IsNullOrWhiteSpace(searchBoxFilterValue.Value))
+                    if (!string.IsNullOrWhiteSpace(searchBoxFilterValue.Value))
                     {
-                        var valueObj = new PrimitiveValueFilterValue();
-                        valueObj.Value = searchBoxFilterValue.Value;
-
-                        if (int.TryParse(valueObj.Value.ToString(), out _))
+                        if (int.TryParse(searchBoxFilterValue.Value.ToString(), out int opmProcessIdNumber))
                         {
+                            var valueObj = new BaseValueFilterValue<int>();
+                            valueObj.Value = opmProcessIdNumber;
+
                             setting.CustomFilters.Add(new RollupFilter
                             {
                                 Property = OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName,
@@ -141,6 +141,9 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                         }
                         else
                         {
+                            var valueObj = new PrimitiveValueFilterValue();
+                            valueObj.Value = searchBoxFilterValue.Value;
+
                             titleFilter = new RollupFilter
                             {
                                 Property = Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName,
@@ -190,7 +193,10 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             var (defaultLanguage, availableLanguages) = await GetLanguageSettings();
             string filterText = "";
             if (titleFilter.IsNotNull())
-                filterText = titleFilter.ValueObj.AdditionalProperties["searchValue"].ToString();
+            {
+                var searchBoxFilterValue = titleFilter.ValueObj.CastTo<RollupFilterValue, TexSearchestPropFilterValue>();
+                filterText = searchBoxFilterValue.Value;
+            }
 
             if (multilingualTitle != null)
             {

@@ -89,8 +89,6 @@ export class OPMWebComponentManifests {
 
     public static get ChangeProcessType(): Guid { return new Guid("620a862b-bc33-46c0-b5c8-2896be4d902f"); }
 
-    public static get AddLinkedProcess(): Guid { return new Guid("8acf47a2-704c-4b59-abab-2ae0164a650d"); }
-
     public static get ProcessFieldValueDefinition(): Guid { return new Guid("4b112115-10db-4fc9-b142-d416bf9a5a2b"); }
     public static get ProcessFieldEdit(): Guid { return new Guid("1b9a01a1-578f-4738-88c8-429b2254a4c2"); }
     public static get ProcessFieldDisplay(): Guid { return new Guid("8ce56269-a586-4d61-840b-dc00c6abc0e7"); }
