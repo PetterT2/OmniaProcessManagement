@@ -144,15 +144,12 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     }
 
     private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
-        let left = 0; let top = 0;
         let nodes = null;
         if (addShapeOptions.shape) {
-            left = addShapeOptions.shape.left;
-            top = addShapeOptions.shape.top;
             nodes = addShapeOptions.shape.nodes;
         }
         this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title,
-            left, top, addShapeOptions.processStepId, addShapeOptions.customLinkId, addShapeOptions.externalProcesStepId, nodes).then(() => { this.saveState(true); });
+            addShapeOptions.processStepId || addShapeOptions.customLinkId || addShapeOptions.externalProcesStepId, nodes).then(() => { this.saveState(true); });
     }
 
     private onSelectingShape(shape: DrawingShape) {
@@ -274,7 +271,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             </v-navigation-drawer>
         );
         components.push(this.renderAddShapePanel(h));
-        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));       
+        components.push(this.renderEditShapeSettingsPanel(h, backgroundColor));
 
         return components;
     }

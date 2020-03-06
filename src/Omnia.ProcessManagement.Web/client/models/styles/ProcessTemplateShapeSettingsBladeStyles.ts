@@ -8,7 +8,8 @@ export interface ProcessTemplateShapeSettingsBladeStylesInterface<T extends Nest
     flexDisplay: T;
     contentPadding: T;
     shapePreviewContainer: T;
-    canvas: T;
+    webkitScrollbar?: T;
+    canvasPreviewWrapper?: T;
     hidePreviewContainer: T;
     shapeSettingsContainer: T;
     error: T;

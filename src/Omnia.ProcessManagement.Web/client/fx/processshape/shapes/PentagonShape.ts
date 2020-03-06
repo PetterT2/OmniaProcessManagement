@@ -49,7 +49,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         if (this.definition.isLine)
             this.definition.height = 1;
         let position = this.correctPosition(left, top);
-        let textPosition = this.getTextPosition(position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
         let highlightProperties = this.getHighlightProperties();
         if (this.nodes) {
             let polygonNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.polygon);
@@ -60,7 +60,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             }
             if (textNode) {
                 textPosition = this.getTextPositionAfterRotate(textPosition);
-                let textShape = new FabricTextShape(this.definition, Object.assign({ originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
+                let textShape = new FabricTextShape(this.definition, Object.assign({originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
                 this.fabricShapes.push(textShape);
             }
 
@@ -68,7 +68,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         else if (this.definition) {
             let points = this.getDefaultPoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ points: points, left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
-            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: 'center', left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, {originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
