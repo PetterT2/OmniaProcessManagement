@@ -231,22 +231,6 @@ namespace Omnia.ProcessManagement.Web.Controllers
             }
         }
 
-        [HttpPost, Route("getpublishedwithoutpermission")]
-        [Authorize]
-        public async ValueTask<ApiResponse<List<LightProcess>>> GetPublishedWithoutPermission()
-        {
-            try
-            {
-                var result = await ProcessService.GetPublishedWithoutPermission();
-                return ApiUtils.CreateSuccessResponse(result);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<LightProcess>>(ex);
-            }
-        }
-
         [HttpPost, Route("discardchange/{opmProcessId:guid}")]
         [Authorize]
         public async ValueTask<ApiResponse<Process>> DiscardChangeProcessAsync(Guid opmProcessId)

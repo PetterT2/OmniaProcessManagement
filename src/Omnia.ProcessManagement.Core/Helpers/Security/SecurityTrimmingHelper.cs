@@ -86,8 +86,8 @@ namespace Omnia.ProcessManagement.Core.Helpers.Security
                 if (readerSecurityResourceIds.Any())
                 {
                     var readerTrimming = $"{GeneratePermissionForSecurityProcessId(readerSecurityResourceIds)}";
-                    var readerTrimmingCombineWithPublishedVersion = $"({readerTrimming} AND ({publishedVersionTrimming} OR {archivedVersionTrimming}))";
-                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimmingCombineWithPublishedVersion}";
+                    var readerTrimmingCombineWithPublishedAndArchivedVersion = $"({readerTrimming} AND ({publishedVersionTrimming} OR {archivedVersionTrimming}))";
+                    securityTrimming = $"{securityTrimming}{connectPart}{readerTrimmingCombineWithPublishedAndArchivedVersion}";
                     connectPart = " OR ";
                 }
 

@@ -2,5 +2,5 @@
 
 export interface RollupProcess {
     process: Process;
-    properties: { [key: string]: any }
+    searchTitle: string;
 }

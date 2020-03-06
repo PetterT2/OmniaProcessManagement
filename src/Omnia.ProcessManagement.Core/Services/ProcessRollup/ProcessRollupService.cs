@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft.Json.Linq;
 using Omnia.Fx.Models.BusinessProfiles.PropertyBag;
 using Omnia.Fx.Models.EnterpriseProperties;
+using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Rollup;
 using Omnia.Fx.Models.Rollup.FilterValues;
@@ -18,7 +17,6 @@ using Omnia.ProcessManagement.Models.ProcessRollup;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
@@ -40,7 +38,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
 
         public async ValueTask<RollupProcessResult> QueryProcessRollup(RollupSetting setting)
         {
-            var (processQuery, titleFilters) = await GetProcessQuery(setting);
+            var (processQuery, titleFilter) = await GetProcessQuery(setting);
 
             var queryResult = await processQuery.GetResultAsync();
 
@@ -70,21 +68,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                         }
                     }
 
-                    string processTitle = await GetDefaultProcessTitle(process.RootProcessStep.Title, titleFilters.FirstOrDefault());
-                    returnProperties.Add(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName, processTitle);
-                    if (setting.DisplayFields.Contains(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.CreatedAt.InternalName))
-                        returnProperties.Add(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.CreatedAt.InternalName, process.CreatedAt);
-                    if (setting.DisplayFields.Contains(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.CreatedBy.InternalName))
-                        returnProperties.Add(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.CreatedBy.InternalName, process.CreatedBy);
-                    if (setting.DisplayFields.Contains(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.ModifiedAt.InternalName))
-                        returnProperties.Add(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.ModifiedAt.InternalName, process.ModifiedAt);
-                    if (setting.DisplayFields.Contains(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.ModifiedBy.InternalName))
-                        returnProperties.Add(Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.ModifiedBy.InternalName, process.ModifiedBy);
+                    string processTitle = await GetDefaultProcessTitle(process.RootProcessStep.Title, titleFilter);
 
                     result.Items.Add(new RollupProcess
                     {
                         Process = process,
-                        Properties = returnProperties
+                        SearchTitle = processTitle
                     });
                 }
             }
@@ -92,76 +81,80 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
             return result;
         }
 
-        public async ValueTask<List<LightProcess>> QueryProcessRollupWithoutPermission(RollupSetting setting)
+
+        private async ValueTask<(IOmniaQueryable<Process>, RollupFilter)> GetProcessQuery(RollupSetting setting)
         {
-            var (processQuery, titleFilters) = await GetProcessQuery(setting, true);
+            RollupFilter titleFilter = null;
+            int searchBoxType = 80; //80 is searchBox filter type. temporarily use and wait for omnia fx
 
-            var queryResult = await processQuery.GetResultAsync();
-
-            var result = new List<LightProcess>();
-
-            foreach (var process in queryResult.Items)
+            //Ensure not title filter in Resources
+            //Ensure only rollup published or archived processes
+            if (setting.Resources == null || setting.Resources.Count == 0)
             {
-                if (process != null)
-                {
-                    int opmProcessIdNumber = 0;
-                    if (process.RootProcessStep.EnterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName))
-                    {
-                        int.TryParse(process.RootProcessStep.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName].ToString(), out opmProcessIdNumber);
-                    }
-                    result.Add(new LightProcess() { 
-                        OPMProcessId = process.OPMProcessId,
-                        Title = process.RootProcessStep.Title,
-                        OPMProcessIdNumber = opmProcessIdNumber
-                    });
-                }
+                throw new Exception("Invalid Process query: Resources is required.");
             }
 
-            return result;
-        }
+            foreach (var resource in setting.Resources)
+            {
+                int resourceVersion = 0;
+                if (resource.Filters != null && resource.Filters.Any(f => f.Property == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName))
+                {
+                    throw new Exception("Invalid Process query: Process title is not supported in query, switch to use filter instead.");
+                }
 
-        private async ValueTask<(IOmniaQueryable<Process>, List<RollupFilter>)> GetProcessQuery(RollupSetting setting, bool excludeSecurityTrimming = false)
-        {
-            List<RollupFilter> titleFilters = new List<RollupFilter>();
+                if (!string.IsNullOrEmpty(resource.Id) || !int.TryParse(resource.Id, out resourceVersion) ||
+                    (resourceVersion != (int)ProcessVersionType.Published && resourceVersion != (int)ProcessVersionType.Archived))
+                {
+                    throw new Exception("Invalid Process query: resources is invalid, only support query Published or Archived processes.");
+                }
+            }
 
             if (setting.CustomFilters != null && setting.CustomFilters.Count > 0)
             {
-                titleFilters = setting.CustomFilters.Where(f => f.Property == "Title").ToList();
-                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != "Title").ToList();
-                var propertiesFilter = setting.CustomFilters.FirstOrDefault(f => f.Property.ToLower() == "properties");
-                if(propertiesFilter != null)
+                titleFilter = setting.CustomFilters.Where(f => f.Property == Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName).First();
+
+                var searchBoxFilter = setting.CustomFilters.FirstOrDefault(f => (int)f.Type == searchBoxType);
+
+                setting.CustomFilters = setting.CustomFilters.Where(f => f.Property != Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName && (int)f.Type != searchBoxType).ToList();
+
+                if (searchBoxFilter != null)
                 {
-                    bool searchValueKeyExists = propertiesFilter.ValueObj.AdditionalProperties.TryGetValue("searchValue", out var searchValueToken);
-                    if (searchValueKeyExists)
+                    if (titleFilter != null)
                     {
-                        RollupFilterValue valueObj = new RollupFilterValue();
-                        valueObj.AdditionalProperties["searchValue"] = searchValueToken;
-                        valueObj.AdditionalProperties["value"] = searchValueToken;
-                        titleFilters.Add(new RollupFilter
-                        {
-                            Property = "Title",
-                            Type = PropertyIndexedType.Text,
-                            ValueObj = valueObj
-                        });
+                        throw new Exception("Does not allow to have more than 1 filter on title property");
                     }
-                    bool propertiesKeyExists = propertiesFilter.ValueObj.AdditionalProperties.TryGetValue("properties", out var propertiesValueToken);
-                    if(!propertiesKeyExists || (propertiesKeyExists && JsonConvert.DeserializeObject<List<string>>(propertiesValueToken.ToString()).Count == 0))
+
+                    var searchBoxFilterValue = searchBoxFilter.ValueObj.CastTo<RollupFilterValue, TexSearchestPropFilterValue>();
+                    if (string.IsNullOrWhiteSpace(searchBoxFilterValue.Value))
                     {
-                        setting.CustomFilters = setting.CustomFilters.Where(f => f.Property.ToLower() != "properties").ToList();
+                        var valueObj = new PrimitiveValueFilterValue();
+                        valueObj.Value = searchBoxFilterValue.Value;
+
+                        if (int.TryParse(valueObj.Value.ToString(), out _))
+                        {
+                            setting.CustomFilters.Add(new RollupFilter
+                            {
+                                Property = OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName,
+                                Type = PropertyIndexedType.Number,
+                                ValueObj = valueObj
+                            });
+                        }
+                        else
+                        {
+                            titleFilter = new RollupFilter
+                            {
+                                Property = Omnia.Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName,
+                                Type = PropertyIndexedType.Text,
+                                ValueObj = valueObj
+                            };
+                        }
                     }
                 }
             }
 
-            if (setting.Resources[0].Filters != null && setting.Resources[0].Filters.Count > 0)
-            {
-                var titleQueries = setting.Resources[0].Filters.Where(f => f.Property == "Title").ToList();
-                if (titleQueries.Count > 0)
-                    titleFilters.AddRange(titleQueries);
-                setting.Resources[0].Filters = setting.Resources[0].Filters.Where(f => f.Property != "Title").ToList(); ;
-            }
 
             var helper = new RollupHelper(setting);
-            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(setting.Resources[0].Id, titleFilters, excludeSecurityTrimming);
+            var processQuery = await ProcessHandleService.BuildProcessQueryAsync(titleFilter);
 
             processQuery
             .Where(subItem => helper.ResolveResourcesFilters(subItem))
@@ -185,7 +178,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessRollup
                 }
             }
 
-            return (processQuery, titleFilters);
+            return (processQuery, titleFilter);
         }
 
         private async ValueTask<string> GetDefaultProcessTitle(MultilingualString multilingualTitle, RollupFilter? titleFilter)

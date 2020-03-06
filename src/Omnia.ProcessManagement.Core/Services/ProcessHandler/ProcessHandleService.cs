@@ -1,11 +1,15 @@
-﻿using Omnia.Fx.EnterpriseProperties;
+﻿using Omnia.Fx.Contexts;
+using Omnia.Fx.EnterpriseProperties;
 using Omnia.Fx.Models.BusinessProfiles.PropertyBag;
+using Omnia.Fx.Models.Extensions;
 using Omnia.Fx.Models.Language;
 using Omnia.Fx.Models.Queries;
 using Omnia.Fx.Models.Rollup;
+using Omnia.Fx.Models.Rollup.FilterValues;
 using Omnia.Fx.Queries;
 using Omnia.Fx.Tenant;
 using Omnia.Fx.Users;
+using Omnia.ProcessManagement.Core.Helpers.Security;
 using Omnia.ProcessManagement.Core.Services.Processes;
 using Omnia.ProcessManagement.Core.Services.Security;
 using Omnia.ProcessManagement.Models.Enums;
@@ -26,61 +30,72 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
         IEnterprisePropertyService EnterprisePropertyService { get; }
         IProcessSecurityService ProcessSecurityService { get; }
         IUserService UserService { get; }
-        private ITenantService TenantService { get; }
+        ITenantService TenantService { get; }
+        IOmniaContext OmniaContext { get; }
 
-        private IList<string> DefaultAppProperties
+        private IList<string> SpecialProperties
         {
             get
             {
-                return OPMConstants.Database.TableProps.Processes.Properties;
+                return OPMConstants.Database.TableProps.Processes.SearchableColumns;
             }
         }
-
-        private ProcessVersionType VersionType;
-        private List<RollupFilter> TitleFilters;
 
         public ProcessHandleService(IEnterprisePropertyService enterprisePropertyService,
             IProcessService processService,
             IProcessSecurityService processSecurityService,
             IUserService userService,
-            ITenantService tenantService)
+            ITenantService tenantService,
+            IOmniaContext omniaContext)
         {
             EnterprisePropertyService = enterprisePropertyService;
             ProcessService = processService;
             ProcessSecurityService = processSecurityService;
             UserService = userService;
             TenantService = tenantService;
+            OmniaContext = omniaContext;
         }
 
-        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters, bool excludeSecurityTrimming = false)
+        public async ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(RollupFilter titleFilter)
         {
-            Enum.TryParse(versionTypeStr, out VersionType);
-            TitleFilters = titleFilters;
             var (enterpriseProperties, cacheDependency) = await EnterprisePropertyService.GetAllAsync();
-            var queryFilterResolver = new QueryFilterResolver(enterpriseProperties, DefaultAppProperties);
-            if(excludeSecurityTrimming == true)
-                return new QueryBuilder<Process>(QueryProcessesWithoutPermission, queryFilterResolver);
+            var queryFilterResolver = new QueryFilterResolver(enterpriseProperties, SpecialProperties);
+
+            var queryProcessesFunc = new Func<ItemQuery, ValueTask<ItemQueryResult<Process>>>(async (itemQuery) =>
+            {
+                return await QueryProcesses(itemQuery, titleFilter);
+            });
+
+            return new QueryBuilder<Process>(queryProcessesFunc, queryFilterResolver);
+        }
+
+        protected async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery, RollupFilter titleFilter)
+        {
+            ItemQueryResult<Process> result = null;
+            var authorizedResource = await ProcessSecurityService.EnsureUserAuthorizedResourcesCacheAsync();
+            string securityTrimmingQuery = SecurityTrimmingHelper.GenerateSecurityTrimming(authorizedResource, OmniaContext, null);
+
+            List<string> titleFilters = await GetTitleFilterQuery(titleFilter);
+            if (string.IsNullOrWhiteSpace(securityTrimmingQuery))
+            {
+                result = new ItemQueryResult<Process>()
+                {
+                    Items = new List<Process>(),
+                    Total = 0
+                };
+            }
             else
-                return new QueryBuilder<Process>(QueryProcesses, queryFilterResolver);
+            {
+                result = await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery, titleFilters);
+            }
+
+            return result;
         }
 
-        protected async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQuery itemQuery)
-        {
-            string securityTrimmingQuery = await ProcessSecurityService.GetRollupSecurityTrimmingQuery(VersionType);
-            List<string> titleFilters = await GetTitleFilterQuery();
-            return await ProcessService.QueryProcesses(itemQuery, securityTrimmingQuery, titleFilters);
-        }
-
-        protected async ValueTask<ItemQueryResult<Process>> QueryProcessesWithoutPermission(ItemQuery itemQuery)
-        {
-            List<string> titleFilters = await GetTitleFilterQuery();
-            return await ProcessService.QueryProcesses(itemQuery, "", titleFilters);
-        }
-
-        private async ValueTask<List<string>> GetTitleFilterQuery()
+        private async ValueTask<List<string>> GetTitleFilterQuery(RollupFilter titleFilter)
         {
             List<string> queries = new List<string>();
-            if (TitleFilters != null && TitleFilters.Count > 0)
+            if (titleFilter != null)
             {
                 Fx.Models.Users.User currentUser = await UserService.GetCurrentUserAsync();
                 string tenantDefaultLanguage = await GetTenantDefaultLanguage();
@@ -89,12 +104,12 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
                     GetLanguageTagString(currentUser.PreferredLanguage.Value) : tenantDefaultLanguage;
 
                 var titleColumnName = "P.[Proptitle]";
-                foreach (var filter in TitleFilters)
-                {
-                    string searchText = filter.ValueObj.AdditionalProperties["searchValue"].ToString();
-                    string query = @$"(ISJSON({titleColumnName}) > 0 AND (JSON_VALUE({titleColumnName}, '$.""{currentUserPreferredLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%:""{searchText}%'))";
-                    queries.Add(query);
-                }
+                var filterValue = titleFilter.ValueObj.CastTo<RollupFilterValue, PrimitiveValueFilterValue>();
+                string searchText = filterValue.Value.ToString();
+
+                string query = @$"(ISJSON({titleColumnName}) > 0 AND (JSON_VALUE({titleColumnName}, '$.""{currentUserPreferredLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%{searchText}%' OR JSON_VALUE({titleColumnName}, '$.""{tenantDefaultLanguage}""') LIKE '%:""{searchText}%'))";
+                queries.Add(query);
+
             }
             return queries;
         }

@@ -1,6 +1,4 @@
-﻿import { LightProcess } from '../../fx/models';
-import { IValidator } from '@omnia/fx/ux';
-import { GuidValue } from '@omnia/fx-models';
+﻿import { IValidator } from '@omnia/fx/ux';
 
 export interface IProcessPickerProperties {
     /**Required */

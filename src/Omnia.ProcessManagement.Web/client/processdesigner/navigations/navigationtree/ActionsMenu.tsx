@@ -4,10 +4,9 @@ import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
 import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
-import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils, PropertyInternalNamesConstants } from '../../../fx';
-import { MultilingualString, Guid, GuidValue } from '@omnia/fx-models';
-import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep, Process, ExternalProcessStep } from '../../../fx/models';
-import { util } from 'fabric/fabric-impl';
+import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils } from '../../../fx';
+import { MultilingualString, Guid, GuidValue, BuiltInEnterprisePropertyInternalNames } from '@omnia/fx-models';
+import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep, Process } from '../../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerStore } from '../../stores';
 import { ProcessDesignerItemFactory } from '../../designeritems';
@@ -179,7 +178,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
             currentReferenceData.current.processStep.title = this.title;
             currentReferenceData.current.processStep.multilingualTitle = this.multilingualStore.getters.stringValue(this.title);
             if ((currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties) {
-                (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(this.title);
+                (currentReferenceData.current.processStep as RootProcessStep).enterpriseProperties[BuiltInEnterprisePropertyInternalNames.Title] = JSON.stringify(this.title);
             }
             this.loading = true;
             this.processDesignerStore.actions.saveState.dispatch().then(() => {

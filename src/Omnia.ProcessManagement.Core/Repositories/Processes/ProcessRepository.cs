@@ -65,7 +65,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
 
         public async ValueTask<Process> CreateDraftProcessAsync(ProcessActionModel actionModel)
         {
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, 0, 0, 0, null);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep, 0, 0, 0, null);
 
             var process = new Entities.Processes.Process();
             process.Id = actionModel.Process.Id;
@@ -277,7 +277,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 }
 
                 var reviewDate = await reviewReminderDelegateService.EnsureReviewReminderAsync(opmProcessId, rootProcessStep.EnterpriseProperties);
-                EnsureSystemEnterpriseProperties(rootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber, reviewDate);
+                EnsureSystemEnterpriseProperties(rootProcessStep, edition, revision, opmProcessIdNumber, reviewDate);
 
                 rootProcessStep.Comment = comment;
                 draftProcess.JsonValue = JsonConvert.SerializeObject(rootProcessStep);
@@ -355,7 +355,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             }
             //END
 
-            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep.EnterpriseProperties, edition, revision, opmProcessIdNumber, null);
+            EnsureSystemEnterpriseProperties(actionModel.Process.RootProcessStep, edition, revision, opmProcessIdNumber, null);
 
             var existingProcessDataDict = checkedOutProcessWithProcessDataIdHash.AllProcessDataIdHash.ToDictionary(p => p.Id, p => p);
             var newProcessDataDict = actionModel.ProcessData;
@@ -513,13 +513,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             });
         }
 
-        public async ValueTask<List<LightProcess>> GetPublishedWithoutPermission()
-        {
-            var lightProcesses = new List<LightProcess>();
-            var processEfs = DbContext.Processes.Where(p => p.VersionType == ProcessVersionType.Published).ToList();
-            processEfs.ForEach(p => lightProcesses.Add(MapEfToLightModel(p)));
-            return lightProcesses;
-        }
 
         public async ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> titleFilters)
         {
@@ -552,8 +545,8 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         {
             string filterBeginStr = " WHERE ";
 
-            if (!string.IsNullOrEmpty(securityTrimmingQuery))
-                originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, securityTrimmingQuery + " AND ");
+
+            originalQuery = originalQuery.Insert(originalQuery.IndexOf(filterBeginStr) + filterBeginStr.Length, "(" + securityTrimmingQuery + ") AND ");
 
             foreach (var filter in titleFilters)
             {
@@ -1243,7 +1236,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                 throw new ProcessDraftVersionNotFoundException(processStepId);
             }
 
-            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep.EnterpriseProperties, 0, 0, 0, null);
+            EnsureSystemEnterpriseProperties(sourceProcess.RootProcessStep, 0, 0, 0, null);
             sourceProcess.RootProcessStep.EnterpriseProperties[OPMConstants.SharePoint.SharePointFields.Title.ToLower()] = JsonConvert.SerializeObject(processStep.Title);
 
             var clonedProcess = new Entities.Processes.Process();
@@ -1637,21 +1630,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
             return model;
         }
 
-        private LightProcess MapEfToLightModel(Entities.Processes.Process processEf)
-        {
-            var model = new LightProcess();
-            model.OPMProcessId = processEf.OPMProcessId;
-            var rootProcessData = JsonConvert.DeserializeObject<RootProcessStep>(processEf.JsonValue);
-            if (rootProcessData.EnterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName) &&
-                int.TryParse(rootProcessData.EnterpriseProperties[OPMConstants.Features.OPMDefaultProperties.OPMProcessIdNumber.InternalName].ToString(), out int opmProcessIdNumber))
-            {
-                model.OPMProcessIdNumber = opmProcessIdNumber;
-            }
-
-            model.Title = rootProcessData.Title;
-            return model;
-        }
-
         public override bool ShouldAddComputedColumn(EnterprisePropertyDefinition property)
         {
             if (property.InternalName == OPMConstants.Features.OPMDefaultProperties.Edition.InternalName ||
@@ -1664,8 +1642,10 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         }
 
 
-        private void EnsureSystemEnterpriseProperties(Dictionary<string, JToken> enterpriseProperties, int edition, int revision, int opmProcessIdNumber, DateTime? reviewDate)
+        private void EnsureSystemEnterpriseProperties(RootProcessStep rootProcessStep, int edition, int revision, int opmProcessIdNumber, DateTime? reviewDate)
         {
+            var enterpriseProperties = rootProcessStep.EnterpriseProperties;
+            enterpriseProperties[Fx.Constants.EnterpriseProperties.BuiltIn.Title.InternalName] = JsonConvert.SerializeObject(rootProcessStep.Title);
             if (!enterpriseProperties.ContainsKey(OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName) ||
                 !Guid.TryParse(enterpriseProperties[OPMConstants.Features.OPMDefaultProperties.ProcessType.InternalName].ToString(), out Guid _))
             {

@@ -2,11 +2,8 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { Localize, Utils, Inject } from '@omnia/fx';
-import {
-    ProcessRollupFilter, Enums, ProcessRollupBooleanPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupUISearchboxFilterValue,
-    ProcessRollupTaxonomyPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupDatePeriodsPropFilterValue
-} from '../../fx/models';
-import { EnterprisePropertyDefinition, TaxonomyPropertySettings, PropertyIndexedType, UserPrincipalType, RollupOtherTypes } from '@omnia/fx-models';
+import { ProcessRollupFilter, Enums, ProcessRollupDatePeriodsPropFilterValue } from '../../fx/models';
+import { EnterprisePropertyDefinition, TaxonomyPropertySettings, PropertyIndexedType, UserPrincipalType, RollupOtherTypes, PersonPropFilterValue, TaxonomyPropFilterValue, TextPropFilterValue, BooleanPropFilterValue } from '@omnia/fx-models';
 import { ProcessRollupLocalization } from '../loc/localize';
 import { EnterprisePropertyStore, MultilingualStore } from '@omnia/fx/store';
 import { UserService } from '@omnia/fx/services';
@@ -84,7 +81,7 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
 
     renderBooleanFilter(filter: ProcessRollupFilter, label: string) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupBooleanPropFilterValue = filter.valueObj as ProcessRollupBooleanPropFilterValue;
+        let valueObj = filter.valueObj as BooleanPropFilterValue;
         return (
             <div class={[this.processRollupClasses.uiFilterItem, 'mr-2']}>
                 <v-select disabled={this.isLoadingData} clearable item-value="id" item-text="title" items={this.booleanFilterOptions} v-model={valueObj.value} label={label} onChange={() => { this.onUpdateFilter() }}></v-select>
@@ -94,28 +91,18 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
 
     renderTextFilter(filter: ProcessRollupFilter, label?: string) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupTextPropFilterValue = filter.valueObj as ProcessRollupTextPropFilterValue;
+        let valueObj = filter.valueObj as TextPropFilterValue;
 
         return (
             <div class={[this.processRollupClasses.uiFilterItem, 'mr-2']}>
-                <v-text-field label={label} disabled={this.isLoadingData} v-model={valueObj.searchValue} append-icon={label ? '' : 'search'} onChange={() => { this.onUpdateFilter() }}></v-text-field>
-            </div>
-        )
-    }
-    renderSearchBoxFilter(filter: ProcessRollupFilter, label?: string) {
-        let h = this.$createElement;
-        let valueObj: ProcessRollupUISearchboxFilterValue = filter.valueObj as ProcessRollupUISearchboxFilterValue;
-        
-        return (
-            <div class={[this.processRollupClasses.uiFilterItem, 'mr-2']}>
-                <v-text-field label={label} disabled={this.isLoadingData} v-model={valueObj.searchValue} append-icon={label ? '' : 'search'} onChange={() => { this.onUpdateFilter() }}></v-text-field>
+                <v-text-field label={label} disabled={this.isLoadingData} v-model={valueObj.value} append-icon={label ? '' : 'search'} onChange={() => { this.onUpdateFilter() }}></v-text-field>
             </div>
         )
     }
 
     renderTaxonomyFilter(filter: ProcessRollupFilter, title: string) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupTaxonomyPropFilterValue = filter.valueObj as ProcessRollupTaxonomyPropFilterValue;
+        let valueObj = filter.valueObj as TaxonomyPropFilterValue;
         let settings = this.taxonomyPropertySettings[filter.property];
 
         if (settings && settings.termSetId)
@@ -137,9 +124,7 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
 
     renderPersonFilter(filter: ProcessRollupFilter, title: string) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupPersonPropFilterValue = filter.valueObj as ProcessRollupPersonPropFilterValue;
-
-        let hasValue = valueObj.value[0];
+        let valueObj = filter.valueObj as PersonPropFilterValue;
 
         return (
             <div class={['mr-2', this.processRollupClasses.uiFilterItem]}>
@@ -155,34 +140,30 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
         return (
             <div class={[this.processRollupClasses.uiFilterDateTimeItem, 'mr-2']}>
                 <v-layout align-center>
-                    <omfx-date-time-picker class={this.processRollupClasses.uiFilterDateTimePicker} model={valueObj.fromDateStr}
+                    <omfx-date-time-picker class={this.processRollupClasses.uiFilterDateTimePicker} model={valueObj.fromDate as any}
                         label={title}
                         formatter={this.formatter}
                         pickerMode="date"
                         disabled={this.isLoadingData}
                         onModelChange={(newVal) => {
-                            if (valueObj.fromDateStr != newVal) {
-                                valueObj.fromDateStr = newVal;
-                                valueObj.value = null;
-                                this.onUpdateFilter();
-                            }
+                            valueObj.fromDate = newVal as any;
+                            valueObj.datePeriods = null;
+                            this.onUpdateFilter();
                         }}>
                     </omfx-date-time-picker>
                     <span class="mr-2">-</span>
-                    <omfx-date-time-picker class={this.processRollupClasses.uiFilterDateTimePicker} model={valueObj.toDateStr}
+                    <omfx-date-time-picker class={this.processRollupClasses.uiFilterDateTimePicker} model={valueObj.toDate as any}
                         formatter={this.formatter}
                         pickerMode="date"
                         disabled={this.isLoadingData}
                         onModelChange={(newVal) => {
-                            if (valueObj.toDateStr != newVal) {
-                                valueObj.toDateStr = newVal;
-                                valueObj.value = null;
-                                this.onUpdateFilter();
-                            }
+                            valueObj.toDate = newVal as any;
+                            valueObj.datePeriods = null;
+                            this.onUpdateFilter();
                         }}>
                     </omfx-date-time-picker>
                 </v-layout>
-            </div>
+            </div >
         )
     }
 
@@ -195,18 +176,16 @@ export class FilterComponent extends tsx.Component<FilterComponentProps>
             <v-layout align-end wrap>
                 {
                     this.uiFilters.filter(filter => !(filter as FilterExtension).hidden).map(filter => {
-                        return filter.type === PropertyIndexedType.Text ?
+                        return filter.type === PropertyIndexedType.Text || filter.type === RollupOtherTypes.TextSearches ?
                             this.renderTextFilter(filter, propertyTitles[filter.property]) :
-                            filter.type === RollupOtherTypes.TextSearches ?
-                                this.renderSearchBoxFilter(filter, propertyTitles[filter.property]) :
-                                filter.type === PropertyIndexedType.Boolean ?
-                                    this.renderBooleanFilter(filter, propertyTitles[filter.property]) :
-                                    filter.type === PropertyIndexedType.DateTime ?
-                                        this.renderDateFilter(filter, propertyTitles[filter.property]) :
-                                        filter.type === PropertyIndexedType.Person ?
-                                            this.renderPersonFilter(filter, propertyTitles[filter.property]) :
-                                            filter.type === PropertyIndexedType.Taxonomy ?
-                                                this.renderTaxonomyFilter(filter, propertyTitles[filter.property]) : null
+                            filter.type === PropertyIndexedType.Boolean ?
+                                this.renderBooleanFilter(filter, propertyTitles[filter.property]) :
+                                filter.type === PropertyIndexedType.DateTime ?
+                                    this.renderDateFilter(filter, propertyTitles[filter.property]) :
+                                    filter.type === PropertyIndexedType.Person ?
+                                        this.renderPersonFilter(filter, propertyTitles[filter.property]) :
+                                        filter.type === PropertyIndexedType.Taxonomy ?
+                                            this.renderTaxonomyFilter(filter, propertyTitles[filter.property]) : null
                     })
                 }
             </v-layout>

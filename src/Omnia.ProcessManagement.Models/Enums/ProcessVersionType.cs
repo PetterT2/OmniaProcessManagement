@@ -17,4 +17,9 @@ namespace Omnia.ProcessManagement.Models.Enums
         Draft = ProcessVersionType.Draft,
         Published = ProcessVersionType.Published
     }
+
+    public enum ArchivedOrPublishedVersionType {
+        Archived = ProcessVersionType.Archived,
+        Published = ProcessVersionType.Published
+    }
 }

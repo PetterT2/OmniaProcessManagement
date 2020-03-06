@@ -8,6 +8,7 @@ namespace Omnia.ProcessManagement.Models.ProcessRollup
     public class RollupProcess
     {
         public Process Process { get; set; }
-        public Dictionary<string, object> Properties { get; set; }
+
+        public string SearchTitle { get; set; }
     }
 }

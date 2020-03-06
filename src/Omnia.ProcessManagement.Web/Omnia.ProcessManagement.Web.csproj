@@ -167,13 +167,8 @@
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockDataData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBlockSettings.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupBooleanPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupDatePeriodsPropFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupFilter.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupPersonPropFilterValue.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTaxonomyPropFilterValue.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupTextPropFilterValue.ts" />
-    <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupUISearchboxFilterValue.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\processrollup\ProcessRollupViewSettings.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockData.ts" />
     <TypeScriptCompile Remove="client\fx\models\components\viewprocess\breadcrumbblock\BreadcrumbBlockDataData.ts" />
@@ -231,7 +226,6 @@
     <TypeScriptCompile Remove="client\fx\models\data\processes\ExternalProcessStep.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\InternalProcessStep.ts" />
-    <TypeScriptCompile Remove="client\fx\models\data\processes\LightProcess.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Link.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\PreviewProcessWithCheckoutInfo.ts" />
     <TypeScriptCompile Remove="client\fx\models\data\processes\Process.ts" />

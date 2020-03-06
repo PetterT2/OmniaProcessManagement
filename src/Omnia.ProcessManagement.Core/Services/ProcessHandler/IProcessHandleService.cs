@@ -10,6 +10,6 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessHandler
 {
     public interface IProcessHandleService
     {
-        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(string versionTypeStr, List<RollupFilter> titleFilters, bool excludeSecurityTrimming = false);
+        ValueTask<IOmniaQueryable<Process>> BuildProcessQueryAsync(RollupFilter titleFilter);
     }
 }

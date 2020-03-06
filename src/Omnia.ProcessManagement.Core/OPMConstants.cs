@@ -686,8 +686,12 @@ namespace Omnia.ProcessManagement.Core
                     public const string VersionType = "VersionType";
                     public const string CreatedAt = "CreatedAt";
                     public const string CreatedBy = "CreatedBy";
+                    public const string ModifiedAt = "ModifiedAt";
+                    public const string ModifiedBy = "ModifiedBy";
+                    public const string PublishedAt = "PublishedAt";
+                    public const string PublishedBy = "PublishedBy";
 
-                    public static List<string> Properties
+                    public static List<string> SearchableColumns
                     {
                         get
                         {
@@ -695,14 +699,16 @@ namespace Omnia.ProcessManagement.Core
                             {
                                 OPMProcessId,
                                 TeamAppId,
-                                SecurityResourceId,
                                 ProcessWorkingStatus,
                                 CheckedOutBy,
                                 Id,
-                                JsonValue,
                                 VersionType,
                                 CreatedAt,
-                                CreatedBy
+                                CreatedBy,
+                                ModifiedAt,
+                                ModifiedBy,
+                                PublishedAt,
+                                PublishedBy
                             };
                         }
                     }

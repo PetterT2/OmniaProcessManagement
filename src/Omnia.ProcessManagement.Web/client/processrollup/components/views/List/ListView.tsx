@@ -110,45 +110,50 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
     // Render
     // -------------------------------------------------------------------------
 
-    renderTitleAndLink(process: RollupProcess) {
+    renderTitleAndLink(rollupProcess: RollupProcess) {
         let h = this.$createElement;
-        let title = process.properties[BuiltInEnterprisePropertyInternalNames.Title];
+        let title = rollupProcess.searchTitle
         return <div class={this.listViewClasses.titleLayout}>
             <omfx-letter-avatar class={this.listViewClasses.logoIcon} name={title} size={30}></omfx-letter-avatar>
-            <a class={classes(this.listViewClasses.titleLink)} onClick={() => { this.openProcess(process); }}>{title}</a>
+            <a class={classes(this.listViewClasses.titleLink)} onClick={() => { this.openProcess(rollupProcess); }}>{title}</a>
         </div>
     }
 
-    renderDateTime(process: RollupProcess, property: ProcessRollupListViewDateTimeColumn) {
+    renderDateTime(rollupProcess: RollupProcess, property: ProcessRollupListViewDateTimeColumn) {
         let h = this.$createElement;
 
         let date = '';
-        if (process.properties[property.internalName]) {
+
+        let value = property.internalName == BuiltInEnterprisePropertyInternalNames.CreatedAt ? rollupProcess.process.createAt :
+            property.internalName == BuiltInEnterprisePropertyInternalNames.ModifiedAt ? rollupProcess.process.modifiedAt :
+                rollupProcess.process.rootProcessStep.enterpriseProperties[property.internalName];
+
+        if (value) {
             if (property.mode === Enums.ProcessViewEnums.DateTimeMode.Social) {
-                date = Utils.getSocialDate(process.properties[property.internalName]);
+                date = Utils.getSocialDate(value);
             }
             else {
                 let format = 'MM/DD/YYYY';
                 if (property.format)
                     format = property.format;
                 try {
-                    date = moment(process.properties[property.internalName].toString()).format(format);
+                    date = moment(value.toString()).format(format);
                 } catch (e) { }
             }
         }
         return date
     }
 
-    renderBoolean(process: RollupProcess, internalName: string, label: string) {
+    renderBoolean(rollupProcess: RollupProcess, internalName: string, label: string) {
         let h = this.$createElement;
 
-        return process.properties[internalName] ? label : null
+        return rollupProcess.process.rootProcessStep.enterpriseProperties[internalName] ? label : null
     }
 
-    renderText(process: RollupProcess, internalName: string) {
+    renderText(rollupProcess: RollupProcess, internalName: string) {
         let h = this.$createElement;
 
-        return <div domProps-innerHTML={process.properties[internalName]}></div>
+        return <div domProps-innerHTML={rollupProcess.process.rootProcessStep.enterpriseProperties[internalName]}></div>
     }
 
     resolveRenderText(process: RollupProcess, internalName: string) {
@@ -161,9 +166,9 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
         }
     }
 
-    renderProcessColumn(process: RollupProcess, internalName: string, enterprisePropertyDefinition: EnterprisePropertyDefinition) {
+    renderProcessColumn(rollupProcess: RollupProcess, internalName: string, enterprisePropertyDefinition: EnterprisePropertyDefinition) {
         let h = this.$createElement;
-        var processValue = process.properties[internalName];
+        var processValue = rollupProcess.process.rootProcessStep.enterpriseProperties[internalName];
         let props: EnterprisePropertyDisplayProps = {
             model: !Utils.isNullOrEmpty(processValue) ? JSON.parse(processValue) : [],
             property: enterprisePropertyDefinition,
@@ -178,13 +183,15 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
         return h(enterprisePropertyDefinition.enterprisePropertyDataType.uiOptions.displayModeElementName, componentData);
     }
 
-    renderPerson(process: RollupProcess, internalName: string) {
+    renderPerson(rollupProcess: RollupProcess, internalName: string) {
         let h = this.$createElement;
         let users: Array<UserIdentity> = [];
-        if (process.properties[internalName]) {
-            users = typeof process.properties[internalName] === 'string' ?
-                [{ uid: process.properties[internalName] }]
-                : process.properties[internalName];
+        let value = internalName == BuiltInEnterprisePropertyInternalNames.CreatedBy ? rollupProcess.process.createdBy :
+            internalName == BuiltInEnterprisePropertyInternalNames.ModifiedBy ? rollupProcess.process.modifiedBy :
+                rollupProcess.process.rootProcessStep.enterpriseProperties[internalName];
+
+        if (value) {
+            users = typeof value === 'string' ? [{ uid: value }] : value;
         } else {
             users = null;
         }
@@ -199,11 +206,11 @@ export class ListView extends Vue implements IWebComponentInstance, IProcessRoll
 
     }
 
-    renderTaxonomy(process: RollupProcess, internalName: string) {
+    renderTaxonomy(rollupProcess: RollupProcess, internalName: string) {
         let h = this.$createElement;
         let termIds: Array<string> = [];
 
-        let value = process.properties[internalName];
+        let value = rollupProcess.process.rootProcessStep.enterpriseProperties[internalName];
         //For process type, the value is single
         if (typeof value === 'string') {
             value = [value]

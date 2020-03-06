@@ -33,8 +33,6 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);
         ValueTask UpdatePublishedProcessWorkingStatusAndVersionTypeAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, ProcessVersionType newVersionType);
         ValueTask UpdateNewReviewDateAsync(Guid opmProcessId, DateTime reviewDate, IReviewReminderDelegateService reviewReminderDelegateService);
-        ValueTask<List<LightProcess>> GetPublishedWithoutPermission();
-
 
         ValueTask<ItemQueryResult<Process>> QueryProcesses(ItemQueryHelper itemQuery, string securityTrimmingQuery, List<string> filterQueries);
         ValueTask<ProcessData> GetProcessDataAsync(Guid processStepId, string hash);

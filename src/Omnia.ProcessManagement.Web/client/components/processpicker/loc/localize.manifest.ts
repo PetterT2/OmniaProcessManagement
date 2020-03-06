@@ -9,4 +9,5 @@ Composer.registerManifest(new Guid("2b0b29f0-1f77-4665-a2d8-1022baf3c885"))
         IsRequiredMessage: "* This field is required",
         NoProcessFound: "No process found",
         DefaultLabel: "Select Process",
+        UnauthorizedOrNotFound: "[Unauthorized or Not found]"
     });

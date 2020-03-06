@@ -5,8 +5,8 @@ import { Prop } from 'vue-property-decorator';
 import { OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
 import { ProcessRollupLocalization } from '../../loc/localize';
 import { ProcessRollupBlockSettingsStyles } from '../../../models';
-import { ProcessRollupBlockData, Enums, ProcessRollupBooleanPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePeriodsPropFilterValue, ProcessVersionType } from '../../../fx/models';
-import { RollupFilter, PropertyIndexedType, UserPrincipalType, TaxonomyPropertySettings } from '@omnia/fx-models';
+import { ProcessRollupBlockData, Enums, ProcessRollupDatePeriodsPropFilterValue, ProcessVersionType } from '../../../fx/models';
+import { RollupFilter, PropertyIndexedType, UserPrincipalType, TaxonomyPropertySettings, PersonPropFilterValue, TaxonomyPropFilterValue, BooleanPropFilterValue, TextPropFilterValue } from '@omnia/fx-models';
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
 import { EnterprisePropertyStore, TargetingPropertyStore } from '@omnia/fx/store';
 import { ProcessTableColumnsConstants } from '../../../fx';
@@ -110,7 +110,9 @@ export class QueryTab extends tsx.Component<QueryTabProps>
         filter.valueObj = {};
 
         if (filter.type == PropertyIndexedType.Person)
-            (filter.valueObj as ProcessRollupPersonPropFilterValue).value = [];
+            (filter.valueObj as PersonPropFilterValue).value = [];
+        else if (filter.type == PropertyIndexedType.Taxonomy)
+            (filter.valueObj as TaxonomyPropFilterValue).fixedTermIds = [];
 
         this.updateBlockData();
     }
@@ -142,7 +144,7 @@ export class QueryTab extends tsx.Component<QueryTabProps>
             return (<div class={this.rollupSettingsClasses.filterItemWrapper}>{this.renderPropertySelection(filter)}</div>)
         }
         else if (filter.type == PropertyIndexedType.Boolean) {
-            let valueObj = filter.valueObj as ProcessRollupBooleanPropFilterValue;
+            let valueObj = filter.valueObj as BooleanPropFilterValue;
             return [
                 <v-layout align-center>
                     {this.renderPropertySelection(filter)}
@@ -157,32 +159,32 @@ export class QueryTab extends tsx.Component<QueryTabProps>
             return [<v-layout align-center>
                 {this.renderPropertySelection(filter)}
             </v-layout>,
-                <div class={this.rollupSettingsClasses.filterSettings}>
-                <v-select class={this.rollupSettingsClasses.alignSelfCenter} item-value="id" item-text="title" items={this.datePeriods} v-model={valueObj.value} onChange={() => { this.updateBlockData() }}></v-select>
+            <div class={this.rollupSettingsClasses.filterSettings}>
+                <v-select class={this.rollupSettingsClasses.alignSelfCenter} item-value="id" item-text="title" items={this.datePeriods} v-model={valueObj.datePeriods} onChange={() => { this.updateBlockData() }}></v-select>
             </div>]
 
         }
         else if (filter.type == PropertyIndexedType.Text) {
-            let valueObj = filter.valueObj as ProcessRollupTextPropFilterValue;
+            let valueObj = filter.valueObj as TextPropFilterValue;
             return [<v-layout align-center>
                 {this.renderPropertySelection(filter)}
             </v-layout>,
-                <div class={this.rollupSettingsClasses.filterSettings}>
-                <v-text-field v-model={valueObj.searchValue} onChange={() => { this.updateBlockData() }}></v-text-field>
+            <div class={this.rollupSettingsClasses.filterSettings}>
+                <v-text-field v-model={valueObj.value} onChange={() => { this.updateBlockData() }}></v-text-field>
             </div>]
 
         }
         else if (filter.type == PropertyIndexedType.Person) {
-            let valueObj = filter.valueObj as ProcessRollupPersonPropFilterValue;
+            let valueObj = filter.valueObj as PersonPropFilterValue;
             return [<v-layout align-center>
                 {this.renderPropertySelection(filter)}
             </v-layout>,
-                <div class={this.rollupSettingsClasses.filterSettings}>
+            <div class={this.rollupSettingsClasses.filterSettings}>
                 <omfx-people-picker label=' ' showCurrentUserOption principalType={UserPrincipalType.MemberAndGuest} model={valueObj.value} onModelChange={(newVal) => { valueObj.value = newVal; this.updateBlockData() }}></omfx-people-picker>
             </div>]
         }
         else if (filter.type == PropertyIndexedType.Taxonomy) {
-            let valueObj = filter.valueObj as ProcessRollupTaxonomyPropFilterValue;
+            let valueObj = filter.valueObj as TaxonomyPropFilterValue;
             let filterTypes = this.taxonomyPropertiesHasTargeting[filter.property] ? this.taxonomyFilterTypesWithTargeting : this.taxonomyFilterTypes;
             let settings = this.taxonomyPropertySettings[filter.property];
             if (!settings && settings !== null)

@@ -5,11 +5,10 @@ import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services'
 import { ProcessRollupBlockStyles } from '../../models';
 import { ProcessRollupLocalization } from '../loc/localize';
 import { MultilingualStore, EnterprisePropertyStore, TargetingPropertyStore } from '@omnia/fx/store';
-import { ProcessRollupBlockData, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration, ProcessRollupDatePeriodsPropFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupTextPropFilterValue } from '../../fx/models';
-import { PropertyIndexedType, SpacingSettings, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, Constants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery } from '@omnia/fx-models';
-import { FilterExtension, SearchBoxFilterExtension, FilterComponent } from './FilterComponent';
-import { SharePointFieldsConstants, ProcessRollupConstants, ProcessRollupService } from '../../fx';
-import { classes } from 'typestyle';
+import { ProcessRollupBlockData, Enums, ProcessRollupFilter, RollupProcess, ProcessRollupViewRegistration, ProcessRollupDatePeriodsPropFilterValue } from '../../fx/models';
+import { PropertyIndexedType, SpacingSettings, IMessageBusSubscriptionHandler, OmniaUserContext, Guid, RollupSetting, RollupFilter, RollupFilterValue, Constants, TaxonomyPropFilterValue, RollupOtherTypes, GuidValue, TargetingPropertyFlatResult, TargetingPropertyQuery, TextPropFilterValue, PersonPropFilterValue } from '@omnia/fx-models';
+import { FilterComponent } from './FilterComponent';
+import { ProcessRollupService } from '../../fx';
 import { StyleFlow } from '@omnia/fx/ux';
 import { ProcessRollupConfigurationFactory } from '../factory/ProcessRollupConfigurationFactory';
 import { OPMPublicTopics } from '../../fx/messaging';
@@ -54,7 +53,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     registeredViewElemMsg: { [id: string]: string } = {};
     currentVersionedPageData: VersionedPageData<PlainPageData> = null;
     targetingData: Array<TargetingPropertyFlatResult> = [];
-
+    currentLoginName: string = '';
     prepareTargetingDataRejector: () => void = null;
 
     errorMsg: string = '';
@@ -75,7 +74,11 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
     }
 
     init() {
-        this.enterprisePropertyStore.actions.ensureLoadData.dispatch().then(() => {
+        Promise.all([
+            this.omniaContext.user,
+            this.enterprisePropertyStore.actions.ensureLoadData.dispatch()
+        ]).then((results) => {
+            this.currentLoginName = results[0].loginName;
             this.subscriptionHandler = OPMPublicTopics.registerProcessRollupView.subscribe(this.registerProcessRollupView);
 
             if (this.currentPageStore.getters.state) {
@@ -119,9 +122,7 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
 
     initUIFilters() {
         this.uiFilters = this.blockData.settings.uiFilters ? Utils.clone(this.blockData.settings.uiFilters) : [];
-        this.uiFilters.forEach(filter => {
-            filter = this.resolveRollupFilter(filter);
-        })
+        this.uiFilters.forEach(filter => this.resolveRollupFilter(filter));
     }
 
     prepareTargetingData(blockData: ProcessRollupBlockData): Promise<Array<TargetingPropertyFlatResult>> {
@@ -194,100 +195,76 @@ export class ProcessRollupComponent extends Vue implements IWebComponentInstance
         return queryFilters;
     }
 
-    resolveRollupFilter(uiFilter: ProcessRollupFilter): RollupFilter {
+    resolveRollupFilter(uiFilter: ProcessRollupFilter) {
         switch (uiFilter.type) {
             case PropertyIndexedType.Text:
-                let filter = Utils.clone(uiFilter);
-                let textValue = filter.valueObj as ProcessRollupTextPropFilterValue;
-                if (Utils.isNullOrEmpty(textValue.searchValue)) return null;
-                if (filter.property === 'title' || filter.property === 'Properties') {
-                    filter.property = "Title";
-                }
-                textValue.value = textValue.searchValue;
-                return filter;
+            case RollupOtherTypes.TextSearches:
+                let textValue = (uiFilter.valueObj as TextPropFilterValue).value;
+                if (!textValue || !(textValue.trim())) return null;
+
+                return uiFilter;
             case PropertyIndexedType.Taxonomy:
                 uiFilter.valueObj = this.resolveTaxonamyFilter(uiFilter);
-                let taxValue = uiFilter.valueObj as ProcessRollupTaxonomyPropFilterValue;
+                let taxValue = uiFilter.valueObj as TaxonomyPropFilterValue;
                 if (Utils.isArrayNullOrEmpty(taxValue.fixedTermIds)) return null;
                 break;
             case PropertyIndexedType.Person:
-                let perValue = uiFilter.valueObj as ProcessRollupPersonPropFilterValue;
+                let perValue = uiFilter.valueObj as PersonPropFilterValue;
                 if (Utils.isArrayNullOrEmpty(perValue.value)) return null;
                 if (!Utils.isArrayNullOrEmpty(perValue.value) && perValue.value[0].uid == Constants.ux.components.peoplePicker.currentUserId)
-                    perValue.value[0].uid = '';
+                    perValue.value[0].uid = this.currentLoginName;
                 break;
             case PropertyIndexedType.DateTime:
                 let value: ProcessRollupDatePeriodsPropFilterValue = uiFilter.valueObj as ProcessRollupDatePeriodsPropFilterValue;
-                if (Utils.isNullOrEmpty(value.value) && value.fromDate == null && value.toDate == null) {
+                if (value.datePeriods == null && value.fromDate == null && value.toDate == null) {
                     return null;
                 }
                 uiFilter.valueObj = this.resolveDateFilter(uiFilter);
 
                 break;
-            case RollupOtherTypes.TextSearches:
-                uiFilter.valueObj = this.resolveTextSearchesFilter(uiFilter);
-                if (Utils.isNullOrEmpty((uiFilter.valueObj as ProcessRollupUISearchboxFilterValue).searchValue)) {
-                    return null;
-                }
-                break;
+
             default:
                 if (Utils.isNullOrEmpty((uiFilter.valueObj as any).value)) {
                     return null;
                 }
                 break;
         }
-
         return uiFilter;
-    }
-
-    resolveTextSearchesFilter(filter: ProcessRollupFilter): RollupFilterValue {
-        let value: ProcessRollupUISearchboxFilterValue = filter.valueObj as ProcessRollupUISearchboxFilterValue;
-
-        if (Utils.isNullOrEmpty(value.searchValue)) return value;
-
-        let result: ProcessRollupUISearchboxFilterValue = Utils.clone(value);
-        result.orProperties = [];
-        if (value.properties) {
-            value.properties.forEach((prop) => {
-                result.orProperties.push({ property: prop, type: PropertyIndexedType.Text, valueObj: { value: value.searchValue } });
-            });
-        }
-        return result;
     }
 
     resolveDateFilter(filter: ProcessRollupFilter): RollupFilterValue {
         let value: ProcessRollupDatePeriodsPropFilterValue = filter.valueObj as ProcessRollupDatePeriodsPropFilterValue;
-        if (value.value) {
+        let fromDate = value.fromDate ? value.fromDate.toString() : '';
+        let toDate = value.toDate ? value.toDate.toString() : '';;
+        if (value.datePeriods) {
             let currentDate = new Date();
-            if (value.value == Enums.ProcessViewEnums.DatePeriods.OneWeekFromToday) {
+            if (value.datePeriods == Enums.ProcessViewEnums.DatePeriods.OneWeekFromToday) {
                 currentDate.setDate(currentDate.getDate() - 6);
-                value.fromDateStr = this.generateFromDateFilter(currentDate, false);
-                value.toDateStr = this.generateFromDateFilter(new Date(), false);
+                fromDate = this.generateFromDateFilter(currentDate, false);
+                toDate = this.generateFromDateFilter(new Date(), false);
             }
-            else if (value.value == Enums.ProcessViewEnums.DatePeriods.TwoWeeksFromToday) {
+            else if (value.datePeriods == Enums.ProcessViewEnums.DatePeriods.TwoWeeksFromToday) {
                 currentDate.setDate(currentDate.getDate() - 13);
-                value.fromDateStr = this.generateFromDateFilter(currentDate, false);
-                value.toDateStr = this.generateFromDateFilter(new Date(), false);
+                fromDate = this.generateFromDateFilter(currentDate, false);
+                toDate = this.generateFromDateFilter(new Date(), false);
             }
-            else if (value.value == Enums.ProcessViewEnums.DatePeriods.OneMonthFromToday) {
+            else if (value.datePeriods == Enums.ProcessViewEnums.DatePeriods.OneMonthFromToday) {
                 currentDate.setMonth(currentDate.getMonth() - 1);
-                value.fromDateStr = this.generateFromDateFilter(currentDate, false);
-                value.toDateStr = this.generateFromDateFilter(new Date(), false);
+                fromDate = this.generateFromDateFilter(currentDate, false);
+                toDate = this.generateFromDateFilter(new Date(), false);
             }
-            else if (value.value == Enums.ProcessViewEnums.DatePeriods.EarlierThanNow) {
-                value.fromDateStr = this.generateFromDateFilter(null, true);
-                value.toDateStr = this.generateFromDateFilter(currentDate, true);
+            else if (value.datePeriods == Enums.ProcessViewEnums.DatePeriods.EarlierThanNow) {
+                fromDate = this.generateFromDateFilter(null, true);
+                toDate = this.generateFromDateFilter(currentDate, true);
             }
-            else if (value.value == Enums.ProcessViewEnums.DatePeriods.LaterThanNow) {
-                value.fromDateStr = this.generateFromDateFilter(currentDate, true);
-                value.toDateStr = this.generateFromDateFilter(null, true);
+            else if (value.datePeriods == Enums.ProcessViewEnums.DatePeriods.LaterThanNow) {
+                fromDate = this.generateFromDateFilter(currentDate, true);
+                toDate = this.generateFromDateFilter(null, true);
             }
-            value.fromDate = value.fromDateStr ? new Date(value.fromDateStr) : null;
-            value.toDate = value.toDateStr ? new Date(value.toDateStr) : null;
         }
 
-        value.fromDate = value.fromDateStr ? new Date(value.fromDateStr) : null;
-        value.toDate = value.toDateStr ? new Date(value.toDateStr) : null;
+        value.fromDate = fromDate ? new Date(fromDate) : null;
+        value.toDate = toDate ? new Date(toDate) : null;
 
         return value;
     }

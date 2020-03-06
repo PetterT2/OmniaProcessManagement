@@ -41,21 +41,5 @@ namespace Omnia.ProcessManagement.Web.Controllers
                 return ApiUtils.CreateErrorResponse<RollupProcessResult>(ex);
             }
         }
-
-        [HttpPost, Route("queryrollupwithoutpermission")]
-        [Authorize]
-        public async ValueTask<ApiResponse<List<LightProcess>>> QueryProcessRollupWithoutPermission([FromBody]RollupSetting setting)
-        {
-            try
-            {
-                var result = await ProcessRollupService.QueryProcessRollupWithoutPermission(setting);
-                return ApiUtils.CreateSuccessResponse(result);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return ApiUtils.CreateErrorResponse<List<LightProcess>>(ex);
-            }
-        }
     }
 }

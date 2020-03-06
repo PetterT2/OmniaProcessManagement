@@ -3,6 +3,7 @@
     export interface locInterface {
         IsRequiredMessage: string,
         NoProcessFound: string,
-        DefaultLabel
+        DefaultLabel,
+        UnauthorizedOrNotFound: string
     }
 }

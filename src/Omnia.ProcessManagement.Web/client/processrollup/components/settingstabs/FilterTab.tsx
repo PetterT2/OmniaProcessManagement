@@ -7,8 +7,8 @@ import { ProcessRollupLocalization } from '../../loc/localize';
 import { ProcessRollupBlockSettingsStyles } from '../../../models';
 import { EnterprisePropertyStore } from '@omnia/fx/store';
 import { SettingsServiceConstructor, SettingsService } from '@omnia/fx/services';
-import { ProcessRollupBlockData, ProcessRollupFilter, Enums, ProcessRollupUISearchboxFilterValue, ProcessRollupPersonPropFilterValue, ProcessRollupTextPropFilterValue, ProcessRollupBooleanPropFilterValue, ProcessRollupTaxonomyPropFilterValue, ProcessRollupDatePeriodsPropFilterValue } from '../../../fx/models';
-import { TaxonomyPropertySettings, PropertyIndexedType, BuiltInAppInstanceInternalNames, BuiltInEnterprisePropertyInternalNames, RollupOtherTypes, EnterprisePropertyDefinition, UserPrincipalType } from '@omnia/fx-models';
+import { ProcessRollupBlockData, ProcessRollupFilter, Enums, ProcessRollupDatePeriodsPropFilterValue } from '../../../fx/models';
+import { TaxonomyPropertySettings, PropertyIndexedType, BuiltInAppInstanceInternalNames, BuiltInEnterprisePropertyInternalNames, RollupOtherTypes, EnterprisePropertyDefinition, UserPrincipalType, PersonPropFilterValue, TaxonomyPropFilterValue, TextPropFilterValue, BooleanPropFilterValue } from '@omnia/fx-models';
 import { ProcessRollupConstants } from '../../../fx';
 
 interface UIFilterExtension extends ProcessRollupFilter {
@@ -68,7 +68,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
                 [PropertyIndexedType.Person, PropertyIndexedType.Boolean, PropertyIndexedType.DateTime, PropertyIndexedType.Person, PropertyIndexedType.Text, PropertyIndexedType.Taxonomy]);
 
         properties.push({
-            internalName: BuiltInAppInstanceInternalNames.Properties,
+            internalName: ProcessRollupConstants.searchBoxInternalName,
             multilingualTitle: this.loc.Settings.FilterOption.Searchbox,
             enterprisePropertyDataType: { indexedType: RollupOtherTypes.TextSearches }
         } as any);
@@ -114,12 +114,14 @@ export class FilterTab extends tsx.Component<FilterTabProps>
         let contentPropertyDefinition = this.availablePropertiesForUIFilter.filter(p => p.internalName == filter.property)[0].enterprisePropertyDataType;
         filter.type = contentPropertyDefinition ? contentPropertyDefinition.indexedType as any : null;
         filter.valueObj = {};
-        if (filter.property === ProcessRollupConstants.searchBoxInternalName) {
-            (filter.valueObj as ProcessRollupUISearchboxFilterValue).properties = [];
+
+        if (filter.type === PropertyIndexedType.Person) {
+            (filter.valueObj as PersonPropFilterValue).value = [];
         }
-        else if (filter.type === PropertyIndexedType.Person) {
-            (filter.valueObj as ProcessRollupPersonPropFilterValue).value = [];
+        else if (filter.type === PropertyIndexedType.Taxonomy) {
+            (filter.valueObj as TaxonomyPropFilterValue).fixedTermIds = [];
         }
+
         this.updateBlockData();
     }
 
@@ -157,41 +159,16 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     }
 
-    renderSearchBoxValueInput(filter: UIFilterExtension, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
-        let h = this.$createElement;
-        let valueObj: ProcessRollupUISearchboxFilterValue = filter.valueObj as ProcessRollupUISearchboxFilterValue;
-
-        return [
-            <v-layout align-center>
-                {this.renderPropertySelection(filter, availablePropertiesForUIFilter)}
-            </v-layout>,
-            <div class={this.rollupSettingsClasses.filterSettings}>
-                <v-text-field v-model={valueObj.searchValue} type="text" onChange={() => { this.updateBlockData(); }}></v-text-field>
-            </div>,
-            <div class={this.rollupSettingsClasses.filterSettings}>
-                <div>{this.loc.Settings.SearchBoxMessage.SearchOnTeamTitleAnd}</div>
-                <v-select label={this.loc.Settings.SearchBoxMessage.ProcessProperties} deletable-chips chips loading={this.isLoadingProperties} multiple item-value="internalName" item-text="multilingualTitle" items={this.availablePropertiesForSearchBoxFilter} v-model={(filter.valueObj as ProcessRollupUISearchboxFilterValue).properties} onChange={() => { }}></v-select>
-            </div>,
-            <v-layout class={this.rollupSettingsClasses.hiddenCheckBox}>
-                <v-checkbox
-                    label={this.loc.Settings.HideFilter}
-                    input-value={filter.hidden}
-                    onChange={(event) => { filter.hidden = event; this.updateBlockData(); }}>
-                </v-checkbox>
-            </v-layout>
-
-        ]
-    }
     renderTextDefaultValueInput(filter: UIFilterExtension, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupTextPropFilterValue = filter.valueObj as ProcessRollupTextPropFilterValue;
+        let valueObj = filter.valueObj as TextPropFilterValue;
 
         return [
             <v-layout align-center>
                 {this.renderPropertySelection(filter, availablePropertiesForUIFilter)}
             </v-layout>,
             <div class={this.rollupSettingsClasses.filterSettings}>
-                <v-text-field v-model={valueObj.searchValue} type="text" onChange={() => { this.updateBlockData(); }}></v-text-field>
+                <v-text-field v-model={valueObj.value} type="text" onChange={() => { this.updateBlockData(); }}></v-text-field>
             </div>,
             <v-layout class={this.rollupSettingsClasses.hiddenCheckBox}>
                 <v-checkbox
@@ -205,7 +182,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     renderBooleanDefaultValueInput(filter: UIFilterExtension, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupBooleanPropFilterValue = filter.valueObj as ProcessRollupBooleanPropFilterValue;
+        let valueObj = filter.valueObj as BooleanPropFilterValue;
 
         return [
             <v-layout align-center>
@@ -226,7 +203,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     renderPersonDefaultValueInput(filter: UIFilterExtension, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupPersonPropFilterValue = filter.valueObj as ProcessRollupPersonPropFilterValue;
+        let valueObj = filter.valueObj as PersonPropFilterValue;
 
         return [
             <v-layout align-center>
@@ -249,7 +226,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
 
     renderTaxonomyDefaultValueInput(filter: UIFilterExtension, availablePropertiesForUIFilter: EnterprisePropertyDefinition[]) {
         let h = this.$createElement;
-        let valueObj: ProcessRollupTaxonomyPropFilterValue = filter.valueObj as ProcessRollupTaxonomyPropFilterValue;
+        let valueObj = filter.valueObj as TaxonomyPropFilterValue;
         let settings = this.taxonomyPropertySettings[filter.property];
 
         if (!settings || !settings.termSetId)
@@ -298,7 +275,7 @@ export class FilterTab extends tsx.Component<FilterTabProps>
             </v-layout>,
             <div class={this.rollupSettingsClasses.filterSettings}>
                 <v-select item-value="id" item-text="title" items={this.datePeriods} clearable
-                    v-model={valueObj.value} onChange={() => { this.updateBlockData() }}></v-select>
+                    v-model={valueObj.datePeriods} onChange={() => { this.updateBlockData() }}></v-select>
             </div>,
             <v-layout class={this.rollupSettingsClasses.hiddenCheckBox}>
                 <v-checkbox
@@ -334,12 +311,11 @@ export class FilterTab extends tsx.Component<FilterTabProps>
                     this.blockData.settings.uiFilters && this.blockData.settings.uiFilters.filter(filter => !(filter as UIFilterExtension).removed).map((filter, index) =>
                         this.modifyFilterMode ? this.renderOrderFilterUI(filter, index, propertyTitleAsHash[filter.property]) :
                             !filter.property ? <v-layout align-center>{this.renderPropertySelection(filter, availablePropertiesForUIFilter)}</v-layout> :
-                                filter.type === PropertyIndexedType.Text ? this.renderTextDefaultValueInput(filter, availablePropertiesForUIFilter) :
-                                    filter.type === RollupOtherTypes.TextSearches ? this.renderSearchBoxValueInput(filter, availablePropertiesForUIFilter) :
-                                        filter.type === PropertyIndexedType.Boolean ? this.renderBooleanDefaultValueInput(filter, availablePropertiesForUIFilter) :
-                                            filter.type === PropertyIndexedType.DateTime ? this.renderDateDefaultValueInput(filter, availablePropertiesForUIFilter) :
-                                                filter.type === PropertyIndexedType.Person ? this.renderPersonDefaultValueInput(filter, availablePropertiesForUIFilter) :
-                                                    filter.type === PropertyIndexedType.Taxonomy ? this.renderTaxonomyDefaultValueInput(filter, availablePropertiesForUIFilter) : null
+                                filter.type === PropertyIndexedType.Text || filter.type === RollupOtherTypes.TextSearches ? this.renderTextDefaultValueInput(filter, availablePropertiesForUIFilter) :
+                                    filter.type === PropertyIndexedType.Boolean ? this.renderBooleanDefaultValueInput(filter, availablePropertiesForUIFilter) :
+                                        filter.type === PropertyIndexedType.DateTime ? this.renderDateDefaultValueInput(filter, availablePropertiesForUIFilter) :
+                                            filter.type === PropertyIndexedType.Person ? this.renderPersonDefaultValueInput(filter, availablePropertiesForUIFilter) :
+                                                filter.type === PropertyIndexedType.Taxonomy ? this.renderTaxonomyDefaultValueInput(filter, availablePropertiesForUIFilter) : null
 
 
                     )

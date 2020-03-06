@@ -26,7 +26,6 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
         ValueTask<Process> CopyToNewProcessAsync(Guid opmProcessId, Guid processStepId);
         ValueTask<Process> DiscardChangeProcessAsync(Guid opmProcessId);
         ValueTask<Process> PublishProcessAsync(Guid opmProcessId, string comment, bool isRevision, Guid securityResourceId, IReviewReminderDelegateService reviewReminderDelegateService);
-        ValueTask<List<LightProcess>> GetPublishedWithoutPermission();
         ValueTask UnpublishProcessAsync(Guid opmProcessId);
         ValueTask UpdateDraftProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus, bool allowEixstingCheckedOutVersion);
         ValueTask UpdatePublishedProcessWorkingStatusAsync(Guid opmProcessId, ProcessWorkingStatus newProcessWorkingStatus);

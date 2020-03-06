@@ -2,14 +2,14 @@
 import * as tsx from 'vue-tsx-support';
 import { Prop } from 'vue-property-decorator';
 import { Localize, Inject, IWebComponentInstance, WebComponentBootstrapper, vueCustomElement, Utils } from '@omnia/fx';
-import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation, DialogModel, IValidator } from '@omnia/fx/ux';
+import { OmniaTheming, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, VueComponentBase, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { SharePointContext } from '@omnia/fx-sp';
 import { ProcessLibraryStyles } from '../../../models';
-import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, PropertyInternalNamesConstants, ProcessDefaultData } from '../../../fx';
+import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, ProcessDefaultData } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
-import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
+import { Guid, GuidValue, MultilingualString, BuiltInEnterprisePropertyInternalNames } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';
 import { ProcessDesignerStore } from '../../../processdesigner/stores';
@@ -177,7 +177,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                             this.process.rootProcessStep.title = title;
                             if (!this.process.rootProcessStep.enterpriseProperties)
                                 this.process.rootProcessStep.enterpriseProperties = {};
-                            this.process.rootProcessStep.enterpriseProperties[PropertyInternalNamesConstants.title] = JSON.stringify(title);
+                            this.process.rootProcessStep.enterpriseProperties[BuiltInEnterprisePropertyInternalNames.Title] = JSON.stringify(title);
                         }}
                         forceTenantLanguages
                         label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
