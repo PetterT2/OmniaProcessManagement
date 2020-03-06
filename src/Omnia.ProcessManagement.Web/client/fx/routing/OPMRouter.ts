@@ -341,7 +341,7 @@ class InternalOPMRouter extends TokenBasedRouter<OPMRoute, OPMRouteStateData>{
                     opmRoute: opmRoute,
                     processReference: processReference
                 });
-            })
+            }).catch(reject);
         });
     }
 }
