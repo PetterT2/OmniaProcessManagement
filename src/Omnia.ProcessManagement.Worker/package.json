@@ -6,8 +6,8 @@
     "omnia-after-build": "gulp omnia-after-build"
   },
   "dependencies": {
-    "@omnia/tooling-composers": "4.0.109-dev",
-    "@omnia/fx-sp": "4.0.109-dev",
+    "@omnia/tooling-composers": "4.0.0-preview",
+    "@omnia/fx-sp": "4.0.0-preview",
     "gulp": "4.0.2"
   },
   "engines": {
