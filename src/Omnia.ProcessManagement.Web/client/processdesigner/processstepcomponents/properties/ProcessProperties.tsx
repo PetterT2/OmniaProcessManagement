@@ -176,7 +176,7 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                                 break;
                             case PropertyIndexedType.DateTime:
                                 (propertyInfo as ProcessDatetimePropertyInfo).value = value;
-                                (propertyInfo as ProcessDatetimePropertyInfo).isDateOnly = (item as EnterprisePropertyDateTimeItemSettings).dateOnly;
+                                (propertyInfo as ProcessDatetimePropertyInfo).isDateOnly = !(item as EnterprisePropertyDateTimeItemSettings).includeTime;
                                 break;
                             case PropertyIndexedType.Number:
                                 (propertyInfo as ProcessNumberPropertyInfo).value = value;

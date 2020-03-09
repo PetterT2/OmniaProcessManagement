@@ -62,7 +62,7 @@ export module ProcessTypeHelper {
         let isDateOnly = false;
         let setItem = _setPropertyDictInSelectedSet.setItemDict[id.toString()];
         if (setItem.type == PropertyIndexedType.DateTime) {
-            isDateOnly = (setItem as EnterprisePropertyDateTimeItemSettings).dateOnly;
+            isDateOnly = !(setItem as EnterprisePropertyDateTimeItemSettings).includeTime;
         }
         else {
             console.warn(`There is no date-only settings for property with id ${id}`)
