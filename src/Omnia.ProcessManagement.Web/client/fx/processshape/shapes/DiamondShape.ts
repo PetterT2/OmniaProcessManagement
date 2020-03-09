@@ -35,7 +35,7 @@ export class DiamondShape extends ShapeExtension implements Shape {
 
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
@@ -43,10 +43,10 @@ export class DiamondShape extends ShapeExtension implements Shape {
             let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
             if (polygontNode) {
                 this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({}, polygontNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
+                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
             }
 
             if (textNode) {
-                textPosition = this.getTextPositionAfterRotate(textPosition);
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }

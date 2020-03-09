@@ -20,7 +20,7 @@ export declare abstract class Shape implements ShapeObject {
     abstract getShapeJson(): ShapeObject;
     abstract addEventListener(canvas: fabric.Canvas, gridX?: number, gridY?: number);
     abstract updateShapePosition(): void;
-    static getTextPosition(definition: DrawingShapeDefinition, position: { left: number, top: number }, width?: number, height?: number): { left: number, top: number };
+    static getTextPosition(definition: DrawingShapeDefinition, centerPoint: fabric.Point, width?: number, height?: number): { left: number, top: number };
 }
 
 interface ShapeClasses<T> {

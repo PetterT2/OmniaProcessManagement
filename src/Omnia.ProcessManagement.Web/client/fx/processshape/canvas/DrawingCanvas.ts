@@ -244,25 +244,9 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     reUpdateCanvasSize(readyDrawingShape: DrawingShape) {
-        (readyDrawingShape.shape as ShapeExtension).updateShapePosition();
-        let canvasHeight = 0;
-        let canvasWidth = 0;
-        let objects = (readyDrawingShape.shape as ShapeExtension).shapeObject;
-        let isTextRightAlignment = (readyDrawingShape.shape as ShapeExtension).definition.textAlignment == TextAlignment.Right;
-        let isTextCenterAlignment = (readyDrawingShape.shape as ShapeExtension).definition.textAlignment == TextAlignment.Center;
-        let shapeWidth = objects[0].width * objects[0].scaleX;
-        objects.forEach((obj) => {
-            var bound = obj.getBoundingRect();
-            let textAlign = 0;
-            if (obj.type == 'text' && isTextRightAlignment)
-                textAlign = shapeWidth + (shapeWidth < bound.width ? bound.width - shapeWidth : 0);
-            if (obj.type == 'text' && isTextCenterAlignment)
-                textAlign = shapeWidth / 2 + (shapeWidth < bound.width ? (bound.width - shapeWidth) / 2 : 0);
-            canvasWidth = Math.max(canvasWidth, obj.left + bound.width - textAlign);
-            canvasHeight = Math.max(canvasHeight, obj.top + bound.height);
-        });
-        this.canvasObject.setHeight(canvasHeight);
-        this.canvasObject.setWidth(canvasWidth);
+        var size = (readyDrawingShape.shape as ShapeExtension).updateShapePosition();
+        this.canvasObject.setHeight(size.height);
+        this.canvasObject.setWidth(size.width);
     }
 
     updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean) {

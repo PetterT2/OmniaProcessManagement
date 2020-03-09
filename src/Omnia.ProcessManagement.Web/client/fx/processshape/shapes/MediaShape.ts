@@ -44,18 +44,18 @@ export class MediaShape extends ShapeExtension implements Shape {
             this.definition.width = newWidth;
             this.definition.height = newHeight;
             let position = this.correctPosition(this.left, this.top);
-            let textPosition = ShapeExtension.getTextPosition(this.definition, position);
+            let textPosition = ShapeExtension.getTextPosition(this.definition, fabricImageObj.fabricObject.getCenterPoint());
             this.fabricShapes[1].fabricObject.top = textPosition.top;
             this.fabricShapes[1].fabricObject.left = textPosition.left;
             this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
         }
     }
-     
+
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         this.left = left;
         this.top = top;
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {
@@ -65,12 +65,10 @@ export class MediaShape extends ShapeExtension implements Shape {
                 this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({}, imageNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             }
             if (textNode) {
-                textPosition = this.getTextPositionAfterRotate(textPosition);
                 this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }) || {}, title));
             }
         }
         else if (this.definition) {
-
             this.fabricShapes.push(new FabricImageShape((this.definition as DrawingImageShapeDefinition), Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }

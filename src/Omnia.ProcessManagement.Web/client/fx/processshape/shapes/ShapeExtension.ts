@@ -193,19 +193,9 @@ export class ShapeExtension implements Shape {
         let target = object
         let attrs = this.getScalingSnapToGridAttrs(object);
         target.set(attrs);
-
         let position = this.correctPosition(attrs.left, attrs.top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, position, Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
-        this.fabricShapes[1].fabricObject.set({
-            left: textPosition.left,
-            top: textPosition.top,
-            originX: this.definition.textAlignment
-        });
-    }
+        let textPosition = ShapeExtension.getTextPosition(this.definition, object.getCenterPoint(), Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
 
-    private onRotated(object: fabric.Object) {
-        let position = this.correctPosition(object.left, object.top);
-        let textPosition = this.getTextPositionAfterRotate(ShapeExtension.getTextPosition(this.definition, position, object.width, object.height));
         this.fabricShapes[1].fabricObject.set({
             left: textPosition.left,
             top: textPosition.top,
@@ -228,117 +218,64 @@ export class ShapeExtension implements Shape {
         left = left || 0; top = top || 0;
         left = parseFloat(left.toString());
         top = parseFloat(top.toString());
-        let textPosition = ShapeExtension.getTextPosition(this.definition, { left: left, top: top });
-        if (textPosition.top < 0) {
-            top = Math.abs(textPosition.top);
-        }
         return { left: left, top: top };
     }
 
     public updateShapePosition() {
-        let shapeLeft = this.shapeObject[0].left;
-        let shapeTop = this.shapeObject[0].top;
-        let textLeft = this.shapeObject[1].left;
-        let textTop = this.shapeObject[1].top;
-        if (this.shapeObject[0].angle != 0) {
-            var bound = this.shapeObject[0].getBoundingRect();
-            var aCoords = this.shapeObject[0].aCoords;
-            shapeLeft = aCoords.tl.x - bound.left;
-            shapeTop = aCoords.tl.y - bound.top;
-        }
-        let shapeWidth = this.shapeObject[0].width * this.shapeObject[0].scaleX;
-        let textExceed = 0;
-        switch (this.definition.textAlignment) {
-            case TextAlignment.Right:
-                textExceed = this.shapeObject[1].width - shapeWidth;
-                break;
-            case TextAlignment.Center:
-                textExceed = this.shapeObject[1].width / 2 - shapeWidth / 2;
-                break;
-        }
-        if ((this.definition.textHorizontalAdjustment && this.definition.textHorizontalAdjustment != 0) || textExceed > 0) {
-            let textLeftAfterAdjustment = 0;
-            switch (this.definition.textAlignment) {
-                case TextAlignment.Right:
-                    textLeftAfterAdjustment = (shapeWidth - this.shapeObject[1].width) + this.definition.textHorizontalAdjustment || 0 - textExceed;
-                    break;
-                case TextAlignment.Center:
-                    textLeftAfterAdjustment = (shapeWidth - this.shapeObject[1].width) / 2 + this.definition.textHorizontalAdjustment || 0 - textExceed;
-                    break;
-            }
-            if (textLeftAfterAdjustment < 0)
-                textLeft = textLeftAfterAdjustment;
+        var shapeBound = this.shapeObject[0].getBoundingRect();
+        var textBound = this.shapeObject[1].getBoundingRect();
+
+        var minLeft = Math.min(shapeBound.left, textBound.left);
+        var minTop = Math.min(shapeBound.top, textBound.top);
+        var shapeLeft = Math.floor(this.shapeObject[0].left - minLeft);
+        var shapeTop = Math.floor(this.shapeObject[0].top - minTop);
+        var textLeft = Math.floor(this.shapeObject[1].left - minLeft);
+        var textTop = Math.floor(this.shapeObject[1].top - minTop);
+        this.shapeObject[0].set({ left: shapeLeft, top: shapeTop });
+        this.shapeObject[0].setCoords();
+        this.shapeObject[1].set({ left: textLeft, top: textTop });
+        this.shapeObject[1].setCoords();
+      
+        return {
+            height: Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop),
+            width: Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft)
         }
 
-        if (textLeft < 0) {
-            shapeLeft = Math.abs(textLeft) + shapeLeft;
-            switch (this.definition.textAlignment) {
-                case TextAlignment.Right:
-                    textLeft = this.shapeObject[1].width;
-                    break;
-                case TextAlignment.Center:
-                    textLeft = this.shapeObject[1].width / 2;
-                    break;
-                default:
-                    textLeft = 0;
-                    break;
-            }
-        }
-        if (textTop < 0) {
-            shapeTop = Math.abs(textTop) + shapeTop + this.shapeObject[1].height / 2;
-            textTop = 0;
-        }
-        this.fabricShapes[0].fabricObject.set({
-            left: shapeLeft,
-            top: shapeTop
-        });
-        this.fabricShapes[1].fabricObject.set({
-            left: textLeft,
-            top: textTop
-        });
     }
 
-    protected getTextPositionAfterRotate(textPosition: { left: number, top: number }): { left: number, top: number } {
-        if (this.fabricShapes.length > 0 && this.fabricShapes[0].fabricObject && this.fabricShapes[0].fabricObject.angle != 0) {
-            var bound = this.fabricShapes[0].fabricObject.getBoundingRect();
-            var oCoords = this.fabricShapes[0].fabricObject.oCoords;
-
-            textPosition = ShapeExtension.getTextPosition(this.definition, {
-                left: Math.min(oCoords.ml.x, oCoords.mr.x, oCoords.mt.x, oCoords.mb.x),
-                top: Math.min(oCoords.ml.y, oCoords.mr.y, oCoords.mt.y, oCoords.mb.y)
-            }, Math.abs(oCoords.ml.x - oCoords.mr.x), Math.abs(oCoords.mt.y - oCoords.mb.y));
-        }
-        return textPosition;
-    }
-
-    public static getTextPosition(definition: DrawingShapeDefinition, position: { left: number, top: number }, width?: number, height?: number) {
-        let tleft = position.left;
-        let ttop = position.top;
-        var xAdjustment = definition.textHorizontalAdjustment || 0;
-        var yAdjustMent = definition.textVerticalAdjustment || 0;
+    public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, width?: number, height?: number) {
         width = width || definition.width;
         height = height || definition.height;
+        if (!centerPoint)
+            centerPoint = new fabric.Point(width / 2, height / 2);
+        let tleft = centerPoint.x;
+        let ttop = centerPoint.y;
+
+        var xAdjustment = definition.textHorizontalAdjustment || 0;
+        var yAdjustMent = definition.textVerticalAdjustment || 0;
+        var widthSpace = Math.floor(width / 2);
+        var heightSpace = Math.floor(height / 2);
         switch (definition.textAlignment) {
             case TextAlignment.Right:
-                tleft = position.left + width;
+                tleft = centerPoint.x + widthSpace;
                 break;
             case TextAlignment.Left:
-                tleft = position.left;
+                tleft = centerPoint.x - widthSpace;
                 break;
             default:
-                tleft = position.left + Math.floor(width / 2);
+                tleft = centerPoint.x;
                 break;
         }
 
         switch (definition.textPosition) {
             case TextPosition.Above:
-                ttop -= definition.fontSize + TextSpacingWithShape;
+                ttop -= definition.fontSize + TextSpacingWithShape + heightSpace;
                 break;
             case TextPosition.Bottom:
-                ttop += height + TextSpacingWithShape;
+                ttop += heightSpace + TextSpacingWithShape;
                 break;
             default:
-                ttop += Math.floor(height / 2 - definition.fontSize / 2 - 2);
+                ttop -= Math.floor(definition.fontSize / 2);
                 break;
         }
         return { left: tleft + xAdjustment, top: ttop + yAdjustMent };
@@ -423,9 +360,6 @@ export class ShapeExtension implements Shape {
             },
             "scaling": (e) => {
                 this.onScaling(e.target);
-            },
-            "rotated": (e) => {
-                this.onRotated(e.target);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {

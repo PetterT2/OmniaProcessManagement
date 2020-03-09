@@ -35,22 +35,23 @@ export class RectShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let highlightProperties = this.getHighlightProperties();
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, position);
+        let textPosition = ShapeExtension.getTextPosition(this.definition);
 
         if (this.nodes) {
             let rectNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.rect);
             let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
+
             if (rectNode) {
-                this.fabricShapes.push(new FabricRectShape(this.definition as DrawingRectShapeDefinition, Object.assign({}, rectNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
+                this.fabricShapes.push(new FabricRectShape(this.definition as DrawingRectShapeDefinition, Object.assign({}, rectNode.properties, { selectable: selectable }, highlightProperties)));
+                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
             }
             if (textNode) {
-                textPosition = this.getTextPositionAfterRotate(textPosition);
-                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title));
+                this.fabricShapes.push(new FabricTextShape(this.definition, Object.assign({ originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title));
             }
         }
         else if (this.definition) {
             this.fabricShapes.push(new FabricRectShape(this.definition as DrawingRectShapeDefinition, Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
-            this.fabricShapes.push(new FabricTextShape(this.definition, {originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
