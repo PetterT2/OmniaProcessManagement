@@ -7,13 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@omnia/fx": "4.0.0-preview",
-    "@omnia/fx-sp": "4.0.0-preview",
-    "@omnia/fx-spfx": "4.0.0-preview",
-    "@omnia/tooling-vue": "4.0.0-preview",
-    "@omnia/wcm": "4.0.4-dev",
-    "@omnia/workplace": "4.0.2-dev",
-    "@omnia/dm": "4.0.91-dev",
+    "@omnia/fx": "4.0.3-preview",
+    "@omnia/fx-sp": "4.0.3-preview",
+    "@omnia/fx-spfx": "4.0.3-preview",
+    "@omnia/tooling-vue": "4.0.3-preview",
+    "@omnia/wcm": "4.0.2-preview",
+    "@omnia/workplace": "4.0.4-preview",
+    "@omnia/dm": "4.0.3-preview",
     "fabric": "3.4.0",
     "gulp": "4.0.2",
     "gulp-cli": "2.2.0"
