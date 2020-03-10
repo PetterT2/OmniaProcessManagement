@@ -6,7 +6,7 @@ import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
 import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils, ShapeTemplateStore } from '../../fx';
-import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles, DrawingFreeformShapeDefinition, ShapeTemplateType } from '../../fx/models';
+import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles, DrawingFreeformShapeDefinition, ShapeTemplateType, TextAlignment } from '../../fx/models';
 import { ShapeDefinitionSelection } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -242,11 +242,10 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
 
         if (!srcDrawingCanvasListing[canvasId]) {
             let canvasSize = 100;
-            let iconSize = drawingShapeDefinition.textPosition == TextPosition.On ? canvasSize : 80;
+            let iconSize = 80;
 
             let shapeIconWidth = this.getNumber(drawingShapeDefinition.width);
             let shapeIconHeight = this.getNumber(drawingShapeDefinition.height);
-
             if (shapeIconWidth > shapeIconHeight) {
                 if (shapeIconWidth > iconSize) {
                     shapeIconHeight = (shapeIconHeight / shapeIconWidth) * iconSize;
@@ -259,7 +258,6 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                     shapeIconHeight = iconSize;
                 }
             }
-            let fontSize = 10;
             srcDrawingCanvasListing[canvasId] = new DrawingCanvas(canvasId, {},
                 {
                     drawingShapes: [],
@@ -270,7 +268,12 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             let definitionToDraw: DrawingShapeDefinition = Utils.clone(drawingShapeDefinition);
             definitionToDraw.width = shapeIconWidth;
             definitionToDraw.height = shapeIconHeight;
-            definitionToDraw.fontSize = fontSize;
+            definitionToDraw.textAlignment = TextAlignment.Center;
+            definitionToDraw.textPosition = TextPosition.Bottom;
+            definitionToDraw.textHorizontalAdjustment = 0;
+            definitionToDraw.textVerticalAdjustment = 0;
+            definitionToDraw.fontSize = 10;
+            definitionToDraw.textColor = "#000";
 
             if (foundShapeTemplate.settings.type == ShapeTemplateType.FreeformShape && (definitionToDraw as DrawingFreeformShapeDefinition).nodes &&
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes.length > 0 &&
@@ -283,8 +286,11 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes[0].properties['scaleY'] = scaleDownRate;
             }
 
-            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, null, 
-                (definitionToDraw as DrawingFreeformShapeDefinition).nodes ? (definitionToDraw as DrawingFreeformShapeDefinition).nodes : null);
+            srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, null,
+                (definitionToDraw as DrawingFreeformShapeDefinition).nodes ? (definitionToDraw as DrawingFreeformShapeDefinition).nodes : null)
+                .then((readyDrawingShape) => {
+                    srcDrawingCanvasListing[canvasId].reUpdateCanvasSize(readyDrawingShape);
+                });
         }
     }
 
@@ -408,7 +414,7 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
         }
         let retElement: JSX.Element = foundShapeTemplate ? <div id={'shape_' + shapeId}
             class={[this.shapeSelectionStepStyles.shapeDefinitionItem(100), isIcon ? '' : this.shapeSelectionStepStyles.canvasWrapper(this.omniaTheming), (this.selectedElementId == shapeId) ? 'selected' : '']}
-            style={{ float: 'left', display: shapeDefinition.visible ? 'block' : 'none' }}
+            style={{ display: shapeDefinition.visible ? 'block' : 'none' }}
             onClick={() => { this.selectShape(shapeDefinition, idPrefix) }}>
             {shapeDefinitionElement}
         </div> : null;

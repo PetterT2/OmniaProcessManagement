@@ -4,14 +4,15 @@ import { ShapeSelectionStyles } from '../../fx/models/styles';
 
 StyleFlow.define(ShapeSelectionStyles, {
     shapesWrapper: {
-        display: 'inline-block'
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap'
     },
     shapeDefinitionItem: (size: number) => {
         return {
             padding: '2px',
             margin: '10px',
-            width: size + 'px',
-            height: size + 'px'
+            maxHeight: size + 'px'
         }
     },
     canvasWrapper: (theme: OmniaTheming) => {
@@ -29,7 +30,12 @@ StyleFlow.define(ShapeSelectionStyles, {
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        height: '100%'
+        height: '100%',
+        $nest: {
+            '.v-btn': {
+                marginBottom: '16px'
+            }
+        }
     },
     wrapper: {
         overflow: 'auto',

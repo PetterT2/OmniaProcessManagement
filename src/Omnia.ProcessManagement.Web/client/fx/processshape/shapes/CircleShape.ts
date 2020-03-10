@@ -41,7 +41,6 @@ export class CircleShape extends ShapeExtension implements Shape {
         let highlightProperties = this.getHighlightProperties();
         let position = this.correctPosition(left, top);
         let textPosition = ShapeExtension.getTextPosition(this.definition);
-
         if (this.nodes) {
             let circleNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.circle);
             let textNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.text);
@@ -54,7 +53,9 @@ export class CircleShape extends ShapeExtension implements Shape {
             }
         }
         else if (this.definition) {
-            this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
+            let scaleY = this.definition.width != this.definition.height ? this.definition.height / this.definition.width : 1;
+
+            this.fabricShapes.push(new FabricCircleShape(this.definition, Object.assign({ left: position.left, top: position.top, selectable: selectable, scaleY: scaleY }, highlightProperties)));
             this.fabricShapes.push(new FabricTextShape(this.definition, { originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());

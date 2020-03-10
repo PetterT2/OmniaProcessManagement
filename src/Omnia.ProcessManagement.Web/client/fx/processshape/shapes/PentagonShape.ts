@@ -46,10 +46,13 @@ export class PentagonShape extends ShapeExtension implements Shape {
             this.definition.arrowWidthPercent = 0.5;
         if (this.definition.arrowHeightPercent == undefined)
             this.definition.arrowHeightPercent = 0;
-        if (this.definition.isLine)
+        let lineExtend = null;
+        if (this.definition.isLine) {
             this.definition.height = 1;
+            lineExtend = 4;
+        }
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, null, null, lineExtend);
         let highlightProperties = this.getHighlightProperties();
         if (this.nodes) {
             let polygonNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.polygon);
@@ -57,10 +60,10 @@ export class PentagonShape extends ShapeExtension implements Shape {
             if (polygonNode) {
                 let rectShape = new FabricPolygonShape(this.definition, Object.assign({}, polygonNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties));
                 this.fabricShapes.push(rectShape);
-                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
+                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint(), null, lineExtend);
             }
             if (textNode) {
-                let textShape = new FabricTextShape(this.definition, Object.assign({originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
+                let textShape = new FabricTextShape(this.definition, Object.assign({ originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
                 this.fabricShapes.push(textShape);
             }
 
@@ -68,7 +71,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
         else if (this.definition) {
             let points = this.getDefaultPoints();
             this.fabricShapes.push(new FabricPolygonShape(this.definition, Object.assign({ points: points, left: position.left, top: position.top, selectable: selectable }, highlightProperties)));
-            this.fabricShapes.push(new FabricTextShape(this.definition, {originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
+            this.fabricShapes.push(new FabricTextShape(this.definition, { originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }, title));
         }
         this.nodes = this.fabricShapes.map(n => n.getShapeNodeJson());
     }
@@ -125,7 +128,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             points[5].x = points[1].x;
         } else {
             points[1].x = (scaleWidth - triangleWidth) / object.scaleX;
-            points[3].x = points[1].x;           
+            points[3].x = points[1].x;
         }
         (object as any).points = points;
         object.dirty = true;
