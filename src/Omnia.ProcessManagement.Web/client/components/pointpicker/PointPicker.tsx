@@ -63,18 +63,21 @@ export class PointPicker extends Vue implements IWebComponentInstance, IPointPic
     }
 
     onMouseDown(direction: Directions) {
-        this.isMouseDown = true;
         clearInterval(this.intervalHolder);
         clearTimeout(this.readyTimeout);
 
         this.updateModel(direction, 1);
-        this.readyTimeout = setTimeout(() => {
-            if (direction != Directions.center) {
+
+        if (direction != Directions.center) {
+            this.isMouseDown = true;
+            this.readyTimeout = setTimeout(() => {
+
                 this.intervalHolder = setInterval(() => {
                     this.updateModel(direction, 2);
                 }, 50);
-            }
-        }, 200);
+
+            }, 200);
+        }
     }
 
     onMouseUp(e: MouseEvent) {
@@ -97,31 +100,31 @@ export class PointPicker extends Vue implements IWebComponentInstance, IPointPic
             <div>
                 {this.label && <div class="pb-3 v-label theme--light">{this.label}</div>}
                 <div class={PointPickerStyles.container}>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftUpArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.leftUp) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftUpArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.leftUp) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-up</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.upArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.up) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.upArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.up) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-up</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightUpArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.rightUp) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightUpArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.rightUp) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-up</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.left) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.left) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-left</v-icon>
                     </v-btn>
                     <v-btn ripple={false} elevation='0' class={PointPickerStyles.center} text fab small color={color} onClick={() => { this.onMouseDown(Directions.center) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-compress-arrows-alt</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.right) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.right) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-right</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftDownArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.leftDown) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.leftDownArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.leftDown) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-down</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.downArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.down) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.downArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.down) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-down</v-icon>
                     </v-btn>
-                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightDownArrow} text fab small color={color}  onMousedown={() => { this.onMouseDown(Directions.rightDown) }}>
+                    <v-btn ripple={false} elevation='0' class={PointPickerStyles.rightDownArrow} text fab small color={color} onMousedown={() => { this.onMouseDown(Directions.rightDown) }}>
                         <v-icon color={PointPickerStyles.iconColor} small>fal fa-arrow-down</v-icon>
                     </v-btn>
                 </div>
