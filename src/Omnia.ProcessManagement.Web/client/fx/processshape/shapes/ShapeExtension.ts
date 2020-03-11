@@ -222,6 +222,8 @@ export class ShapeExtension implements Shape {
     }
 
     public updateShapePosition() {
+        if (this.shapeObject.length == 0)
+            return null;
         var shapeBound = this.shapeObject[0].getBoundingRect();
         var textBound = this.shapeObject[1].getBoundingRect();
 

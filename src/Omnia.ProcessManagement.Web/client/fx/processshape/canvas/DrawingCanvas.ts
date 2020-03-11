@@ -245,8 +245,10 @@ export class DrawingCanvas implements CanvasDefinition {
 
     reUpdateCanvasSize(readyDrawingShape: DrawingShape) {
         var size = (readyDrawingShape.shape as ShapeExtension).updateShapePosition();
-        this.canvasObject.setHeight(size.height);
-        this.canvasObject.setWidth(size.width);
+        if (size) {
+            this.canvasObject.setHeight(size.height);
+            this.canvasObject.setWidth(size.width);
+        }
     }
 
     updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean) {
@@ -260,9 +262,6 @@ export class DrawingCanvas implements CanvasDefinition {
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = title;
-                    let objects = (currentDrawingShape.shape as ShapeExtension).shapeObject;
-                    let shapeBoundingRect = objects[0].getBoundingRect();
-                    //let position = this.getShapeLeftTop(definition, shapeBoundingRect.width, shapeBoundingRect.height, objects[1].width, objects[1].height);
                     currentDrawingShape.shape = {
                         shapeTemplateTypeName: ShapeTemplateType[definition.shapeTemplateType],
                         nodes: isGenerateNewNodes ? null : currentDrawingShape.shape.nodes,

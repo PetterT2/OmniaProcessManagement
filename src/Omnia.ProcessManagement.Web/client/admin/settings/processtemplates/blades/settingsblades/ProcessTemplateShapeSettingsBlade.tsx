@@ -189,7 +189,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
             this.startToDrawShape();
         }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, true);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, (this.editingShape as DrawingFreeformShapeDefinition).nodes ? false : true);
         }
     }
 
