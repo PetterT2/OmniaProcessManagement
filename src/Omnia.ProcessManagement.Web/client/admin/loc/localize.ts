@@ -104,7 +104,9 @@
             Title: string,
             CreateShape: string,
             Messages: {
-                NoShapeItem: string
+                NoShapeItem: string,
+                ImageShapeRequired: string,
+                FreefromShapeRequired: string
             }
         }
     }

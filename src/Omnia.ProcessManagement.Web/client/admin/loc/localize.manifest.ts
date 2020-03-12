@@ -108,7 +108,9 @@ Composer.registerManifest("8394a64b-0f90-464a-b0f6-4c4f07cddbe2")
             Title: "Shape Gallery",
             CreateShape: "Create Shape",
             Messages: {
-                NoShapeItem: "There's no shape item."
+                NoShapeItem: "There's no shape item.",
+                ImageShapeRequired: "The image is required.",
+                FreefromShapeRequired: "The freeform shape is required."
             }
         }
     });

@@ -127,11 +127,11 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         if (this.drawingCanvas) {
             this.drawingCanvas.destroy();
             this.drawingCanvas = null;
-        }  
+        }
     }
 
     onShapeTemplateTypeChanged() {
-        this.destroyCanvas(); 
+        this.destroyCanvas();
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = null;
         (this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes = null;
     }
@@ -162,7 +162,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
             var shapeDefinition = this.getShapeDefinitionToDraw();
             this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false)
                 .then((readyDrawingShape: DrawingShape) => {
-               });
+                });
         }
         else {
             this.startToDrawShape();
@@ -178,7 +178,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         }
         let blob: Blob = new Blob([new Uint8Array(array)], { type: mime });
         return window.URL.createObjectURL(blob);
-    }   
+    }
 
     addFreefromShape(shape: ShapeObject) {
         this.isOpenFreeformPicker = false;
@@ -302,6 +302,8 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
 
     render(h) {
         this.editingShapeGalleryItem = this.shapeGalleryJournayStore.getters.editingShapeGalleryItem();
+        let isFreeform = this.editingShapeGalleryItem.settings.type == ShapeTemplatesConstants.Freeform.settings.type;
+        let isMedia = this.editingShapeGalleryItem.settings.type == ShapeTemplatesConstants.Media.settings.type;
 
         return (
             <div>
@@ -324,7 +326,16 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
                         checkValue={this.editingShapeGalleryItem.settings.type}
                         rules={new FieldValueValidation().IsRequired().getRules()}>
                     </omfx-field-validation>
-
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={this.selectedImage}
+                        rules={new FieldValueValidation().IsRequired(isMedia, this.loc.ShapeGallery.Messages.ImageShapeRequired).getRules()}>
+                    </omfx-field-validation>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.editingShapeGalleryItem.settings as ShapeTemplateFreeformSettings).nodes}
+                        rules={new FieldValueValidation().IsArrayRequired(isFreeform, this.loc.ShapeGallery.Messages.FreefromShapeRequired).getRules()}>
+                    </omfx-field-validation>
                     {this.editingShapeGalleryItem.settings.type && this.renderShapePreview(h)}
 
                     <div class='text-right'>
