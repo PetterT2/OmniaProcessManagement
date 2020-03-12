@@ -151,7 +151,6 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         this.hasError = false;
         var foundTemplate = this.shapeTemplateStore.getters.shapeTemplates().find(i => i.id.toString() == (this.editingShape as DrawingShapeDefinition).shapeTemplateId.toString());
         if (foundTemplate) {
-            this.destroyCanvas();
             (this.editingShape as DrawingShapeDefinition).shapeTemplateId = foundTemplate.id;
             (this.editingShape as DrawingShapeDefinition).shapeTemplateType = foundTemplate.settings.type;
             this.editingShape.title = Utils.clone(foundTemplate.title);
@@ -180,12 +179,12 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 (this.editingShape as DrawingRectShapeDefinition).roundX = (foundTemplate.settings as ShapeTemplateRectSettings).roundX;
                 (this.editingShape as DrawingRectShapeDefinition).roundY = (foundTemplate.settings as ShapeTemplateRectSettings).roundY;
             }
-            this.updateTemplateShape();
+            this.updateTemplateShape(true);
         }
     }
 
-    updateTemplateShape() {
-        if (!this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
+    updateTemplateShape(shapeTemplateChanged?: boolean) {
+        if (shapeTemplateChanged || !this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
             this.startToDrawShape();
         }
         else {
