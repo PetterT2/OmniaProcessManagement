@@ -20,7 +20,7 @@ export module ProcessDesignerUtils {
     export function closeProcessDesigner() {
         var designerElements = document.getElementsByTagName('opm-processdesigner');
         if (designerElements.length > 0) {
-            designerElements[0].remove()
+            document.body.removeChild(designerElements[0]);
         }
         if (document.body.className.indexOf('opm-processdesigner-mode') >= 0) {
             document.body.className = document.body.className.replace(" opm-processdesigner-mode", '');
