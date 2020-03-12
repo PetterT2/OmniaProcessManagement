@@ -79,7 +79,7 @@ export class ProcessContextBlockComponent extends VueComponentBase implements IW
         if (opmProcessId) {
             this.processStore.actions.ensurePublishedProcess.dispatch(opmProcessId).then(process => {
                 //Ensure the async still valid (the component is not destroyed)
-                if (document.contains(this.$el)) {
+                if (document.body.contains(this.$el)) {
                     OPMRouter.navigate(process, process.rootProcessStep, ProcessRendererOptions.ForceToBlockRenderer);
                 }
             })
