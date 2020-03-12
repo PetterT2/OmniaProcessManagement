@@ -6,7 +6,6 @@
  * */
 export interface ProcessTemplateShapeSettingsBladeStylesInterface<T extends NestedCSSProperties | string> {
     flexDisplay: T;
-    contentPadding: T;
     shapePreviewContainer: T;
     webkitScrollbar?: T;
     canvasPreviewWrapper?: T;

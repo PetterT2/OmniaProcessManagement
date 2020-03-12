@@ -7,21 +7,18 @@ StyleFlow.define(ProcessTemplateShapeSettingsBladeStyles,
         flexDisplay: {
             display: "flex"
         },
-        contentPadding: {
-            paddingLeft: "15px"
-        },
         shapePreviewContainer: {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'column',
             margin: '0 auto',
-            maxHeight: '200px',
+            maxHeight: '500px',
             height: '100%',
             width: '580px',
         },
         webkitScrollbar: {
-            maxHeight: '200px',
+            maxHeight: '500px',
             maxWidth: '580px',
             $nest: {
                 '::-webkit-scrollbar': {
@@ -47,7 +44,7 @@ StyleFlow.define(ProcessTemplateShapeSettingsBladeStyles,
         },
         canvasPreviewWrapper: {
             display: 'flex',
-            maxHeight: '200px',
+            maxHeight: '500px',
             maxWidth: '580px',
             overflow: 'auto'
         },

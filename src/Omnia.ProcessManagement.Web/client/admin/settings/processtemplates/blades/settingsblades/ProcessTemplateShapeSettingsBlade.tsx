@@ -240,11 +240,94 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                 (this.editingShape as DrawingShapeDefinition).shapeTemplateType != ShapeTemplatesConstants.Freeform.settings.type))
     }
 
+    renderSizeSettings(h) {
+        return !this.isCustomShapeTemplate() &&
+            <v-row>
+                <v-col cols="6" class="py-0">
+                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
+                        onChange={() => {
+                            (this.editingShape as DrawingShapeDefinition).width = (this.editingShape as DrawingShapeDefinition).width ? parseInt((this.editingShape as DrawingShapeDefinition).width.toString()) : 0;
+                            this.updateTemplateShape();
+                        }} type="number" suffix="px"></v-text-field>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.editingShape as DrawingShapeDefinition).width}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
+                </v-col>
+                <v-col cols="6" class="py-0">
+                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
+                        onChange={() => {
+                            (this.editingShape as DrawingShapeDefinition).height = (this.editingShape as DrawingShapeDefinition).height ? parseInt((this.editingShape as DrawingShapeDefinition).height.toString()) : 0;
+                            this.updateTemplateShape();
+                        }} type="number" suffix="px"></v-text-field>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.editingShape as DrawingShapeDefinition).height}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
+                </v-col>
+            </v-row>
+    }
+
+    renderTextSettings(h) {
+        return (
+            <v-row align="center">
+                <v-col cols="6" class="py-0">
+                    <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
+                        onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
+                    <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
+                        onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textAlignment}></v-select>
+                    <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
+                        onChange={() => {
+                            (this.editingShape as DrawingShapeDefinition).fontSize = (this.editingShape as DrawingShapeDefinition).fontSize ? parseInt((this.editingShape as DrawingShapeDefinition).fontSize.toString()) : 0;
+                            this.updateTemplateShape();
+                        }} type="number" suffix="px"></v-text-field>
+                    <omfx-field-validation
+                        useValidator={this.internalValidator}
+                        checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
+                        rules={new FieldValueValidation().IsRequired().getRules()}>
+                    </omfx-field-validation>
+                </v-col>
+                <v-col cols="6" class="py-0 text-center">
+                    <opm-point-picker
+                        label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
+                        model={{ x: (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment, y: (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment }}
+                        onModelChange={(model) => {
+                            (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment = model.x;
+                            (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment = model.y;
+                            this.updateTemplateShape()
+                        }}
+                    ></opm-point-picker>
+                </v-col>
+            </v-row>
+        )
+    }
+
+    renderPreview(h) {
+        return (
+            <div id={this.canvasContainerId} class={classes("py-0", this.needToShowCanvas() ? "" : this.classes.hidePreviewContainer)}>
+                <div class={this.classes.shapePreviewContainer}>
+                    <div class={this.classes.webkitScrollbar}>
+                        <div class={this.classes.canvasPreviewWrapper}>
+                            <canvas id={this.canvasId}></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     renderDrawingSettings(h) {
         return (
             <v-container fluid class="px-0">
-                <div class={this.classes.flexDisplay}>
-                    <v-flex lg6>
+                <v-row align="center">
+                    <v-col cols="6" class="py-0">
                         <v-select item-value="id" item-text="multilingualTitle" items={this.shapeTemplateSelections} v-model={(this.editingShape as DrawingShapeDefinition).shapeTemplateId}
                             onChange={this.onShapeTemplateChanged}></v-select>
                         <omfx-field-validation
@@ -252,83 +335,17 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                             checkValue={(this.editingShape as DrawingShapeDefinition).shapeTemplateId}
                             rules={new FieldValueValidation().IsRequired().getRules()}>
                         </omfx-field-validation>
-                        {this.renderTitle(h)}
-                    </v-flex>
-                    <v-flex lg6 id={this.canvasContainerId} class={classes(this.needToShowCanvas() ? "" : this.classes.hidePreviewContainer, this.classes.contentPadding)}>
-                        <div class={this.classes.shapePreviewContainer}>
-                            <div class={this.classes.webkitScrollbar}>
-                                <div class={this.classes.canvasPreviewWrapper}>
-                                    <canvas id={this.canvasId}></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </v-flex>
-                </div>
 
-                <v-row>
-                    {
-                        !this.isCustomShapeTemplate() && [
-                            <v-col cols="3">
-                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
-                                    onChange={() => {
-                                        (this.editingShape as DrawingShapeDefinition).width = (this.editingShape as DrawingShapeDefinition).width ? parseInt((this.editingShape as DrawingShapeDefinition).width.toString()) : 0;
-                                        this.updateTemplateShape();
-                                    }} type="number" suffix="px"></v-text-field>
-                                <omfx-field-validation
-                                    useValidator={this.internalValidator}
-                                    checkValue={(this.editingShape as DrawingShapeDefinition).width}
-                                    rules={new FieldValueValidation().IsRequired().getRules()}>
-                                </omfx-field-validation>
-                            </v-col>,
-                            <v-col cols="3">
-                                <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
-                                    onChange={() => {
-                                        (this.editingShape as DrawingShapeDefinition).height = (this.editingShape as DrawingShapeDefinition).height ? parseInt((this.editingShape as DrawingShapeDefinition).height.toString()) : 0;
-                                        this.updateTemplateShape();
-                                    }} type="number" suffix="px"></v-text-field>
-                                <omfx-field-validation
-                                    useValidator={this.internalValidator}
-                                    checkValue={(this.editingShape as DrawingShapeDefinition).height}
-                                    rules={new FieldValueValidation().IsRequired().getRules()}>
-                                </omfx-field-validation>
-                            </v-col>,
-                            <v-col cols="6">
-                            </v-col>
-                        ]
-                    }
-                    <v-col cols="6">
-                        <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                            onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
-                        <omfx-field-validation
-                            useValidator={this.internalValidator}
-                            checkValue={(this.editingShape as DrawingShapeDefinition).textPosition}
-                            rules={new FieldValueValidation().IsRequired().getRules()}>
-                        </omfx-field-validation>
-                        <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
-                            onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textAlignment}></v-select>
-                        <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                            onChange={() => {
-                                (this.editingShape as DrawingShapeDefinition).fontSize = (this.editingShape as DrawingShapeDefinition).fontSize ? parseInt((this.editingShape as DrawingShapeDefinition).fontSize.toString()) : 0;
-                                this.updateTemplateShape();
-                            }} type="number" suffix="px"></v-text-field>
-                        <omfx-field-validation
-                            useValidator={this.internalValidator}
-                            checkValue={(this.editingShape as DrawingShapeDefinition).fontSize}
-                            rules={new FieldValueValidation().IsRequired().getRules()}>
-                        </omfx-field-validation>
+                        {this.renderTitle(h)}
+                        {this.renderSizeSettings(h)}
+                        {this.renderTextSettings(h)}
+
                     </v-col>
-                    <v-col cols="6" class="text-center">
-                        <opm-point-picker
-                            label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
-                            model={{ x: (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment, y: (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment }}
-                            onModelChange={(model) => {
-                                (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment = model.x;
-                                (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment = model.y;
-                                this.updateTemplateShape()
-                            }}
-                        ></opm-point-picker>
+                    <v-col cols="6" class="py-0">
+                        {this.renderPreview(h)}
                     </v-col>
                 </v-row>
+
                 <v-row>
                     {
                         this.needToShowShapeSettings() &&
