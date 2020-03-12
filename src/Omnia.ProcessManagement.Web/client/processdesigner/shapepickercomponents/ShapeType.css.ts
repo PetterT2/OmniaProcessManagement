@@ -8,13 +8,13 @@ StyleFlow.define(ShapeTypeStyles, {
         alignItems: 'center',
         flexDirection: 'column',
         margin: '0 auto',
-        maxHeight: '350px',
+        maxHeight: '500px',
         height: '100%',
         width: '300px',
 
     },
     webkitScrollbar: {
-        maxHeight: '300px',
+        maxHeight: '500px',
         maxWidth: '300px',
         $nest: {
             '::-webkit-scrollbar': {
@@ -42,7 +42,7 @@ StyleFlow.define(ShapeTypeStyles, {
         display: 'flex',
         //justifyContent: 'center',
         //alignItems: 'center',
-        maxHeight: '300px',
+        maxHeight: '500px',
         maxWidth: '300px',
         overflow: 'auto'
     },
