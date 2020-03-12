@@ -36,7 +36,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     messageBusSubscriptionHandler: IMessageBusSubscriptionHandler = null;
     stopPullingSyncStatusHandler: () => void = null;
     triggeredPullDataAfterSyncFromSharePoint: boolean = false;
-    isLoading: boolean = false;
+    isLoading: boolean = true;
     termSetFound: boolean = false;
     isDestroyed: boolean = false;
 
