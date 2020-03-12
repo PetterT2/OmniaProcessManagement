@@ -51,6 +51,7 @@ namespace Omnia.ProcessManagement.Core.Repositories.ShapeTemplates
             }
             else
             {
+                existingShapeTemplate.Title = entity.Title;
                 existingShapeTemplate.JsonValue = entity.JsonValue;
             }
 
