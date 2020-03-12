@@ -21,7 +21,6 @@ export class ShapeExtension implements Shape {
     private isHovering: boolean = false;
     private isHovered: boolean = false;
     private isSelected: boolean = false;
-    private currentProcessStore: CurrentProcessStore = null;
     private darkHighlight?: boolean;
 
     constructor(definition: DrawingShapeDefinition, nodes?: FabricShapeData[], title?: MultilingualString | string, selectable?: boolean,
@@ -36,7 +35,6 @@ export class ShapeExtension implements Shape {
         this.startPoint = { x: 0, y: 0 };
         this.originPos = { x: 0, y: 0 };
         this.fabricShapes = [];
-        this.currentProcessStore = ServiceContainer.createInstance(CurrentProcessStore);
         this.darkHighlight = darkHighlight;
 
         this.initNodes(title, selectable, left, top);
@@ -94,13 +92,10 @@ export class ShapeExtension implements Shape {
         return this.definition;
     }
 
-    protected getScalingSnapToGridAttrs(object: fabric.Object) {
+    protected getScalingSnapToGridAttrs(object: fabric.Object, gridX?: number, gridY?: number) {
         //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
         //Don't have time to revisit this solution to improve it. its good to do that at some point.
-
-        let gridX = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition.gridX;
-        let gridY = this.currentProcessStore.getters.referenceData().current.processData.canvasDefinition.gridY;
-
+               
         var target = object,
             w = target.width * target.scaleX,
             h = target.height * target.scaleY,
@@ -189,9 +184,9 @@ export class ShapeExtension implements Shape {
         return attrs;
     }
 
-    protected onScaling(object: fabric.Object) {
+    protected onScaling(object: fabric.Object, gridX?: number, gridY?: number) {
         let target = object
-        let attrs = this.getScalingSnapToGridAttrs(object);
+        let attrs = this.getScalingSnapToGridAttrs(object, gridX, gridY);
         target.set(attrs);
         let position = this.correctPosition(attrs.left, attrs.top);
         let textPosition = ShapeExtension.getTextPosition(this.definition, object.getCenterPoint(), Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
@@ -237,7 +232,7 @@ export class ShapeExtension implements Shape {
         this.shapeObject[0].setCoords();
         this.shapeObject[1].set({ left: textLeft, top: textTop });
         this.shapeObject[1].setCoords();
-      
+
         return {
             height: Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop),
             width: Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft)
@@ -361,7 +356,7 @@ export class ShapeExtension implements Shape {
                 this.shapeObject[1].setCoords();
             },
             "scaling": (e) => {
-                this.onScaling(e.target);
+                this.onScaling(e.target, gridX, gridY);
             },
             "mouseover": (e) => {
                 if (this.allowSetHover) {
