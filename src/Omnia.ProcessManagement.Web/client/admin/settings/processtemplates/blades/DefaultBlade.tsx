@@ -8,6 +8,7 @@ import { ProcessTemplateJourneyStore } from '../store';
 import { ProcessTemplatesJourneyBladeIds } from '../ProcessTemplatesJourneyConstants';
 import { ProcessTemplate, ProcessTemplateFactory } from '../../../../fx/models';
 import { ProcessTemplateStore, ShapeTemplateStore } from '../../../../fx';
+import { IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 
 interface DefaultBladeProps {
     journey: () => JourneyInstance;
@@ -26,6 +27,7 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
     @Localize(OPMAdminLocalization.namespace) loc: OPMAdminLocalization.locInterface;
 
+    messageBusSubscriptionHandler: IMessageBusSubscriptionHandler = null;
     isLoading: boolean = false;
     isProcessing: { [id: string]: boolean } = {};
     errMsg: { [id: string]: string } = {};
@@ -38,6 +40,15 @@ export default class DefaultBlade extends VueComponentBase<DefaultBladeProps> {
         ).then(() => {
             this.isLoading = false;
         })
+        this.messageBusSubscriptionHandler = this.processTemplateJournayStore.getters.onEditingProcessTemplateMutated()(() => {
+            let editingDocument = this.processTemplateJournayStore.getters.editingProcessTemplate();
+            if (editingDocument == null)
+                this.journey().travelBackToFirstBlade();
+        });
+    }
+
+    beforeDestroy() {
+        this.messageBusSubscriptionHandler.unsubscribe();
     }
 
     removeTemplate(template: ProcessTemplate) {

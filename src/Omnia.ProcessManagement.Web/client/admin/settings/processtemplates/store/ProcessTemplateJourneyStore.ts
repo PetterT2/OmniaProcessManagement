@@ -22,6 +22,9 @@ export class ProcessTemplateJourneyStore extends Store {
     }
 
     getters = {
+        onEditingProcessTemplateMutated: () => {
+            return this.editingProcessTemplate.onMutated
+        },
         editingProcessTemplate: () => this.editingProcessTemplate.state,
         editingProcessTemplateTitle: () => this.editingProcessTemplateTitle.state,
         editingShapeDefinition: () => this.editingShapeDefinition.state,

@@ -95,6 +95,9 @@ export default class ProcessTemplateDefaultSettingsBlade extends VueComponentBas
                     })}>
                     <v-toolbar-title>{(this.editingProcessTemplate && this.editingProcessTemplate.id) ? this.editingProcessTemplate.multilingualTitle : this.loc.ProcessTemplates.CreateProcessTemplate}</v-toolbar-title>
                     <v-spacer></v-spacer>
+                    <v-btn icon onClick={() => { this.processTemplateJournayStore.mutations.setEditingProcessTemplate.commit(null) }}>
+                        <v-icon>close</v-icon>
+                    </v-btn>
                 </v-toolbar>
                 <v-divider></v-divider>
                 <v-container>
