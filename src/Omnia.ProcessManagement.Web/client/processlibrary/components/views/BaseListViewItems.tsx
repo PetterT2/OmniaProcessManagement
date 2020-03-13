@@ -462,19 +462,27 @@ export class BaseListViewItems extends VueComponentBase<BaseListViewItemsProps>
                             ]
                         }
                     })}>
-                    <v-list>
+                    <v-list min-width={160}>
                         <v-list-item onClick={() => { this.changeSortColumn(internalName, true); }}>
-                            <v-list-item-title>{this.getSortByAscendingText(field)}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.getSortByAscendingText(field)}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-list-item onClick={() => { this.changeSortColumn(internalName, false); }}>
-                            <v-list-item-title>{this.getSortByDescendingText(field)}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.getSortByDescendingText(field)}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
 
                         <v-list-item onClick={() => { this.openFilter(field); }}>
-                            <v-list-item-title>{this.loc.Filter.FilterBy}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.loc.Filter.FilterBy}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item><v-list-item disabled={!(this.request.filters && this.request.filters[internalName])} onClick={() => { this.clearFilter(internalName); }}>
-                            <v-list-item-title>{this.loc.Filter.ClearFilter}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.loc.Filter.ClearFilter}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
 
                     </v-list>
