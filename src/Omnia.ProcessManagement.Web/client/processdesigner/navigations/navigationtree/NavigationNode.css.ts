@@ -38,7 +38,7 @@ StyleFlow.define(NavigationNodeStyles, {
         }
     },
     leftIcon: {
-        flex: "1 0 0px",
+        flex: "0 0 auto",
         paddingLeft: "7px",
         minWidth: "35px",
         transformOrigin: "center center",
@@ -48,22 +48,17 @@ StyleFlow.define(NavigationNodeStyles, {
         transform: "rotate(-180deg)"
     },
     title: (selected: boolean) => {
-        let paddingRight = selected ? "90px" : "25px"
         return {
             paddingLeft: "4px",
-            flex: "10 0 100px",
+            flex: "1 1 auto",
             overflow: "hidden",
             whiteSpace: "nowrap" as any,
-            textOverflow: "ellipsis",
-            paddingRight: paddingRight
+            textOverflow: "ellipsis"
         }
     },
     actionBar: {
-        flex: "1 0 auto",
-        display: "flex",
-        position: "absolute",
-        right: "0",
-        top: "10px"
+        flex: "0 0 auto",
+        display: "flex"
     },
     content: {
         transition: "max-height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1)",
