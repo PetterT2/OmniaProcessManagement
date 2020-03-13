@@ -347,29 +347,20 @@ export class TasksView extends VueComponentBase<TasksViewProps>
                                                 on: ref.on
                                             }
                                             return [
-                                                <v-tooltip top {...toSpread} close-delay="50"
-                                                    {
-                                                    ...this.transformVSlot({
-                                                        activator: (ref) => {
-                                                            const toSpread1 = {
-                                                                on: ref.on
-                                                            }
-                                                            return [
-                                                                <span {...toSpread1} class={this.listViewClasses.menuHeader}>{field.title} <v-icon small>expand_more</v-icon></span>
-                                                            ]
-                                                        }
-                                                    })}>
-                                                    <span>{field.title}</span>
-                                                </v-tooltip>
+                                                <span {...toSpread} class={this.listViewClasses.menuHeader}>{field.title} <v-icon small>expand_more</v-icon></span>
                                             ]
                                         }
                                     })}>
-                                    <v-list>
+                                    <v-list min-width={160}>
                                         <v-list-item onClick={() => { this.changeSort(field.internalName, true); }}>
-                                            <v-list-item-title>{this.getSortByAscendingText(field.internalName)}</v-list-item-title>
+                                            <v-list-item-content class={"mr-2"}>
+                                                <v-list-item-title>{this.getSortByAscendingText(field.internalName)}</v-list-item-title>
+                                            </v-list-item-content>
                                         </v-list-item>
                                         <v-list-item onClick={() => { this.changeSort(field.internalName, false); }}>
-                                            <v-list-item-title>{this.getSortByDescendingText(field.internalName)}</v-list-item-title>
+                                            <v-list-item-content class={"mr-2"}>
+                                                <v-list-item-title>{this.getSortByDescendingText(field.internalName)}</v-list-item-title>
+                                            </v-list-item-content>
                                         </v-list-item>
                                     </v-list>
                                 </v-menu>

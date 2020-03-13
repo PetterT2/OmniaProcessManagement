@@ -116,7 +116,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
 
             if (extendedButtons.length > 0)
                 actionButtons.push(
-                    <v-menu bottom left
+                    <v-menu offset-y
                         {
                         ...this.transformVSlot({
                             activator: (ref) => {
@@ -134,7 +134,7 @@ export class ActionToolbarComponent extends VueComponentBase<ActionToolbarProps>
                                 ]
                             }
                         })}>
-                        <v-list dark={this.omniaTheming.chrome.background.dark} min-width={200}>
+                        <v-list dark={this.omniaTheming.chrome.background.dark} min-width={250}>
                             {extendedButtons}
                         </v-list>
                     </v-menu>

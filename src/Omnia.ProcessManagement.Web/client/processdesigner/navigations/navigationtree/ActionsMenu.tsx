@@ -381,7 +381,7 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                             ]
                         }
                     })}>
-                    <v-list
+                    <v-list min-width={250}
                         color={this.omniaTheming.promoted.body.onComponent.lighten1}
                         dark={this.omniaTheming.promoted.header.dark}
                         class={this.omniaTheming.promoted.header.class}>

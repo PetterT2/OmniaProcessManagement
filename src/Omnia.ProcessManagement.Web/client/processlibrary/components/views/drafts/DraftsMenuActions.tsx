@@ -154,18 +154,24 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                             ]
                         }
                     })}>
-                    <v-list>
+                    <v-list min-width={180}>
                         <v-list-item onClick={() => { this.editProcess(); }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.Edit}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.Edit}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-list-item onClick={() => { this.previewProcess(); }}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.Preview}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.Preview}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
                         {
                             showNotImplementYetItem ?
                                 <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                                    <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.corLoc.ProcessActions.SendForComments}</v-list-item-title>
+                                    </v-list-item-content>
                                 </v-list-item>
                                 : null
                         }
@@ -174,26 +180,34 @@ export class DraftsMenuActions extends VueComponentBase<DraftsMenuActionsProps> 
                                 <v-list-item onClick={(e: Event) => {
                                     this.checkIn(e);
                                 }} disabled={this.disableButtonUpdateAction || this.isSavingCheckin}>
-                                    <v-list-item-title>{this.corLoc.Buttons.CheckIn}</v-list-item-title>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.corLoc.Buttons.CheckIn}</v-list-item-title>
+                                    </v-list-item-content>
                                 </v-list-item>
                                 : null
                         }
                         <v-list-item onClick={() => {
                             this.openPublishDialog = true;
                         }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.Publish}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.Publish}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         {
                             showNotImplementYetItem ?
                                 [<v-divider></v-divider>,
                                 <v-list-item onClick={() => { }}>
-                                    <v-list-item-title>{this.corLoc.ProcessActions.WorkflowHistory}</v-list-item-title>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.corLoc.ProcessActions.WorkflowHistory}</v-list-item-title>
+                                    </v-list-item-content>
                                 </v-list-item>]
                                 : null
                         }
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.openDeleteDraft(); }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.DeleteDraft}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.DeleteDraft}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                     </v-list>
                 </v-menu>

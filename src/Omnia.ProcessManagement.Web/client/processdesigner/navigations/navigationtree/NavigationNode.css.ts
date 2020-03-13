@@ -63,6 +63,7 @@ StyleFlow.define(NavigationNodeStyles, {
         display: "flex",
         position: "absolute",
         right: "0",
+        top: "10px"
     },
     content: {
         transition: "max-height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1)",

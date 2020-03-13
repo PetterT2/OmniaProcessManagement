@@ -111,27 +111,39 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                             ]
                         }
                     })}>
-                    <v-list>
+                    <v-list min-width={200}>
                         <v-list-item onClick={() => { this.createDraft() }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.CreateDraft}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.CreateDraft}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.viewProcess() }}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.ViewProcess}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.ViewProcess}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-list-item onClick={() => { }}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.ExportProcess}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.ExportProcess}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-list-item onClick={() => { this.openProcessHistoryDialog = true; }}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.ProcessHistory}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.ProcessHistory}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.MoveProcess}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.MoveProcess}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item onClick={() => { this.openUnpublishDialog = true; }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-title>{this.corLoc.ProcessActions.UnpublishProcess}</v-list-item-title>
+                            <v-list-item-content class={"mr-2"}>
+                                <v-list-item-title>{this.corLoc.ProcessActions.UnpublishProcess}</v-list-item-title>
+                            </v-list-item-content>
                         </v-list-item>
                     </v-list>
                 </v-menu>
