@@ -35,7 +35,7 @@ export class ProcessTemplateJourneyStore extends Store {
 
     mutations = {
         setEditingProcessTemplate: this.mutation((processTemplate: ProcessTemplate) => {
-            this.editingProcessTemplate.mutate(processTemplate);
+            this.editingProcessTemplate.mutate(Object.assign({}, processTemplate));
             this.editingProcessTemplateTitle.mutate(processTemplate ? processTemplate.multilingualTitle : '');
         }),
         setEditingShapeDefinition: this.mutation((shapeDefinition: ShapeDefinition, index: number = -1) => {
