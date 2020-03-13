@@ -37,7 +37,6 @@ export const ProcessDesignerStyleSettings = {
     },
 }
 
-let spSuiteBarZIndex = 5;
 /**
  * Styles for the Editor component
  */
@@ -48,7 +47,7 @@ export const ProcessDesignerStyles = {
         right: '0',
         left: '0',
         bottom: '0',
-        zIndex: spSuiteBarZIndex + 1
+        zIndex: 100
     }),
     canvasContainer: style({
         height: "calc(100vh - 97px)",
