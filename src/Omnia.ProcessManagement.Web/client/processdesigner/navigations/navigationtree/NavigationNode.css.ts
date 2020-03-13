@@ -50,7 +50,7 @@ StyleFlow.define(NavigationNodeStyles, {
     title: (selected: boolean) => {
         return {
             paddingLeft: "4px",
-            flex: "1 1 auto",
+            flex: "1 1 100px",
             overflow: "hidden",
             whiteSpace: "nowrap" as any,
             textOverflow: "ellipsis"

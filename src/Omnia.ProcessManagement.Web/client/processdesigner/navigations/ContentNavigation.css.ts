@@ -27,9 +27,13 @@ export const ContentNavigationStyles = {
     },
     scrollContainer: style({
         height: important("calc(100vh - 98px)"),
-        overflowY: important("auto"),
         //** Fix scroll for iphone */
         '-webkit-overflow-scrolling': 'touch'
+    }),
+    scrollInner: style({
+        maxHeight: '100%',
+        overflowY: 'auto',
+        overflowX: 'hidden'
     }),
     actionHeader: {
         icon: style({
