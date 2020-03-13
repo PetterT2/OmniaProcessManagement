@@ -79,15 +79,17 @@ export class CreateLinkPanelComponent extends VueComponentBase implements IWebCo
     }
 
     private saveLink() {
-        let savedLink = Utils.clone(this.editingLink);
-        if (this.isNew) {
-            this.processStepLinks.push(savedLink);
+        if (this.internalValidator.validateAll()) {
+            let savedLink = Utils.clone(this.editingLink);
+            if (this.isNew) {
+                this.processStepLinks.push(savedLink);
+            }
+            else {
+                let existedLink = this.processStepLinks.find((item) => item.id == this.linkId);
+                existedLink = savedLink;
+            }
+            this.onSave(savedLink);
         }
-        else {
-            let existedLink = this.processStepLinks.find((item) => item.id == this.linkId);
-            existedLink = savedLink;
-        }
-        this.onSave(savedLink);
     }
 
 

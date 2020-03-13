@@ -2,7 +2,7 @@
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
-import { Guid, IMessageBusSubscriptionHandler, GuidValue } from '@omnia/fx-models';
+import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogStyles, HeadingStyles, FormValidator, FieldValueValidation } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
 import { ProcessDesignerLocalization } from '../../loc/localize';
@@ -75,15 +75,17 @@ export class CreateTaskComponent extends VueComponentBase implements IWebCompone
     }
 
     private saveTask() {
-        let savedTask = Utils.clone(this.editingTask);
-        if (this.isNew) {
-            this.processStepTasks.push(savedTask);
+        if (this.internalValidator.validateAll()) {
+            let savedTask = Utils.clone(this.editingTask);
+            if (this.isNew) {
+                this.processStepTasks.push(savedTask);
+            }
+            else {
+                let existedTask = this.processStepTasks.find((item) => item.id == this.taskId);
+                existedTask = savedTask;
+            }
+            this.onSave(savedTask);
         }
-        else {
-            let existedTask = this.processStepTasks.find((item) => item.id == this.taskId);
-            existedTask = savedTask;
-        }
-        this.onSave(savedTask);
     }
 
 
