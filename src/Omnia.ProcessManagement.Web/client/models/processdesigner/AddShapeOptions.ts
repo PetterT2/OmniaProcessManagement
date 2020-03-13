@@ -12,4 +12,5 @@ export interface DrawingShapeOptions {
     externalProcesStepId?: GuidValue;
     linkedRootProcessStepId?: GuidValue;
     shape?: ShapeObject;
+    isRenderAndReset?: boolean;
 }

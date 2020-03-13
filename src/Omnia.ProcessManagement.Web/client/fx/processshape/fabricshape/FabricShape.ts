@@ -6,6 +6,7 @@ export declare abstract class FabricShape implements FabricShapeData {
     constructor(definition: DrawingShapeDefinition, properties?: { [k: string]: any; });
     properties: { [k: string]: any; };
     fabricObject: fabric.Object;
+    abstract updateDefinition(definition: DrawingShapeDefinition, properties: { [k: string]: any; }): void;
     abstract getShapeNodeJson(): FabricShapeData;
     abstract readonly fabricShapeDataType: FabricShapeDataTypes;
 }

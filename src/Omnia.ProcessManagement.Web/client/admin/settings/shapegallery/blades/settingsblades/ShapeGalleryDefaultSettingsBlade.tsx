@@ -160,7 +160,7 @@ export default class ShapeGalleryDefaultSettingsBlade extends VueComponentBase<S
         (this.editingShapeGalleryItem.settings as ShapeTemplateMediaSettings).imageUrl = this.buildDataBlob(image.base64, image.format);
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
             var shapeDefinition = this.getShapeDefinitionToDraw();
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false)
+            this.drawingCanvas.updateShapeNodes(this.drawingCanvas.drawingShapes[0].id, shapeDefinition, null, false)
                 .then((readyDrawingShape: DrawingShape) => {
                 });
         }

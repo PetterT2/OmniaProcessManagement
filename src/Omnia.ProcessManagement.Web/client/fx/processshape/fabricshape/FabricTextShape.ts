@@ -26,6 +26,11 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
             this.properties['strokeWidth'] = 0;
         }
         this.properties["hoverCursor"] = hoverCursor;
+
+        this.fabricObject = new fabric.Text(this.getTextString(title), this.properties);
+    }
+
+    private getTextString(title: string | MultilingualString) {
         let text = "Sample Text";
         if (typeof (title) == 'string')
             text = title as string;
@@ -35,7 +40,16 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
                 text = this.multilingualStore.getters.stringValue(title as MultilingualString);
             }
         }
-        this.fabricObject = new fabric.Text(text, this.properties);
+        return text;
+    }
+
+    updateDefinition(definition: DrawingShapeDefinition, properties: { [k: string]: any; }, title?: string | MultilingualString) {
+        if (title != undefined)
+            properties["text"] = this.getTextString(title);
+        properties["fontSize"] = definition.fontSize;
+        properties["fill"] = definition.textColor;
+        properties["textAlign"] = definition.textAlignment;
+        this.fabricObject.set(properties);
     }
 
     get fabricShapeDataType() {

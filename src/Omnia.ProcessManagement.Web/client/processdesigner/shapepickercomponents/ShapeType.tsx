@@ -157,7 +157,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
 
-    private onDrawingShapeOptionChanged() {
+    private onDrawingShapeOptionChanged(isRenderAndReset?: boolean) {
         let drawingOptions: DrawingShapeOptions = {
             shapeDefinition: this.internalShapeDefinition,
             shapeType: this.selectedShapeType,
@@ -166,7 +166,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             externalProcesStepId: this.selectedExternalProcessStepId,
             linkedRootProcessStepId: this.selectedLinkedRootProcessStepId,
             title: this.shapeTitle,
-            shape: this.shape
+            shape: this.shape,
+            isRenderAndReset: isRenderAndReset
         };
         if (this.changeDrawingOptionsCallback) {
             this.changeDrawingOptionsCallback(drawingOptions);
@@ -233,9 +234,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         this.$forceUpdate();
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
+            this.drawingCanvas.updateShapeNodes(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.onDrawingShapeOptionChanged();
+                    this.onDrawingShapeOptionChanged(true);
                 });
         }
         else {
@@ -244,7 +245,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle)
                     .then((readyDrawingShape: DrawingShape) => {
                         this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
-                        this.onDrawingShapeOptionChanged();
+                        this.onDrawingShapeOptionChanged(true);
                     });
             })
         }
@@ -339,11 +340,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
-                .then((readyDrawingShape: DrawingShape) => {
-                    this.shape = this.drawingCanvas.drawingShapes[0].shape;
-                    this.onDrawingShapeOptionChanged();
-                });
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle ? this.multilingualStore.getters.stringValue(this.shapeTitle) : "");
+            this.shape = this.drawingCanvas.drawingShapes[0].shape;
+            this.onDrawingShapeOptionChanged();
         }
         else {
             this.onDrawingShapeOptionChanged();
@@ -643,13 +642,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             <v-row align="center">
                 <v-col cols="6" class="py-0">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                        onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textPosition}></v-select>
+                        onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textPosition}></v-select>
                     <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
-                        onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textAlignment}></v-select>
+                        onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textAlignment}></v-select>
                     {
                         this.showMoreSettings ?
                             <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                onChange={this.updateDrawedShape} type="number" suffix="px"
+                                onChange={() => { this.updateDrawedShape(); }} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field> :
                             <div class="py-2"><a style={{ fontSize: '14px' }} href="javascript:void(0)" onClick={() => { this.showMoreSettings = true; }}>{this.opmCoreloc.DrawingShapeSettings.ShowMoreSettings}</a></div>
                     }

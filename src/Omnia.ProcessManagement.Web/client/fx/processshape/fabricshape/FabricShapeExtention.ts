@@ -59,7 +59,13 @@ export class FabricShapeExtension implements FabricShape {
     protected getSpecificProperties(): { [k: string]: any } {
         let prop = {};
         return prop;
-    }    
+    }
+
+    updateDefinition(definition: DrawingShapeDefinition, properties: { [k: string]: any; }) {
+        properties["fill"] = definition.backgroundColor;
+        properties["stroke"] = definition.borderColor;
+        this.fabricObject.set(properties);
+    }
 
     getShapeNodeJson(): FabricShapeData {
         return {

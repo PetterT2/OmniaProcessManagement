@@ -2,7 +2,7 @@
 import { Shape } from './Shape';
 import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
 import { ShapeObject } from './ShapeObject';
-import { FabricShapeData, FabricShape, FabricShapeDataTypes } from '../fabricshape';
+import { FabricShapeData, FabricShape, FabricShapeDataTypes, FabricTextShape } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape, ShapeHighlightProperties } from '../../constants';
 import { Utils, ServiceContainer } from '@omnia/fx';
@@ -61,6 +61,19 @@ export class ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
+    public updateShapeDefinition(definition: DrawingShapeDefinition, title: string | MultilingualString) {
+        if (this.fabricShapes.length < 2)
+            return;
+        this.definition = definition;
+        this.fabricShapes[0].updateDefinition(this.definition, {});
+        let textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
+        (this.fabricShapes[1] as FabricTextShape).updateDefinition(this.definition, {
+            left: textPosition.left,
+            top: textPosition.top,
+            originX: this.definition.textAlignment
+        }, title);
+    }
+
     get shapeObject(): fabric.Object[] {
         return this.fabricShapes.map(f => f.fabricObject);
     }
@@ -95,7 +108,7 @@ export class ShapeExtension implements Shape {
     protected getScalingSnapToGridAttrs(object: fabric.Object, gridX?: number, gridY?: number) {
         //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
         //Don't have time to revisit this solution to improve it. its good to do that at some point.
-               
+
         var target = object,
             w = target.width * target.scaleX,
             h = target.height * target.scaleY,
