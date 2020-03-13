@@ -70,7 +70,7 @@ namespace Omnia.ProcessManagement.Web.Controllers
         {
             try
             {
-                if(shapeGalleryItem.Settings.Type == ShapeTemplateType.MediaShape)
+                if (shapeGalleryItem.Settings.Type == ShapeTemplateType.MediaShape)
                 {
                     shapeGalleryItem.Settings.AdditionalProperties["imageUrl"] = $"https://{Request.Host.Value}/api/shapetemplate/getimage/{shapeGalleryItem.Id}";
                 }
@@ -107,6 +107,9 @@ namespace Omnia.ProcessManagement.Web.Controllers
             try
             {
                 var (bytesData, fileName) = await ShapeTemplateService.GetImageAsync(shapeGalleryItemId);
+                if (bytesData == null)
+                    return new NotFoundResult();
+
                 MemoryStream fileStream = new MemoryStream(bytesData);
                 fileStream.Seek(0, System.IO.SeekOrigin.Begin);
                 Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
