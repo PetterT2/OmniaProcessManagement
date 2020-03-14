@@ -4,7 +4,8 @@ import { IColor } from './IColor';
 
 export const NavigationNodeStyles = {} as {
     wrapper?: types.NestedCSSProperties;
-    headerWrapper?: (level: number, isRoutePath, theme: OmniaTheming, readOnly: boolean) => types.NestedCSSProperties;
+    headerWrapperCommonStyles?: types.NestedCSSProperties;
+    headerWrapperDynamicStyles?: (isRoutePath: boolean, level: number, theme: OmniaTheming) => types.NestedCSSProperties;
     leftIcon?: types.NestedCSSProperties;
     leftIconExpanded?: types.NestedCSSProperties;
     title?: (selected:boolean) => types.NestedCSSProperties;

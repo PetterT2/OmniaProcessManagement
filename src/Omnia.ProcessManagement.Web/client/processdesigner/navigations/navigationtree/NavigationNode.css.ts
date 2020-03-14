@@ -9,30 +9,38 @@ StyleFlow.define(NavigationNodeStyles, {
     wrapper: {
         width: "100%"
     },
-    headerWrapper: (level: number, isRoutePath, theme: OmniaTheming) => {
-        let padding = level * 10;
-        let bgColorStr = isRoutePath ? theme.promoted.body.onComponent.darken2 : "";//EditorStyleSettings.theme.chrome.primary.darken2
+    headerWrapperCommonStyles: {
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: "50px",
+        paddingLeft: '10px',
+        position: "relative" as any,
+        $nest: {
+            '&:hover': {
+                cursor: "pointer",
+                color: important('white'),
+                $nest:
+                {
+                    'i': { color: important('white') }
+                }
+            }
+        }
+    },
+    headerWrapperDynamicStyles: (isRoutePath: boolean, level: number, theme: OmniaTheming) => {
+        let bgColorStr = isRoutePath ? theme.promoted.body.onComponent.darken2 : "";
         let textColor = isRoutePath ? "#fff" : "";
+
         let hoverColorStr = theme.promoted.body.primary.lighten1;
+        let padding = level * 10;
         return {
-            width: "100%",
+            paddingLeft: important(padding + 'px'),
             backgroundColor: bgColorStr,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: "50px",
-            paddingLeft: padding,
             color: textColor,
-            position: "relative" as any,
             $nest: {
                 '&:hover': {
-                    background: hoverColorStr,
-                    cursor: "pointer",
-                    color: important('white'),
-                    $nest:
-                    {
-                        'i': { color: important('white') }
-                    }
+                    background: hoverColorStr
                 }
             }
         }
