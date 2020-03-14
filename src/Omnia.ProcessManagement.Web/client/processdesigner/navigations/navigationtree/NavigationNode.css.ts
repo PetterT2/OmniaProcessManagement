@@ -28,14 +28,12 @@ StyleFlow.define(NavigationNodeStyles, {
             }
         }
     },
-    headerWrapperDynamicStyles: (isRoutePath: boolean, level: number, theme: OmniaTheming) => {
+    headerWrapperDynamicStyles: (isRoutePath: boolean, theme: OmniaTheming) => {
         let bgColorStr = isRoutePath ? theme.promoted.body.onComponent.darken2 : "";
         let textColor = isRoutePath ? "#fff" : "";
 
         let hoverColorStr = theme.promoted.body.primary.lighten1;
-        let padding = level * 10;
         return {
-            paddingLeft: important(padding + 'px'),
             backgroundColor: bgColorStr,
             color: textColor,
             $nest: {
