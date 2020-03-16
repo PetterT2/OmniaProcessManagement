@@ -218,6 +218,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private publishProcess() {
+
         this.isPublishingOrSending = true;
         var request: PublishProcessWithoutApprovalRequest = this.generateRequest();
 
@@ -247,20 +248,22 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
     }
 
     private sendProcessToApproval() {
-        this.isPublishingOrSending = true;
+        if (this.validator.validateAll()) {
+            this.isPublishingOrSending = true;
 
-        let request: PublishProcessWithApprovalRequest = this.generateRequest() as PublishProcessWithApprovalRequest;
-        request.approver = this.unlimitedApprover ? this.selectedApproverPicker[0] : this.selectedApprover;
-        request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
+            let request: PublishProcessWithApprovalRequest = this.generateRequest() as PublishProcessWithApprovalRequest;
+            request.approver = this.unlimitedApprover ? this.selectedApproverPicker[0] : this.selectedApprover;
+            request.dueDate = OPMUtils.correctDateOnlyValue(this.dueDate);
 
-        this.publishProcessService.publishProcessWithApproval(request).then((result) => {
-            InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
+            this.publishProcessService.publishProcessWithApproval(request).then((result) => {
+                InternalOPMTopics.onProcessWorkingStatusChanged.publish(ProcessVersionType.Draft);
 
-            this.isPublishingOrSending = false;
-            this.closeCallback();
-        }).catch(msg => {
-            this.errorHandler(msg);
-        });
+                this.isPublishingOrSending = false;
+                this.closeCallback();
+            }).catch(msg => {
+                this.errorHandler(msg);
+            });
+        }
     }
 
     private errorHandler(errorMessage: string) {
@@ -335,6 +338,13 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                     isRequired={true}
                     onModelChange={(newVal) => { this.dueDate = newVal }}>
                 </omfx-date-time-picker>
+                <omfx-field-validation
+                    useValidator={this.validator}
+                    checkValue={this.dueDate}
+                    rules={
+                        new FieldValueValidation().IsRequired().getRules()
+                    }>
+                </omfx-field-validation>
             </div>
         )
     }
@@ -486,7 +496,6 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
                             </v-btn>
                         )
                 }
-
                 <v-btn
                     disabled={this.isPublishingOrSending}
                     light={!this.omniaTheming.promoted.body.dark}
