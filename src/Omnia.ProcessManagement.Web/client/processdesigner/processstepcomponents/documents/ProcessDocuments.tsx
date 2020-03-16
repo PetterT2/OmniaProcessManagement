@@ -108,9 +108,9 @@ export class ProcessDocumentsComponent extends VueComponentBase<ProcessDocuments
     }
     private renderDocumentSettingsPanel(h, backgroundColor: string) {
         return <v-navigation-drawer
-            app
             float
             right
+            fixed
             clipped
             dark={this.omniaTheming.promoted.body.dark}
             width={this.settingPanelWidth}
