@@ -130,6 +130,7 @@ namespace Omnia.ProcessManagement.Core.Services.Processes
                 ctx.Load(ctx.Web);
                 ctx.Load(ctx.Web, w => w.Language);
                 publishedList = await SharePointListService.GetListByUrlAsync(ctx, OPMConstants.SharePoint.ListUrl.PublishList, true);
+                authorGroup = await SharePointGroupService.TryGetGroupByIdAsync(ctx, ctx.Site.RootWeb, siteGroupIdSettings.AuthorGroupId);
             }
 
             var folder = await SyncProcessToPublishedListAsync(ctx, publishedList, processActionModel, enterprisePropertyDict);
