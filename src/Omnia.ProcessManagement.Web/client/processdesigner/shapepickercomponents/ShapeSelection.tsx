@@ -5,8 +5,8 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils, ShapeTemplateStore } from '../../fx';
-import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles, DrawingFreeformShapeDefinition, ShapeTemplateType, TextAlignment } from '../../fx/models';
+import { ProcessTemplateStore, DrawingCanvas, ShapeTemplatesConstants, CurrentProcessStore, OPMUtils, ShapeTemplateStore, ShapeExtension } from '../../fx';
+import { ShapeDefinition, DrawingShapeDefinition, DrawingShapeTypes, ShapeDefinitionTypes, TextPosition, ShapeSelectionStyles, DrawingFreeformShapeDefinition, ShapeTemplateType, TextAlignment, DrawingPentagonShapeDefinition } from '../../fx/models';
 import { ShapeDefinitionSelection } from '../../models/processdesigner';
 import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
@@ -272,8 +272,8 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             definitionToDraw.textPosition = TextPosition.Bottom;
             definitionToDraw.textHorizontalAdjustment = 0;
             definitionToDraw.textVerticalAdjustment = 0;
-            definitionToDraw.fontSize = 10;
-            definitionToDraw.textColor = "#000";
+            definitionToDraw.fontSize = 13;
+            definitionToDraw.textColor = "#000000";
 
             if (foundShapeTemplate.settings.type == ShapeTemplateType.FreeformShape && (definitionToDraw as DrawingFreeformShapeDefinition).nodes &&
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes.length > 0 &&
@@ -289,7 +289,11 @@ export class ShapeSelectionComponent extends VueComponentBase<ShapeSelectionProp
             srcDrawingCanvasListing[canvasId].addShape(Guid.newGuid(), DrawingShapeTypes.Undefined, definitionToDraw, shapeDefinition.title, null,
                 (definitionToDraw as DrawingFreeformShapeDefinition).nodes ? (definitionToDraw as DrawingFreeformShapeDefinition).nodes : null)
                 .then((readyDrawingShape) => {
-                    srcDrawingCanvasListing[canvasId].reUpdateCanvasSize(readyDrawingShape);
+                     srcDrawingCanvasListing[canvasId].reUpdateCanvasSize(readyDrawingShape);
+                    if ((readyDrawingShape.shape.definition as DrawingPentagonShapeDefinition).isLine && (readyDrawingShape.shape.definition as DrawingPentagonShapeDefinition).arrowWidthPercent == 0) {
+                        (readyDrawingShape.shape as ShapeExtension).shapeObject[0].top = 8;
+                        (readyDrawingShape.shape as ShapeExtension).shapeObject[0].setCoords();
+                    }
                 });
         }
     }

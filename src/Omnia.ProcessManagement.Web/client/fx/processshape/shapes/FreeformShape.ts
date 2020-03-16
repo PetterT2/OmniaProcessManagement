@@ -44,7 +44,8 @@ export class FreeformShape extends ShapeExtension implements Shape {
 
                 this.fabricShapes.push(new FabricPathShape(this.definition, Object.assign({}, pathNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties), false));
 
-                let textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
+                let textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint(), this.fabricShapes[0].fabricObject.width * this.fabricShapes[0].fabricObject.scaleX,
+                    this.fabricShapes[0].fabricObject.height * this.fabricShapes[0].fabricObject.scaleY);
 
                 this.fabricShapes.push(new FabricTextShape(this.definition, {originX: this.definition.textAlignment, selectable: selectable, left: textPosition.left, top: textPosition.top }, title));
             }
