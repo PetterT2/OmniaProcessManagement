@@ -6,7 +6,6 @@ import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow } from '@omnia/fx/ux';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import './AddShape.css';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { AddShapeStep } from '../../../../models/processdesigner';
 import { AddShapePanelStyles } from '../../../../fx/models';
@@ -66,16 +65,19 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
 
     render(h) {
         return <div>
-            <v-toolbar color={this.omniaTheming.promoted.body.primary.base} flat dark>
+            <v-app-bar dark={this.theming.chrome.bg.dark}
+                color={this.theming.chrome.bg.color.base}
+                absolute
+                scroll-off-screen
+                scroll-target="#1scrolling-techniques-temp"
+                flat>
                 <v-toolbar-title>{this.dialogTitle}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn icon onClick={this.onClose}>
                     <v-icon>close</v-icon>
                 </v-btn>
-            </v-toolbar>
-            <v-container class="pa-4">
-                {this.renderSteps()}
-            </v-container>
+            </v-app-bar>
+            {this.renderSteps()}
         </div>;      
     }
 }

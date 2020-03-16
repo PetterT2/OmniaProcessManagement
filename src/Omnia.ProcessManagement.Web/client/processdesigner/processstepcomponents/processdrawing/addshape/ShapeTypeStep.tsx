@@ -2,19 +2,19 @@
 
 import Component from 'vue-class-component';
 import 'vue-tsx-support/enable-check';
-import { Guid, IMessageBusSubscriptionHandler, GuidValue, MultilingualString } from '@omnia/fx-models';
+import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, OmniaUxLocalizationNamespace, OmniaUxLocalization, StyleFlow, DialogPositions, IValidator } from '@omnia/fx/ux';
 import { Prop } from 'vue-property-decorator';
-import { CurrentProcessStore, ProcessTemplateStore, DrawingCanvas, ShapeTemplateStore, ImageService } from '../../../../fx';
+import { CurrentProcessStore, ProcessTemplateStore, ShapeTemplateStore, ImageService } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, Enums, ProcessStep, DrawingShape, Link, ShapeTemplateType, DrawingFreeformShapeDefinition, DrawingImageShapeDefinition } from '../../../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, ShapeTemplateType, DrawingFreeformShapeDefinition, DrawingImageShapeDefinition, CenterConfigurableHeightDialogStyles } from '../../../../fx/models';
 import { ShapeDefinitionSelection, DrawingShapeOptions } from '../../../../models/processdesigner';
-import { setTimeout } from 'timers';
 import { MultilingualStore } from '@omnia/fx/store';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ShapeTypeComponent } from '../../../shapepickercomponents/ShapeType';
+import '../../../../core/styles/CenterConfigurableHeightDialogStyles.css';
 
 export interface ShapeSelectionStepProps {
 }
@@ -40,6 +40,7 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     private isCreatingChildStep: boolean = false;
     private drawingShapeOptions: DrawingShapeOptions = null;
     private errorMessage: string = "";
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
 
     created() {
         this.init();
@@ -169,22 +170,27 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
         * @param h
         */
     render(h) {
-        return <v-card flat>
-            <v-card-content>
-                <span style={{ color: 'red' }}>{this.errorMessage}</span>
-                {
-                    this.isLoading ?
-                        <v-skeleton-loader loading={true} height="100%" type="table-tbody"></v-skeleton-loader>
-                        :
-                        <ShapeTypeComponent
-                            enableShowMoreSettings
-                            drawingOptions={this.drawingShapeOptions}
-                            changeDrawingOptionsCallback={this.onChangedDrawingOptions}
-                            changeShapeCallback={this.changeShape}
-                            useValidator={this.internalValidator}
-                        ></ShapeTypeComponent>
-                }
-            </v-card-content>
+        return <v-card flat class={[this.myCenterDialogStyles.bodyWrapper]}>
+            <div class={this.myCenterDialogStyles.loadingWrapper}>
+                <v-progress-linear
+                    v-show={this.isLoading}
+                    color={this.theming.colors.primary.base}
+                    indeterminate
+                >
+                </v-progress-linear>
+            </div>
+            <v-card-text class={this.myCenterDialogStyles.contentWrapper}>
+                <span>{this.errorMessage}</span>
+                {!this.isLoading ?
+                    <ShapeTypeComponent
+                        enableShowMoreSettings
+                        drawingOptions={this.drawingShapeOptions}
+                        changeDrawingOptionsCallback={this.onChangedDrawingOptions}
+                        changeShapeCallback={this.changeShape}
+                        useValidator={this.internalValidator}
+                    ></ShapeTypeComponent>
+                    : null}
+            </v-card-text>
             {this.renderActionButtons(h)}
         </v-card>;
     }

@@ -7,13 +7,7 @@ Composer
         resourcePaths: [
             "../models/**/*.js",
             "../components/richtexteditorextensions/**/*.js",
-            "./loc/**/*.js"
+            "./loc/**/*.js",
+            "./styles/**/*.js"
         ]
     });
-//Composer
-//    .registerManifest(OPMResourceManifests.Core, "omnia.pm.core.css")
-//    .registerResources({
-//        resourcePaths: [
-//            "./styles/**/*.js",
-//        ]
-//    })
