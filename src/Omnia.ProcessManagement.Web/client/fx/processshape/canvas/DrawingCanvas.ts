@@ -204,7 +204,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        objectReferenceId?: GuidValue, nodes?: FabricShapeData[]) {
+        objectReferenceId?: GuidValue, nodes?: FabricShapeData[], left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -217,8 +217,8 @@ export class DrawingCanvas implements CanvasDefinition {
                             shapeTemplateTypeName: ShapeTemplateType[definition.shapeTemplateType],
                             nodes: nodes,
                             definition: definition,
-                            left: 0,
-                            top: 0
+                            left: left || 0,
+                            top: top || 0
                         },
                         title: title
                     };
@@ -301,7 +301,7 @@ export class DrawingCanvas implements CanvasDefinition {
             let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
             let nodes: FabricShapeData[] = null;
             if (drawingOptions.shape) {
-                if (drawingOptions.shape.left != 0) {
+                if (drawingOptions.isUpdatedPosition) {
                     currentLeft = drawingOptions.shape.left;
                     currentTop = drawingOptions.shape.top;
                 }
@@ -318,7 +318,7 @@ export class DrawingCanvas implements CanvasDefinition {
                 else {
                     //If this is not freeform, we keep the old position
                     let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    if (drawingOptions.shapeDefinition.shapeTemplateId != ShapeTemplatesConstants.Freeform.settings.type) {
+                    if (!drawingOptions.isUpdatedPosition) {
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
                     }

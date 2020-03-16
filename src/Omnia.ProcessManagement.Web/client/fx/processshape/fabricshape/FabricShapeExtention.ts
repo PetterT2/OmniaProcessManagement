@@ -36,8 +36,6 @@ export class FabricShapeExtension implements FabricShape {
             else
                 this.properties["stroke"] = definition.backgroundColor;
         }
-        if (Utils.isNullOrEmpty(this.properties["stroke"]))
-            this.properties['strokeWidth'] = 0;
     }
 
     get fabricShapeDataType() {
