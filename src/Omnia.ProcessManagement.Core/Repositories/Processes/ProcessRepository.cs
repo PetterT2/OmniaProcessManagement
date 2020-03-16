@@ -239,6 +239,11 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     throw new ProcessDraftVersionNotFoundException(opmProcessId);
                 }
 
+                if (draftProcess.ProcessWorkingStatus != ProcessWorkingStatus.None && draftProcess.ProcessWorkingStatus != ProcessWorkingStatus.SentForApproval)
+                {
+                    throw new Exception("Can't publish this process, the working status should be either 'None' or 'Sent For Approval'");
+                }
+
                 //draftProcess.CheckedOutBy = "";
                 draftProcess.VersionType = ProcessVersionType.Published;
                 draftProcess.ProcessWorkingStatus = ProcessWorkingStatus.SyncingToSharePoint;
@@ -1693,6 +1698,9 @@ namespace Omnia.ProcessManagement.Core.Repositories.Processes
                     break;
                 case ProcessWorkingStatus.ArchivingFailed:
                     acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.Archiving);
+                    break;
+                case ProcessWorkingStatus.Archiving:
+                    acceptOldProcessWorkingStatus.Add(ProcessWorkingStatus.ArchivingFailed);
                     break;
                 default:
                     throw new ProcessWorkingStatusCannotBeUpdatedException(newProcessWorkingStatus, DraftOrPublishedVersionType.Published);
