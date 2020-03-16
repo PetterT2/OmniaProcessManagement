@@ -2,6 +2,7 @@
 import { important } from 'csx';
 import colors from 'vuetify/es5/util/colors';
 import { IColor } from '../models/styles';
+import { ProcessDesignerZIndexConstants } from './core';
 
 export interface ITheme {
     system: {
@@ -47,7 +48,7 @@ export const ProcessDesignerStyles = {
         right: '0',
         left: '0',
         bottom: '0',
-        zIndex: 100
+        zIndex: ProcessDesignerZIndexConstants.WrapperZIndex
     }),
     canvasContainer: style({
         height: "calc(100vh - 97px)",
