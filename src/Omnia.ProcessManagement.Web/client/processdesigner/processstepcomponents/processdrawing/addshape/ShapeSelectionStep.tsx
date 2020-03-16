@@ -8,10 +8,11 @@ import { Prop } from 'vue-property-decorator';
 import { ProcessTemplateStore, CurrentProcessStore } from '../../../../fx';
 import { ProcessDesignerStore } from '../../../stores';
 import { ProcessDesignerLocalization } from '../../../loc/localize';
-import { ShapeDefinition, DrawingShapeDefinition, DrawingShape } from '../../../../fx/models';
+import { ShapeDefinition, DrawingShapeDefinition, CenterConfigurableHeightDialogStyles } from '../../../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSelection';
+import '../../../../core/styles/CenterConfigurableHeightDialogStyles.css';
 
 export interface ShapeSelectionStepProps {
 }
@@ -29,6 +30,7 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
 
     private subscriptionHandler: IMessageBusSubscriptionHandler = null;   
     private selectedShapeDefinition: ShapeDefinition = null;
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
 
     created() {
     }
@@ -68,13 +70,14 @@ export class ShapeSelectionStepComponent extends VueComponentBase<ShapeSelection
         this.goToNext(selectedShapeDefinition);
     }
 
+
     render(h) {
-        return <v-card flat>
-            <v-card-content>
+        return <v-card flat class={[this.myCenterDialogStyles.bodyWrapper]}>
+            <v-card-text class={this.myCenterDialogStyles.contentWrapper}>
                 <ShapeSelectionComponent shapeSelectedCallback={this.onShapeSelected}></ShapeSelectionComponent>
-            </v-card-content>
+            </v-card-text>
             {this.renderActionButtons(h)}
-        </v-card>; 
+        </v-card>;
     }
 }
 

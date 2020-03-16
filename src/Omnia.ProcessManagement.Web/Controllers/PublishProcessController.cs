@@ -186,10 +186,14 @@ namespace Omnia.ProcessManagement.Web.Controllers
                         }
 
                         var draftProcess = (await ProcessService.GetProcessesByOPMProcessIdAsync(dbWorkflowTask.Workflow.OPMProcessId, ProcessVersionType.Draft)).FirstOrDefault();
-                        
-                        if(draftProcess == null)
+
+                        if (draftProcess == null)
                         {
                             throw new ProcessDraftVersionNotFoundException(dbWorkflowTask.Workflow.OPMProcessId);
+                        }
+                        else if (draftProcess.ProcessWorkingStatus != ProcessWorkingStatus.SentForApproval)
+                        {
+                            throw new Exception("This process is not waiting for approval");
                         }
 
                         await PublishProcessService.CompleteWorkflowAsync(approvalTask, draftProcess);

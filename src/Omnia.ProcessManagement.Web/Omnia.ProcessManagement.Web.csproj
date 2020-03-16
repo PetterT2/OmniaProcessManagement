@@ -121,8 +121,8 @@
     <TypeScriptCompile Remove="client\core\core.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.manifest.ts" />
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
-    <TypeScriptCompile Remove="client\core\styles\DialogStyles.css.ts" />
-    <TypeScriptCompile Remove="client\core\styles\index.ts" />
+    <TypeScriptCompile Remove="client\core\styles\CenterConfigurableHeightDialogStyles.css.ts" />
+    <TypeScriptCompile Remove="client\core\styles\CenterScrollableDialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\IProcessFieldDisplay.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.css.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.manifest.ts" />
@@ -303,7 +303,7 @@
     <TypeScriptCompile Remove="client\fx\models\shared\index.ts" />
     <TypeScriptCompile Remove="client\fx\models\shared\Version.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\AddShapePanelStyles.ts" />
-    <TypeScriptCompile Remove="client\fx\models\styles\CenterFullHeightDialogStyles.ts" />
+    <TypeScriptCompile Remove="client\fx\models\styles\DialogStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\FreeformPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\MediaPickerStyles.ts" />
     <TypeScriptCompile Remove="client\fx\models\styles\ProcessDesignerStyles.ts" />
@@ -408,6 +408,7 @@
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.manifest.ts" />
     <TypeScriptCompile Remove="client\processdesigner\changeprocesstype_panel\ChangeProcessType.tsx" />
     <TypeScriptCompile Remove="client\processdesigner\copytonewprocess_dialog\CopyToNewProcess.tsx" />
+    <TypeScriptCompile Remove="client\processdesigner\core\Constants.ts" />
     <TypeScriptCompile Remove="client\processdesigner\core\index.ts" />
     <TypeScriptCompile Remove="client\processdesigner\core\styles\BlockStyles.css.ts" />
     <TypeScriptCompile Remove="client\processdesigner\core\styles\index.ts" />
