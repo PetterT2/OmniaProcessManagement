@@ -648,7 +648,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     {
                         this.showMoreSettings ?
                             <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                onChange={() => { this.updateDrawedShape(); }} type="number" suffix="px"
+                                onChange={() => {
+                                    this.internalShapeDefinition.fontSize = this.internalShapeDefinition.fontSize ? parseInt(this.internalShapeDefinition.fontSize.toString()) : 0;                                    this.updateDrawedShape();
+                                }} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field> :
                             <div class="py-2"><a style={{ fontSize: '14px' }} href="javascript:void(0)" onClick={() => { this.showMoreSettings = true; }}>{this.opmCoreloc.DrawingShapeSettings.ShowMoreSettings}</a></div>
                     }
