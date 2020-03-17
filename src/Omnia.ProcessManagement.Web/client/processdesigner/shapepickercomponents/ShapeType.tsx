@@ -7,7 +7,7 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition, ProcessStepType, InternalProcessStep } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition, ProcessStepType, InternalProcessStep, CanvasDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { MultilingualStore } from '@omnia/fx/store';
 import { OPMCoreLocalization } from '../../core/loc/localize';
@@ -157,7 +157,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
 
-    private onDrawingShapeOptionChanged() {
+    private isUpdatedPosition() {
+        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type;
+    }
+
+    private onDrawingShapeOptionChanged(isRenderAndReset?: boolean) {
         let drawingOptions: DrawingShapeOptions = {
             shapeDefinition: this.internalShapeDefinition,
             shapeType: this.selectedShapeType,
@@ -166,7 +170,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             externalProcesStepId: this.selectedExternalProcessStepId,
             linkedRootProcessStepId: this.selectedLinkedRootProcessStepId,
             title: this.shapeTitle,
-            shape: this.shape
+            shape: this.shape, 
+            isRenderAndReset: isRenderAndReset,
+            isUpdatedPosition: this.isUpdatedPosition()
         };
         if (this.changeDrawingOptionsCallback) {
             this.changeDrawingOptionsCallback(drawingOptions);
@@ -233,9 +239,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         (this.internalShapeDefinition as DrawingImageShapeDefinition).imageUrl = imageUrl;
         this.$forceUpdate();
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
+            this.drawingCanvas.updateShapeNodes(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
                 .then((readyDrawingShape: DrawingShape) => {
-                    this.onDrawingShapeOptionChanged();
+                    this.onDrawingShapeOptionChanged(true);
                 });
         }
         else {
@@ -244,7 +250,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle)
                     .then((readyDrawingShape: DrawingShape) => {
                         this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
-                        this.onDrawingShapeOptionChanged();
+                        this.onDrawingShapeOptionChanged(true);
                     });
             })
         }
@@ -314,6 +320,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 this.initDrawingCanvas();
                 this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
                     this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
+                    if (this.drawingOptions.isRenderAndReset)
+                        this.onDrawingShapeOptionChanged(true);
                 });
             })
         }
@@ -339,11 +347,9 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle, false)
-                .then((readyDrawingShape: DrawingShape) => {
-                    this.shape = this.drawingCanvas.drawingShapes[0].shape;
-                    this.onDrawingShapeOptionChanged();
-                });
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle ? this.multilingualStore.getters.stringValue(this.shapeTitle) : "");
+            this.shape = this.drawingCanvas.drawingShapes[0].shape;
+            this.onDrawingShapeOptionChanged();
         }
         else {
             this.onDrawingShapeOptionChanged();
@@ -356,7 +362,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             this.shape = shape;
             this.internalShapeDefinition.width = this.shape.nodes[0].properties['width'];
             this.internalShapeDefinition.height = this.shape.nodes[0].properties['height'];
-            this.onDrawingShapeOptionChanged();
+            this.onDrawingShapeOptionChanged(true);
             this.startToDrawShape();
         }
     }
@@ -643,13 +649,16 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             <v-row align="center">
                 <v-col cols="6" class="py-0">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
-                        onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textPosition}></v-select>
+                        onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textPosition}></v-select>
                     <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
-                        onChange={this.updateDrawedShape} v-model={this.internalShapeDefinition.textAlignment}></v-select>
+                        onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textAlignment}></v-select>
                     {
                         this.showMoreSettings ?
                             <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                onChange={this.updateDrawedShape} type="number" suffix="px"
+                                onChange={() => {
+                                    this.internalShapeDefinition.fontSize = this.internalShapeDefinition.fontSize ? parseInt(this.internalShapeDefinition.fontSize.toString()) : 0;
+                                    this.updateDrawedShape();
+                                }} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field> :
                             <div class="py-2"><a style={{ fontSize: '14px' }} href="javascript:void(0)" onClick={() => { this.showMoreSettings = true; }}>{this.opmCoreloc.DrawingShapeSettings.ShowMoreSettings}</a></div>
                     }

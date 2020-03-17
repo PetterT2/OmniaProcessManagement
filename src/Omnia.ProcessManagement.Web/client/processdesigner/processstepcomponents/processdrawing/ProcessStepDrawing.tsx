@@ -5,9 +5,10 @@ import 'vue-tsx-support/enable-check';
 import { Guid, IMessageBusSubscriptionHandler } from '@omnia/fx-models';
 import { CurrentProcessStore, DrawingCanvasEditor, DrawingCanvas, ProcessDefaultData, OPMUtils, ShapeTemplateStore } from '../../../fx';
 import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDialogDisplay, ConfirmDialogResponse } from '@omnia/fx/ux';
-import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape } from '../../../fx/models';
+import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape, CenterConfigurableHeightDialogStyles } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import '../../core/styles/PanelStyles.css';
+import '../../../core/styles/CenterConfigurableHeightDialogStyles.css';
 
 import { ProcessStepDrawingStyles, ProcessDesignerStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
@@ -41,6 +42,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
     private shapeSettingsPanelComponentKey = Utils.generateGuid();
     processStepDrawingStyles = StyleFlow.use(ProcessStepDrawingStyles);
     panelStyles = StyleFlow.use(ProcessDesignerStyles.PanelStyles);
+    myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
     private canvasId = 'editingcanvas_' + Utils.generateGuid().toString();
     private parentCanvasId = 'parentcanvas_' + Utils.generateGuid().toString();
 
@@ -145,8 +147,13 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
 
     private onAddNewShape(addShapeOptions: DrawingShapeOptions) {
         let nodes = null;
+        let left = 0; let top = 0;
         if (addShapeOptions.shape) {
             nodes = addShapeOptions.shape.nodes;
+            if (addShapeOptions.isUpdatedPosition) {
+                left = addShapeOptions.shape.left;
+                top = addShapeOptions.shape.top;
+            }
         }
         var referenceId = addShapeOptions.processStepId && addShapeOptions.processStepId != Guid.empty ? addShapeOptions.processStepId :
             addShapeOptions.customLinkId && addShapeOptions.customLinkId != Guid.empty ? addShapeOptions.customLinkId : addShapeOptions.externalProcesStepId;
@@ -284,16 +291,14 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         }
         else {
             return <omfx-dialog
+                contentClass={this.myCenterDialogStyles.dialogContentClass}
+                hideCloseButton
                 model={{ visible: true }}
-                maxWidth="800px"
-                hideCloseButton={true}
-                dark={this.omniaTheming.promoted.header.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
+                maxWidth="1000px"
                 position={DialogPositions.Center}
-            >
-                <div style={{ height: '100%' }}>
-                    <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>
-                </div>
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <opm-processdesigner-addshape-wizard></opm-processdesigner-addshape-wizard>
             </omfx-dialog>;
         }
     }
@@ -304,7 +309,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
             right
             clipped
             dark={this.omniaTheming.promoted.body.dark}
-            width="700"
+            width="750"
             temporary={false}
             disable-resize-watcher
             hide-overlay

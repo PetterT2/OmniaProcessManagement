@@ -95,6 +95,7 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
     }
 
     render(h) {
+        let showNotImplementYetItem = false;
         return (
             <div>
                 <v-menu close-delay="50"
@@ -123,23 +124,33 @@ export class PublishedMenuActions extends VueComponentBase<PublishedMenuActionsP
                                 <v-list-item-title>{this.corLoc.ProcessActions.ViewProcess}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item onClick={() => { }}>
-                            <v-list-item-content class={"mr-2"}>
-                                <v-list-item-title>{this.corLoc.ProcessActions.ExportProcess}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+                        {
+                            showNotImplementYetItem ?
+                                <v-list-item onClick={() => { }}>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.corLoc.ProcessActions.ExportProcess}</v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                : null
+                        }
+
                         <v-list-item onClick={() => { this.openProcessHistoryDialog = true; }}>
                             <v-list-item-content class={"mr-2"}>
                                 <v-list-item-title>{this.corLoc.ProcessActions.ProcessHistory}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
-                        <v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
-                            <v-list-item-content class={"mr-2"}>
-                                <v-list-item-title>{this.corLoc.ProcessActions.MoveProcess}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-divider></v-divider>
+                        {
+                            showNotImplementYetItem ?
+                                [<v-list-item onClick={() => { }} disabled={this.disableButtonUpdateAction}>
+                                    <v-list-item-content class={"mr-2"}>
+                                        <v-list-item-title>{this.corLoc.ProcessActions.MoveProcess}</v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item>,
+                                <v-divider></v-divider>]
+                                : null
+                        }
+
                         <v-list-item onClick={() => { this.openUnpublishDialog = true; }} disabled={this.disableButtonUpdateAction}>
                             <v-list-item-content class={"mr-2"}>
                                 <v-list-item-title>{this.corLoc.ProcessActions.UnpublishProcess}</v-list-item-title>

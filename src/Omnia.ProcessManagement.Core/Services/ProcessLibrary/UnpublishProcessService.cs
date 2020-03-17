@@ -151,7 +151,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                     {
                         OPMUtilities.CopyStream(imageStream, memoryStream);
                         string fileName = Path.GetFileName(imageFile.ServerRelativeUrl);
-                        await SharePointListService.UploadDocumentAsync(archiveCtx.Web, archivedImageFolder, fileName, memoryStream, true);
+                        await SharePointListService.UploadDocumentAsync(archiveCtx, archivedImageFolder, fileName, memoryStream, true);
                     }
                 }
             }

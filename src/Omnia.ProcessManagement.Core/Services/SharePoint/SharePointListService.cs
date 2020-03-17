@@ -122,10 +122,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
 
         public async ValueTask<Folder> EnsureChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool needToLoadItemFields = false)
         {
-            if (parentFolder.PropertyInstantiationNeeded(f => f.Folders))
-            {
-                await parentFolder.Context.ExecuteQueryAsync();
-            }
+            await context.LoadIfNeeded(parentFolder, f => f.Folders).ExecuteQueryIfNeededAsync();
 
             Folder folder = parentFolder.Folders.Add(folderUrl);
             context.Load(folder, f => f.ServerRelativeUrl);
@@ -136,7 +133,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             return folder;
         }
 
-        public async ValueTask<Microsoft.SharePoint.Client.File> UploadDocumentAsync(Web web, Folder targetFolder, string fileName, Stream stream, bool overwrite = false, bool includeListItem = false)
+        public async ValueTask<Microsoft.SharePoint.Client.File> UploadDocumentAsync(PortableClientContext ctx, Folder targetFolder, string fileName, Stream stream, bool overwrite = false, bool includeListItem = false)
         {
             string fileServerRelativeUrl = targetFolder.ServerRelativeUrl + '/' + fileName;
             stream.Seek(0, SeekOrigin.Begin);
@@ -147,10 +144,10 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             Microsoft.SharePoint.Client.File uploadFile = targetFolder.Files.Add(newFile);
             if (includeListItem)
             {
-                web.Context.Load(uploadFile.ListItemAllFields);
-                web.Context.Load(uploadFile, f => f.ServerRelativeUrl);
+                ctx.Load(uploadFile.ListItemAllFields);
+                ctx.Load(uploadFile, f => f.ServerRelativeUrl);
             }
-            await web.Context.ExecuteQueryAsync();
+            await ctx.ExecuteQueryAsync();
             return uploadFile;
         }
 

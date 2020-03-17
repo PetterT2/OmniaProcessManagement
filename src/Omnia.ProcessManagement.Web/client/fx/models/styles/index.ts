@@ -4,7 +4,7 @@ export * from './ProcessStepDrawingStyles';
 export * from './DrawingCanvasSettingsStyles';
 export * from './AddShapePanelStyles';
 export * from './ShapeTypeStyles';
-export * from './CenterFullHeightDialogStyles';
+export * from './DialogStyles';
 export * from './ShapeSelectionStyles';
 export * from './ProcessStepPickerStyles';
 export * from './MediaPickerStyles';

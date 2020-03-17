@@ -183,12 +183,15 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
         }
     }
 
-    updateTemplateShape(shapeTemplateChanged?: boolean) {
+    updateTemplateShape(shapeTemplateChanged?: boolean, isResize?: boolean) {
         if (shapeTemplateChanged || !this.drawingCanvas || !this.drawingCanvas.drawingShapes || this.drawingCanvas.drawingShapes.length == 0) {
             this.startToDrawShape();
         }
+        else if (isResize) {
+            this.drawingCanvas.updateShapeNodes(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, (this.editingShape as DrawingFreeformShapeDefinition).nodes ? false : true);
+        }
         else {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null, (this.editingShape as DrawingFreeformShapeDefinition).nodes ? false : true);
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, (this.editingShape as DrawingShapeDefinition), null);
         }
     }
 
@@ -246,7 +249,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).width} label={this.opmCoreloc.DrawingShapeSettings.Width}
                         onChange={() => {
                             (this.editingShape as DrawingShapeDefinition).width = (this.editingShape as DrawingShapeDefinition).width ? parseInt((this.editingShape as DrawingShapeDefinition).width.toString()) : 0;
-                            this.updateTemplateShape();
+                            this.updateTemplateShape(false, true);
                         }} type="number" suffix="px"></v-text-field>
                     <omfx-field-validation
                         useValidator={this.internalValidator}
@@ -258,7 +261,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     <v-text-field v-model={(this.editingShape as DrawingShapeDefinition).height} label={this.opmCoreloc.DrawingShapeSettings.Height}
                         onChange={() => {
                             (this.editingShape as DrawingShapeDefinition).height = (this.editingShape as DrawingShapeDefinition).height ? parseInt((this.editingShape as DrawingShapeDefinition).height.toString()) : 0;
-                            this.updateTemplateShape();
+                            this.updateTemplateShape(false, true);
                         }} type="number" suffix="px"></v-text-field>
                     <omfx-field-validation
                         useValidator={this.internalValidator}

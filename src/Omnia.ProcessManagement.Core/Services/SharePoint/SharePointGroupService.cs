@@ -76,7 +76,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
             if (existingGroup != null)
             {
                 web.SiteGroups.Remove(existingGroup);
-                await web.Context.ExecuteQueryAsync();
+                await ctx.ExecuteQueryAsync();
             }
         }
 

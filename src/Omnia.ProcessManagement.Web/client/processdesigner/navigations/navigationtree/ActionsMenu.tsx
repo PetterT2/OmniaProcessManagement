@@ -381,10 +381,10 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
                             ]
                         }
                     })}>
-                    <v-list min-width={250}
-                        color={this.omniaTheming.promoted.body.onComponent.lighten1}
-                        dark={this.omniaTheming.promoted.header.dark}
-                        class={this.omniaTheming.promoted.header.class}>
+                    <v-list
+                        color={this.theming.chrome.bg.color.base}
+                        dark={this.theming.chrome.bg.dark}
+                        min-width={250}>
                         {
                             isInternal ?
                                 [<v-list-item dark={this.omniaTheming.promoted.header.dark} onClick={(e: Event) => this.onClickCreateProcessStep(e)}>

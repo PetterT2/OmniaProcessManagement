@@ -2,7 +2,7 @@
 import { CircleShape, DiamondShape, Shape, PentagonShape, MediaShape, ShapeFactory, FreeformShape, ShapeObject, ShapeExtension, RectShape } from '../shapes';
 import { Guid, GuidValue, MultilingualString } from '@omnia/fx-models';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape } from '../../models/data/drawingdefinitions';
-import { DrawingShapeDefinition, TextPosition, ShapeTemplateType, TextAlignment } from '../../models';
+import { DrawingShapeDefinition, TextPosition, ShapeTemplateType, TextAlignment, DrawingImageShapeDefinition } from '../../models';
 import { Utils, Inject } from '@omnia/fx';
 import { ShapeTemplatesConstants, TextSpacingWithShape } from '../../constants';
 import { FabricShapeData } from '../fabricshape';
@@ -204,7 +204,7 @@ export class DrawingCanvas implements CanvasDefinition {
     }
 
     addShape(id: GuidValue, type: DrawingShapeTypes, definition: DrawingShapeDefinition, title: MultilingualString,
-        objectReferenceId?: GuidValue, nodes?: FabricShapeData[]) {
+        objectReferenceId?: GuidValue, nodes?: FabricShapeData[], left?: number, top?: number) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
             if (definition.shapeTemplateId) {
@@ -217,8 +217,8 @@ export class DrawingCanvas implements CanvasDefinition {
                             shapeTemplateTypeName: ShapeTemplateType[definition.shapeTemplateType],
                             nodes: nodes,
                             definition: definition,
-                            left: 0,
-                            top: 0
+                            left: left || 0,
+                            top: top || 0
                         },
                         title: title
                     };
@@ -249,9 +249,11 @@ export class DrawingCanvas implements CanvasDefinition {
             this.canvasObject.setHeight(size.height);
             this.canvasObject.setWidth(size.width);
         }
+        this.canvasObject.renderAndReset();
+
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean) {
+    updateShapeNodes(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString, isGenerateNewNodes: boolean) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
 
@@ -283,25 +285,40 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: string) {
+        let currentDrawingShape = this.drawingShapes.find(s => s.id == id);
+        if (currentDrawingShape) {
+            (currentDrawingShape.shape as ShapeExtension).updateShapeDefinition(definition, title);
+            this.reUpdateCanvasSize(currentDrawingShape);
+        }
+    }
+
     updateShape(drawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
         return new Promise<DrawingShape>((resolve, reject) => {
             let resolved = true;
-            if (drawingOptions.shapeDefinition.shapeTemplateId) {
-                let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
-                let nodes: FabricShapeData[] = null;
-                if (drawingOptions.shape) {
-                    if (drawingOptions.shape.left != 0) {
-                        currentLeft = drawingOptions.shape.left;
-                        currentTop = drawingOptions.shape.top;
-                    }
-                    nodes = drawingOptions.shape.nodes;
+            if (!drawingOptions.shapeDefinition.shapeTemplateId)
+                return resolve(null);
+            let currentLeft = drawingShape.shape.left; let currentTop = drawingShape.shape.top;
+            let nodes: FabricShapeData[] = null;
+            if (drawingOptions.shape) {
+                if (drawingOptions.isUpdatedPosition) {
+                    currentLeft = drawingOptions.shape.left;
+                    currentTop = drawingOptions.shape.top;
                 }
-                let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
-                if (oldShapeIndex > -1) {
-                    let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+                nodes = drawingOptions.shape.nodes;
+            }
+
+            let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
+            if (oldShapeIndex > -1) {
+                let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+                if (!drawingOptions.isRenderAndReset) {
+                    (currentDrawingShape.shape as ShapeExtension).updateShapeDefinition(drawingOptions.shapeDefinition, drawingOptions.title);
+                    this.canvasObject.renderAll();
+                }
+                else {
                     //If this is not freeform, we keep the old position
                     let fabricShapeObject = (currentDrawingShape.shape as Shape).shapeObject[0];
-                    if (drawingOptions.shapeDefinition.shapeTemplateId != ShapeTemplatesConstants.Freeform.settings.type) {
+                    if (!drawingOptions.isUpdatedPosition) {
                         currentLeft = fabricShapeObject.left;
                         currentTop = fabricShapeObject.top;
                     }
@@ -312,7 +329,6 @@ export class DrawingCanvas implements CanvasDefinition {
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
                     currentDrawingShape.title = drawingOptions.title;
 
-                    //
                     delete (currentDrawingShape as ProcessStepDrawingShape).processStepId;
                     delete (currentDrawingShape as CustomLinkDrawingShape).linkId;
                     delete (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId;
@@ -341,10 +357,11 @@ export class DrawingCanvas implements CanvasDefinition {
                         resolve(readyDrawingShape);
                     });
                 }
-                else {
-                    this.addShape(drawingShape.id, drawingOptions.shapeType, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.processStepId || drawingOptions.customLinkId || drawingOptions.externalProcesStepId, nodes);
-                }
             }
+            else {
+                this.addShape(drawingShape.id, drawingOptions.shapeType, drawingOptions.shapeDefinition, drawingOptions.title, drawingOptions.processStepId || drawingOptions.customLinkId || drawingOptions.externalProcesStepId, nodes);
+            }
+
             if (resolved) {
                 resolve(null);
             }

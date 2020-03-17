@@ -148,9 +148,7 @@ namespace Omnia.ProcessManagement.Core.Services.ProcessLibrary
                 await WorkflowTaskService.CompletedAsync(approvalTask.Id, approvalTask.Comment, approvalTask.TaskOutcome);
 
                 if (approvalTask.TaskOutcome == TaskOutcome.Approved)
-                {
-                    await ProcessService.UpdateDraftProcessWorkingStatusAsync(process.OPMProcessId, ProcessWorkingStatus.None, false);
-                    
+                {   
                     var publishedProcess = await ProcessService.PublishProcessAsync(process.OPMProcessId, 
                         approvalTask.Workflow.WorkflowData.Comment, 
                         approvalData.IsRevisionPublishing, 

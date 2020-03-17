@@ -120,14 +120,10 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
      * @param h
      */
     render(h) {
-        let collapsedStyle = "";
         let expandedIconStyle = "";
 
         if (this.isExpanded) {
             expandedIconStyle = this.navigationNodeStyles.leftIconExpanded;
-        }
-        else {
-            collapsedStyle = this.navigationNodeStyles.contentHide;
         }
 
         let currentProcessStep = this.currentProcessStore.getters.referenceData().current.processStep;
@@ -138,10 +134,14 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
             (this.processStep as InternalProcessStep).processSteps &&
             (this.processStep as InternalProcessStep).processSteps.length > 0;
 
+        let levelPaddingInlineNeededForIE = 10 * this.level;
+
         return (
             <div class={this.navigationNodeStyles.wrapper}>
                 <div
-                    class={[this.navigationNodeStyles.headerWrapper(this.level, isSelectedNode, this.omniaTheming)]}
+                    class={[this.navigationNodeStyles.headerWrapperCommonStyles,
+                    this.navigationNodeStyles.headerWrapperDynamicStyles(isSelectedNode, this.omniaTheming)]}
+                    style={{ paddingLeft: levelPaddingInlineNeededForIE + 'px'}}
                     onClick={(e) => this.onHeaderClick(e, true, false)}>
                     <div class={this.navigationNodeStyles.leftIcon}>
                         <v-btn
@@ -185,10 +185,10 @@ export class NavigationNodeComponent extends tsx.Component<NavigationNodeCompone
                     }
                 </div>
                 {
-                    hasChildren &&
-                    <div class={[this.navigationNodeStyles.content, collapsedStyle]}>
+                    hasChildren && this.isExpanded && 
+                    <div class={[this.navigationNodeStyles.content]}>
                         {
-                            this.isExpanded && this.renderChildren(h)
+                            this.renderChildren(h)
                         }
                     </div>
                 }

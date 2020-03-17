@@ -16,7 +16,7 @@ namespace Omnia.ProcessManagement.Core.Services.SharePoint
         ValueTask<Folder> GetChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool includeFiles = false, bool includeParentFolders = true, bool includeChildFolders = true);
         ValueTask DeleteFolder(PortableClientContext clientContext, Folder folder);
         ValueTask<Folder> EnsureChildFolderAsync(PortableClientContext context, Folder parentFolder, string folderUrl, bool needToLoadItemFields = false);
-        ValueTask<Microsoft.SharePoint.Client.File> UploadDocumentAsync(Web web, Folder targetFolder, string fileName, Stream stream, bool overwrite = false, bool includeListItem = false);
+        ValueTask<Microsoft.SharePoint.Client.File> UploadDocumentAsync(PortableClientContext ctx, Folder targetFolder, string fileName, Stream stream, bool overwrite = false, bool includeListItem = false);
         ValueTask<Microsoft.SharePoint.Client.File> GetFirstFileInFolder(PortableClientContext clientContext, Folder parentFolder);
     }
 }

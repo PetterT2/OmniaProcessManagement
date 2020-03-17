@@ -1,8 +1,8 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
+import { DrawingShapeDefinition, TextPosition, TextAlignment, DrawingPentagonShapeDefinition } from '../../models';
 import { ShapeObject } from './ShapeObject';
-import { FabricShapeData, FabricShape, FabricShapeDataTypes } from '../fabricshape';
+import { FabricShapeData, FabricShape, FabricShapeDataTypes, FabricTextShape } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
 import { TextSpacingWithShape, ShapeHighlightProperties } from '../../constants';
 import { Utils, ServiceContainer } from '@omnia/fx';
@@ -61,6 +61,19 @@ export class ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
+    public updateShapeDefinition(definition: DrawingShapeDefinition, title: string | MultilingualString) {
+        if (this.fabricShapes.length < 2)
+            return;
+        this.definition = definition;
+        this.fabricShapes[0].updateDefinition(this.definition, {});
+        let textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint());
+        (this.fabricShapes[1] as FabricTextShape).updateDefinition(this.definition, {
+            left: textPosition.left,
+            top: textPosition.top,
+            originX: this.definition.textAlignment
+        }, title);
+    }
+
     get shapeObject(): fabric.Object[] {
         return this.fabricShapes.map(f => f.fabricObject);
     }
@@ -95,7 +108,7 @@ export class ShapeExtension implements Shape {
     protected getScalingSnapToGridAttrs(object: fabric.Object, gridX?: number, gridY?: number) {
         //reference solution: https://stackoverflow.com/questions/44147762/fabricjs-snap-to-grid-on-resize
         //Don't have time to revisit this solution to improve it. its good to do that at some point.
-               
+
         var target = object,
             w = target.width * target.scaleX,
             h = target.height * target.scaleY,
@@ -192,8 +205,8 @@ export class ShapeExtension implements Shape {
         let textPosition = ShapeExtension.getTextPosition(this.definition, object.getCenterPoint(), Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
 
         this.fabricShapes[1].fabricObject.set({
-            left: textPosition.left,
-            top: textPosition.top,
+            left: Math.round(textPosition.left),
+            top: Math.round(textPosition.top),
             originX: this.definition.textAlignment
         });
     }
@@ -228,21 +241,24 @@ export class ShapeExtension implements Shape {
         var shapeTop = Math.floor(this.shapeObject[0].top - minTop);
         var textLeft = Math.floor(this.shapeObject[1].left - minLeft);
         var textTop = Math.floor(this.shapeObject[1].top - minTop);
-        this.shapeObject[0].set({ left: shapeLeft, top: shapeTop });
+        this.shapeObject[0].set({ left: Math.round(shapeLeft), top: Math.round(shapeTop) });
         this.shapeObject[0].setCoords();
-        this.shapeObject[1].set({ left: textLeft, top: textTop });
+        this.shapeObject[1].set({ left: Math.round(textLeft), top: Math.round(textTop) });
         this.shapeObject[1].setCoords();
-
+        let extendWidth = !Utils.isNullOrEmpty(this.definition.borderColor) ? 2 : 0;
         return {
-            height: Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop),
-            width: Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft)
+            height: Math.round(Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop) + extendWidth),
+            width: Math.round(Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft + extendWidth))
         }
 
     }
 
     public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, width?: number, height?: number) {
+        if ((definition as DrawingPentagonShapeDefinition).isLine && definition.height > 5)
+            definition.height = 5;
         width = width || definition.width;
         height = height || definition.height;
+
         if (!centerPoint)
             centerPoint = new fabric.Point(width / 2, height / 2);
         let tleft = centerPoint.x;

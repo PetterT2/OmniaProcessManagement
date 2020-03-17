@@ -103,7 +103,9 @@ export class ContentNavigationComponent extends tsx.Component<ContentNavigationP
                     </div>
                 </v-list-item>
                 <div class={ContentNavigationStyles.scrollContainer} key={this.renderKey}>
-                    <NavigationNodeComponent refresh={() => { this.renderKey = Utils.generateGuid(); }} firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
+                    <div class={ContentNavigationStyles.scrollInner}>
+                        <NavigationNodeComponent refresh={() => { this.renderKey = Utils.generateGuid(); }} firstNode={true} lastNode={true} expandState={this.expandState} level={0} processStep={rootNavigationNode}></NavigationNodeComponent>
+                    </div>
                 </div>
             </div>)
     }

@@ -38,6 +38,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     validator: FormValidator = null;
+    dialogVisible: boolean = true;
 
     private classes = StyleFlow.use(ProcessLibraryStyles);
     private isLoading: boolean = false;
@@ -142,19 +143,16 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
 
     renderForm(h) {
         return (
-            <v-container class={this.classes.centerDialogBody}>
-                <div>
-                    <v-select
-                        rules={new FieldValueValidation().IsRequired(true).getRules()}
-                        return-object="true"
-                        label={this.loc.ProcessType}
-                        v-model={this.selectedProcessType}
-                        items={this.processTypes} item-text="multilingualTitle" item-value="id"
-                        onChange={(value) => { this.selectProcessType(value); }}
-                    ></v-select>
-                </div>
-
-                <div v-show={this.processTemplates.length > 1}>
+            <div>
+                <v-select
+                    rules={new FieldValueValidation().IsRequired(true).getRules()}
+                    return-object="true"
+                    label={this.loc.ProcessType}
+                    v-model={this.selectedProcessType}
+                    items={this.processTypes} item-text="multilingualTitle" item-value="id"
+                    onChange={(value) => { this.selectProcessType(value); }}
+                ></v-select>
+                {this.processTemplates.length > 1 ?
                     <v-select
                         rules={new FieldValueValidation().IsRequired(true).getRules()}
                         label={this.loc.ProcessTemplate}
@@ -162,79 +160,83 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                         items={this.processTemplates}
                         return-object="true"
                         item-text="multilingualTitle" item-value="id"></v-select>
-
-                </div>
+                    : null}
                 {
                     this.selectedTemplate == null ?
                         <div class={[this.classes.error, 'mr-2 mb-3 ']}>{this.coreLoc.Messages.NoProcessTemplateValidation}</div>
                         : null
                 }
-                < div >
-                    <omfx-multilingual-input
-                        requiredWithValidator={this.validator}
-                        model={this.process.rootProcessStep.title}
-                        onModelChange={(title: MultilingualString) => {
-                            this.process.rootProcessStep.title = title;
-                            if (!this.process.rootProcessStep.enterpriseProperties)
-                                this.process.rootProcessStep.enterpriseProperties = {};
-                            this.process.rootProcessStep.enterpriseProperties[BuiltInEnterprisePropertyInternalNames.Title] = JSON.stringify(title);
-                        }}
-                        forceTenantLanguages
-                        label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
-                </div>
-            </v-container>
+                <omfx-multilingual-input
+                    requiredWithValidator={this.validator}
+                    model={this.process.rootProcessStep.title}
+                    onModelChange={(title: MultilingualString) => {
+                        this.process.rootProcessStep.title = title;
+                        if (!this.process.rootProcessStep.enterpriseProperties)
+                            this.process.rootProcessStep.enterpriseProperties = {};
+                        this.process.rootProcessStep.enterpriseProperties[BuiltInEnterprisePropertyInternalNames.Title] = JSON.stringify(title);
+                    }}
+                    forceTenantLanguages
+                    label={this.omniaUxLoc.Common.Title}></omfx-multilingual-input>
+            </div>
         )
     }
-
     render(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.closeCallback(false); }}
-                model={{ visible: true }}
-                hideCloseButton
-                width="600px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.coreLoc.ProcessActions.NewProcess}</v-toolbar-title>
+            <v-dialog
+                v-model={this.dialogVisible}
+                max-width="600px"
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css]} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div class={["headline mb-0 ml-1"]}>{this.coreLoc.ProcessActions.NewProcess}</div>
                         <v-spacer></v-spacer>
-                        <v-btn icon onClick={() => { this.closeCallback(false); }}>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={() => { this.closeCallback(false); }}>
                             <v-icon>close</v-icon>
                         </v-btn>
-                    </v-toolbar>
-                    <v-divider></v-divider>
-                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                        <div data-omfx>
-                            {
-                                this.isLoading ?
-                                    <div class="text-center"><v-progress-circular indeterminate></v-progress-circular></div>
-                                    : this.renderForm(h)}
-                        </div>
-                        <v-card-actions class={this.classes.dialogFooter}>
-                            <v-spacer></v-spacer>
-                            <span class={[this.classes.error, 'mr-2']}>{this.errMessage}</span>
-                            <v-btn
-                                loading={this.isSaving}
-                                text
-                                class="pull-right"
-                                dark={this.omniaTheming.promoted.body.dark}
-                                color={this.omniaTheming.themes.primary.base}
-                                onClick={() => { this.addNewProcess(); }}>
-                                {this.omniaUxLoc.Common.Buttons.Create}
-                            </v-btn>
-                            <v-btn
-                                text
-                                disabled={this.isSaving}
-                                class="pull-right"
-                                light={!this.omniaTheming.promoted.body.dark}
-                                onClick={() => { this.closeCallback(false); }}>
-                                {this.omniaUxLoc.Common.Buttons.Cancel}
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </div>
-            </omfx-dialog>
+                    </v-card-title>
+                    <v-card-text
+                        light={!this.theming.body.bg.dark}
+                        dark={this.theming.body.bg.dark}
+                    >
+                        {!this.isLoading ?
+                            this.renderForm(h)
+                            :
+                            <v-progress-linear
+                                v-show={this.isLoading}
+                                color={this.theming.colors.primary.base}
+                                indeterminate
+                            ></v-progress-linear>}
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <span class={[this.classes.error, 'mr-2']}>{this.errMessage}</span>
+                        <v-btn
+                            loading={this.isSaving}
+                            text
+                            class="pull-right"
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.addNewProcess(); }}>
+                            {this.omniaUxLoc.Common.Buttons.Create}
+                        </v-btn>
+                        <v-btn
+                            text
+                            disabled={this.isSaving}
+                            class="pull-right"
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.closeCallback(false); }}>
+                            {this.omniaUxLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         )
     }
 }

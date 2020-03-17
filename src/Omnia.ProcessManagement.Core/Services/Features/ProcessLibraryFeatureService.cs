@@ -256,11 +256,11 @@ namespace Omnia.ProcessManagement.Core.Services.Features
 
             string serverRelativePageName = web.ServerRelativeUrl + "/" + OPMConstants.OPMPages.SitePages + "/" + OPMConstants.OPMPages.ProcessLibraryPageName;
             var pageFile = clientContext.Web.GetFileByServerRelativeUrl(serverRelativePageName);
-            clientContext.Web.Context.Load(pageFile,
+            clientContext.Load(pageFile,
                 f => f.ListItemAllFields,
                 f => f.Exists);
 
-            await clientContext.Web.Context.ExecuteQueryAsync();
+            await clientContext.ExecuteQueryAsync();
 
             if (!pageFile.Exists)
             {
@@ -273,20 +273,20 @@ namespace Omnia.ProcessManagement.Core.Services.Features
                 item[OPMConstants.SharePoint.SharePointFields.CanvasContent1] = string.Format(OPMConstants.ModerPageTemplate.Canvas, id, id, OPMConstants.ModerPageTemplate.ProcessLibraryComponent, "null");
                 item[OPMConstants.SharePoint.SharePointFields.Title] = await LocalizationProvider.GetLocalizedValueAsync(OPMConstants.LocalizedTextKeys.ProcessLibraryQuickLauch, web.Language);
                 item.Update();
-                clientContext.Web.Context.Load(item);
+                clientContext.Load(item);
                 if (sitePageList.EnableVersioning)
                 {
                     item.File.Publish("");
                 }
 
-                await clientContext.Web.Context.ExecuteQueryAsync();
+                await clientContext.ExecuteQueryAsync();
 
                 pageFile = item.File;
             }
 
-            clientContext.Web.Context.Load(pageFile, f => f.ListItemAllFields);
-            clientContext.Web.Context.Load(pageFile.ListItemAllFields, l => l.HasUniqueRoleAssignments);
-            await clientContext.Web.Context.ExecuteQueryAsync();
+            clientContext.Load(pageFile, f => f.ListItemAllFields);
+            clientContext.Load(pageFile.ListItemAllFields, l => l.HasUniqueRoleAssignments);
+            await clientContext.ExecuteQueryAsync();
 
             if (!pageFile.ListItemAllFields.HasUniqueRoleAssignments)
             {
@@ -295,7 +295,7 @@ namespace Omnia.ProcessManagement.Core.Services.Features
 
             pageFile.ListItemAllFields.RoleAssignments.Add(readerGroup,
                 new RoleDefinitionBindingCollection(clientContext) { clientContext.Web.RoleDefinitions.GetByType(RoleType.Reader) });
-            await clientContext.Web.Context.ExecuteQueryAsync();
+            await clientContext.ExecuteQueryAsync();
         }
 
 
