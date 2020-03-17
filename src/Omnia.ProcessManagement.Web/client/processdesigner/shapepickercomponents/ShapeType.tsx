@@ -214,7 +214,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             else
                 this.shapeTitle = null;
         }
-
+        
         this.onDrawingShapeOptionChanged();
     }
 

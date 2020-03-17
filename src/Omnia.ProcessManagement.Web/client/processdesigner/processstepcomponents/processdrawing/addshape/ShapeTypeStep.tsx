@@ -140,7 +140,6 @@ export class ShapeTypeStepComponent extends VueComponentBase<ShapeSelectionStepP
     }
 
     onChangedDrawingOptions(drawingOptions: DrawingShapeOptions) {
-
         this.drawingShapeOptions = drawingOptions;
     }
 

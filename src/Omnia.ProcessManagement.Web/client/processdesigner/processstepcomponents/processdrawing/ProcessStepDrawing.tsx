@@ -148,8 +148,10 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
         if (addShapeOptions.shape) {
             nodes = addShapeOptions.shape.nodes;
         }
-        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title,
-            addShapeOptions.processStepId || addShapeOptions.customLinkId || addShapeOptions.externalProcesStepId, nodes).then(() => { this.saveState(true); });
+        var referenceId = addShapeOptions.processStepId && addShapeOptions.processStepId != Guid.empty ? addShapeOptions.processStepId :
+            addShapeOptions.customLinkId && addShapeOptions.customLinkId != Guid.empty ? addShapeOptions.customLinkId : addShapeOptions.externalProcesStepId;
+        this.drawingCanvasEditor.addShape(Guid.newGuid(), addShapeOptions.shapeType, addShapeOptions.shapeDefinition, addShapeOptions.title, referenceId, nodes)
+            .then(() => { this.saveState(true); });
     }
 
     private onSelectingShape(shape: DrawingShape) {
