@@ -7,10 +7,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@omnia/fx": "4.0.15-preview",
-    "@omnia/fx-sp": "4.0.15-preview",
-    "@omnia/fx-spfx": "4.0.15-preview",
-    "@omnia/tooling-vue": "4.0.15-preview",
+    "@omnia/fx": "4.0.17-preview",
+    "@omnia/fx-sp": "4.0.17-preview",
+    "@omnia/fx-spfx": "4.0.17-preview",
+    "@omnia/tooling-vue": "4.0.17-preview",
     "@omnia/wcm": "4.0.2-preview",
     "@omnia/workplace": "4.0.4-preview",
     "@omnia/dm": "4.0.3-preview",
