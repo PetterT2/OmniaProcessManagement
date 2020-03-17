@@ -146,9 +146,11 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
             if (processType) {
                 let enterprisePropertySetId = (processType.settings as ProcessTypeItemSettings).enterprisePropertySetId;
                 let propertySet = this.enterprisePropertySetStore.getters.enterprisePropertySets().find(s => s.id == enterprisePropertySetId)
-                let availableProperties: Array<EnterprisePropertyDefinition> = this.enterprisePropertyStore.getters.enterprisePropertyDefinitions();
+                let propertyDict: { [id: string]: EnterprisePropertyDefinition } = {};
+                this.enterprisePropertyStore.getters.enterprisePropertyDefinitions().forEach(d => propertyDict[d.id.toString()] = d);
+
                 propertySet.settings.items.forEach(item => {
-                    let property = availableProperties.find(p => p.id == item.id);
+                    let property = propertyDict[item.id.toString()];
                     if (property != null) {
                         let propertyInfo: ProcessPropertyInfo = {
                             id: property.id,
@@ -173,6 +175,10 @@ export class ProcessPropertiesComponent extends VueComponentBase<ProcessDrawingP
                                 (propertyInfo as ProcessTaxonomyPropertyInfo).multiple = (item as EnterprisePropertyTaxonomyItemSettings).allowMultipleValues;
                                 (propertyInfo as ProcessTaxonomyPropertyInfo).termIds = value;
                                 (propertyInfo as ProcessTaxonomyPropertyInfo).termSetId = (property.settings as TaxonomyPropertySettings).termSetId;
+                                (propertyInfo as ProcessTaxonomyPropertyInfo).parentInternalName = (item as EnterprisePropertyTaxonomyItemSettings).parentEnterprisePropertyDefinitionId ?
+                                    propertyDict[(item as EnterprisePropertyTaxonomyItemSettings).parentEnterprisePropertyDefinitionId.toString()].internalName : '';
+                                (propertyInfo as ProcessTaxonomyPropertyInfo).limitLevel = (item as EnterprisePropertyTaxonomyItemSettings).limitLevel || null;
+
                                 break;
                             case PropertyIndexedType.DateTime:
                                 (propertyInfo as ProcessDatetimePropertyInfo).value = value;
