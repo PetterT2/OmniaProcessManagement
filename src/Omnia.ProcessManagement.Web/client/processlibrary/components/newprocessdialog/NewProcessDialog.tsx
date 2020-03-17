@@ -8,7 +8,7 @@ import { ProcessLibraryStyles } from '../../../models';
 import { ProcessTemplateStore, ProcessTypeStore, ProcessStore, CurrentProcessStore, ProcessDefaultData } from '../../../fx';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
-import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames } from '../../../fx/models';
+import { ProcessType, ProcessTemplate, Process, RootProcessStep, ProcessActionModel, ProcessVersionType, ProcessData, ProcessTypeItemSettings, OPMEnterprisePropertyInternalNames, VDialogScrollableDialogStyles } from '../../../fx/models';
 import { Guid, GuidValue, MultilingualString, BuiltInEnterprisePropertyInternalNames } from '@omnia/fx-models';
 import { INewProcessDialog } from './INewProcessDialog';
 import { OPMContext } from '../../../fx/contexts';
@@ -17,6 +17,7 @@ import { ProcessDesignerUtils } from '../../../processdesigner/Utils';
 import { DisplayModes } from '../../../models/processdesigner';
 import { ProcessDesignerItemFactory } from '../../../processdesigner/designeritems';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
+import '../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 @Component
 export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IWebComponentInstance, INewProcessDialog {
@@ -49,6 +50,7 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
     private process: Process;
     private selectedTemplate: ProcessTemplate = null;
     private selectedProcessType: ProcessType = null;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     created() {
         let id: GuidValue = Guid.newGuid();
@@ -184,15 +186,15 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
         return (
             <v-dialog
                 v-model={this.dialogVisible}
-                max-width="600px"
+                width="600px"
                 scrollable
                 persistent
                 dark={this.theming.body.bg.dark}>
-                <v-card class={[this.theming.body.bg.css]} data-omfx>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
                     <v-card-title
-                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css]}
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
                         dark={this.theming.chrome.bg.dark}>
-                        <div class={["headline mb-0 ml-1"]}>{this.coreLoc.ProcessActions.NewProcess}</div>
+                        <div>{this.coreLoc.ProcessActions.NewProcess}</div>
                         <v-spacer></v-spacer>
                         <v-btn
                             icon
@@ -201,18 +203,15 @@ export class NewProcessDialog extends VueComponentBase<{}, {}, {}> implements IW
                             <v-icon>close</v-icon>
                         </v-btn>
                     </v-card-title>
-                    <v-card-text
-                        light={!this.theming.body.bg.dark}
-                        dark={this.theming.body.bg.dark}
-                    >
+                    {this.isLoading ? <v-progress-linear
+                        v-show={this.isLoading}
+                        color={this.theming.colors.primary.base}
+                        indeterminate
+                    ></v-progress-linear> : null}
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
                         {!this.isLoading ?
                             this.renderForm(h)
-                            :
-                            <v-progress-linear
-                                v-show={this.isLoading}
-                                color={this.theming.colors.primary.base}
-                                indeterminate
-                            ></v-progress-linear>}
+                            : null}
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>

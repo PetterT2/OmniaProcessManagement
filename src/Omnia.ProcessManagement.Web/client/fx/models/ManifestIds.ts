@@ -8,9 +8,17 @@ export class OPMResourceManifests {
     public static get Core(): Guid { return new Guid('d5544e6c-494d-4e8a-9284-b0e64d3d19d7') }
     public static get FxCore(): Guid { return new Guid('52d954c2-e55d-4e19-9276-b6c1b109044e') }
     public static get Contexts(): Guid { return new Guid("c80546fb-f27d-4307-82aa-0fc5ffb44b33"); }
+    public static get DialogCoreStyles(): Guid { return new Guid('d2a8b65a-94e3-4231-a0e4-f5b86512ac09') }
 
     public static get ProcessDesignerCore(): Guid { return new Guid("62107b6e-02ca-4df9-a3f4-273cc5a61fb1"); }
-    public static get ProcessDesignerItem(): Guid { return new Guid("9b9a5055-d871-42a8-aba6-59bb66cce039"); }
+    public static get ProcessDesignerItem(): Guid { return new Guid("9b9a5055-d871-42a8-aba6-59bb66cce039"); }   
+    public static get ProcessDesignerShapePickerCore(): Guid { return new Guid("a7258ae7-67fb-4dec-a487-de66102ae3aa"); }
+
+    public static get ProcessRollupCore(): Guid { return new Guid("ac33e4e6-3c32-491e-93ca-e41906a75b3c"); }
+    public static get ProcessRollupViewRegistration(): Guid { return new Guid("92fde160-9517-40a7-8d70-60628dad42f0"); }
+}
+
+export class OPMWebComponentManifests {
     public static get ProcessDesigner(): Guid { return new Guid("8c220ecc-3171-4549-a3a3-051a7ef76d87"); }
     public static get ProcessDesignerDrawingCanvasSettings(): Guid { return new Guid("55f7b908-73e1-4e0c-8c8f-caae6f58b34f"); }
     public static get ProcessDesignerAddShapeWizard(): Guid { return new Guid("727d945c-5bb9-42bc-ae80-3f3f9d9251a4"); }
@@ -18,14 +26,8 @@ export class OPMResourceManifests {
     public static get ProcessDesignerShapeTypeStep(): Guid { return new Guid("a675ce84-2608-45e7-b05d-a0dc99f1e203"); }
     public static get ProcessDesignerCreateLinkPanel(): Guid { return new Guid("f9781b8a-0791-4c8e-8e5a-e527b0a70ec5"); }
     public static get ProcessDesignerShapeSettingsPanel(): Guid { return new Guid("686ddca5-8634-43fb-bd09-9f00fae47a39"); }
-    public static get ProcessDesignerShapePickerCore(): Guid { return new Guid("a7258ae7-67fb-4dec-a487-de66102ae3aa"); }
     public static get ProcessDesignerCreateTask(): Guid { return new Guid("292697b2-1b4b-472d-bf18-460212cd7ea8"); }
 
-    public static get ProcessRollupCore(): Guid { return new Guid("ac33e4e6-3c32-491e-93ca-e41906a75b3c"); }
-    public static get ProcessRollupViewRegistration(): Guid { return new Guid("92fde160-9517-40a7-8d70-60628dad42f0"); }
-}
-
-export class OPMWebComponentManifests {
     public static get ProcessLibraryCore(): Guid { return new Guid('e082fb71-3058-4e28-8630-a649aeebc4ad'); }
     public static get ProcessLibrary(): Guid { return new Guid('b8f104b0-0458-43ca-bdc7-6c70ccb59443'); }
     public static get ProcessLibrarySettings(): Guid { return new Guid('0eae69fb-381a-445a-9593-69ad5176e1ca'); }

@@ -1,14 +1,15 @@
 ﻿import Component from 'vue-class-component';
 import * as tsx from 'vue-tsx-support';
-import { Inject, Localize, Utils } from '@omnia/fx';
+import { Inject, Localize, Utils, IWebComponentInstance } from '@omnia/fx';
 import { Prop } from 'vue-property-decorator';
-import { OmniaTheming, OmniaUxLocalization, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, DialogModel } from '@omnia/fx/ux';
+import { OmniaTheming, OmniaUxLocalization, StyleFlow, DialogPositions, OmniaUxLocalizationNamespace, DialogModel, VueComponentBase } from '@omnia/fx/ux';
 import { ProcessStore } from '../../../../fx';
 import { GuidValue } from '@omnia/fx-models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { Process } from '../../../../fx/models';
+import { Process, VDialogScrollableDialogStyles } from '../../../../fx/models';
+import '../../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 interface DeletedDialogProps {
     process: Process;
@@ -16,7 +17,7 @@ interface DeletedDialogProps {
 }
 
 @Component
-export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
+export class DeletedDialog extends VueComponentBase<DeletedDialogProps>{
     @Prop() process: Process;
     @Prop() closeCallback: (hasUpdate: boolean) => void;
 
@@ -31,6 +32,8 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
     private dialogModel: DialogModel = { visible: false };
     isSaving: boolean = false;
     errMessage: string = "";
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
+    dialogVisible: boolean = true;
 
     created() {
         this.dialogModel.visible = true;
@@ -55,43 +58,41 @@ export class DeletedDialog extends tsx.Component<DeletedDialogProps> {
 
     public render(h) {
         return (
-            <omfx-dialog
-                dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={this.close}
-                model={{ visible: true }}
-                hideCloseButton
+            <v-dialog
+                v-model={this.dialogVisible}
                 width="500px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.coreLoc.ProcessActions.DeleteDraft}</v-toolbar-title>
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.ProcessActions.DeleteDraft}</div>
                         <v-spacer></v-spacer>
-                        <v-btn icon onClick={() => { this.close(); }}>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.close}>
                             <v-icon>close</v-icon>
                         </v-btn>
-                    </v-toolbar>
-                    <v-divider></v-divider>
-                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                        <div data-omfx>
-                            <v-container>
-                                <div v-show={Utils.isNullOrEmpty(this.errMessage)}>
-                                    {this.coreLoc.Messages.DeleteDraftProcessConfirmation}
-                                </div>
-                                <span class={[this.classes.error, 'mt-3 mb-3']}>{this.errMessage}</span>
-                            </v-container>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        <div v-show={Utils.isNullOrEmpty(this.errMessage)}>
+                            {this.coreLoc.Messages.DeleteDraftProcessConfirmation}
                         </div>
-                        <v-card-actions class={this.classes.dialogFooter}>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                dark
-                                color={this.omniaTheming.themes.primary.base}
-                                onClick={this.onDelete} loading={this.isSaving}>{this.omniaUxLoc.Common.Buttons.Ok}</v-btn>
-                            <v-btn onClick={this.close} text disabled={this.isSaving}>{this.omniaUxLoc.Common.Buttons.Cancel}</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </div>
-            </omfx-dialog>
+                        <span class={[this.classes.error, 'mt-3 mb-3']}>{this.errMessage}</span>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            dark
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={this.onDelete} loading={this.isSaving}>{this.omniaUxLoc.Common.Buttons.Ok}</v-btn>
+                        <v-btn onClick={this.close} text disabled={this.isSaving}>{this.omniaUxLoc.Common.Buttons.Cancel}</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         );
     }
 }

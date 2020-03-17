@@ -5,9 +5,9 @@ import {
     VueComponentBase, MediaPickerImageTransformerProviderResult, DialogModel, StyleFlow, MediaPickerProvider, MediaPickerProviderMediaTypes,
     CentralImageLocationProviderComponentRegister, ItransformerConfigs, ImageSvgTransformer, DialogPositions
 } from '@omnia/fx/ux';
-import { MediaPickerContent, MediaPickerStyles } from '../../../../fx/models';
+import { MediaPickerContent, CenterConfigurableHeightDialogStyles } from '../../../../fx/models';
 import { BusinessProfileCentralImageLocation, IOmniaContext } from '@omnia/fx-models';
-import './ShapeGalleryMediaPicker.css';
+import '../../../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 export interface ShapeGalleryMediaPickerProps {
     imageSaved: (image: MediaPickerImageTransformerProviderResult) => void;
@@ -23,9 +23,9 @@ export class ShapeGalleryMediaPickerComponent extends VueComponentBase<ShapeGall
 
     private businessProfileCentralImageLocation: BusinessProfileCentralImageLocation = null;
     private dialogModel: DialogModel = { visible: false };
-    private classes = StyleFlow.use(MediaPickerStyles);
     private additionalProviders: Array<MediaPickerProvider> = [];
     private isLoadingCentralImageLocation = false;
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
 
     created() {
         this.getCentralImageLocationFromProfile(this.omniaContext);
@@ -104,13 +104,17 @@ export class ShapeGalleryMediaPickerComponent extends VueComponentBase<ShapeGall
     render(h) {
         if (this.isLoadingCentralImageLocation) return null;
         return (
-            <omfx-dialog contentClass={this.classes.pickerDialog} model={this.dialogModel} position={DialogPositions.Center}>
-                <div class={this.classes.pickerDialogContent}>
-                    {
-                        this.dialogModel && this.dialogModel.visible &&
-                        <omfx-media-picker providers={this.additionalProviders} onClose={this.onInternalClosed} domProps-onConfigureProviders={this.onConfigureProviders} ></omfx-media-picker>
-                    }
-                </div>
+            <omfx-dialog
+                contentClass={this.myCenterDialogStyles.dialogContentClass}
+                hideCloseButton
+                model={this.dialogModel}
+                position={DialogPositions.Center}
+                persistent
+                dark={this.theming.body.bg.dark}>
+                {
+                    this.dialogModel && this.dialogModel.visible &&
+                    <omfx-media-picker providers={this.additionalProviders} onClose={this.onInternalClosed} domProps-onConfigureProviders={this.onConfigureProviders} ></omfx-media-picker>
+                }
             </omfx-dialog>
         );
     }

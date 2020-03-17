@@ -107,30 +107,17 @@ export class ProcessTasksComponent extends VueComponentBase<ProcessTasksProps, {
         * @param h
         */
     renderTaskPicker(h) {
-        return (
-            <omfx-dialog
-                hideCloseButton={true}
-                model={{ visible: true }}
-                maxWidth="800px"
-                dark={this.omniaTheming.promoted.header.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                position={DialogPositions.Center}
-            >
-                <div style={{ height: '100%' }}>
-                    <opm-processdesigner-createtask
-                        taskId={this.selectedTask.id}
-                        onSave={(task: Task) => {
-                            this.openTaskPicker = false;
-                            this.onTasksChanged(task, false);
-                        }}
-                        onClose={() => {
-                            this.openTaskPicker = false;
-                        }}
-                        isProcessStepShortcut={this.isProcessStepShortcut}
-                    ></opm-processdesigner-createtask>
-                </div>
-            </omfx-dialog>
-        )
+        return <opm-processdesigner-createtask
+            taskId={this.selectedTask.id}
+            onSave={(task: Task) => {
+                this.openTaskPicker = false;
+                this.onTasksChanged(task, false);
+            }}
+            onClose={() => {
+                this.openTaskPicker = false;
+            }}
+            isProcessStepShortcut={this.isProcessStepShortcut}
+        ></opm-processdesigner-createtask>;
     }
 
     renderItems() {

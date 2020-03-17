@@ -7,7 +7,8 @@ import { ProcessDesignerLocalization } from '../loc/localize';
 import { ProcessStore, CurrentProcessStore } from '../../fx';
 import { GuidValue } from '@omnia/fx-models';
 import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
-import { ProcessVersionType } from '../../fx/models';
+import { ProcessVersionType, VDialogScrollableDialogStyles } from '../../fx/models';
+import '../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 export interface CopyToNewProcessDialogProps {
    
@@ -25,6 +26,7 @@ export class CopyToNewProcessDialog extends VueComponentBase<CopyToNewProcessDia
     @Localize(OmniaUxLocalizationNamespace) omniaLoc: OmniaUxLocalization;
 
     isSaving: boolean = false;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     created() {
     }
@@ -48,36 +50,36 @@ export class CopyToNewProcessDialog extends VueComponentBase<CopyToNewProcessDia
 
     public render(h) {
         return (
-            <omfx-dialog
-                domProps-lazy={false}
-                model={{ visible: this.processDesignerStore.panels.copyToNewProcessTypePanel.state.show }}
-                onClose={this.onCloseDialog}
+            <v-dialog
+                v-model={this.processDesignerStore.panels.copyToNewProcessTypePanel.state.show}
                 width="600px"
+                scrollable
                 persistent
-                hideCloseButton={true}
-                position={DialogPositions.Center}>
-                <v-toolbar color={this.omniaTheming.promoted.header.primary.base} flat
-                    dark={this.omniaTheming.promoted.header.dark} tabs>
-                    <v-toolbar-title>
-                        {this.pdLoc.CopyNewProcess}
-                    </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon onClick={this.onCloseDialog}>
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
-                <v-divider></v-divider>
-                <v-row align="center" no-gutters>
-                    <v-col cols="12" class={'pa-4'}>
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.pdLoc.CopyNewProcess}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.onCloseDialog}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
                         <div>{this.pdLoc.CopyNewProcessConfirmation}</div>
                         <div>{this.pdLoc.CopyNewProcessConfirmationDescription}</div>
-                    </v-col>
-                    <v-col cols="12" class='text-right py-1 px-1'>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
                         <v-btn onClick={this.onCopy} text loading={this.isSaving}>{this.omniaLoc.Common.Buttons.Ok}</v-btn>
                         <v-btn onClick={this.onCloseDialog} text disabled={this.isSaving}>{this.omniaLoc.Common.Buttons.Cancel}</v-btn>
-                    </v-col>
-                </v-row>
-            </omfx-dialog>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         );
     }
 }

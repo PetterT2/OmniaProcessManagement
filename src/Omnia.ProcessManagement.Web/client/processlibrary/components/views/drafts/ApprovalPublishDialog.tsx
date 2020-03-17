@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, Enums, ProcessVersionType, ProcessWorkingStatus } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, Enums, ProcessVersionType, ProcessWorkingStatus, VDialogScrollableDialogStyles } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { DefaultDateFormat } from '../../../Constants';
@@ -16,6 +16,7 @@ import { OPMUtils } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
 import { ProcessLibraryStyles } from '../../../../models';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
+import '../../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 declare var moment;
 
 interface PublishDialogProps {
@@ -70,6 +71,8 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
         firstdayofweek: 1
     };
     currentApproval: DisplayWorkflow;
+    dialogVisible: boolean = true;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     created() {
         this.dialogModel.visible = true;
@@ -204,7 +207,7 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
 
     renderFooter(h) {
         return (
-            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
+            <v-card-actions>
                 <v-spacer></v-spacer>
                 {
                     this.isCancelApprovalAuthor() ?
@@ -229,32 +232,37 @@ export class ApprovalPublishDialog extends VueComponentBase<PublishDialogProps>
 
     render(h) {
         return (
-            <div>
-                <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    onClose={this.close}
-                    model={this.dialogModel}
-                    contentClass={this.omniaTheming.promoted.body.class}
-                    width={'800px'}
-                    position={DialogPositions.Center}>
-                    <div>
-                        <div class={this.omniaTheming.promoted.header.class}>
-                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
-                        </div>
-                        <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                            <div data-omfx>
-                                {
-                                    this.isLoading ?
-                                        <v-skeleton-loader loading={true} height="100%" type="card"></v-skeleton-loader>
-                                        :
-                                        this.renderBody(h)
-                                }
-                            </div>
-                            {this.renderFooter(h)}
-                            {this.hasError && <div class={[this.processLibraryClasses.error, "mr-3", "pb-3"]}><span>{this.errorMessage}</span></div>}
-                        </v-card>
-                    </div>
-                </omfx-dialog>
-            </div>
+            <v-dialog
+                v-model={this.dialogVisible}
+                width="800px"
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.close}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    {this.isLoading ?
+                        <v-progress-linear
+                            color={this.theming.colors.primary.base}
+                            indeterminate
+                        ></v-progress-linear> : null}
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}
+                    >
+                        {!this.isLoading ? this.renderBody(h) : null}
+                        {this.hasError && <div class={[this.processLibraryClasses.error, "mx-5", "mb-5"]}><span>{this.errorMessage}</span></div>}
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
         )
     }
 }

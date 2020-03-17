@@ -8,7 +8,7 @@ import { OmniaTheming, VueComponentBase, StyleFlow, DialogPositions, ConfirmDial
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes, ProcessStepDrawingShape, CustomLinkDrawingShape, ExternalProcessStepDrawingShape, CenterConfigurableHeightDialogStyles } from '../../../fx/models';
 import './ProcessStepDrawing.css';
 import '../../core/styles/PanelStyles.css';
-import '../../../core/styles/CenterConfigurableHeightDialogStyles.css';
+import '../../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 import { ProcessStepDrawingStyles, ProcessDesignerStyles } from '../../../fx/models';
 import { ProcessDesignerStore } from '../../stores';
@@ -287,7 +287,7 @@ export class ProcessStepDrawingComponent extends VueComponentBase<ProcessDrawing
                 contentClass={this.myCenterDialogStyles.dialogContentClass}
                 hideCloseButton
                 model={{ visible: true }}
-                maxWidth="1000px"
+                width="1000px"
                 position={DialogPositions.Center}
                 persistent
                 dark={this.theming.body.bg.dark}>

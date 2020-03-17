@@ -69,7 +69,6 @@ export class AddShapePanelComponent extends VueComponentBase implements IWebComp
                 color={this.theming.chrome.bg.color.base}
                 absolute
                 scroll-off-screen
-                scroll-target="#1scrolling-techniques-temp"
                 flat>
                 <v-toolbar-title>{this.dialogTitle}</v-toolbar-title>
                 <v-spacer></v-spacer>

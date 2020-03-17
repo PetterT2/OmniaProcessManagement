@@ -1,5 +1,5 @@
 ﻿import { StyleFlow } from "@omnia/fx/ux";
-import { CenterScrollableDialogStyles } from '../../fx/models';
+import { CenterScrollableDialogStyles } from '../../../fx/models';
 import { important } from 'csx';
 
 StyleFlow.define(CenterScrollableDialogStyles, {
@@ -22,7 +22,7 @@ StyleFlow.define(CenterScrollableDialogStyles, {
         flex: '1 1 auto',
         overflowY: 'auto'
     },
-    dialoActions: {
+    dialogActions: {
         flex: '0 0 auto'
     }
 });

@@ -14,7 +14,7 @@ import { MultilingualStore } from '@omnia/fx/store';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
 import { ShapeTypeComponent } from '../../../shapepickercomponents/ShapeType';
-import '../../../../core/styles/CenterConfigurableHeightDialogStyles.css';
+import '../../../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 export interface ShapeSelectionStepProps {
 }

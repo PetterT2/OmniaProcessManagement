@@ -8,7 +8,7 @@ import {
 } from '@omnia/fx/ux';
 import { UserService } from '@omnia/fx/services';
 import { SharePointContext, TermStore, TermData } from '@omnia/fx-sp';
-import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus } from '../../../../fx/models';
+import { Process, Workflow, WorkflowTask, ProcessTypeItemSettings, Enums, ProcessPropertyInfo, PersonPropertyPublishingApprovalSettings, PublishingApprovalSettingsTypes, LimitedUsersPublishingApprovalSettings, TermDrivenPublishingApprovalSettings, PublishProcessWithoutApprovalRequest, PublishProcessWithApprovalRequest, ProcessVersionType, OPMEnterprisePropertyInternalNames, ProcessWorkingStatus, VDialogScrollableDialogStyles } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../models';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
@@ -17,6 +17,7 @@ import { EnterprisePropertySetStore, EnterprisePropertyStore } from '@omnia/fx/s
 import { ProcessTypeStore, OPMUtils, ProcessStore } from '../../../../fx';
 import { PublishProcessService } from '../../../services';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
+import '../../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 interface PublishDialogProps {
     process: Process;
@@ -76,6 +77,8 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     private comment = '';
     private versionPublishingType: Enums.WorkflowEnums.VersionPublishingTypes = Enums.WorkflowEnums.VersionPublishingTypes.NewEdition;
+    dialogVisible: boolean = true;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     created() {
         this.dialogModel.visible = true;
@@ -341,7 +344,7 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     private renderPublishWithouApprovalForm(h) {
         return [
-            <div class="px-3">
+            <div>
                 {this.loc.Approval.BeSureToPublishProcess}
             </div>,
             <br />
@@ -448,21 +451,9 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
         )
     }
 
-    renderHeader(h) {
-        return (
-            <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                <v-toolbar-title>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-btn icon onClick={() => { this.publishDialogClose(); }}>
-                    <v-icon>close</v-icon>
-                </v-btn>
-            </v-toolbar>
-        )
-    }
-
     renderFooter(h) {
         return (
-            <v-card-actions class={this.processLibraryClasses.dialogFooter}>
+            <v-card-actions>
                 <v-spacer></v-spacer>
                 {
                     this.readOnlyMode() ?
@@ -499,31 +490,38 @@ export class PublishDialog extends VueComponentBase<PublishDialogProps>
 
     render(h) {
         return (
-            <div>
-                <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    onClose={this.publishDialogClose}
-                    hideCloseButton
-                    model={this.dialogModel}
-                    contentClass={this.omniaTheming.promoted.body.class}
-                    width={'800px'}
-                    position={DialogPositions.Center}>
-                    <div>
-                        {this.renderHeader(h)}
-                        <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                            <div data-omfx>
-                                {
-                                    this.isLoadingProcessApproval || this.isCheckingPublishingRules ?
-                                        <v-skeleton-loader loading={true} height="100%" type="card"></v-skeleton-loader>
-                                        :
-                                        this.renderBody(h)
-                                }
-                                {this.hasError && <div class={[this.processLibraryClasses.error, "mx-5", "mb-5"]}><span>{this.errorMessage}</span></div>}
-                            </div>
-                            {this.renderFooter(h)}
-                        </v-card>
-                    </div>
-                </omfx-dialog>
-            </div>
+            <v-dialog
+                v-model={this.dialogVisible}
+                width="800px"
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.ProcessActions.Publish + " " + this.process.rootProcessStep.multilingualTitle}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.publishDialogClose}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    {this.isLoadingProcessApproval || this.isCheckingPublishingRules ?
+                        <v-progress-linear
+                            color={this.theming.colors.primary.base}
+                            indeterminate
+                        ></v-progress-linear> : null}
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}
+                    >
+                        {!(this.isLoadingProcessApproval || this.isCheckingPublishingRules) ? this.renderBody(h) : null}
+                        {this.hasError && <div class={[this.processLibraryClasses.error, "mx-5", "mb-5"]}><span>{this.errorMessage}</span></div>}
+                    </v-card-text>
+                    {this.renderFooter(h)}
+                </v-card>
+            </v-dialog>
         )
     }
 }

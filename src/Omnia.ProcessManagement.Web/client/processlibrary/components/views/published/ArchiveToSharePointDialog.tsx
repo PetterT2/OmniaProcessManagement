@@ -6,12 +6,13 @@ import {
     OmniaTheming, StyleFlow, OmniaUxLocalizationNamespace, OmniaUxLocalization,
     DialogPositions, DialogStyles, HeadingStyles, VueComponentBase
 } from '@omnia/fx/ux';
-import { Process, ProcessVersionType } from '../../../../fx/models';
+import { Process, ProcessVersionType, VDialogScrollableDialogStyles } from '../../../../fx/models';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMUtils, ProcessService } from '../../../../fx';
 import { ProcessLibraryStyles } from '../../../../models';
 import { InternalOPMTopics } from '../../../../fx/messaging/InternalOPMTopics';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
+import '../../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 declare var moment;
 
 interface PublishDialogProps {
@@ -39,6 +40,8 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
     };
     errorMessage: string = '';
     isRetrying: boolean = false;
+    dialogVisible: boolean = true;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
     created() {
 
     }
@@ -98,29 +101,32 @@ export class ArchiveToSharePointDialog extends VueComponentBase<PublishDialogPro
 
     render(h) {
         return (
-            <div>
-                <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    onClose={this.close}
-                    model={{ visible: true }}
-                    contentClass={this.omniaTheming.promoted.body.class}
-                    width={'800px'}
-                    position={DialogPositions.Center}>
-                    <div>
-                        <div class={this.omniaTheming.promoted.header.class}>
-                            <omfx-heading styles={this.headingStyle} size={0}><span>{this.coreLoc.ProcessActions.Archive + " " + this.process.rootProcessStep.multilingualTitle}</span></omfx-heading>
-                        </div>
-                        <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                            <div data-omfx>
-                                {
-                                    this.renderBody(h)
-                                }
-                            </div>
-                            {this.renderFooter(h)}
-                            {this.errorMessage && <div class={[this.processLibraryClasses.error, "mr-3", "pb-3"]}><span>{this.errorMessage}</span></div>}
-                        </v-card>
-                    </div>
-                </omfx-dialog>
-            </div>
+            <v-dialog
+                v-model={this.dialogVisible}
+                width="800px"
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.ProcessActions.Archive + " " + this.process.rootProcessStep.multilingualTitle}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.close}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        {this.renderBody(h)}
+                    </v-card-text>
+                    {this.renderFooter(h)}
+                    {this.errorMessage && <div class={[this.processLibraryClasses.error, "mr-3", "pb-3"]}><span>{this.errorMessage}</span></div>}
+                </v-card>
+            </v-dialog>
         )
     }
 }

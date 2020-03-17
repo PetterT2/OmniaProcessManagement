@@ -1,8 +1,8 @@
 ﻿import { Composer } from "@omnia/tooling-composers";
-import { OPMResourceManifests } from '../../../fx/models';
+import { OPMWebComponentManifests } from '../../../fx/models';
 
 Composer
-    .registerManifest(OPMResourceManifests.ProcessDesignerCreateTask, 'opm.processdesigner.createtask')
+    .registerManifest(OPMWebComponentManifests.ProcessDesignerCreateTask, 'opm.processdesigner.createtask')
     .registerWebComponent({
         elementName: 'opm-processdesigner-createtask',
         entryPoint: './CreateTask.jsx',

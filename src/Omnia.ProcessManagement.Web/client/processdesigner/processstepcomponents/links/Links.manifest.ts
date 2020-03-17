@@ -1,8 +1,8 @@
 ﻿import { Composer } from "@omnia/tooling-composers";
-import { OPMResourceManifests } from '../../../fx/models';
+import { OPMWebComponentManifests } from '../../../fx/models';
 
 Composer
-    .registerManifest(OPMResourceManifests.ProcessDesignerCreateLinkPanel, 'opm.processdesigner.createlink')
+    .registerManifest(OPMWebComponentManifests.ProcessDesignerCreateLinkPanel, 'opm.processdesigner.createlink')
     .registerWebComponent({
         elementName: 'opm-processdesigner-createlink',
         entryPoint: './CreateLinkPanel.jsx',

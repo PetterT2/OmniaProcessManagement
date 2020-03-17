@@ -111,31 +111,18 @@ export class ProcessLinksComponent extends VueComponentBase<ProcessLinksProps, {
         */
 
     renderLinkPicker(h) {
-        return (
-            <omfx-dialog
-                hideCloseButton={true}
-                model={{ visible: true }}
-                maxWidth="800px"
-                dark={this.omniaTheming.promoted.header.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                position={DialogPositions.Center}
-            >
-                <div style={{ height: '100%' }}>
-                    <opm-processdesigner-createlink
-                        linkId={this.selectedLink.id}
-                        onSave={(link: Link) => {
-                            this.openLinkPicker = false;
-                            this.onLinksChanged(link, false);
-                        }}
-                        onClose={() => {
-                            this.openLinkPicker = false;
-                        }}
-                        linkType={this.selectedLink.linkType}
-                        isProcessStepShortcut={this.isProcessStepShortcut}
-                    ></opm-processdesigner-createlink>
-                </div>
-            </omfx-dialog>
-        )
+        return <opm-processdesigner-createlink
+            linkId={this.selectedLink.id}
+            onSave={(link: Link) => {
+                this.openLinkPicker = false;
+                this.onLinksChanged(link, false);
+            }}
+            onClose={() => {
+                this.openLinkPicker = false;
+            }}
+            linkType={this.selectedLink.linkType}
+            isProcessStepShortcut={this.isProcessStepShortcut}
+        ></opm-processdesigner-createlink>;
     }
 
     renderItems() {

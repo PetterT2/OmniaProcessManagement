@@ -2,15 +2,16 @@ import { Inject, Localize, Utils } from '@omnia/fx';
 import Component from 'vue-class-component';
 import { Prop, Emit } from 'vue-property-decorator';
 import 'vue-tsx-support/enable-check';
-import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator } from '@omnia/fx/ux';
+import { VueComponentBase, OmniaTheming, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization, FormValidator, StyleFlow } from '@omnia/fx/ux';
 import { ProcessDesignerLocalization } from '../../loc/localize';
 import { CurrentProcessStore, OPMRouter, ProcessService, OPMUtils } from '../../../fx';
 import { MultilingualString, Guid, GuidValue, BuiltInEnterprisePropertyInternalNames } from '@omnia/fx-models';
-import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep, Process } from '../../../fx/models';
+import { RootProcessStep, ProcessStep, IdDict, ProcessStepType, InternalProcessStep, Process, VDialogScrollableDialogStyles } from '../../../fx/models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessDesignerStore } from '../../stores';
 import { ProcessDesignerItemFactory } from '../../designeritems';
 import { DisplayModes } from '../../../models/processdesigner';
+import '../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 @Component
 export class ActionsMenuComponent extends VueComponentBase<{}>
@@ -40,6 +41,9 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
     deletingMultipleProcessSteps: boolean = false;
 
     errorMessage: string = "";
+    deleteProcessStepDialogVisible: boolean = true;
+    createProcessStepDialogVisisble: boolean = true;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     moveProcessStepDialogData: {
         dialogTitle: string,
@@ -222,124 +226,129 @@ export class ActionsMenuComponent extends VueComponentBase<{}>
 
     renderDeleteProcessDialog(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.closeDeleteProcessStepDialog(); }}
-                model={{ visible: true }}
-                hideCloseButton
+            <v-dialog
+                v-model={this.deleteProcessStepDialogVisible}
                 width="800px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-card>
-                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.loc.DeleteProcessStep.Label}</v-toolbar-title>
-                            <v-spacer></v-spacer>
-                            <v-btn icon onClick={() => { this.closeDeleteProcessStepDialog(); }}>
-                                <v-icon>close</v-icon>
-                            </v-btn>
-                        </v-toolbar>
-                        <v-divider></v-divider>
-                        <v-card-text class={this.omniaTheming.promoted.body.class}>
-                            {
-                                this.checkingDeletingProcessSteps ?
-                                    <v-progress-circular size="16" width="2" indeterminate></v-progress-circular> :
-                                    <div>
-                                        {this.loc.DeleteProcessStep.ConfirmationMessage}
-                                        <ul>
-                                            {this.deletingMultipleProcessSteps && <li>{this.loc.DeleteProcessStep.WarningMultipleDeletingProcessStepMessage}</li>}
-                                            {this.deletingProcessStepBeingUsed && <li>{this.loc.DeleteProcessStep.WarningReferenceProcessStepMessage}</li>}
-                                        </ul>
-                                    </div>
-                            }
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    text
-                                    disabled={this.checkingDeletingProcessSteps}
-                                    loading={this.loading}
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.deleteProcessStep() }}>
-                                    {this.omniaLoc.Common.Buttons.Delete}
-                                </v-btn>
-                                <v-btn
-                                    text
-                                    light={!this.omniaTheming.promoted.body.dark}
-                                    onClick={() => { this.closeDeleteProcessStepDialog(); }}>
-                                    {this.omniaLoc.Common.Buttons.Cancel}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card-text>
-                    </v-card>
-                </div>
-            </omfx-dialog>
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.loc.DeleteProcessStep.Label}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.closeDeleteProcessStepDialog}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    {this.checkingDeletingProcessSteps ?
+                        <v-progress-linear
+                            color={this.theming.colors.primary.base}
+                            indeterminate
+                        ></v-progress-linear> : null}
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        {!this.checkingDeletingProcessSteps ?
+                            <div>
+                                {this.loc.DeleteProcessStep.ConfirmationMessage}
+                                <ul>
+                                    {this.deletingMultipleProcessSteps && <li>{this.loc.DeleteProcessStep.WarningMultipleDeletingProcessStepMessage}</li>}
+                                    {this.deletingProcessStepBeingUsed && <li>{this.loc.DeleteProcessStep.WarningReferenceProcessStepMessage}</li>}
+                                </ul>
+                            </div>
+                        : null}
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            text
+                            disabled={this.checkingDeletingProcessSteps}
+                            loading={this.loading}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.deleteProcessStep() }}>
+                            {this.omniaLoc.Common.Buttons.Delete}
+                        </v-btn>
+                        <v-btn
+                            text
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.closeDeleteProcessStepDialog(); }}>
+                            {this.omniaLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         )
     }
 
     renderProcessStepDialog(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.closeCreateProcessStepDialog(); }}
-                model={{ visible: true }}
-                hideCloseButton
+            <v-dialog
+                v-model={this.createProcessStepDialogVisisble}
                 width="800px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-card>
-                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.showEditTitleDialog ? this.loc.EditTitle : this.showCreateProcessStepDialog ? this.loc.CreateProcessStep : this.loc.AddLinkedProcess.AddTitle}</v-toolbar-title>
-                            <v-spacer></v-spacer>
-                            <v-btn icon onClick={() => { this.closeCreateProcessStepDialog(); }}>
-                                <v-icon>close</v-icon>
-                            </v-btn>
-                        </v-toolbar>
-                        <v-divider></v-divider>
-                        <v-card-text class={this.omniaTheming.promoted.body.class}>
-                            {
-                                this.showAddLinkedProcessStepDialog ?
-                                    <opm-process-picker
-                                        required
-                                        validator={this.internalValidator}
-                                        onModelChange={(processes) => {
-                                            if (processes[0]) {
-                                                this.title = processes[0].rootProcessStep.title;
-                                                this.externalRootProcessStepId = processes[0].rootProcessStep.id;
-                                            }
-                                            else {
-                                                this.externalRootProcessStepId = null;
-                                            }
-                                        }}>
-                                    </opm-process-picker> :
-                                    null
-                            }
-                            <omfx-multilingual-input
-                                requiredWithValidator={this.internalValidator}
-                                model={this.title}
-                                onModelChange={(title) => { this.title = title }}
-                                forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
-                            <span style={{ color: 'red' }}>{this.errorMessage}</span>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    text
-                                    loading={this.loading}
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.showEditTitleDialog ? this.editTitle() : this.addProcessStep() }}>
-                                    {this.showEditTitleDialog ? this.omniaLoc.Common.Buttons.Save : this.showCreateProcessStepDialog ? this.omniaLoc.Common.Buttons.Create : this.omniaLoc.Common.Buttons.Ok}
-                                </v-btn>
-                                <v-btn
-                                    text
-                                    light={!this.omniaTheming.promoted.body.dark}
-                                    onClick={() => { this.closeCreateProcessStepDialog(); }}>
-                                    {this.omniaLoc.Common.Buttons.Cancel}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card-text>
-                    </v-card>
-                </div>
-            </omfx-dialog>
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.showEditTitleDialog ? this.loc.EditTitle : this.showCreateProcessStepDialog ? this.loc.CreateProcessStep : this.loc.AddLinkedProcess.AddTitle}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.closeCreateProcessStepDialog}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        {
+                            this.showAddLinkedProcessStepDialog ?
+                                <opm-process-picker
+                                    required
+                                    validator={this.internalValidator}
+                                    onModelChange={(processes) => {
+                                        if (processes[0]) {
+                                            this.title = processes[0].rootProcessStep.title;
+                                            this.externalRootProcessStepId = processes[0].rootProcessStep.id;
+                                        }
+                                        else {
+                                            this.externalRootProcessStepId = null;
+                                        }
+                                    }}>
+                                </opm-process-picker> :
+                                null
+                        }
+                        <omfx-multilingual-input
+                            requiredWithValidator={this.internalValidator}
+                            model={this.title}
+                            onModelChange={(title) => { this.title = title }}
+                            forceTenantLanguages label={this.omniaLoc.Common.Title}></omfx-multilingual-input>
+                        <span style={{ color: 'red' }}>{this.errorMessage}</span>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            text
+                            loading={this.loading}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.showEditTitleDialog ? this.editTitle() : this.addProcessStep() }}>
+                            {this.showEditTitleDialog ? this.omniaLoc.Common.Buttons.Save : this.showCreateProcessStepDialog ? this.omniaLoc.Common.Buttons.Create : this.omniaLoc.Common.Buttons.Ok}
+                        </v-btn>
+                        <v-btn
+                            text
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.closeCreateProcessStepDialog(); }}>
+                            {this.omniaLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         )
     }
 

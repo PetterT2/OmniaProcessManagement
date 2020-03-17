@@ -8,11 +8,12 @@ import { ProcessLibraryListViewStyles, ProcessLibraryStyles } from '../../../../
 import { PublishProcessService, ReviewReminderService } from '../../../services';
 import { ProcessLibraryLocalization } from '../../../loc/localize';
 import { OPMCoreLocalization } from '../../../../core/loc/localize';
-import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome, ReviewReminderTask } from '../../../../fx/models';
+import { WorkflowTask, Enums, ProcessWorkingStatus, WorkflowCompletedType, TaskOutcome, ReviewReminderTask, VDialogScrollableDialogStyles } from '../../../../fx/models';
 import { UrlParameters } from '../../../Constants';
 import { OPMContext } from '../../../../fx/contexts';
 import { ProcessDesignerStore } from '../../../../processdesigner/stores';
 import { ProcessStore, OPMUtils, OPMRouter, ProcessRendererOptions } from '../../../../fx';
+import '../../../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 interface ReviewReminderTaskComponentProps {
     closeCallback: () => void;
@@ -52,9 +53,8 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
     openUnpublishDialog: boolean = false;
     newReviewDate: string = '';
     processing: boolean = false;
-
-
-    private processLibraryClasses = StyleFlow.use(ProcessLibraryStyles);
+    dialogVisible: boolean = true;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
 
     created() {
         this.init();
@@ -194,53 +194,54 @@ export class ReviewReminderTaskComponent extends VueComponentBase<ReviewReminder
 
     renderSetNewReviewDateDialog(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                maxWidth="800"
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.openSetNewReviewDateDialog = false }}
-                model={{ visible: true }}
-                hideCloseButton
-                position={DialogPositions.Center}>
-                <div>
-                    <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.coreLoc.ProcessActions.SetNewReviewDate}</v-toolbar-title>
+            <v-dialog
+                v-model={this.dialogVisible}
+                width="800px"
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.ProcessActions.SetNewReviewDate}</div>
                         <v-spacer></v-spacer>
-                        <v-btn icon onClick={() => { this.openSetNewReviewDateDialog = false }}>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={() => { this.openSetNewReviewDateDialog = false }}>
                             <v-icon>close</v-icon>
                         </v-btn>
-                    </v-toolbar>
-                    <v-divider></v-divider>
-                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                        <v-container>
-                            <omfx-date-time-picker
-                                model={this.newReviewDate}
-                                color={this.omniaTheming.themes.primary.base}
-                                dark={this.omniaTheming.promoted.body.dark}
-                                pickerMode={"date"}
-                                formatter={this.formatter}
-                                onModelChange={(newVal) => { this.newReviewDate = newVal; }}>
-                            </omfx-date-time-picker>
-                        </v-container>
-                        <v-card-actions class={this.processLibraryClasses.dialogFooter}>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                disabled={!this.newReviewDate}
-                                class="mr-2"
-                                dark={this.newReviewDate ? true : false}
-                                color={this.omniaTheming.themes.primary.base}
-                                onClick={() => { this.setNewReviewDate() }}>
-                                {this.omniaUxLoc.Common.Buttons.Ok}
-                            </v-btn>
-                            <v-btn
-                                dark={false}
-                                text
-                                onClick={() => { this.openSetNewReviewDateDialog = false; }}>
-                                {this.omniaUxLoc.Common.Buttons.Cancel}
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </div>
-            </omfx-dialog>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        <omfx-date-time-picker
+                            model={this.newReviewDate}
+                            color={this.omniaTheming.themes.primary.base}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            pickerMode={"date"}
+                            formatter={this.formatter}
+                            onModelChange={(newVal) => { this.newReviewDate = newVal; }}>
+                        </omfx-date-time-picker>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            disabled={!this.newReviewDate}
+                            class="mr-2"
+                            dark={this.newReviewDate ? true : false}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.setNewReviewDate() }}>
+                            {this.omniaUxLoc.Common.Buttons.Ok}
+                        </v-btn>
+                        <v-btn
+                            dark={false}
+                            text
+                            onClick={() => { this.openSetNewReviewDateDialog = false; }}>
+                            {this.omniaUxLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         )
     }
 

@@ -7,13 +7,14 @@ import { ProcessLibraryStyles } from '../../../models';
 import { MultilingualStore } from '@omnia/fx/store';
 import { ProcessLibraryLocalization } from '../../loc/localize';
 import { IProcessHistoryDialog } from './IProcessHistoryDialog';
-import { ProcessData, Process } from '../../../fx/models';
+import { ProcessData, Process, CenterConfigurableHeightDialogStyles } from '../../../fx/models';
 import { OPMCoreLocalization } from '../../../core/loc/localize';
 import { ProcessLibraryFields, DefaultDateFormat } from '../../Constants';
 import { TenantRegionalSettings, GuidValue, User } from '@omnia/fx-models';
 import { ProcessService, OPMRouter, OPMUtils, ProcessRendererOptions } from '../../../fx';
 import { UserService } from '@omnia/fx/services';
 declare var moment;
+import '../../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 @Component
 export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implements IWebComponentInstance, IProcessHistoryDialog {
@@ -32,6 +33,7 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     private classes = StyleFlow.use(ProcessLibraryStyles);
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
     private isLoading: boolean = false;
     private userDisplayNameDic: { [uid: string]: User } = {};
 
@@ -46,6 +48,7 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
         { text: this.coreLoc.Columns.ApprovedBy, align: 'left', sortable: false }
     ];
     processHistories: Array<Process> = [];
+
 
     created() {
     }
@@ -181,42 +184,45 @@ export class ProcessHistoryDialog extends VueComponentBase<{}, {}, {}> implement
 
     render(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.closeCallback(); }}
-                model={{ visible: true }}
+            <omfx-dialog
+                contentClass={this.myCenterDialogStyles.dialogContentClass}
                 hideCloseButton
+                model={{ visible: true }}
                 width="1200px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                        <v-toolbar-title>{this.loc.ProcessHistory}</v-toolbar-title>
+                position={DialogPositions.Center}
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-app-bar dark={this.theming.chrome.bg.dark}
+                    color={this.theming.chrome.bg.color.base}
+                    absolute
+                    scroll-off-screen
+                    flat>
+                    <v-toolbar-title>{this.loc.ProcessHistory}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-btn icon onClick={this.closeCallback}>
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-app-bar>
+                {this.isLoading ?
+                    <v-progress-linear
+                        color={this.theming.colors.primary.base}
+                        indeterminate
+                    ></v-progress-linear> : null}
+                <v-card flat class={[this.myCenterDialogStyles.bodyWrapper]}>
+                    <v-card-text class={this.myCenterDialogStyles.contentWrapper}>
+                        {!this.isLoading ? this.renderBody(h) : null}
+                    </v-card-text>
+                    <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn icon onClick={() => { this.closeCallback(); }}>
-                            <v-icon>close</v-icon>
+                        <span class={[this.classes.error, 'mr-2']}>{this.errMessage}</span>
+                        <v-btn
+                            text
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.closeCallback(); }}>
+                            {this.omniaUxLoc.Common.Buttons.Close}
                         </v-btn>
-                    </v-toolbar>
-                    <v-divider></v-divider>
-                    <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                        <div data-omfx>
-                            {
-                                this.isLoading ?
-                                    <v-skeleton-loader loading={true} height="100%" type="table"></v-skeleton-loader>
-                                    : this.renderBody(h)
-                            }
-                        </div>
-                        <v-card-actions class={this.classes.dialogFooter}>
-                            <v-spacer></v-spacer>
-                            <span class={[this.classes.error, 'mr-2']}>{this.errMessage}</span>
-                            <v-btn
-                                text
-                                light={!this.omniaTheming.promoted.body.dark}
-                                onClick={() => { this.closeCallback(); }}>
-                                {this.omniaUxLoc.Common.Buttons.Close}
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </div>
+                    </v-card-actions>
+                </v-card>
             </omfx-dialog>
         )
     }

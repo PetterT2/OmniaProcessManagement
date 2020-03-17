@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Prop, Watch, Emit } from 'vue-property-decorator'
-import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, Utils, OmniaContext } from '@omnia/fx';
-import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, MediaPickerImageTransformerProviderResult, ImageTransformerProviderComponent, YouTubeProviderRegister, MyComputerProviderRegister, BingProviderComponentRegister, MicrosoftStreamProviderRegister, CentralImageLocationProviderComponentRegister, ItransformerConfigs, ImageSvgTransformer, MediaPickerProvider, MediaPickerProviderMediaTypes } from "@omnia/fx/ux";
-import { IOmniaContext, BusinessProfileCentralImageLocation, MediaPickerVideoProviderResult, MediaPickerProviderResult, MediaPickerImageProviderResult } from "@omnia/fx-models";
-import { MediaPickerContent, MediaPickerImageContent, MediaPickerVideoContent, MediaPickerStyles } from '../../fx/models';
+import { Prop } from 'vue-property-decorator'
+import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueCustomElement, OmniaContext } from '@omnia/fx';
+import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, MediaPickerImageTransformerProviderResult, CentralImageLocationProviderComponentRegister, ItransformerConfigs, ImageSvgTransformer, MediaPickerProvider, MediaPickerProviderMediaTypes } from "@omnia/fx/ux";
+import { IOmniaContext, BusinessProfileCentralImageLocation, MediaPickerImageProviderResult } from "@omnia/fx-models";
+import { MediaPickerContent, MediaPickerImageContent, CenterConfigurableHeightDialogStyles } from '../../fx/models';
 import { ImageService, CurrentProcessStore } from '../../fx';
-import './MediaPicker.css';
+import '../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 @Component
 export class MediaPickerComponent extends VueComponentBase implements IWebComponentInstance {
@@ -20,7 +20,7 @@ export class MediaPickerComponent extends VueComponentBase implements IWebCompon
     private content: MediaPickerContent;
     private businessProfileCentralImageLocation: BusinessProfileCentralImageLocation = null;
     private dialogModel: DialogModel = { visible: false };
-    private classes = StyleFlow.use(MediaPickerStyles);
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
     private additionalProviders: Array<MediaPickerProvider> = [];
     private isLoadingCentralImageLocation = false;
 
@@ -123,13 +123,17 @@ export class MediaPickerComponent extends VueComponentBase implements IWebCompon
     render(h) {
         if (this.isLoadingCentralImageLocation) return null;
         return (
-            <omfx-dialog contentClass={this.classes.pickerDialog} model={this.dialogModel} position={DialogPositions.Center}>
-                <div class={this.classes.pickerDialogContent}>
-                    {
-                        this.dialogModel && this.dialogModel.visible &&
-                        <omfx-media-picker providers={this.additionalProviders} onClose={this.onInternalClosed} domProps-onConfigureProviders={this.onConfigureProviders} ></omfx-media-picker>
-                    }
-                </div>
+            <omfx-dialog
+                contentClass={this.myCenterDialogStyles.dialogContentClass}
+                hideCloseButton
+                model={this.dialogModel}
+                position={DialogPositions.Center}
+                persistent
+                dark={this.theming.body.bg.dark}>
+                {
+                    this.dialogModel && this.dialogModel.visible &&
+                    <omfx-media-picker providers={this.additionalProviders} onClose={this.onInternalClosed} domProps-onConfigureProviders={this.onConfigureProviders} ></omfx-media-picker>
+                }
             </omfx-dialog>
         );
     }

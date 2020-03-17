@@ -5,10 +5,10 @@ import { Prop } from 'vue-property-decorator'
 import { OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization, DialogPositions, StyleFlow, VueComponentBase, HeadingStyles, DialogStyles, DialogModel } from '@omnia/fx/ux';
 import './UnpublishProcessDialog.css';
 import { IUnpublishProcessDialog } from './IUnpublishProcessDialog';
-import { Process, UnpublishProcessDialogStyles, OPMEnterprisePropertyInternalNames, GlobalSettings, ProcessTypeItemSettings, ProcessVersionType } from '../../fx/models';
+import { Process, UnpublishProcessDialogStyles, OPMEnterprisePropertyInternalNames, GlobalSettings, ProcessTypeItemSettings, ProcessVersionType, CenterConfigurableHeightDialogStyles } from '../../fx/models';
 import { ProcessTypeStore, SettingsStore, ProcessService, UnpublishProcessService } from '../../fx';
 import { OPMCoreLocalization } from '../../core/loc/localize';
-import { InternalOPMTopics } from '../../fx/messaging/InternalOPMTopics';
+import '../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 @Component
 export default class UnpublishProcessDialog extends VueComponentBase implements IWebComponentInstance, IUnpublishProcessDialog {
@@ -36,6 +36,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
     private allowToUnpublish: boolean = true;
     private hasError: boolean = false;
     private errorMsg: string = "";
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
 
     created() {
         this.dialogModel.visible = true;
@@ -88,15 +89,18 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
     }
 
     renderHeader(h) {
-        return (
-            <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                <v-toolbar-title>{this.loc.ProcessActions.UnpublishProcess + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-btn icon onClick={() => { this.unpublishDialogClose(); }}>
-                    <v-icon>close</v-icon>
-                </v-btn>
-            </v-toolbar>
-        )
+        return <v-app-bar dark={this.theming.chrome.bg.dark}
+            color={this.theming.chrome.bg.color.base}
+            absolute
+            scroll-off-screen
+            scroll-target="#1scrolling-techniques-temp"
+            flat>
+            <v-toolbar-title>{this.loc.ProcessActions.UnpublishProcess + " " + this.process.rootProcessStep.multilingualTitle}</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon onClick={this.unpublishDialogClose}>
+                <v-icon>close</v-icon>
+            </v-btn>
+        </v-app-bar>;
     }
 
     private renderBody(h) {
@@ -115,7 +119,7 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
 
     private renderFooter(h) {
         return (
-            <v-card-actions class={this.styleClasses.dialogFooter}>
+            <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
                     dark={!(this.isLoading || !this.allowToUnpublish)}
@@ -137,27 +141,29 @@ export default class UnpublishProcessDialog extends VueComponentBase implements 
     render(h) {
         return (
             <div>
-                <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    onClose={() => { this.unpublishDialogClose() }}
+                <omfx-dialog
+                    contentClass={this.myCenterDialogStyles.dialogContentClass}
                     hideCloseButton
-                    model={this.dialogModel}
-                    contentClass={this.omniaTheming.promoted.body.class}
-                    width={'600px'}
-                    position={DialogPositions.Center}>
-                    <div>
-                        {this.renderHeader(h)}
-                        <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                            <div data-omfx>
-                                {
-                                    this.isLoading ?
-                                        <v-skeleton-loader loading={true} height="100%" type="card"></v-skeleton-loader>
-                                        :
-                                        this.renderBody(h)
-                                }
-                            </div>
-                            {this.renderFooter(h)}
-                        </v-card>
-                    </div>
+                    model={{ visible: true }}
+                    width="600px"
+                    position={DialogPositions.Center}
+                    persistent
+                    dark={this.theming.body.bg.dark}>
+                    {this.renderHeader(h)}
+                    <v-card flat class={[this.myCenterDialogStyles.bodyWrapper]}>
+                        <div class={this.myCenterDialogStyles.loadingWrapper}>
+                            <v-progress-linear
+                                v-show={this.isLoading}
+                                color={this.theming.colors.primary.base}
+                                indeterminate
+                            >
+                            </v-progress-linear>
+                        </div>
+                        <v-card-text class={this.myCenterDialogStyles.contentWrapper}>
+                            {!this.isLoading ? this.renderBody(h) : null}
+                        </v-card-text>
+                        {this.renderFooter(h)}
+                    </v-card>
                 </omfx-dialog>
             </div>
         )

@@ -7,7 +7,15 @@ Composer
         resourcePaths: [
             "../models/**/*.js",
             "../components/richtexteditorextensions/**/*.js",
-            "./loc/**/*.js",
-            "./styles/**/*.js"
+            "./loc/**/*.js"
+        ]
+    });
+
+
+Composer
+    .registerManifest(OPMResourceManifests.DialogCoreStyles, "omnia.pm.dialogcorestyles")
+    .registerResources({
+        resourcePaths: [
+            "./styles/dialog/**/*.js"
         ]
     });

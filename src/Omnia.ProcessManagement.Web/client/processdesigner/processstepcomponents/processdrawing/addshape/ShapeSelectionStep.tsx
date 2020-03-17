@@ -12,7 +12,7 @@ import { ShapeDefinition, DrawingShapeDefinition, CenterConfigurableHeightDialog
 import { MultilingualStore } from '@omnia/fx/store';
 import { AddShapeWizardStore } from '../../../stores/AddShapeWizardStore';
 import { ShapeSelectionComponent } from '../../../shapepickercomponents/ShapeSelection';
-import '../../../../core/styles/CenterConfigurableHeightDialogStyles.css';
+import '../../../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 export interface ShapeSelectionStepProps {
 }

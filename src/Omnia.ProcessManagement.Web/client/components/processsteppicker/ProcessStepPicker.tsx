@@ -3,10 +3,11 @@ import { Component, Prop } from 'vue-property-decorator';
 import { vueCustomElement, IWebComponentInstance, WebComponentBootstrapper, Inject, Localize, Utils } from "@omnia/fx";
 import { StyleFlow, VueComponentBase, OmniaTheming, DialogModel, DialogPositions, OmniaUxLocalizationNamespace, OmniaUxLocalization } from '@omnia/fx/ux';
 import { IProcessStepPicker } from './IProcessStepPicker';
-import { RootProcessStep, ProcessStep, ProcessStepPickerStyles, IdDict } from '../../fx/models';
+import { RootProcessStep, ProcessStep, ProcessStepPickerStyles, IdDict, CenterConfigurableHeightDialogStyles } from '../../fx/models';
 import { GuidValue } from '@omnia/fx-models';
 import { NavigationNodeComponent } from './NavigationNode';
 import './ProcessStepPicker.css';
+import '../../core/styles/dialog/CenterConfigurableHeightDialogStyles.css';
 
 @Component
 export default class ProcessStepPicker extends VueComponentBase implements IWebComponentInstance, IProcessStepPicker {
@@ -26,6 +27,7 @@ export default class ProcessStepPicker extends VueComponentBase implements IWebC
     private selectingProcessStep: ProcessStep = null;
     private renderKey = Utils.generateGuid();
     private isSaving: boolean = false;
+    private myCenterDialogStyles = StyleFlow.use(CenterConfigurableHeightDialogStyles);
 
     created() {
 
@@ -56,57 +58,59 @@ export default class ProcessStepPicker extends VueComponentBase implements IWebC
 
     render(h) {
         return (
-            <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                contentClass={this.omniaTheming.promoted.body.class}
-                onClose={() => { this.onClose(); }}
-                model={{ visible: true }}
+            <omfx-dialog
+                contentClass={this.myCenterDialogStyles.dialogContentClass}
                 hideCloseButton
+                model={{ visible: true }}
                 width="800px"
-                position={DialogPositions.Center}>
-                <div>
-                    <v-card>
-                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.header}</v-toolbar-title>
-                            <v-spacer></v-spacer>
-                            <v-btn icon onClick={() => { this.onClose(); }}>
-                                <v-icon>close</v-icon>
-                            </v-btn>
-                        </v-toolbar>
-                        <v-divider></v-divider>
-                        <v-card-text class={this.omniaTheming.promoted.body.class}>
-                            <NavigationNodeComponent
-                                key={this.renderKey}
-                                hiddenProcessStepIdsDict={this.hiddenProcessStepIdsDict}
-                                disabledProcessStepIdsDict={this.disabledProcessStepIdsDict}
-                                selectProcessStep={this.selectProcessStep}
-                                selectingProcessStep={this.selectingProcessStep}
-                                pickerStyles={this.styles}
-                                expandState={this.styles}
-                                level={0}
-                                processStep={this.rootProcessStep}>
-                            </NavigationNodeComponent>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    disabled={!this.selectingProcessStep}
-                                    text
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.saveSelectingProcessStep() }}
-                                    loading={this.isSaving}
-                                >
-                                    {this.omniaUxLoc.Common.Buttons.Save}
-                                </v-btn>
-                                <v-btn
-                                    text
-                                    light={!this.omniaTheming.promoted.body.dark}
-                                    onClick={() => { this.onClose(); }}>
-                                    {this.omniaUxLoc.Common.Buttons.Cancel}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card-text>
-                    </v-card>
-                </div>
+                position={DialogPositions.Center}
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-app-bar dark={this.theming.chrome.bg.dark}
+                    color={this.theming.chrome.bg.color.base}
+                    absolute
+                    scroll-off-screen
+                    flat>
+                    <v-toolbar-title>{this.header}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-btn icon onClick={this.onClose}>
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-app-bar>
+                <v-card flat class={[this.myCenterDialogStyles.bodyWrapper]}>
+                    <v-card-text class={this.myCenterDialogStyles.contentWrapper}>
+                        <NavigationNodeComponent
+                            key={this.renderKey}
+                            hiddenProcessStepIdsDict={this.hiddenProcessStepIdsDict}
+                            disabledProcessStepIdsDict={this.disabledProcessStepIdsDict}
+                            selectProcessStep={this.selectProcessStep}
+                            selectingProcessStep={this.selectingProcessStep}
+                            pickerStyles={this.styles}
+                            expandState={this.styles}
+                            level={0}
+                            processStep={this.rootProcessStep}>
+                        </NavigationNodeComponent>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            disabled={!this.selectingProcessStep}
+                            text
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.saveSelectingProcessStep() }}
+                            loading={this.isSaving}
+                        >
+                            {this.omniaUxLoc.Common.Buttons.Save}
+                        </v-btn>
+                        <v-btn
+                            text
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.onClose(); }}>
+                            {this.omniaUxLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
             </omfx-dialog>
         )
     }

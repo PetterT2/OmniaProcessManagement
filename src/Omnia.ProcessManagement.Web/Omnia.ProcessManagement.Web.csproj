@@ -123,6 +123,7 @@
     <TypeScriptCompile Remove="client\core\loc\localize.ts" />
     <TypeScriptCompile Remove="client\core\styles\CenterConfigurableHeightDialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\core\styles\CenterScrollableDialogStyles.css.ts" />
+    <TypeScriptCompile Remove="client\core\styles\dialog\VDialogScrollableDialogStyles.css.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\IProcessFieldDisplay.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.css.ts" />
     <TypeScriptCompile Remove="client\enterpriseproperties\display\processfield\ProcessFieldDisplay.manifest.ts" />

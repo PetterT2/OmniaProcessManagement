@@ -5,10 +5,10 @@ import { Inject, Localize, WebComponentBootstrapper, IWebComponentInstance, vueC
 import { Guid } from '@omnia/fx-models';
 import { StyleFlow, DialogModel, VueComponentBase, DialogPositions, OmniaTheming, OmniaUxLocalizationNamespace, OmniaUxLocalization } from "@omnia/fx/ux";
 import { CurrentProcessStore, ShapeObject, DrawingCanvasFreeForm, Shape } from '../../fx';
-import { DrawingShapeDefinition, CanvasDefinition, FreeformPickerStyles } from '../../fx/models';
+import { DrawingShapeDefinition, CanvasDefinition, VDialogScrollableDialogStyles } from '../../fx/models';
 import { ProcessDesignerStore } from '../../processdesigner/stores';
 import { OPMCoreLocalization } from '../../core/loc/localize';
-import './FreeformPicker.css';
+import '../../core/styles/dialog/VDialogScrollableDialogStyles.css';
 
 @Component
 export class FreeformPickerComponent extends VueComponentBase implements IWebComponentInstance {
@@ -25,10 +25,13 @@ export class FreeformPickerComponent extends VueComponentBase implements IWebCom
     @Localize(OmniaUxLocalizationNamespace) omniaUxLoc: OmniaUxLocalization;
 
     private dialogModel: DialogModel = { visible: false };
-    private classes = StyleFlow.use(FreeformPickerStyles);
     private canvasId: string = 'opmcanvas' + Guid.newGuid().toString();
     private drawingCanvas: DrawingCanvasFreeForm;
     private isFinished: boolean = false;
+    private myVDialogCommonStyles = StyleFlow.use(VDialogScrollableDialogStyles);
+    
+    //private dialogLeftRightPadding = 30 * 2;
+    private contentPadding = 27 * 2;
 
     created() {
         this.dialogModel.visible = true;
@@ -72,50 +75,52 @@ export class FreeformPickerComponent extends VueComponentBase implements IWebCom
     }
 
     render(h) {
+        let dialogWidth = ((this.canvasDefinition ? this.canvasDefinition.width : 800) + this.contentPadding) + 'px';
+
         return (
-            <div>
-                <omfx-dialog dark={this.omniaTheming.promoted.body.dark}
-                    contentClass={this.omniaTheming.promoted.body.class}
-                    model={this.dialogModel}
-                    hideCloseButton
-                    maxWidth="1200px"
-                    width={this.canvasDefinition ? this.canvasDefinition.width + 'px' : "800px"}
-                    position={DialogPositions.Center}>
-                    <div>
-                        <v-toolbar flat dark={this.omniaTheming.promoted.header.dark} color={this.omniaTheming.themes.primary.base}>
-                            <v-toolbar-title>{this.coreLoc.Buttons.DrawFreeform}</v-toolbar-title>
-                            <v-spacer></v-spacer>
-                        </v-toolbar>
-                        <v-divider></v-divider>
-                        <v-card flat tile class={this.omniaTheming.promoted.body.class}>
-                            <div data-omfx class={this.classes.centerDialogBody}>
-                                <div class={this.classes.wrapper}>
-                                    <canvas id={this.canvasId} width="800px" height="600px"></canvas>
-                                </div>
-                            </div>
-                            <v-card-actions class={this.classes.dialogFooter}>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    text
-                                    class="pull-right"
-                                    disabled={!this.isFinished}
-                                    dark={this.omniaTheming.promoted.body.dark}
-                                    color={this.omniaTheming.themes.primary.base}
-                                    onClick={() => { this.addNewFreeformPicker(); }}>
-                                    {this.omniaUxLoc.Common.Buttons.Ok}
-                                </v-btn>
-                                <v-btn
-                                    text
-                                    class="pull-right"
-                                    light={!this.omniaTheming.promoted.body.dark}
-                                    onClick={() => { this.onInternalClosed(); }}>
-                                    {this.omniaUxLoc.Common.Buttons.Cancel}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </div>
-                </omfx-dialog>
-            </div>
+            <v-dialog
+                v-model={this.dialogModel}
+                width={dialogWidth}
+                scrollable
+                persistent
+                dark={this.theming.body.bg.dark}>
+                <v-card class={[this.theming.body.bg.css, 'v-application']} data-omfx>
+                    <v-card-title
+                        class={[this.theming.chrome.bg.css, this.theming.chrome.text.css, this.myVDialogCommonStyles.dialogTitle]}
+                        dark={this.theming.chrome.bg.dark}>
+                        <div>{this.coreLoc.Buttons.DrawFreeform}</div>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            dark={this.theming.chrome.bg.dark}
+                            onClick={this.onInternalClosed}>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class={[this.theming.body.text.css, this.myVDialogCommonStyles.dialogMainContent]}>
+                        <canvas id={this.canvasId} width="800px" height="600px"></canvas>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            text
+                            class="pull-right"
+                            disabled={!this.isFinished}
+                            dark={this.omniaTheming.promoted.body.dark}
+                            color={this.omniaTheming.themes.primary.base}
+                            onClick={() => { this.addNewFreeformPicker(); }}>
+                            {this.omniaUxLoc.Common.Buttons.Ok}
+                        </v-btn>
+                        <v-btn
+                            text
+                            class="pull-right"
+                            light={!this.omniaTheming.promoted.body.dark}
+                            onClick={() => { this.onInternalClosed(); }}>
+                            {this.omniaUxLoc.Common.Buttons.Cancel}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         )
     }
 }
