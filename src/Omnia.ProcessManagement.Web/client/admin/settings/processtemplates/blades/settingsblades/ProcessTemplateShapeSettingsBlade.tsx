@@ -275,7 +275,7 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
     renderTextSettings(h) {
         return (
             <v-row align="center">
-                <v-col cols="6" class="py-0">
+                <v-col cols="12" class="py-0">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={this.updateTemplateShape} v-model={(this.editingShape as DrawingShapeDefinition).textPosition}></v-select>
                     <omfx-field-validation
@@ -296,7 +296,25 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                         rules={new FieldValueValidation().IsRequired().getRules()}>
                     </omfx-field-validation>
                 </v-col>
-                <v-col cols="6" class="py-0 text-center">
+            </v-row>
+        )
+    }
+
+    renderPreview(h) {
+        return (
+            <v-row>
+                <v-col cols="12">
+                    <div id={this.canvasContainerId} class={classes("py-0", this.needToShowCanvas() ? "" : this.classes.hidePreviewContainer)}>
+                        <div class={this.classes.shapePreviewContainer}>
+                            <div class={this.classes.webkitScrollbar}>
+                                <div class={this.classes.canvasPreviewWrapper}>
+                                    <canvas id={this.canvasId}></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </v-col>
+                <v-col cols="12" class="text-center">
                     <opm-point-picker
                         label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
                         model={{ x: (this.editingShape as DrawingShapeDefinition).textHorizontalAdjustment, y: (this.editingShape as DrawingShapeDefinition).textVerticalAdjustment }}
@@ -308,20 +326,6 @@ export default class ProcessTemplateShapeSettingsBlade extends VueComponentBase<
                     ></opm-point-picker>
                 </v-col>
             </v-row>
-        )
-    }
-
-    renderPreview(h) {
-        return (
-            <div id={this.canvasContainerId} class={classes("py-0", this.needToShowCanvas() ? "" : this.classes.hidePreviewContainer)}>
-                <div class={this.classes.shapePreviewContainer}>
-                    <div class={this.classes.webkitScrollbar}>
-                        <div class={this.classes.canvasPreviewWrapper}>
-                            <canvas id={this.canvasId}></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
         )
     }
 
