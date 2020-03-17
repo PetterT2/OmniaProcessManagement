@@ -14,6 +14,7 @@ import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ShapeTypeStyles } from '../../fx/models/styles';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerLocalization } from '../loc/localize';
+import { setTimeout } from 'timers';
 
 export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
@@ -220,8 +221,12 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             else
                 this.shapeTitle = null;
         }
-        
-        this.onDrawingShapeOptionChanged();
+
+        // Although the shapeTitle has been assigned value, but the validator inside omfx-multilingual-input still cannot validate it
+        // This should be fixed in omfx-multilingual-input in the future and remove this setTimeout
+        setTimeout(() => {
+            this.onDrawingShapeOptionChanged();
+        }, 100);
     }
 
     private createLinkCallback(createdLink: Link) {
