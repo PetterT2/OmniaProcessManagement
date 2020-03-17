@@ -270,9 +270,26 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             <div class={this.shapeTypeStepStyles.previewWrapper}>
                 {
                     renderCanvas &&
-                    <div class={this.shapeTypeStepStyles.webkitScrollbar}>
-                        <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>
-                    </div>
+                    <v-row>
+                        <v-col cols="12">
+                            <div class={this.shapeTypeStepStyles.previewWrapper}>
+                                <div class={this.shapeTypeStepStyles.webkitScrollbar}>
+                                    <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>
+                                </div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" class="text-center">
+                            <opm-point-picker
+                                label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
+                                model={{ x: this.internalShapeDefinition.textHorizontalAdjustment, y: this.internalShapeDefinition.textVerticalAdjustment }}
+                                onModelChange={(model) => {
+                                    this.internalShapeDefinition.textHorizontalAdjustment = model.x;
+                                    this.internalShapeDefinition.textVerticalAdjustment = model.y;
+                                    this.updateDrawedShape()
+                                }}
+                            ></opm-point-picker>
+                        </v-col>
+                    </v-row>
                 }
                 {
                     !renderCanvas && showFreeformButton && <v-icon>fa fa-draw-polygon</v-icon>
@@ -652,7 +669,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderShapeSettings(h) {
         return [
             <v-row align="center">
-                <v-col cols="6" class="py-0">
+                <v-col cols="12" class="py-0">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textPosition}></v-select>
                     <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
@@ -667,17 +684,6 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field> :
                             <div class="py-2"><a style={{ fontSize: '14px' }} href="javascript:void(0)" onClick={() => { this.showMoreSettings = true; }}>{this.opmCoreloc.DrawingShapeSettings.ShowMoreSettings}</a></div>
                     }
-                </v-col>
-                <v-col cols="6" class="text-center py-0">
-                    <opm-point-picker
-                        label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
-                        model={{ x: this.internalShapeDefinition.textHorizontalAdjustment, y: this.internalShapeDefinition.textVerticalAdjustment }}
-                        onModelChange={(model) => {
-                            this.internalShapeDefinition.textHorizontalAdjustment = model.x;
-                            this.internalShapeDefinition.textVerticalAdjustment = model.y;
-                            this.updateDrawedShape()
-                        }}
-                    ></opm-point-picker>
                 </v-col>
             </v-row>
         ];
