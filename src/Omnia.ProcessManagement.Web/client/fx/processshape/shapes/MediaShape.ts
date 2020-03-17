@@ -55,7 +55,7 @@ export class MediaShape extends ShapeExtension implements Shape {
         this.left = left;
         this.top = top;
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, null, left, top);
         let highlightProperties = this.getHighlightProperties();
 
         if (this.nodes) {

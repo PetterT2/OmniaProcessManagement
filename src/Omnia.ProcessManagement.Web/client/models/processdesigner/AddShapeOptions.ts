@@ -13,4 +13,5 @@ export interface DrawingShapeOptions {
     linkedRootProcessStepId?: GuidValue;
     shape?: ShapeObject;
     isRenderAndReset?: boolean;
+    isUpdatedPosition?: boolean;
 }

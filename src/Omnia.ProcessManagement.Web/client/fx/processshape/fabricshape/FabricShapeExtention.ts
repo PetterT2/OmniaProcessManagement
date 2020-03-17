@@ -2,6 +2,7 @@
 import { FabricShapeData, FabricShapeDataTypes } from './FabricShapeData';
 import { FabricShape } from './FabricShape';
 import { DrawingShapeDefinition } from '../../models';
+import { Utils } from '@omnia/fx';
 
 
 export class FabricShapeExtension implements FabricShape {

@@ -37,37 +37,7 @@ namespace Omnia.ProcessManagement.Core.Repositories
         {
             Logger = logger;
             HandleStartup(OnStartupHandled);
-
-
-            EnsureValidJsonConvertDefaultSettings();
         }
-
-        private void EnsureValidJsonConvertDefaultSettings()
-        {
-            //Ensure CamelCaseExceptDictionaryKeysResolver before creating OmniaPMDbContext to allow to insert/update database. 
-            //This is VERY important to prevent from conrupt data. 
-            if (JsonConvert.DefaultSettings.Invoke().ContractResolver.GetType() != typeof(CamelCaseExceptDictionaryKeysResolver))
-            {
-                lock (_lock)
-                {
-                    if (JsonConvert.DefaultSettings.Invoke().ContractResolver.GetType() != typeof(CamelCaseExceptDictionaryKeysResolver))
-                    {
-                        JsonConvert.DefaultSettings = () =>
-                        {
-                            var contractResolver = new CamelCaseExceptDictionaryKeysResolver();
-                            contractResolver.NamingStrategy.ProcessExtensionDataNames = true;
-                            contractResolver.NamingStrategy.ProcessDictionaryKeys = false;
-                            var settings = new JsonSerializerSettings();
-                            settings.ContractResolver = contractResolver;
-                            return settings;
-                        };
-                        //OPM should let core team know to revisit their solution if this error happens frequently
-                        Logger.LogError("JsonConvert.DefaultSettings is not set to CamelCaseExceptDictionaryKeysResolver by OmniaFxConfiguration yet, so OPM handled this case. But why?");
-                    }
-                }
-            }
-        }
-
         protected void OnStartupHandled()
         {
             try

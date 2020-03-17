@@ -7,13 +7,14 @@ import { OmniaTheming, VueComponentBase, FormValidator, FieldValueValidation, Om
 import { Prop, Watch } from 'vue-property-decorator';
 import { CurrentProcessStore, DrawingCanvas, ShapeTemplatesConstants, ShapeObject, TextSpacingWithShape, OPMUtils, ShapeExtension, ShapeTemplateStore, DrawingCanvasFreeForm } from '../../fx';
 import './ShapeType.css';
-import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition, ProcessStepType, InternalProcessStep } from '../../fx/models';
+import { DrawingShapeDefinition, DrawingShapeTypes, TextPosition, TextAlignment, Link, Enums, DrawingShape, DrawingImageShapeDefinition, ShapeTemplateType, ShapeTemplate, DrawingFreeformShapeDefinition, ProcessStepType, InternalProcessStep, CanvasDefinition } from '../../fx/models';
 import { ShapeTypeCreationOption, DrawingShapeOptions } from '../../models/processdesigner';
 import { MultilingualStore } from '@omnia/fx/store';
 import { OPMCoreLocalization } from '../../core/loc/localize';
 import { ShapeTypeStyles } from '../../fx/models/styles';
 import { ProcessDesignerStore } from '../stores';
 import { ProcessDesignerLocalization } from '../loc/localize';
+import { setTimeout } from 'timers';
 
 export interface ShapeSelectionProps {
     drawingOptions: DrawingShapeOptions;
@@ -157,6 +158,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         }
     }
 
+    private isUpdatedPosition() {
+        return this.drawingOptions.shapeDefinition.shapeTemplateType == ShapeTemplatesConstants.Freeform.settings.type;
+    }
+
     private onDrawingShapeOptionChanged(isRenderAndReset?: boolean) {
         let drawingOptions: DrawingShapeOptions = {
             shapeDefinition: this.internalShapeDefinition,
@@ -167,7 +172,8 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             linkedRootProcessStepId: this.selectedLinkedRootProcessStepId,
             title: this.shapeTitle,
             shape: this.shape,
-            isRenderAndReset: isRenderAndReset
+            isRenderAndReset: isRenderAndReset,
+            isUpdatedPosition: this.isUpdatedPosition()
         };
         if (this.changeDrawingOptionsCallback) {
             this.changeDrawingOptionsCallback(drawingOptions);
@@ -216,7 +222,11 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                 this.shapeTitle = null;
         }
 
-        this.onDrawingShapeOptionChanged();
+        // Although the shapeTitle has been assigned value, but the validator inside omfx-multilingual-input still cannot validate it
+        // This should be fixed in omfx-multilingual-input in the future and remove this setTimeout
+        setTimeout(() => {
+            this.onDrawingShapeOptionChanged();
+        }, 100);
     }
 
     private createLinkCallback(createdLink: Link) {
@@ -242,7 +252,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         else {
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle)
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle || { isMultilingualString: true })
                     .then((readyDrawingShape: DrawingShape) => {
                         this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
                         this.onDrawingShapeOptionChanged(true);
@@ -260,9 +270,26 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             <div class={this.shapeTypeStepStyles.previewWrapper}>
                 {
                     renderCanvas &&
-                    <div class={this.shapeTypeStepStyles.webkitScrollbar}>
-                        <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>
-                    </div>
+                    <v-row>
+                        <v-col cols="12">
+                            <div class={this.shapeTypeStepStyles.previewWrapper}>
+                                <div class={this.shapeTypeStepStyles.webkitScrollbar}>
+                                    <div class={this.shapeTypeStepStyles.canvasPreviewWrapper}><canvas id={this.previewCanvasId.toString()}></canvas></div>
+                                </div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" class="text-center">
+                            <opm-point-picker
+                                label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
+                                model={{ x: this.internalShapeDefinition.textHorizontalAdjustment, y: this.internalShapeDefinition.textVerticalAdjustment }}
+                                onModelChange={(model) => {
+                                    this.internalShapeDefinition.textHorizontalAdjustment = model.x;
+                                    this.internalShapeDefinition.textVerticalAdjustment = model.y;
+                                    this.updateDrawedShape()
+                                }}
+                            ></opm-point-picker>
+                        </v-col>
+                    </v-row>
                 }
                 {
                     !renderCanvas && showFreeformButton && <v-icon>fa fa-draw-polygon</v-icon>
@@ -313,8 +340,10 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.internalShapeDefinition) {
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle || { isMultilingualString: true }, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
                     this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
+                    if (this.drawingOptions.isRenderAndReset)
+                        this.onDrawingShapeOptionChanged(true);
                 });
             })
         }
@@ -340,7 +369,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle ? this.multilingualStore.getters.stringValue(this.shapeTitle) : "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle);
             this.shape = this.drawingCanvas.drawingShapes[0].shape;
             this.onDrawingShapeOptionChanged();
         }
@@ -355,7 +384,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             this.shape = shape;
             this.internalShapeDefinition.width = this.shape.nodes[0].properties['width'];
             this.internalShapeDefinition.height = this.shape.nodes[0].properties['height'];
-            this.onDrawingShapeOptionChanged();
+            this.onDrawingShapeOptionChanged(true);
             this.startToDrawShape();
         }
     }
@@ -640,7 +669,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
     private renderShapeSettings(h) {
         return [
             <v-row align="center">
-                <v-col cols="6" class="py-0">
+                <v-col cols="12" class="py-0">
                     <v-select item-value="value" item-text="title" items={this.textPositions} label={this.opmCoreloc.DrawingShapeSettings.TextPosition}
                         onChange={() => { this.updateDrawedShape(); }} v-model={this.internalShapeDefinition.textPosition}></v-select>
                     <v-select item-value="value" item-text="title" items={this.textAlignment} label={this.opmCoreloc.DrawingShapeSettings.TextAlignment}
@@ -648,21 +677,13 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
                     {
                         this.showMoreSettings ?
                             <v-text-field v-model={this.internalShapeDefinition.fontSize} label={this.opmCoreloc.DrawingShapeSettings.FontSize}
-                                onChange={() => { this.updateDrawedShape(); }} type="number" suffix="px"
+                                onChange={() => {
+                                    this.internalShapeDefinition.fontSize = this.internalShapeDefinition.fontSize ? parseInt(this.internalShapeDefinition.fontSize.toString()) : 0;
+                                    this.updateDrawedShape();
+                                }} type="number" suffix="px"
                                 rules={new FieldValueValidation().IsRequired().getRules()}></v-text-field> :
                             <div class="py-2"><a style={{ fontSize: '14px' }} href="javascript:void(0)" onClick={() => { this.showMoreSettings = true; }}>{this.opmCoreloc.DrawingShapeSettings.ShowMoreSettings}</a></div>
                     }
-                </v-col>
-                <v-col cols="6" class="text-center py-0">
-                    <opm-point-picker
-                        label={this.opmCoreloc.DrawingShapeSettings.TextAdjustment}
-                        model={{ x: this.internalShapeDefinition.textHorizontalAdjustment, y: this.internalShapeDefinition.textVerticalAdjustment }}
-                        onModelChange={(model) => {
-                            this.internalShapeDefinition.textHorizontalAdjustment = model.x;
-                            this.internalShapeDefinition.textVerticalAdjustment = model.y;
-                            this.updateDrawedShape()
-                        }}
-                    ></opm-point-picker>
                 </v-col>
             </v-row>
         ];

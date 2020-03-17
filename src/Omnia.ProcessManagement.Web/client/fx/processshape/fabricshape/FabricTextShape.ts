@@ -1,5 +1,5 @@
 ﻿import { MultilingualStore, EnterprisePropertyStore } from '@omnia/fx/store';
-import { Inject, ServiceContainer } from '@omnia/fx';
+import { Inject, ServiceContainer, Utils } from '@omnia/fx';
 import { FabricShapeExtension } from './FabricShapeExtention';
 import { fabric } from 'fabric';
 import { FabricShapeDataTypes } from './FabricShapeData';
@@ -32,8 +32,10 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
 
     private getTextString(title: string | MultilingualString) {
         let text = "Sample Text";
-        if (typeof (title) == 'string')
-            text = title as string;
+        if (typeof (title) == 'string') {
+            if (!Utils.isNullOrEmpty(title))
+                text = title as string;
+        }
         else {
             let languageSetting = this.multilingualStore.getters.languageSetting(MultilingualScopes.BusinessProfile);
             if (languageSetting && title) {
@@ -44,8 +46,7 @@ export class FabricTextShape extends FabricShapeExtension implements FabricShape
     }
 
     updateDefinition(definition: DrawingShapeDefinition, properties: { [k: string]: any; }, title?: string | MultilingualString) {
-        if (title != undefined)
-            properties["text"] = this.getTextString(title);
+        properties["text"] = this.getTextString(title);
         properties["fontSize"] = definition.fontSize;
         properties["fill"] = definition.textColor;
         properties["textAlign"] = definition.textAlignment;

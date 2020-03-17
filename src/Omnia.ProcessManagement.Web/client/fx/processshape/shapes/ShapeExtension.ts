@@ -1,6 +1,6 @@
 ﻿import { fabric } from 'fabric';
 import { Shape } from './Shape';
-import { DrawingShapeDefinition, TextPosition, TextAlignment } from '../../models';
+import { DrawingShapeDefinition, TextPosition, TextAlignment, DrawingPentagonShapeDefinition } from '../../models';
 import { ShapeObject } from './ShapeObject';
 import { FabricShapeData, FabricShape, FabricShapeDataTypes, FabricTextShape } from '../fabricshape';
 import { MultilingualString } from '@omnia/fx-models';
@@ -61,7 +61,7 @@ export class ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
-    public updateShapeDefinition(definition: DrawingShapeDefinition, title: string | MultilingualString) {
+    public updateShapeDefinition(definition: DrawingShapeDefinition, title: MultilingualString) {
         if (this.fabricShapes.length < 2)
             return;
         this.definition = definition;
@@ -205,8 +205,8 @@ export class ShapeExtension implements Shape {
         let textPosition = ShapeExtension.getTextPosition(this.definition, object.getCenterPoint(), Math.floor(object.width * attrs.scaleX), Math.floor(object.height * attrs.scaleY));
 
         this.fabricShapes[1].fabricObject.set({
-            left: textPosition.left,
-            top: textPosition.top,
+            left: Math.round(textPosition.left),
+            top: Math.round(textPosition.top),
             originX: this.definition.textAlignment
         });
     }
@@ -241,23 +241,27 @@ export class ShapeExtension implements Shape {
         var shapeTop = Math.floor(this.shapeObject[0].top - minTop);
         var textLeft = Math.floor(this.shapeObject[1].left - minLeft);
         var textTop = Math.floor(this.shapeObject[1].top - minTop);
-        this.shapeObject[0].set({ left: shapeLeft, top: shapeTop });
+        this.shapeObject[0].set({ left: Math.round(shapeLeft), top: Math.round(shapeTop) });
         this.shapeObject[0].setCoords();
-        this.shapeObject[1].set({ left: textLeft, top: textTop });
+        this.shapeObject[1].set({ left: Math.round(textLeft), top: Math.round(textTop) });
         this.shapeObject[1].setCoords();
-
+        let extendWidth = !Utils.isNullOrEmpty(this.definition.borderColor) ? 2 : 0;
         return {
-            height: Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop),
-            width: Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft)
+            height: Math.round(Math.max(shapeBound.height + shapeBound.top - minTop, textBound.height + textBound.top - minTop) + extendWidth),
+            width: Math.round(Math.max(shapeBound.width + shapeBound.left - minLeft, textBound.width + textBound.left - minLeft + extendWidth))
         }
 
     }
 
-    public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, width?: number, height?: number) {
+    public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, left?: number, top?: number, width?: number, height?: number) {
+        if ((definition as DrawingPentagonShapeDefinition).isLine && definition.height > 5)
+            definition.height = 5;
         width = width || definition.width;
         height = height || definition.height;
+        left = left || 0;
+        top = top || 0;
         if (!centerPoint)
-            centerPoint = new fabric.Point(width / 2, height / 2);
+            centerPoint = new fabric.Point(width / 2 + left, height / 2 + top);
         let tleft = centerPoint.x;
         let ttop = centerPoint.y;
 

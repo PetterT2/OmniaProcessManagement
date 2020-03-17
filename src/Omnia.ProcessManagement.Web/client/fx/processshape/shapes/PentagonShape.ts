@@ -46,13 +46,13 @@ export class PentagonShape extends ShapeExtension implements Shape {
             this.definition.arrowWidthPercent = 0.5;
         if (this.definition.arrowHeightPercent == undefined)
             this.definition.arrowHeightPercent = 0;
-        let lineExtend = null;
+        let triangleLineExtend = null;
         if (this.definition.isLine) {
             this.definition.height = 1;
-            lineExtend = 4;
+            triangleLineExtend = 8;
         }
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, null, null, lineExtend);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, null, left, top, null, triangleLineExtend);
         let highlightProperties = this.getHighlightProperties();
         if (this.nodes) {
             let polygonNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.polygon);
@@ -60,7 +60,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             if (polygonNode) {
                 let rectShape = new FabricPolygonShape(this.definition, Object.assign({}, polygonNode.properties, { left: position.left, top: position.top, selectable: selectable }, highlightProperties));
                 this.fabricShapes.push(rectShape);
-                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint(), null, lineExtend);
+                textPosition = ShapeExtension.getTextPosition(this.definition, this.fabricShapes[0].fabricObject.getCenterPoint(), null, triangleLineExtend);
             }
             if (textNode) {
                 let textShape = new FabricTextShape(this.definition, Object.assign({ originX: this.definition.textAlignment, left: textPosition.left, top: textPosition.top, selectable: selectable }), title);
@@ -79,20 +79,20 @@ export class PentagonShape extends ShapeExtension implements Shape {
     private getDefaultPoints(): Array<{ x: number; y: number }> {
         let triangleWidth = Math.floor(this.definition.height * this.definition.arrowWidthPercent);
         let triangleHeight = Math.floor(this.definition.height * this.definition.arrowHeightPercent / 2);
-        let lineExtend = 0;
+        let triangleLineExtend = 0;
         if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0 && triangleHeight == 0) {
-            lineExtend = 4;
+            triangleLineExtend = 4;
         }
         let points: Array<{ x: number; y: number }> = [
-            { x: 0, y: triangleHeight },
-            { x: this.definition.width - triangleWidth - lineExtend, y: triangleHeight },
-            { x: this.definition.width, y: this.definition.height / 2 },
-            { x: this.definition.width - triangleWidth - lineExtend, y: this.definition.height + lineExtend },
-            { x: 0, y: this.definition.height - triangleHeight }];
+            { x: 0, y: triangleHeight + triangleLineExtend },
+            { x: this.definition.width - triangleWidth - triangleLineExtend, y: triangleHeight + triangleLineExtend },
+            { x: this.definition.width, y: this.definition.height / 2 + triangleLineExtend },
+            { x: this.definition.width - triangleWidth - triangleLineExtend, y: this.definition.height + triangleLineExtend * 2 },
+            { x: 0, y: this.definition.height - triangleHeight + triangleLineExtend }];
 
         if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0) {
-            points.splice(2, 0, { x: this.definition.width - triangleWidth - lineExtend, y: 0 - lineExtend });
-            points.splice(5, 0, { x: this.definition.width - triangleWidth - lineExtend, y: this.definition.height - triangleHeight });
+            points.splice(2, 0, { x: this.definition.width - triangleWidth - triangleLineExtend, y: 0 });
+            points.splice(5, 0, { x: this.definition.width - triangleWidth - triangleLineExtend, y: this.definition.height - triangleHeight + triangleLineExtend });
         }
         return points;
     }
@@ -114,14 +114,14 @@ export class PentagonShape extends ShapeExtension implements Shape {
     private updatePoints(object: fabric.Object) {
         let triangleWidth = Math.floor(object.height * object.scaleY * this.definition.arrowWidthPercent);
         let triangleHeight = Math.floor(object.height * object.scaleY * this.definition.arrowHeightPercent / 2);
-        let lineExtend = 0;
+        let triangleLineExtend = 0;
         if (this.definition.arrowHeightPercent && this.definition.arrowHeightPercent > 0 && triangleHeight == 0) {
-            lineExtend = 4;
+            triangleLineExtend = 4;
         }
         let scaleWidth = Math.floor(object.width * object.scaleX);
         let points = object.toJSON()['points'];
         if (points.length > 5) {
-            points[1].x = (scaleWidth - triangleWidth - lineExtend) / object.scaleX;
+            points[1].x = (scaleWidth - triangleWidth - triangleLineExtend) / object.scaleX;
             points[2].x = points[1].x;
 
             points[4].x = points[1].x;

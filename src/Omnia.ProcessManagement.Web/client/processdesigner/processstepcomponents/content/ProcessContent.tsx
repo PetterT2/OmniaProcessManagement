@@ -90,7 +90,7 @@ export class ProcessContentComponent extends VueComponentBase<ProcessContentProp
     render(h) {
         let processStepData = this.currentProcessStepReferenceData.processData;
         return (<v-card tile dark={this.omniaTheming.promoted.body.dark} color={this.omniaTheming.promoted.body.background.base} >
-            <v-card-text>
+            <v-card-text style="line-height:1.5 !important">
                 {
                     this.isLoading ? <v-skeleton-loader loading={true} height="100%" type="paragraph"></v-skeleton-loader> :
                         <omfx-multilingual-input
