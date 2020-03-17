@@ -52,7 +52,7 @@ export class PentagonShape extends ShapeExtension implements Shape {
             triangleLineExtend = 8;
         }
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition, null, null, triangleLineExtend);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, null, left, top, null, triangleLineExtend);
         let highlightProperties = this.getHighlightProperties();
         if (this.nodes) {
             let polygonNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.polygon);

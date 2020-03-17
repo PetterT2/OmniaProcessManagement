@@ -171,7 +171,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
             externalProcesStepId: this.selectedExternalProcessStepId,
             linkedRootProcessStepId: this.selectedLinkedRootProcessStepId,
             title: this.shapeTitle,
-            shape: this.shape, 
+            shape: this.shape,
             isRenderAndReset: isRenderAndReset,
             isUpdatedPosition: this.isUpdatedPosition()
         };
@@ -252,7 +252,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         else {
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle)
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle || { isMultilingualString: true })
                     .then((readyDrawingShape: DrawingShape) => {
                         this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
                         this.onDrawingShapeOptionChanged(true);
@@ -323,7 +323,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
         if (this.internalShapeDefinition) {
             OPMUtils.waitForElementAvailable(this.$el, this.previewCanvasId.toString(), () => {
                 this.initDrawingCanvas();
-                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
+                this.drawingCanvas.addShape(Guid.newGuid(), this.selectedShapeType, this.internalShapeDefinition, this.shapeTitle || { isMultilingualString: true }, this.drawingOptions.processStepId || this.drawingOptions.customLinkId, this.drawingOptions.shape ? this.drawingOptions.shape.nodes : null).then((readyDrawingShape) => {
                     this.drawingCanvas.reUpdateCanvasSize(readyDrawingShape);
                     if (this.drawingOptions.isRenderAndReset)
                         this.onDrawingShapeOptionChanged(true);
@@ -352,7 +352,7 @@ export class ShapeTypeComponent extends VueComponentBase<ShapeSelectionProps> im
 
     updateDrawedShape() {
         if (this.drawingCanvas && this.drawingCanvas.drawingShapes.length > 0) {
-            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle ? this.multilingualStore.getters.stringValue(this.shapeTitle) : "");
+            this.drawingCanvas.updateShapeDefinition(this.drawingCanvas.drawingShapes[0].id, this.internalShapeDefinition, this.shapeTitle);
             this.shape = this.drawingCanvas.drawingShapes[0].shape;
             this.onDrawingShapeOptionChanged();
         }

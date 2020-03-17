@@ -61,7 +61,7 @@ export class ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString | string, selectable?: boolean, left?: number, top?: number) {
     }
 
-    public updateShapeDefinition(definition: DrawingShapeDefinition, title: string | MultilingualString) {
+    public updateShapeDefinition(definition: DrawingShapeDefinition, title: MultilingualString) {
         if (this.fabricShapes.length < 2)
             return;
         this.definition = definition;
@@ -253,14 +253,15 @@ export class ShapeExtension implements Shape {
 
     }
 
-    public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, width?: number, height?: number) {
+    public static getTextPosition(definition: DrawingShapeDefinition, centerPoint?: fabric.Point, left?: number, top?: number, width?: number, height?: number) {
         if ((definition as DrawingPentagonShapeDefinition).isLine && definition.height > 5)
             definition.height = 5;
         width = width || definition.width;
         height = height || definition.height;
-
+        left = left || 0;
+        top = top || 0;
         if (!centerPoint)
-            centerPoint = new fabric.Point(width / 2, height / 2);
+            centerPoint = new fabric.Point(width / 2 + left, height / 2 + top);
         let tleft = centerPoint.x;
         let ttop = centerPoint.y;
 

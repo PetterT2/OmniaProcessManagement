@@ -1,6 +1,6 @@
 ﻿import { fabric } from 'fabric';
 import { DrawingCanvas } from './DrawingCanvas';
-import { Shape } from '../shapes';
+import { Shape, ShapeExtension } from '../shapes';
 import { CanvasDefinition, DrawingShape, DrawingShapeTypes } from '../../models/data/drawingdefinitions';
 import { Utils } from '@omnia/fx';
 import { DrawingShapeDefinition } from '../../models';
@@ -51,6 +51,8 @@ export class DrawingCanvasEditor extends DrawingCanvas implements CanvasDefiniti
         return new Promise<DrawingShape>((resolve, reject) => {
             super.updateShape(drawingShape, drawingOptions).then((drawingShapeResult: DrawingShape) => {
                 this.setActiveObject(drawingShapeResult);
+                this.editObject = (drawingShapeResult.shape as ShapeExtension).shapeObject[0];
+                this.addEditIcon();
                 resolve();
             }).catch(reject);
 

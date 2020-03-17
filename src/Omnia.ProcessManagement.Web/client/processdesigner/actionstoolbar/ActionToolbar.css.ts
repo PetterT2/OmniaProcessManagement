@@ -29,8 +29,7 @@ export const ActionToolbarStyles = {
             boxShadow: "0 3px 14px 2px rgba(0, 0, 0, .12)",
             display: "flex",
             justifyContent: "center",
-            transition: "padding 0.3s",
-            zIndex: ProcessDesignerStyleSettings.layerIndex.actionToolbar
+            transition: "padding 0.3s"
         });
     },
     actionButtons: style({

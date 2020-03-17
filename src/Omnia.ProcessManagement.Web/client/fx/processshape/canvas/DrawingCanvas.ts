@@ -285,11 +285,12 @@ export class DrawingCanvas implements CanvasDefinition {
         });
     }
 
-    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: string) {
+    updateShapeDefinition(id: GuidValue, definition: DrawingShapeDefinition, title: MultilingualString) {
         let currentDrawingShape = this.drawingShapes.find(s => s.id == id);
         if (currentDrawingShape) {
             (currentDrawingShape.shape as ShapeExtension).updateShapeDefinition(definition, title);
             this.reUpdateCanvasSize(currentDrawingShape);
+            currentDrawingShape.title = title;
         }
     }
 
@@ -311,9 +312,12 @@ export class DrawingCanvas implements CanvasDefinition {
             let oldShapeIndex = this.drawingShapes.findIndex(s => s.id == drawingShape.id);
             if (oldShapeIndex > -1) {
                 let currentDrawingShape = this.drawingShapes[oldShapeIndex];
+                currentDrawingShape = this.updateDrawingShapeObject(currentDrawingShape, drawingOptions);
+
                 if (!drawingOptions.isRenderAndReset) {
                     (currentDrawingShape.shape as ShapeExtension).updateShapeDefinition(drawingOptions.shapeDefinition, drawingOptions.title);
                     this.canvasObject.renderAll();
+                    currentDrawingShape.id = Guid.newGuid();
                 }
                 else {
                     //If this is not freeform, we keep the old position
@@ -327,22 +331,6 @@ export class DrawingCanvas implements CanvasDefinition {
                         nodes[0].properties.angle = fabricShapeObject.angle;
                     this.drawingShapes.splice(oldShapeIndex, 1);
                     (currentDrawingShape.shape as Shape).shapeObject.forEach(n => this.canvasObject.remove(n));
-                    currentDrawingShape.title = drawingOptions.title;
-
-                    delete (currentDrawingShape as ProcessStepDrawingShape).processStepId;
-                    delete (currentDrawingShape as CustomLinkDrawingShape).linkId;
-                    delete (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId;
-
-                    currentDrawingShape.type = drawingOptions.shapeType;
-                    if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
-                        (currentDrawingShape as ProcessStepDrawingShape).processStepId = drawingOptions.processStepId;
-                    }
-                    if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
-                        (currentDrawingShape as CustomLinkDrawingShape).linkId = drawingOptions.customLinkId;
-                    }
-                    if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcessStep) {
-                        (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId = drawingOptions.externalProcesStepId;
-                    }
 
                     currentDrawingShape.shape = {
                         shapeTemplateTypeName: ShapeTemplateType[drawingOptions.shapeDefinition.shapeTemplateType],
@@ -394,6 +382,24 @@ export class DrawingCanvas implements CanvasDefinition {
         });
         drawingShape.shape = newShape;
         this.drawingShapes.push(drawingShape);
+    }
+
+    private updateDrawingShapeObject(currentDrawingShape: DrawingShape, drawingOptions: DrawingShapeOptions) {
+        delete (currentDrawingShape as ProcessStepDrawingShape).processStepId;
+        delete (currentDrawingShape as CustomLinkDrawingShape).linkId;
+        delete (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId;
+        currentDrawingShape.title = drawingOptions.title;
+        currentDrawingShape.type = drawingOptions.shapeType;
+        if (drawingOptions.shapeType == DrawingShapeTypes.ProcessStep) {
+            (currentDrawingShape as ProcessStepDrawingShape).processStepId = drawingOptions.processStepId;
+        }
+        if (drawingOptions.shapeType == DrawingShapeTypes.CustomLink) {
+            (currentDrawingShape as CustomLinkDrawingShape).linkId = drawingOptions.customLinkId;
+        }
+        if (drawingOptions.shapeType == DrawingShapeTypes.ExternalProcessStep) {
+            (currentDrawingShape as ExternalProcessStepDrawingShape).processStepId = drawingOptions.externalProcesStepId;
+        }
+        return currentDrawingShape;
     }
 }
 

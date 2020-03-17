@@ -54,7 +54,11 @@ export class TabsPanelComponent extends tsx.Component<TabsPanelProps>
                 this.model.activeTab = i;
             }
             result.push(
-                <v-tab onClick={() => this.onTabSelected(currentTab)}>
+                <v-tab onClick={() => {
+                    this.onTabSelected(currentTab);
+                    if (this.processDesignerStore.panels.editShapeSettingsPanel.state && this.processDesignerStore.panels.editShapeSettingsPanel.state.show)
+                        this.processDesignerStore.panels.mutations.toggleEditShapeSettingsPanel.commit(false);
+                }}>
                     <span class={TabsPanelStyles.textColor(this.omniaTheming, this.processDesignerStore.errorTabIndex.state === i)}>{currentTab.tabName}</span>
                 </v-tab>
             );

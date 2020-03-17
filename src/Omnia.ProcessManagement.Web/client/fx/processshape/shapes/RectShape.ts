@@ -35,7 +35,7 @@ export class RectShape extends ShapeExtension implements Shape {
     protected initNodes(title?: MultilingualString, selectable?: boolean, left?: number, top?: number) {
         let highlightProperties = this.getHighlightProperties();
         let position = this.correctPosition(left, top);
-        let textPosition = ShapeExtension.getTextPosition(this.definition);
+        let textPosition = ShapeExtension.getTextPosition(this.definition, null, left, top);
 
         if (this.nodes) {
             let rectNode = this.nodes.find(n => n.fabricShapeDataType == FabricShapeDataTypes.rect);
